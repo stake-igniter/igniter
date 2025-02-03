@@ -54,9 +54,6 @@ importers:
 
   apps/web:
     dependencies:
-      '@next/env':
-        specifier: 15.1.6
-        version: 15.1.6
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
