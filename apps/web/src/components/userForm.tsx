@@ -21,7 +21,7 @@ function UserForm() {
         <input type="email" name="email" />
       </label>
       <button type="submit">Create User</button>
-      {state === "failed" && <p>No empty fields</p>}
+      {state === "failed" && <p>No empty fields!</p>}
       {state === "success" && <p>User created!</p>}
     </form>
   );
