@@ -1,6 +1,8 @@
 import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
+import UsersList from "@/components/users";
 import styles from "./page.module.css";
+import UserForm from "@/components/userForm";
+import { Button } from "@igniter/ui/components/button";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -22,20 +24,9 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <h1 className={styles.title}>Welcome to TurboRepo</h1>
-
-        <Button appName="docs" className={styles.secondary}>
-          Open alert
-        </Button>
+        <UsersList />
+        <UserForm />
+        <Button variant="destructive">Click Me</Button>
       </main>
     </div>
   );
