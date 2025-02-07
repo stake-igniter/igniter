@@ -4,17 +4,16 @@
   "rsc": true,
   "tsx": true,
   "tailwind": {
-    "config": "../../packages/ui/tailwind.config.ts",
+    "config": "",
     "css": "../../packages/ui/src/styles/globals.css",
     "baseColor": "zinc",
     "cssVariables": true
   },
-  "iconLibrary": "lucide",
   "aliases": {
-    "components": "@/components",
+    "components": "@/components/test",
     "hooks": "@/hooks",
     "lib": "@/lib",
-    "utils": "@repo/ui/lib/utils",
-    "ui": "@repo/ui/components"
+    "utils": "@igniter/ui/lib/utils",
+    "ui": "@igniter/ui/components"
   }
 }

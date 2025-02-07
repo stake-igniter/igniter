@@ -1,9 +1,8 @@
 {
-  "extends": "@repo/typescript-config/react-library.json",
+  "extends": "@igniter/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "dist",
     "paths": {
-      "@igniter/ui/*": ["./src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],

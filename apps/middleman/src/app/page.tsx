@@ -1,8 +1,4 @@
 import Image, { type ImageProps } from "next/image";
-import UsersList from "@/components/users";
-import styles from "./page.module.css";
-import UserForm from "@/components/userForm";
-import { Button } from "@igniter/ui/components/button";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -22,12 +18,8 @@ const ThemeImage = (props: Props) => {
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <UsersList />
-        <UserForm />
-        <Button variant="destructive">Click Me</Button>
-      </main>
+    <div>
+      <main></main>
     </div>
   );
 }
