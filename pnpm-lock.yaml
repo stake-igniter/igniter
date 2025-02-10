@@ -25,7 +25,7 @@ importers:
         version: link:../../packages/ui
       '@poktscan/vault-siwp':
         specifier: github:pokt-scan/vault-siwp
-        version: https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/863f753c00aa49f1e8dd7d95ceafd0ecfe405be3
+        version: https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833
       '@radix-ui/react-slot':
         specifier: 1.1.1
         version: 1.1.1(@types/react@19.0.8)(react@19.0.0)
@@ -1483,8 +1483,8 @@ packages:
   '@panva/hkdf@1.2.1':
     resolution: {integrity: sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==}
 
-  '@poktscan/vault-siwp@https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/863f753c00aa49f1e8dd7d95ceafd0ecfe405be3':
-    resolution: {tarball: https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/863f753c00aa49f1e8dd7d95ceafd0ecfe405be3}
+  '@poktscan/vault-siwp@https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833':
+    resolution: {tarball: https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833}
     version: 0.0.1
 
   '@radix-ui/react-compose-refs@1.1.1':
@@ -5204,7 +5204,7 @@ snapshots:
 
   '@panva/hkdf@1.2.1': {}
 
-  '@poktscan/vault-siwp@https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/863f753c00aa49f1e8dd7d95ceafd0ecfe405be3':
+  '@poktscan/vault-siwp@https://codeload.github.com/pokt-scan/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833':
     dependencies:
       '@noble/curves': 1.8.1
       apg-js: 4.4.0
