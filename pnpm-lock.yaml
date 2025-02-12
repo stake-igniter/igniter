@@ -20,6 +20,9 @@ importers:
 
   apps/middleman:
     dependencies:
+      '@igniter/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
       '@igniter/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -46,7 +49,7 @@ importers:
         version: 16.4.7
       drizzle-orm:
         specifier: 0.39.1
-        version: 0.39.1(@neondatabase/serverless@0.9.5)(@types/pg@8.11.6)(@types/react@19.0.8)(@vercel/postgres@0.10.0)(react@19.0.0)
+        version: 0.39.1(@types/pg@8.11.6)(@types/react@19.0.8)(@vercel/postgres@0.10.0)(react@19.0.0)
       lucide-react:
         specifier: 0.456.0
         version: 0.456.0(react@19.0.0)
@@ -72,9 +75,6 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(ethers@6.13.5(bufferutil@4.0.9))
     devDependencies:
-      '@igniter/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
       '@igniter/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -6078,9 +6078,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.39.1(@neondatabase/serverless@0.9.5)(@types/pg@8.11.6)(@types/react@19.0.8)(@vercel/postgres@0.10.0)(react@19.0.0):
+  drizzle-orm@0.39.1(@types/pg@8.11.6)(@types/react@19.0.8)(@vercel/postgres@0.10.0)(react@19.0.0):
     optionalDependencies:
-      '@neondatabase/serverless': 0.9.5
       '@types/pg': 8.11.6
       '@types/react': 19.0.8
       '@vercel/postgres': 0.10.0
