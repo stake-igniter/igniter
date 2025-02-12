@@ -1,7 +1,6 @@
 import { getBootstrapStatus } from "@/lib/dal";
 import { redirect } from "next/navigation";
 import BootstrapButton from "./bootstrap/button";
-import { Button } from "@/app/components/button";
 
 export default async function Page() {
   //check if system has been bootstrapped, if not redirect to that route

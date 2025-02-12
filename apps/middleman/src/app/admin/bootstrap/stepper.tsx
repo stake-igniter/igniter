@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/app/components/button";
+import { Button } from "@igniter/ui/components/button";
 import LoginWithPokt from "@/app/components/PoktIdentityProvider";
 import { defineStepper } from "@stepperize/react";
 import { redirect } from "next/navigation";
