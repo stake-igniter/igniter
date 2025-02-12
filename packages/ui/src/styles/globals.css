@@ -1,5 +1,6 @@
 @import "tailwindcss";
-
+@source "../../../../apps/";
+@source "..";
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
