@@ -1,7 +1,10 @@
 FROM node:22-alpine AS base
 
+ARG POSTGRES_URL
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+ENV POSTGRES_URL=${POSTGRES_URL}
 
 RUN npm install -g corepack@latest
 RUN corepack enable
@@ -48,8 +51,8 @@ USER nextjs
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=installer --chown=nextjs:nodejs /app/middleman/.next/standalone ./
-COPY --from=installer --chown=nextjs:nodejs /app/middleman/.next/static ./middleman/.next/static
-COPY --from=installer --chown=nextjs:nodejs /app/middleman/public ./middleman/public
+COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/.next/static ./apps/middleman/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/public ./apps/middleman/public
 
-CMD node middleman/server.js
+CMD node apps/middleman/server.js
