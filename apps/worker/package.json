@@ -1,0 +1,27 @@
+{
+  "name": "@igniter/middleman-worker",
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "dev": "npm-run-all -l build:temporal --parallel dev:temporal start:worker",
+    "dev:temporal": "tsc --build --watch ./temporal/tsconfig.json",
+    "build": "tsc --build ./tsconfig.json",
+    "start": "node -r dotenv/config ./dist/worker.js",
+    "check-types": "tsc --noEmit",
+    "build:docker": "cd ../.. && docker build -t igniter-middleman-worker:latest -f ./apps/worker/Dockerfile . --no-cache"
+  },
+  "dependencies": {
+    "@temporalio/activity": "1.11.7",
+    "@temporalio/client": "1.11.7",
+    "@temporalio/common": "1.11.7",
+    "@temporalio/worker": "1.11.7",
+    "@temporalio/workflow": "1.11.7",
+    "dotenv": "16.4.7"
+  },
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*",
+    "npm-run-all": "4.1.5"
+  }
+}

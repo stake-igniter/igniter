@@ -1,0 +1,17 @@
+{
+    "extends": "@igniter/typescript-config/base.json",
+    "compilerOptions": {
+      "plugins": [
+      ],
+      "paths": {
+        "@/*": ["./src/*"]
+      },
+      "outDir": "./dist/",
+    },
+    "include": ["./**/*.ts"],
+    "exclude": [
+      "node_modules",
+       "dist",
+    ]
+  }
+  
