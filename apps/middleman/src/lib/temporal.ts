@@ -7,7 +7,17 @@ function makeClient(): Client {
     address: process.env.TEMPORAL_URL || "localhost:7233",
     // In production, pass options to configure TLS and other settings.
   });
-  return new Client({ connection });
+
+  const NAMESPACE = getTemporalConfig().namespace;
+
+  return new Client({ connection, namespace: NAMESPACE });
+}
+
+export function getTemporalConfig() {
+  return {
+    namespace: process.env.TEMPORAL_NAMESPACE || "middleman",
+    taskQueue: process.env.TEMPORAL_TASK_QUEUE || "middleman-operations",
+  };
 }
 
 export function getTemporalClient(): Client {

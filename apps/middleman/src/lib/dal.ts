@@ -8,6 +8,8 @@ import {
   UserRole,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { TestWorkflow } from "@igniter/middleman-workflows/workflows";
+import { getTemporalClient, getTemporalConfig } from "./temporal";
 
 export async function verifySession() {
   return true;
@@ -106,4 +108,16 @@ export async function getBootstrapStatus() {
   }
 
   return { isBootstrapped: false, step: null };
+}
+
+export async function triggerTemporalWorkflow() {
+  const client = getTemporalClient();
+  const config = getTemporalConfig();
+
+  await client.workflow.start(TestWorkflow, {
+    taskQueue: config.taskQueue,
+    workflowId: "test-workflow",
+  });
+
+  return "success";
 }
