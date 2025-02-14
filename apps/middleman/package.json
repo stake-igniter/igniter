@@ -9,15 +9,16 @@
     "start": "next start",
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "build:docker": "docker build -f Dockerfile ."
+    "build:docker": "cd ../.. && docker build -t igniter-middleman:latest -f ./apps/middleman/Dockerfile ."
   },
   "dependencies": {
-    "@igniter/ui": "workspace:*",
     "@igniter/eslint-config": "workspace:*",
+    "@igniter/ui": "workspace:*",
     "@poktscan/vault-siwp": "github:pokt-scan/vault-siwp",
     "@radix-ui/react-slot": "1.1.1",
     "@stepperize/react": "^5.0.1",
     "@svgr/webpack": "^8.1.0",
+    "@temporalio/client": "1.11.7",
     "@vercel/postgres": "0.10.0",
     "class-variance-authority": "0.7.0",
     "dotenv": "16.4.7",
