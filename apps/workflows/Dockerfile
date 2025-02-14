@@ -13,7 +13,7 @@ WORKDIR /app
 RUN pnpm install turbo@2.3.4 --global
 COPY . .
 
-RUN turbo prune @igniter/middleman-worker --docker
+RUN turbo prune @igniter/middleman-workflows --docker
 
 FROM base AS installer
 RUN apt-get update
@@ -37,4 +37,4 @@ USER nodejs
 COPY --from=installer /app .
 
 ENV NODE_ENV=production
-CMD node apps/worker/dist/worker.js
+CMD node apps/workflows/dist/worker.js
