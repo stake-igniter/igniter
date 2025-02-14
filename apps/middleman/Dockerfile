@@ -2,9 +2,9 @@ FROM node:22-alpine AS base
 
 ARG POSTGRES_URL
 
+ENV HOSTNAME="0.0.0.0"
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-ENV POSTGRES_URL=${POSTGRES_URL}
 
 RUN npm install -g corepack@latest
 RUN corepack enable
