@@ -1,0 +1,17 @@
+version: "2.2"
+
+services:
+  middleman:
+    image: igniter/middleman:latest
+    container_name: middleman
+    network_mode: host
+    env_file:
+      - apps/middleman/.env
+    ports:
+      - "3000:3000"
+  worker:
+    image: igniter-middleman-worker:latest
+    container_name: worker
+    network_mode: host
+    env_file:
+      - apps/worker/.env
