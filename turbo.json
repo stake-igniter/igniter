@@ -6,7 +6,12 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["POSTGRES_URL", "TEMPORAL_URL"]
+      "env": [
+        "POSTGRES_URL",
+        "TEMPORAL_URL",
+        "TEMPORAL_NAMESPACE",
+        "TEMPORAL_TASK_QUEUE"
+      ]
     },
     "build:docker": {
       "cache": false
