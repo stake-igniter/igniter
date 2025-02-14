@@ -14,6 +14,7 @@
   "dependencies": {
     "@igniter/eslint-config": "workspace:*",
     "@igniter/ui": "workspace:*",
+    "@igniter/middleman-workflows": "workspace:*",
     "@poktscan/vault-siwp": "github:pokt-scan/vault-siwp",
     "@radix-ui/react-slot": "1.1.1",
     "@stepperize/react": "^5.0.1",
