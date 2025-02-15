@@ -110,14 +110,3 @@ export async function getBootstrapStatus() {
   return { isBootstrapped: false, step: null };
 }
 
-export async function triggerTemporalWorkflow() {
-  const client = getTemporalClient();
-  const config = getTemporalConfig();
-
-  await client.workflow.start(TestWorkflow, {
-    taskQueue: config.taskQueue,
-    workflowId: "test-workflow",
-  });
-
-  return "success";
-}
