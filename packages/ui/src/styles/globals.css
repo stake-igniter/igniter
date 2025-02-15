@@ -1,6 +1,8 @@
 @import "tailwindcss";
+/* https://github.com/shadcn-ui/ui/discussions/6486#discussioncomment-12128590 */
 @source "../../../../apps/";
 @source "..";
+
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
