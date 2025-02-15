@@ -7,7 +7,7 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "build:middleman:docker": "pnpm --filter @igniter/middleman run build:docker",
-    "build:workflows:docker": "pnpm --filter @igniter/middleman-workflows run build:docker"
+    "build:middleman-workflows:docker": "pnpm --filter @igniter/middleman-workflows run build:docker"
   },
   "workspaces": [
     "apps/*",
