@@ -8,8 +8,6 @@ import {
   UserRole,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { TestWorkflow } from "@igniter/middleman-workflows/workflows";
-import { getTemporalClient, getTemporalConfig } from "./temporal";
 
 export async function verifySession() {
   return true;
