@@ -9,9 +9,9 @@ services:
       - apps/middleman/.env
     ports:
       - "3000:3000"
-  worker:
-    image: igniter-middleman-worker:latest
+  middleman-workflows:
+    image: igniter-middleman-workflows:latest
     container_name: worker
     network_mode: host
     env_file:
-      - apps/worker/.env
+      - apps/middleman-workflows/.env

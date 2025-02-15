@@ -37,4 +37,4 @@ USER nodejs
 COPY --from=installer /app .
 
 ENV NODE_ENV=production
-CMD node apps/workflows/dist/worker.js
+CMD node apps/middlemna-workflows/dist/worker.js
