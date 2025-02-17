@@ -1,15 +1,15 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/vercel-postgres";
-import { usersTable } from "./schema";
+import { UserRole, usersTable } from "./schema";
 import "dotenv/config";
 
 async function main() {
   const db = drizzle();
 
   const user: typeof usersTable.$inferInsert = {
-    name: "John",
-    age: 30,
+    identity: "test",
     email: "john@example.com",
+    role: UserRole.User,
   };
 
   await db.insert(usersTable).values(user);
@@ -21,9 +21,9 @@ async function main() {
   await db
     .update(usersTable)
     .set({
-      age: 31,
+      email: "johnY@example.com",
     })
-    .where(eq(usersTable.email, user.email));
+    .where(eq(usersTable.email, "john@example.com"));
   console.log("User info updated!");
 }
 

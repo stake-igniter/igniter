@@ -26,18 +26,30 @@ export enum PocketNetworkMethod {
   BLOCK = "pokt_block",
 }
 
-export const PoktWalletContext = createContext({
+export const PoktWalletContext = createContext<any>({
   poktWalletAvailable: false,
-  address: null,
-  balance: null,
-  publicKey: null,
-  chain: null,
+  address: "",
+  balance: 0,
+  publicKey: "",
+  chain: "",
   isConnected: false,
-  connectWallet: () => ({ address: "" }),
-  signMessage: async () => {},
-  stakeNode: async () => {},
+  connectWallet: () => ({
+    address: "",
+  }),
+  signMessage: async (message: string, address: string) => ({
+    message: "",
+    signature: "",
+    publicKey: "",
+  }),
+  stakeNode: async (
+    amount: number,
+    chains: string[],
+    outputAddress: string,
+    operatorPublicKey: string,
+    serviceURL: string
+  ) => {},
   getAccounts: async () => {},
-  loginWithPokt: async (address: string) => ({
+  verifyPoktIdentity: async (address: string) => ({
     message: "",
     signature: "",
     publicKey: "",
@@ -49,11 +61,12 @@ export const usePoktWalletContext = () => useContext(PoktWalletContext);
 export const PoktWalletContextProvider = ({ children }: any) => {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [poktWalletAvailable, setPoktWalletAvailable] = useState<any>(null);
+  const [poktWalletAvailable, setPoktWalletAvailable] =
+    useState<boolean>(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [balance, setBalance] = useState<number | null>(null);
-  const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [address, setAddress] = useState<string>("");
+  const [balance, setBalance] = useState<number>(0);
+  const [publicKey, setPublicKey] = useState<string>("");
   const [chain, setChain] = useState<string | "TESTNET">("TESTNET");
 
   const requestAccounts = async () => {
@@ -94,11 +107,12 @@ export const PoktWalletContextProvider = ({ children }: any) => {
         }, 200);
       });
     } catch (err) {
-      signOut({ redirect: Boolean(router.pathname !== "/landing") });
+      //REVIEW THIS
+      signOut({ redirect: true });
     }
   };
 
-  const loginWithPokt = async (address: string) => {
+  const verifyPoktIdentity = async (address: string) => {
     try {
       const message = new SiwpMessage({
         domain: window.location.host,
@@ -148,11 +162,11 @@ export const PoktWalletContextProvider = ({ children }: any) => {
   };
 
   const stakeNode = async (
-    amount,
-    chains,
-    outputAddress,
-    operatorPublicKey,
-    serviceURL
+    amount: number,
+    chains: string[],
+    outputAddress: string,
+    operatorPublicKey: string,
+    serviceURL: string
   ) => {
     return new Promise((resolve, reject) => {
       window.pocketNetwork
@@ -225,7 +239,7 @@ export const PoktWalletContextProvider = ({ children }: any) => {
         poktWalletAvailable,
         connectWallet,
         isConnected,
-        loginWithPokt,
+        verifyPoktIdentity,
         signMessage,
         stakeNode,
         getAccounts,

@@ -5,14 +5,20 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "build:middleman:docker": "pnpm --filter @igniter/middleman run build:docker",
+    "build:middleman-workflows:docker": "pnpm --filter @igniter/middleman-workflows run build:docker"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "devDependencies": {
     "prettier": "^3.4.2",
     "turbo": "^2.3.4",
     "typescript": "5.7.3"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.3.0",
   "engines": {
     "node": ">=18"
   }

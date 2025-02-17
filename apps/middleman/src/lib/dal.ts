@@ -49,10 +49,11 @@ export async function getOwnerUser() {
     .where(eq(usersTable.role, UserRole.Owner));
 }
 
-export async function createUser(identity: string, role: UserRole) {
+export async function createUser(identity: string, role?: UserRole) {
+  const userRole = role || UserRole.User;
   return await db.insert(usersTable).values({
     identity,
-    role,
+    role: userRole,
   });
 }
 
@@ -106,3 +107,4 @@ export async function getBootstrapStatus() {
 
   return { isBootstrapped: false, step: null };
 }
+

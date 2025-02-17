@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* https://github.com/shadcn-ui/ui/discussions/6486#discussioncomment-12128590 */
+@source "../../../../apps/";
+@source "..";
 
 @plugin "tailwindcss-animate";
 

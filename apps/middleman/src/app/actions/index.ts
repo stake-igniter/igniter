@@ -1,5 +1,6 @@
 "use server";
 import { SiwpMessage } from "@poktscan/vault-siwp";
+import { createUser } from "@/lib/dal";
 
 const getSiwpMessage = async (
   address: string,
@@ -26,4 +27,10 @@ const getSiwpMessage = async (
   }
 };
 
-export { getSiwpMessage };
+const createUserAndSignIn = async (prevState: any, formData: any) => {
+  const address = formData.get("address");
+  await createUser(address);
+  return true;
+};
+
+export { getSiwpMessage, createUserAndSignIn };

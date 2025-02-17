@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
+import NextAuth, { type NextAuthResult } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { SiwpMessage } from "@poktscan/vault-siwp";
 import { getUser } from "./lib/dal";
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+const authConfigResult = NextAuth({
   providers: [
     Credentials({
       id: "siwp",
@@ -25,11 +25,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           placeholder: "0x0",
         },
       },
-      authorize: async (credentials) => {
+      //@ts-ignore
+      authorize: async (credentials, req) => {
         try {
           const siwp = new SiwpMessage(
             JSON.parse((credentials?.message || "{}") as string)
           );
+
           const nextAuthUrl = new URL(process.env.NEXTAUTH_URL ?? "");
 
           const result = await siwp.verify({
@@ -62,3 +64,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     signIn: "/auth/login",
   },
 });
+
+export const handlers: NextAuthResult["handlers"] = authConfigResult.handlers;
+export const auth: NextAuthResult["auth"] = authConfigResult.auth;
+export const signIn: NextAuthResult["signIn"] = authConfigResult.signIn;
+export const signOut: NextAuthResult["signOut"] = authConfigResult.signOut;
