@@ -7,6 +7,23 @@
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
+@theme {
+  --color-black-1: #0a0e13;
+  --color-white-1: #bccada;
+  --color-white-2: #9faec1;
+  --color-white-3: #788aa0;
+  --color-white-4: #526277;
+  --color-green-1: #86c74c;
+  --color-yellow-1: #ffa834;
+  --color-slate-1: #263141;
+  --color-slate-2: #1c2532;
+
+  --font-sans: var(--font-jost);
+  --font-mono: var(--font-overpass-mono);
+
+  --header-height: 72px;
+}
+
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(240 10% 3.9%);
@@ -41,45 +58,68 @@
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --sidebar: hsl(0 0% 98%);
 }
 
 .dark {
-  --background: hsl(240 10% 3.9%);
-  --foreground: hsl(0 0% 98%);
-  --card: hsl(240 10% 3.9%);
-  --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(240 10% 3.9%);
-  --popover-foreground: hsl(0 0% 98%);
-  --primary: hsl(0 0% 98%);
-  --primary-foreground: hsl(240 5.9% 10%);
-  --secondary: hsl(240 3.7% 15.9%);
-  --secondary-foreground: hsl(0 0% 98%);
-  --muted: hsl(240 3.7% 15.9%);
-  --muted-foreground: hsl(240 5% 64.9%);
+  --black-dividers: #202832;
+  --shadow-1: rgba(0, 0, 0, 0.4);
+  --slate-dividers: #303b4c;
+  --overlay: rgba(0, 0, 0, 0.75);
+  --notification-bg: #78d3f7;
+  --notification-text: #083547;
+  --input-bg: #0f161f;
+  --input-border: #283341;
+  --input-border-focus: #78d3f7;
+  --input-shadow-focus: rgba(120, 211, 247, 0.16);
+
+  --button-1-border: #234064;
+  --button-1-bg: #152d4a;
+  --button-2-border: #384457;
+  --button-2-bg-disabled: #242f3e;
+
+  --background: var(--color-black-1);
+  --foreground: var(--color-white-1);
+  --card: var(--color-slate-2);
+  --card-foreground: var(--color-white-1);
+  --popover: var(--color-slate-2);
+  --popover-foreground: var(--color-white-1);
+  --primary: var(--button-1-bg);
+  --primary-foreground: var(--color-white-1);
+  --secondary: var(--color-slate-1);
+  --secondary-foreground: var(--color-white-1);
+  --muted: var(--color-slate-2);
+  --muted-foreground: var(--color-white-3);
+
+  --slightly-muted-foreground: var(--color-white-2);
+
   --accent: hsl(240 3.7% 15.9%);
   --accent-foreground: hsl(0 0% 98%);
+  --success: hsl(120 62.8% 30.6%);
+  --success-foreground: var(--color-green-1);
   --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(0 0% 98%);
-  --border: hsl(240 3.7% 15.9%);
-  --input: hsl(240 3.7% 15.9%);
-  --ring: hsl(240 4.9% 83.9%);
+  --destructive-foreground: var(--color-yellow-1);
+  --border: var(--black-dividers);
+  --input: var(--input-border);
+  --ring: hsl(30 80% 55%);
   --chart-1: hsl(220 70% 50%);
   --chart-2: hsl(160 60% 45%);
   --chart-3: hsl(30 80% 55%);
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
-  --sidebar-background: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-background: var(--color-black-1);
+  --sidebar-foreground: var(--color-white-2);
   --sidebar-primary: hsl(224.3 76.3% 48%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent: #151d27;
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-border: hsl(240, 54%, 41%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  --sidebar: hsl(240 5.9% 10%);
 }
 
 @theme inline {
-  --color-background: var(--background);
+  --color-background: var(--color-black-1);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -184,7 +224,6 @@ button {
 
 * {
   box-sizing: border-box;
-  font-family: var(--font-jost);
 }
 
 a {
