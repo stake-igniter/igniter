@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border",
   {
     variants: {
       variant: {
@@ -52,6 +52,64 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 );
+
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+interface ButtonGroupProps {
+  className?: string;
+  activeButton?: number;
+  orientation?: "horizontal" | "vertical";
+  children: React.ReactElement<ButtonProps>[];
+}
+
+const ButtonGroup = ({
+  className,
+  activeButton,
+  orientation = "horizontal",
+  children,
+}: ButtonGroupProps) => {
+  const totalButtons = React.Children.count(children);
+  const isHorizontal = orientation === "horizontal";
+  const isVertical = orientation === "vertical";
+
+  return (
+    <div
+      className={cn(
+        "flex",
+        {
+          "flex-col": isVertical,
+          "w-fit": isVertical,
+        },
+        className
+      )}
+    >
+      {React.Children.map(children, (child, index) => {
+        const isFirst = index === 0;
+        const isLast = index === totalButtons - 1;
+        const isActive = activeButton === index;
+        const fontWeight = "font-normal";
+
+        return React.cloneElement(child, {
+          className: cn(
+            {
+              "rounded-s-none": isHorizontal && !isFirst,
+              "rounded-e-none": isHorizontal && !isLast,
+              "border-s-0": isHorizontal && !isFirst,
+
+              "rounded-t-none": isVertical && !isFirst,
+              "rounded-b-none": isVertical && !isLast,
+              "border-t-0": isVertical && !isFirst,
+              "bg-(--input-bg)": isActive,
+              "text-(--muted-foreground)": !isActive,
+              [fontWeight]: true,
+            },
+            child.props.className
+          ),
+          variant: "secondary",
+        });
+      })}
+    </div>
+  );
+};
+
+export { Button, ButtonGroup, buttonVariants };
