@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import { Jost, Overpass_Mono } from "next/font/google";
 import { PoktWalletContextProvider } from "@/app/context/poktWallet";
-import { useSession, SessionProvider } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "./theme";
 import "./globals.css";
+import AppBar from "./components/appbar/AppBar";
+import { CurrencyContextProvider } from "./context/currency";
+import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
+import AppSidebar from "@/app/components/sidebar/Sidebar";
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -31,18 +36,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jost.variable}`}>
+    <html
+      lang="en"
+      className={`${overpass_mono.variable} ${jost.variable} overflow-hidden`}
+      suppressHydrationWarning
+    >
       <body>
         <SessionProvider>
-          <PoktWalletContextProvider>
-            <div
-              className={
-                "w-full h-full flex items-center justify-center overflow-x-hidden"
-              }
-            >
-              <div className={"w-full"}>{children}</div>
-            </div>
-          </PoktWalletContextProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <PoktWalletContextProvider>
+              <CurrencyContextProvider>
+                <SidebarProvider className="flex flex-col">
+                  <AppBar />
+                  <div className="flex flex-1">
+                    <AppSidebar />
+                    <SidebarInset>
+                      <div
+                        className={
+                          "w-full h-full flex items-center justify-center overflow-x-hidden"
+                        }
+                      >
+                        <div className={"w-full"}>{children}</div>
+                      </div>
+                    </SidebarInset>
+                  </div>
+                </SidebarProvider>
+              </CurrencyContextProvider>
+            </PoktWalletContextProvider>
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>
