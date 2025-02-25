@@ -56,12 +56,8 @@ export default function RootLayout({
                   <div className="flex flex-1">
                     <AppSidebar />
                     <SidebarInset>
-                      <div
-                        className={
-                          "w-full h-full flex items-center justify-center overflow-x-hidden"
-                        }
-                      >
-                        <div className={"w-full"}>{children}</div>
+                      <div className={"w-full h-full flex overflow-x-hidden"}>
+                        {children}
                       </div>
                     </SidebarInset>
                   </div>
