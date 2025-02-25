@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@igniter/ui/components/button";
-import PoktIcon from "@/app/assets/pocket_logo.svg";
+import PoktIcon from "@/app/assets/logo/pocket_logo.svg";
 import { usePoktWalletContext } from "@/app/context/poktWallet";
 import { signIn } from "next-auth/react";
 import { createUserAndSignIn } from "../actions";
@@ -95,7 +95,6 @@ const PoktIdentityProvider: React.FC<PoktIdentityProviderProps> = ({
         <input type="hidden" name="message" value={signUpData?.message} />
         <input type="hidden" name="signature" value={signUpData?.signature} />
         <input type="hidden" name="publicKey" value={signUpData?.publicKey} />
-        <button type="submit">Create User</button>
       </form>
     </div>
   );
