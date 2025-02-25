@@ -3,6 +3,7 @@
 import { Price as PriceType } from "@/lib/price";
 import { roundAndSeparate } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import ChangeIndicator from "./ChangeIndicator";
 
 interface PriceProps extends PriceType {
   showLabel?: boolean;
@@ -20,23 +21,11 @@ export default function Price({
   const theme = useTheme();
   const isLightMode = theme.theme === "light";
 
-  const changeValue = `(${usd_24h_change < 0 ? "-" : ""}${roundAndSeparate(Math.abs(usd_24h_change), 2)})%`;
-
-  let changeColor: string;
-
-  if (usd_24h_change > 0) {
-    changeColor = "text-(--success)";
-  } else if (usd_24h_change < 0) {
-    changeColor = "text-(--destructive-foreground)";
-  } else {
-    changeColor = "text-neutral-400";
-  }
-
   const color = `text-(${priceColor})`;
   const text = `text-${fontSize}`;
 
   return (
-    <p className={`${text} font-mono`}>
+    <p className={`${text} font-mono flex flex-row items-center gap-3`}>
       {showLabel && (
         <span className="text-(--slightly-muted-foreground)">$POKT</span>
       )}
@@ -44,7 +33,7 @@ export default function Price({
         {" "}
         $ {usd ? roundAndSeparate(usd, 5) : "-"}{" "}
       </span>
-      <span className={changeColor}>{changeValue}</span>
+      <ChangeIndicator change={usd_24h_change} />
     </p>
   );
 }
