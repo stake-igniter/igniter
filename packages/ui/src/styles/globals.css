@@ -92,6 +92,7 @@
   --muted-foreground: var(--color-white-3);
 
   --slightly-muted-foreground: var(--color-white-2);
+  --very-muted-foreground: var(--color-white-4);
 
   --accent: hsl(240 3.7% 15.9%);
   --accent-foreground: hsl(0 0% 98%);
@@ -198,23 +199,23 @@ body {
 }
 
 h1 {
-  font-size: 2rem;
-  font-weight: 500;
+  font-size: 2.2rem;
 }
 
 h2 {
   font-size: 1.5rem;
-  font-weight: 500;
 }
 
 h3 {
   font-size: 1.25rem;
-  font-weight: 500;
 }
 
 h4 {
   font-size: 1rem;
-  font-weight: 500;
+}
+
+p {
+  font-size: 0.875rem;
 }
 
 button {
