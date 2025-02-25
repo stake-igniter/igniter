@@ -18,6 +18,8 @@ import SettingsDark from "@/app/assets/icons/dark/settings.svg";
 import HelpDark from "@/app/assets/icons/dark/help.svg";
 import ContactDark from "@/app/assets/icons/dark/contact.svg";
 
+import SootheLogo from "@/app/assets/logo/soothe_logo_dark.svg";
+
 const mainRoutes = [
   {
     title: "Overview",
@@ -101,6 +103,22 @@ export default function AppSidebar({
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <div className="border rounded-md flex flex-row justify-between items-center py-2 px-4">
+              <div className="flex flex-col">
+                <p className="font-medium">Soothe Wallet</p>
+                <p className="text-(--very-muted-foreground)">Get Extension</p>
+              </div>
+              <div>
+                <SootheLogo />
+              </div>
+            </div>
+            <div className="p-1 mt-4 text-(--very-muted-foreground)">
+              <p>Igniter © 2024 ToS</p>
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarFooter>
