@@ -1,13 +1,13 @@
-import { getRandomInt, getShortAddress } from "@/lib/utils";
+import { getRandomInt, getShortAddress } from "../../../../../apps/middleman/src/lib/utils";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@igniter/ui/components/avatar";
-import Avatar1 from "@/app/assets/avatar/fallback-1.svg";
-import Avatar2 from "@/app/assets/avatar/fallback-2.svg";
-import Avatar3 from "@/app/assets/avatar/fallback-3.svg";
-import Avatar4 from "@/app/assets/avatar/fallback-4.svg";
+} from "@/components/avatar";
+import Avatar1 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-1.svg";
+import Avatar2 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-2.svg";
+import Avatar3 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-3.svg";
+import Avatar4 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-4.svg";
 
 export function UserAvatar({
   address,

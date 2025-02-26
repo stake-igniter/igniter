@@ -4,10 +4,6 @@ import { PoktWalletContextProvider } from "@/app/context/poktWallet";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "./theme";
 import "./globals.css";
-import AppBar from "./components/appbar/AppBar";
-import { CurrencyContextProvider } from "./context/currency";
-import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
-import AppSidebar from "@/app/components/sidebar/Sidebar";
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -50,19 +46,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <PoktWalletContextProvider>
-              <CurrencyContextProvider>
-                <SidebarProvider className="flex flex-col">
-                  <AppBar />
-                  <div className="flex flex-1">
-                    <AppSidebar />
-                    <SidebarInset>
-                      <div className={"w-full h-full flex overflow-x-hidden"}>
-                        {children}
-                      </div>
-                    </SidebarInset>
-                  </div>
-                </SidebarProvider>
-              </CurrencyContextProvider>
+              {children}
             </PoktWalletContextProvider>
           </ThemeProvider>
         </SessionProvider>

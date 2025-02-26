@@ -1,7 +1,7 @@
 import Logo from "./poktscan_logo_dark.svg";
 import Link from "next/link";
-import PlaceholderLogo from "@/app/assets/logo/placeholder_logo.svg";
-import PriceWidget from "./PriceWidget";
+import PlaceholderLogo from "../../../../../apps/middleman/src/app/assets/logo/placeholder_logo.svg";
+import PriceWidget from "../../../../../apps/middleman/src/app/components/PriceWidget";
 import CurrencySelector from "./CurrencySelector";
 import UserMenu from "./UserMenu";
 

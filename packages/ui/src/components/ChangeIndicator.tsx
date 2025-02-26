@@ -1,5 +1,5 @@
-import ChangeUpIcon from "@/app/assets/icons/dark/change_up.svg";
-import ChangeDownIcon from "@/app/assets/icons/dark/change_down.svg";
+import ChangeUpIcon from "@/assets/icons/dark/change_up.svg";
+import ChangeDownIcon from "@/assets/icons/dark/change_down.svg";
 import { roundAndSeparate } from "@/lib/utils";
 
 interface ChangeIndicatorProps {

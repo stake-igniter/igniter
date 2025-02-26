@@ -8,17 +8,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@igniter/ui/components/sidebar";
+} from "@/components/sidebar";
 
-import OverviewDark from "@/app/assets/icons/dark/overview.svg";
-import ActivityDark from "@/app/assets/icons/dark/activity.svg";
-import NodesDark from "@/app/assets/icons/dark/nodes.svg";
-import ProvidersDark from "@/app/assets/icons/dark/providers.svg";
-import SettingsDark from "@/app/assets/icons/dark/settings.svg";
-import HelpDark from "@/app/assets/icons/dark/help.svg";
-import ContactDark from "@/app/assets/icons/dark/contact.svg";
+import OverviewDark from "../../../../../apps/middleman/src/app/assets/icons/dark/overview.svg";
+import ActivityDark from "../../../../../apps/middleman/src/app/assets/icons/dark/activity.svg";
+import NodesDark from "../../../../../apps/middleman/src/app/assets/icons/dark/nodes.svg";
+import ProvidersDark from "../../../../../apps/middleman/src/app/assets/icons/dark/providers.svg";
+import SettingsDark from "../../../../../apps/middleman/src/app/assets/icons/dark/settings.svg";
+import HelpDark from "../../../../../apps/middleman/src/app/assets/icons/dark/help.svg";
+import ContactDark from "../../../../../apps/middleman/src/app/assets/icons/dark/contact.svg";
 
-import SootheLogo from "@/app/assets/logo/soothe_logo_dark.svg";
+import SootheLogo from "../../../../../apps/middleman/src/app/assets/logo/soothe_logo_dark.svg";
 
 const mainRoutes = [
   {

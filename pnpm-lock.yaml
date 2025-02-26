@@ -143,40 +143,6 @@ importers:
         specifier: 6.2.1
         version: 6.2.1(typescript@5.7.3)
 
-  apps/workflows:
-    dependencies:
-      '@temporalio/activity':
-        specifier: 1.11.7
-        version: 1.11.7
-      '@temporalio/client':
-        specifier: 1.11.7
-        version: 1.11.7
-      '@temporalio/common':
-        specifier: 1.11.7
-        version: 1.11.7
-      '@temporalio/worker':
-        specifier: 1.11.7
-        version: 1.11.7(@swc/helpers@0.5.15)
-      '@temporalio/workflow':
-        specifier: 1.11.7
-        version: 1.11.7
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-    devDependencies:
-      '@igniter/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@igniter/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
-      npm-run-all:
-        specifier: 4.1.5
-        version: 4.1.5
-      tsc-watch:
-        specifier: ^6.2.1
-        version: 6.2.1(typescript@5.7.3)
-
   packages/eslint-config:
     devDependencies:
       '@eslint/js':
@@ -218,22 +184,22 @@ importers:
   packages/ui:
     dependencies:
       '@radix-ui/react-avatar':
-        specifier: ^1.1.3
+        specifier: 1.1.3
         version: 1.1.3(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-dialog':
-        specifier: ^1.1.6
+        specifier: 1.1.6
         version: 1.1.6(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-dropdown-menu':
-        specifier: ^2.1.6
+        specifier: 2.1.6
         version: 2.1.6(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-separator':
-        specifier: ^1.1.2
+        specifier: 1.1.2
         version: 1.1.2(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-slot':
         specifier: 1.1.1
         version: 1.1.1(@types/react@19.0.8)(react@19.0.0)
       '@radix-ui/react-tooltip':
-        specifier: ^1.1.8
+        specifier: 1.1.8
         version: 1.1.8(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@tailwindcss/postcss':
         specifier: 4.0.3

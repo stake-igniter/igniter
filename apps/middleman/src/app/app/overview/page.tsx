@@ -1,6 +1,6 @@
 import { Button } from "@igniter/ui/components/button";
-import ChangeIndicator from "../components/ChangeIndicator";
-import BinCardList from "./BinCardList";
+import ChangeIndicator from "@igniter/ui/components/ChangeIndicator";
+import BinCardList from "./components/BinCardList";
 
 export const dynamic = "force-dynamic";
 

@@ -1,19 +1,20 @@
 "use client";
 
-import { Price as PriceType } from "@/lib/price";
 import { roundAndSeparate } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import ChangeIndicator from "./ChangeIndicator";
 
-interface PriceProps extends PriceType {
+interface PriceProps {
+  value: number;
+  change: number;
   showLabel?: boolean;
   priceColor?: string;
   fontSize?: string;
 }
 
 export default function Price({
-  usd,
-  usd_24h_change,
+  value,
+  change,
   showLabel = true,
   priceColor = "--primary",
   fontSize = "sm",
@@ -31,9 +32,9 @@ export default function Price({
       )}
       <span className={`${color}`}>
         {" "}
-        $ {usd ? roundAndSeparate(usd, 5) : "-"}{" "}
+        $ {value ? roundAndSeparate(value, 5) : "-"}{" "}
       </span>
-      <ChangeIndicator change={usd_24h_change} />
+      <ChangeIndicator change={change} />
     </p>
   );
 }

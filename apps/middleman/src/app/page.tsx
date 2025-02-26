@@ -19,7 +19,9 @@ const ThemeImage = (props: Props) => {
 export default function Home() {
   return (
     <div>
-      <main></main>
+      <main>
+          Hello, landing here!
+      </main>
     </div>
   );
 }
