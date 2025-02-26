@@ -1,7 +1,37 @@
-import {CurrencyContextProvider} from "@/app/context/currency";
+import {CurrencyContextProvider} from "@igniter/ui/context/currency";
 import {SidebarInset, SidebarProvider} from "@igniter/ui/components/sidebar";
-import AppBar from "@igniter/ui/components/appbar/AppBar";
-import AppSidebar from "@igniter/ui/components/sidebar/Sidebar";
+import AppTopBar from "@igniter/ui/components/AppTopBar/index";
+import AppSidebar from "@igniter/ui/components/AppSidebar";
+import OverviewDark from "@/app/assets/icons/dark/overview.svg";
+import SettingsDark from "@/app/assets/icons/dark/settings.svg";
+import HelpDark from "@/app/assets/icons/dark/help.svg";
+
+
+const mainRoutes = [
+    {
+        title: "Overview",
+        url: "/admin/overview",
+        icon: OverviewDark,
+    },
+    {
+        title: "Keys",
+        url: "/admin/keys",
+        icon: OverviewDark,
+    },
+    {
+        title: "Settings",
+        url: "/admin/settings",
+        icon: SettingsDark,
+    },
+];
+
+const footerRoutes = [
+    {
+        title: "Help",
+        url: "/help",
+        icon: HelpDark,
+    }
+];
 
 export default function DashboardLayout({
                                             children,
@@ -11,9 +41,12 @@ export default function DashboardLayout({
     return (
         <CurrencyContextProvider>
             <SidebarProvider className="flex flex-col">
-                <AppBar />
+                <AppTopBar />
                 <div className="flex flex-1">
-                    <AppSidebar />
+                    <AppSidebar
+                        mainRoutes={mainRoutes}
+                        footerRoutes={footerRoutes}
+                        />
                     <SidebarInset>
                         <div className={"w-full h-full flex overflow-x-hidden"}>
                             <div className="flex flex-col w-full gap-6">

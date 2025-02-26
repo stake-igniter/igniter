@@ -1,16 +1,12 @@
-import { getRandomInt, getShortAddress } from "../../../../../apps/middleman/src/lib/utils";
+import { getRandomInt } from "@igniter/ui/lib/utils";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/components/avatar";
-import Avatar1 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-1.svg";
-import Avatar2 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-2.svg";
-import Avatar3 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-3.svg";
-import Avatar4 from "../../../../../apps/middleman/src/app/assets/avatar/fallback-4.svg";
+} from "@igniter/ui/components/avatar";
+import {AvatarFallbackOne, AvatarFallbackTwo, AvatarFallbackThree, AvatarFallbackFour } from "@igniter/ui/assets";
 
 export function UserAvatar({
-  address,
   selectedAvatar,
 }: {
   address: string;
@@ -23,25 +19,25 @@ export function UserAvatar({
       case 1:
         return (
           <AvatarImage src="/fallback-avatar.svg" asChild>
-            <Avatar1 />
+            <AvatarFallbackOne />
           </AvatarImage>
         );
       case 2:
         return (
           <AvatarImage src="/fallback-avatar.svg" asChild>
-            <Avatar2 />
+            <AvatarFallbackTwo />
           </AvatarImage>
         );
       case 3:
         return (
           <AvatarImage src="/fallback-avatar.svg" asChild>
-            <Avatar3 />
+            <AvatarFallbackThree />
           </AvatarImage>
         );
       case 4:
         return (
           <AvatarImage src="/fallback-avatar.svg" asChild>
-            <Avatar4 />
+            <AvatarFallbackFour />
           </AvatarImage>
         );
     }

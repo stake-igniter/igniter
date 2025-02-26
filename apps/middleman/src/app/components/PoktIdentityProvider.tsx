@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@igniter/ui/components/button";
-import PoktIcon from "@/app/assets/logo/pocket_logo.svg";
+import { PocketLogo } from "@igniter/ui/assets";
 import { usePoktWalletContext } from "@/app/context/poktWallet";
 import { signIn } from "next-auth/react";
 import { createUserAndSignIn } from "../actions";
@@ -88,7 +88,7 @@ const PoktIdentityProvider: React.FC<PoktIdentityProviderProps> = ({
         disabled={!poktWalletAvailable}
       >
         Login with POKT
-        <PoktIcon />
+        <PocketLogo />
       </Button>
       <form action={formAction}>
         <input type="hidden" name="address" value={signUpData?.address} />

@@ -5,9 +5,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/dropdown-menu";
+} from "@igniter/ui/components/dropdown-menu";
 import { UserAvatar } from "./UserAvatar";
-import { getRandomInt, getShortAddress } from "../../../../../apps/middleman/src/lib/utils";
+import { getRandomInt, getShortAddress } from "@igniter/ui/lib/utils";
 
 export default function UserMenu() {
   const randomAvatar = getRandomInt(1, 4);

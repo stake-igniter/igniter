@@ -1,6 +1,5 @@
-import ChangeUpIcon from "@/assets/icons/dark/change_up.svg";
-import ChangeDownIcon from "@/assets/icons/dark/change_down.svg";
-import { roundAndSeparate } from "@/lib/utils";
+import {ChangeDownIcon, ChangeUpIcon} from "@igniter/ui/assets";
+import { roundAndSeparate } from "@igniter/ui/lib/utils";
 
 interface ChangeIndicatorProps {
   change: number;

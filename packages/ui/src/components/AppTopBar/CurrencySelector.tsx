@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Currency, useCurrency } from "../../../../../apps/middleman/src/app/context/currency";
-import { Button, ButtonGroup } from "@/components/button";
+import { Currency, useCurrency } from "@igniter/ui/context/currency";
+import { Button, ButtonGroup } from "@igniter/ui/components/button";
 
 const CurrencySelector: React.FC = () => {
   const { currency, toggleCurrency } = useCurrency();

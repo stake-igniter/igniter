@@ -1,6 +1,6 @@
 "use client";
 
-import { roundAndSeparate } from "@/lib/utils";
+import { roundAndSeparate } from "@igniter/ui/lib/utils";
 import { useTheme } from "next-themes";
 import ChangeIndicator from "./ChangeIndicator";
 
@@ -20,7 +20,6 @@ export default function Price({
   fontSize = "sm",
 }: PriceProps) {
   const theme = useTheme();
-  const isLightMode = theme.theme === "light";
 
   const color = `text-(${priceColor})`;
   const text = `text-${fontSize}`;
