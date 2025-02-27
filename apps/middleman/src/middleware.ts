@@ -1,14 +1,27 @@
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import authConfig from "./auth.config";
 
-export default async function middleware(req: NextRequest) {
-  const session = await auth();
+const { auth } = NextAuth(authConfig);
 
-  if (!session) {
-    return NextResponse.redirect(new URL("/auth/login", req.url));
+const middleware: any = auth(async (req: NextRequest) => {
+  //@ts-ignore
+  const isLoggedIn = !!req.auth;
+  const authCookie = req.cookies.get("authjs.session-token");
+
+  const decodedCookie = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+  });
+
+  if (!isLoggedIn) {
+    return NextResponse.redirect(new URL("/", req.nextUrl));
   }
-}
+});
+
+export default middleware;
 
 export const config = {
-  matcher: [/*"/dashboard/:path*",*/ "/admin/dashboard/:path*"],
+  matcher: ["/app/:path*", "/admin/:path*"],
 };
