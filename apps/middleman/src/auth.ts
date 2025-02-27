@@ -32,7 +32,7 @@ const authConfigResult = NextAuth({
             JSON.parse((credentials?.message || "{}") as string)
           );
 
-          const nextAuthUrl = new URL(process.env.NEXTAUTH_URL ?? "");
+          const nextAuthUrl = new URL(process.env.AUTH_URL ?? "");
 
           const result = await siwp.verify({
             signature: (credentials?.signature as string) || "",
@@ -43,14 +43,11 @@ const authConfigResult = NextAuth({
           let user;
 
           if (result.success) {
-            console.log("SIWP verification successful");
+            //siwp verification successful, need to fetch and/or create user in db.
 
             user = await getUser(siwp.address);
 
-            return {
-              id: user?.id,
-              address: user?.identity,
-            };
+            return user;
           }
           return null;
         } catch (error) {
@@ -61,7 +58,19 @@ const authConfigResult = NextAuth({
     }),
   ],
   pages: {
-    signIn: "/auth/login",
+    signIn: "/",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user = token.user;
+      return session;
+    },
   },
 });
 
