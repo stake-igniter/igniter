@@ -1,6 +1,5 @@
 import { getBootstrapStatus } from "@/lib/dal";
 import { redirect } from "next/navigation";
-import BootstrapButton from "./bootstrap/button";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +9,8 @@ export default async function Page() {
   const { isBootstrapped } = await getBootstrapStatus();
 
   if (isBootstrapped) {
-    return redirect("/admin/dashboard");
+    return redirect("/admin/overview");
+  } else {
+    return redirect("/admin/setup");
   }
-
-  return (
-    <>
-      <h1>Welcome to Igniter!</h1>
-      <h4>Please complete our system setup:</h4>
-      <BootstrapButton />
-    </>
-  );
 }

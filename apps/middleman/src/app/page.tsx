@@ -1,4 +1,5 @@
 import Image, { type ImageProps } from "next/image";
+import LoginWithPokt from "@/app/components/PoktIdentityProvider";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -19,7 +20,8 @@ const ThemeImage = (props: Props) => {
 export default function Home() {
   return (
     <div>
-      <main></main>
+      <main>Hello, landing here!</main>
+      <LoginWithPokt />
     </div>
   );
 }

@@ -210,6 +210,7 @@ export const PoktWalletContextProvider = ({ children }: any) => {
         console.error(err);
       });
 
+    //TODO: Check this method erroring out
     window.pocketNetwork
       .send(PocketNetworkMethod.BALANCE, [{ address }])
       .then((res: { balance: number }) => {
