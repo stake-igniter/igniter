@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Jost, Overpass_Mono } from "next/font/google";
-import { PoktWalletContextProvider } from "@/app/context/poktWallet";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "./theme";
 import "./globals.css";
+import {WalletConnectionContext, WalletConnectionProvider} from "@/app/context/WalletConnection";
+import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -45,9 +46,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <PoktWalletContextProvider>
-              {children}
-            </PoktWalletContextProvider>
+            <ApplicationSettingsProvider>
+              <WalletConnectionProvider>
+                {children}
+              </WalletConnectionProvider>
+            </ApplicationSettingsProvider>
           </ThemeProvider>
         </SessionProvider>
       </body>

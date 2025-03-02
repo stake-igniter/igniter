@@ -1,40 +1,71 @@
 "use client";
 
+import {getCsrfToken, signIn} from "next-auth/react";
+import {useEffect} from "react";
+import {SiwpMessage} from "@poktscan/vault-siwp";
 import { Button } from "@igniter/ui/components/button";
 import { PocketLogo } from "@igniter/ui/assets";
-import { usePoktWalletContext } from "@/app/context/poktWallet";
-import { signIn } from "next-auth/react";
+import {useWalletConnection} from "@/app/context/WalletConnection";
+import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 
-interface PoktIdentityProviderProps {
-  withSignUp?: boolean;
-}
+const PoktIdentityProvider = () => {
+  const {
+    isWalletAvailable,
+    isConnected,
+    connectedIdentity,
+    connect,
+    getChain,
+    getPublicKey,
+    switchChain,
+    signMessage
+  } = useWalletConnection();
 
-const PoktIdentityProvider: React.FC<PoktIdentityProviderProps> = () => {
-  const { connectWallet, poktWalletAvailable, verifyPoktIdentity } =
-    usePoktWalletContext();
+  const { configuredChain } = useApplicationSettings();
 
-  const handleLogin = async () => {
+  const authenticateUser = async (address: string) => {
     try {
-      const { address } = await connectWallet();
-      const { message, signature, publicKey } =
-        await verifyPoktIdentity(address);
+      const chainOnWallet = await getChain();
+
+      if (chainOnWallet !== configuredChain?.toLowerCase()) {
+        await switchChain('mainnet');
+      }
+
+      const message = new SiwpMessage({
+        domain: window.location.host,
+        address,
+        statement: "Sign in to Igniter",
+        uri: window.location.origin,
+        version: "1",
+        chainId: configuredChain,
+        nonce: await getCsrfToken(),
+      });
+
+      const signature = await signMessage(message.prepareMessage(), address);
+      const publicKey = await getPublicKey(address);
 
       signIn("siwp", {
         message: JSON.stringify(message),
         signature,
         publicKey,
-        redirectTo: "/app",
       });
     } catch (error) {
       console.error(error);
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      if (isConnected && connectedIdentity) {
+        await authenticateUser(connectedIdentity);
+      }
+    })();
+  }, [isConnected, connectedIdentity]);
+
   return (
     <Button
-      onClick={handleLogin}
+      onClick={connect}
       variant="secondary"
-      disabled={!poktWalletAvailable}
+      disabled={!isWalletAvailable}
     >
       Login with POKT
       <PocketLogo />

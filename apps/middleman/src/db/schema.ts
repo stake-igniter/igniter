@@ -32,12 +32,16 @@ export const usersTable = pgTable("users", {
   email: varchar({ length: 255 }).unique(),
   role: roleEnum().notNull(),
   createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
 });
+
+export type User = typeof usersTable.$inferSelect;
 
 export const systemEventsTable = pgTable("system_events", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: systemEventEnum().notNull(),
   createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
 });
 
 export const providersTable = pgTable("providers", {
@@ -45,4 +49,16 @@ export const providersTable = pgTable("providers", {
   name: varchar({ length: 255 }).notNull(),
   publicKey: varchar({ length: 255 }).notNull(),
   createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
 });
+
+export type Provider = typeof providersTable.$inferSelect;
+
+export const applicationSettingsTable = pgTable("application_settings", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  configuredChain: varchar({ length: 255 }).notNull(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+
+export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
