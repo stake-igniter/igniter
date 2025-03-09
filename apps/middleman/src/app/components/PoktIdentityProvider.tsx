@@ -5,7 +5,7 @@ import {useEffect} from "react";
 import {SiwpMessage} from "@poktscan/vault-siwp";
 import { Button } from "@igniter/ui/components/button";
 import { PocketLogo } from "@igniter/ui/assets";
-import {useWalletConnection} from "@/app/context/WalletConnection";
+import {useWalletConnection} from "../../../../../packages/ui/src/context/WalletConnection";
 
 const PoktIdentityProvider = () => {
   const {

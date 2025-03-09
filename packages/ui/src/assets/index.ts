@@ -7,3 +7,4 @@ export { default as AvatarFallbackOne } from './avatar/fallback-1.svg';
 export { default as AvatarFallbackTwo } from './avatar/fallback-2.svg';
 export { default as AvatarFallbackThree } from './avatar/fallback-3.svg';
 export { default as AvatarFallbackFour } from './avatar/fallback-4.svg';
+export { default as HorizontalArrowIcon } from './icons/dark/horizontal_arrow.svg';

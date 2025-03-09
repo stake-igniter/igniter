@@ -1,7 +1,19 @@
 "use client";
 
 import {createContext, ReactNode, useContext, useEffect, useMemo, useState} from 'react';
-import {MorseWalletConnection} from "@/app/context/WalletConnection/MorseWalletConnection";
+import {MorseWalletConnection} from "./MorseWalletConnection";
+
+export interface Provider {
+  send: (method: string, params?: any[]) => Promise<any>;
+}
+
+export interface ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: string;
+  rdns: string;
+  provider: Provider;
+};
 
 export interface WalletConnection {
   isConnected: boolean;
@@ -13,6 +25,7 @@ export interface WalletConnection {
   getBalance(address: string): Promise<number>;
   switchChain(chain: string): Promise<void>;
   signMessage(message: string, address: string): Promise<string>;
+  getAvailableProviders(): Promise<ProviderInfo[]>;
 }
 
 export const WalletConnectionContext = createContext<WalletConnection>({
@@ -40,6 +53,10 @@ export const WalletConnectionContext = createContext<WalletConnection>({
     console.warn('Method not implemented: signMessage. Something is wrong with the wallet connection provider.');
     return '';
   },
+  getAvailableProviders: async (): Promise<ProviderInfo[]> => {
+    console.warn('Method not implemented: getProvidersInfo. Something is wrong with the wallet connection provider.');
+    return [];
+  }
 });
 
 /**
@@ -86,6 +103,7 @@ export const WalletConnectionProvider = ({ children }: { children: ReactNode }) 
         getBalance: morseConnection.getBalance,
         switchChain: morseConnection.switchChain,
         signMessage: morseConnection.signMessage,
+        getAvailableProviders: morseConnection.getAvailableProviders,
       }
     }>
       {children}

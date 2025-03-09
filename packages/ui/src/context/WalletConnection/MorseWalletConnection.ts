@@ -1,4 +1,4 @@
-import {WalletConnection} from "@/app/context/WalletConnection";
+import {ProviderInfo, WalletConnection} from "@igniter/ui/context/WalletConnection/index";
 
 export enum PocketMorseMethod {
   REQUEST_ACCOUNTS = "pokt_requestAccounts",
@@ -14,7 +14,7 @@ export class MorseWalletConnection implements WalletConnection {
     connectedIdentity?: string | undefined;
 
     constructor() {
-        this.isConnected = false;
+      this.isConnected = false;
     }
 
     get isWalletAvailable(): boolean {
@@ -96,4 +96,27 @@ export class MorseWalletConnection implements WalletConnection {
       throw err;
     }
   }
+
+  getAvailableProviders = async (): Promise<ProviderInfo[]> => {
+    return new Promise<ProviderInfo[]>((resolve) => {
+      const detectedProviders: ProviderInfo[] = [];
+
+      const handleProviderAnnouncement = (event: Event) => {
+        const { detail } = event as CustomEvent<ProviderInfo>;
+        if (detail) {
+          detectedProviders.push(detail);
+        }
+      };
+
+      window.addEventListener("pocket:announceProvider", handleProviderAnnouncement);
+
+      window.dispatchEvent(new Event("pocket:requestProvider"));
+
+      setTimeout(() => {
+        window.removeEventListener("pocket:announceProvider", handleProviderAnnouncement);
+        resolve(detectedProviders);
+      }, 500);
+    });
+  };
+
 }
