@@ -1,9 +1,12 @@
-import "./globals.css";
 import type { Metadata } from "next";
 import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "./theme";
+import "@/app/globals.css";
+import { ThemeProvider } from "@/app/theme";
 import {WalletConnectionProvider} from "@/app/context/WalletConnection";
+import Divider from "@/app/(landing)/components/Divider";
+import Header from "@/app/(landing)/components/Header";
+import Footer from "@/app/(landing)/components/Footer";
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -34,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${overpass_mono.variable} ${jost.variable} overflow-hidden`}
+      className={`${overpass_mono.variable} ${jost.variable}`}
       suppressHydrationWarning
     >
       <body>
@@ -46,7 +49,14 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <WalletConnectionProvider>
-              {children}
+              <div className="flex flex-row justify-center min-h-screen bg-[var(--black-1)]">
+                <Divider top={80} />
+                <div className="w-[958px] h-full border-x border-[var(--black-dividers)]">
+                  <Header />
+                  {children}
+                  <Footer />
+                </div>
+              </div>
             </WalletConnectionProvider>
           </ThemeProvider>
         </SessionProvider>

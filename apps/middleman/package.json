@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@igniter/eslint-config": "workspace:*",
-    "@igniter/ui": "workspace:*",
     "@igniter/middleman-workflows": "workspace:*",
+    "@igniter/ui": "workspace:*",
     "@poktscan/vault-siwp": "github:pokt-scan/vault-siwp",
     "@radix-ui/react-slot": "1.1.1",
     "@stepperize/react": "^5.0.1",
@@ -24,6 +24,8 @@
     "class-variance-authority": "0.7.0",
     "dotenv": "16.4.7",
     "drizzle-orm": "0.39.1",
+    "isomorphic-dompurify": "^2.22.0",
+    "jsdom": "^26.0.0",
     "lucide-react": "0.456.0",
     "next": "15.1.6",
     "next-auth": "5.0.0-beta.25",

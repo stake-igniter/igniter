@@ -9,6 +9,7 @@
 
 @theme {
   --color-black-1: #0a0e13;
+  --color-white: #ffffff;
   --color-white-1: #bccada;
   --color-white-2: #9faec1;
   --color-white-3: #788aa0;
@@ -235,4 +236,26 @@ a {
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     @apply appearance-none;
+}
+
+@layer utilities {
+  .bg-grid {
+    background-color: var(--background);
+    background-image:
+            linear-gradient(to bottom, rgba(32, 40, 50, 0.5) 1px, transparent 1px),
+            linear-gradient(to right, rgba(32, 40, 50, 0.5) 1px, transparent 1px);
+    background-size: 11px 11px;
+  }
+
+  .dashed-path-divider {
+    @apply w-full h-px;
+    background-image: repeating-linear-gradient(
+            to right,
+            var(--black-dividers) 0,
+            var(--black-dividers) 6px,
+            transparent 6px,
+            transparent 12px
+    );
+  }
+
 }
