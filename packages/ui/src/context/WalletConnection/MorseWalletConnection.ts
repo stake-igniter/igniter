@@ -102,9 +102,12 @@ export class MorseWalletConnection implements WalletConnection {
       const detectedProviders: ProviderInfo[] = [];
 
       const handleProviderAnnouncement = (event: Event) => {
-        const { detail } = event as CustomEvent<ProviderInfo>;
+        const { detail } = event as CustomEvent<any>;
         if (detail) {
-          detectedProviders.push(detail);
+          detectedProviders.push({
+            ...detail.info,
+            provider: detail.provider,
+          });
         }
       };
 
