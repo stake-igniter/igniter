@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <div>
       <main>Hello, landing here!</main>
-      <LoginWithPokt configuredChain={'mainnet'} />
+      <LoginWithPokt />
     </div>
   );
 }

@@ -6,7 +6,6 @@ import {SiwpMessage} from "@poktscan/vault-siwp";
 import { Button } from "@igniter/ui/components/button";
 import { PocketLogo } from "@igniter/ui/assets";
 import {useWalletConnection} from "@/app/context/WalletConnection";
-import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 
 const PoktIdentityProvider = () => {
   const {
@@ -20,7 +19,8 @@ const PoktIdentityProvider = () => {
     signMessage
   } = useWalletConnection();
 
-  const { configuredChain } = useApplicationSettings();
+  // TODO: Change this to use the app settings when they are available.
+  const configuredChain = 'testnet';
 
   const authenticateUser = async (address: string) => {
     try {
