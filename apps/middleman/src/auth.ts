@@ -2,6 +2,7 @@ import NextAuth, { type NextAuthResult } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { SiwpMessage } from "@poktscan/vault-siwp";
 import { getUser } from "./lib/dal";
+import authConfig from "./auth.config";
 
 const authConfigResult = NextAuth({
   providers: [
@@ -61,15 +62,12 @@ const authConfigResult = NextAuth({
     signIn: "/",
   },
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
         token.user = user;
       }
       return token;
-    },
-    async session({ session, token }) {
-      session.user = token.user;
-      return session;
     },
   },
 });
