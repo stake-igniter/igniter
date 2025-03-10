@@ -1,6 +1,6 @@
 import {CurrencyContextProvider} from "@igniter/ui/context/currency";
 import {SidebarInset, SidebarProvider} from "@igniter/ui/components/sidebar";
-import AppToBar from "@igniter/ui/components/AppTopBar/index";
+import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
 import AppSidebar from "@igniter/ui/components/AppSidebar";
 import CurrencySelector from "@igniter/ui/components/AppTopBar/CurrencySelector";
 import UserMenu from "@igniter/ui/components/UserMenu";
@@ -59,11 +59,11 @@ export default function DashboardLayout({
   return (
       <CurrencyContextProvider>
         <SidebarProvider className="flex flex-col">
-          <AppToBar>
+          <AppTopBar>
               <PriceWidget />
               <CurrencySelector />
               <UserMenu />
-          </AppToBar>
+          </AppTopBar>
           <div className="flex flex-1">
             <AppSidebar
                 mainRoutes={mainRoutes}

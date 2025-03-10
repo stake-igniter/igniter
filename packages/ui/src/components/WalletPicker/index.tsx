@@ -51,7 +51,7 @@ export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
                 <Button variant={"secondary"}>Connect Wallet</Button>
             </DialogTrigger>
             <DialogContent className="w-[320px] pt-[20px] pb-[8px] px-[8px] rounded-lg shadow-[0_2px_12px_0_var(--shadow-1)] bg-[var(--color-slate-2)]" hideClose>
-                <div className="px-[16px] flex flex-col gap-5">
+                <div className="px-[16px] flex flex-col gap-5 h-[500px]">
                     <DialogHeader>
                         <DialogTitle className="!text-[16px] font-[var(--font-sans)] text-[var(--color-white-1)]">
                             Connect Wallet
@@ -60,7 +60,7 @@ export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
                             Login anonymously using your wallet.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 ">
                         <DialogContentSectionHeader text="detected" />
                         {detectedProvider.length > 0 && detectedProvider.map(({onSelect, ...providerProps}, index) => (
                           <WalletPickerItem key={index} {...providerProps} onSelect={(provider) => {
