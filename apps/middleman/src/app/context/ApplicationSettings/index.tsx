@@ -1,16 +1,27 @@
 "use client";
 
-import {createContext, ReactNode, useContext, useEffect, useState} from "react";
-import {getApplicationSettings} from "@/actions/ApplicationSettings";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { getApplicationSettings } from "@/actions/ApplicationSettings";
 
 export interface ApplicationSettings {
-  configuredChain?: string;
+  chainId?: string;
 }
 
 const ApplicationSettingsContext = createContext<ApplicationSettings>({});
 
-export const ApplicationSettingsProvider = ({children}: { children: ReactNode }) => {
-  const [applicationSettings, setApplicationSettings] = useState<ApplicationSettings>({});
+export const ApplicationSettingsProvider = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
+  const [applicationSettings, setApplicationSettings] =
+    useState<ApplicationSettings>({});
 
   useEffect(() => {
     (async () => {
@@ -26,4 +37,5 @@ export const ApplicationSettingsProvider = ({children}: { children: ReactNode })
   );
 };
 
-export const useApplicationSettings = () => useContext(ApplicationSettingsContext);
+export const useApplicationSettings = () =>
+  useContext(ApplicationSettingsContext);
