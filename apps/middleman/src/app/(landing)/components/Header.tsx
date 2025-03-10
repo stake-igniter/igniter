@@ -6,6 +6,7 @@ import EngagementLinks from "@/app/components/EngagementLinks";
 import GithubIcon from "@/app/assets/icons/dark/socials/github.svg";
 import DiscordIcon from "@/app/assets/icons/dark/socials/discord.svg";
 import XIcon from "@/app/assets/icons/dark/socials/x.svg";
+import CurrentUser from "@/app/components/CurrentUser";
 
 export interface HeaderProps {
     logoIcon?: ComponentType;
@@ -38,7 +39,7 @@ export default function Heading({ logoIcon: LogoIcon }: Readonly<HeaderProps>) {
                         { name: "X", Icon: XIcon, url: "#" },
                     ]} />
                 </div>
-                <WalletPicker />
+                <CurrentUser />
             </div>
         </div>
     );

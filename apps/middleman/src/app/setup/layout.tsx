@@ -4,7 +4,7 @@ import AppTopBar from "@igniter/ui/components/AppTopBar/index";
 import OverviewDark from "@/app/assets/icons/dark/overview.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";
 import HelpDark from "@/app/assets/icons/dark/help.svg";
-import UserMenu from "@igniter/ui/components/AppTopBar/UserMenu";
+import UserMenu from "@igniter/ui/components/UserMenu";
 
 
 const mainRoutes = [

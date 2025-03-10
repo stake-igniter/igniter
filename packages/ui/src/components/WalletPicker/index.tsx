@@ -13,13 +13,18 @@ import {
 import DialogContentSectionHeader from "@igniter/ui/components/DialogContentSectionHeader";
 import WalletPickerItem, {WalletPickerItemProps} from "./components/WalletPickerItem";
 import {DialogClose} from "../dialog";
-import {useWalletConnection} from "../../context/WalletConnection";
+import {Provider, useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {useEffect, useState} from "react";
 
+export interface WalletPickerProps {
+    onWalletSelect?: (provider: Provider) => void;
+}
 
-export function WalletPicker() {
+export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
     const [detectedProvider, setDetectedProvider] = useState<WalletPickerItemProps[]>([]);
+    const [open, setOpen] = useState(false);
     const { getAvailableProviders } = useWalletConnection();
+
 
     useEffect(() => {
         (async () => {
@@ -28,6 +33,8 @@ export function WalletPicker() {
                 const walletPickerItems = providers.map((provider) => ({
                     name: provider.name,
                     icon: provider.icon,
+                    provider: provider.provider,
+                    onSelect: onWalletSelect,
                 }));
 
                 setDetectedProvider(walletPickerItems);
@@ -39,7 +46,7 @@ export function WalletPicker() {
     }, [getAvailableProviders]);
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant={"secondary"}>Connect Wallet</Button>
             </DialogTrigger>
@@ -55,8 +62,11 @@ export function WalletPicker() {
                     </DialogHeader>
                     <div className="flex flex-col gap-2">
                         <DialogContentSectionHeader text="detected" />
-                        {detectedProvider.length > 0 && detectedProvider.map((provider, index) => (
-                            <WalletPickerItem key={index} {...provider} />
+                        {detectedProvider.length > 0 && detectedProvider.map(({onSelect, ...providerProps}, index) => (
+                          <WalletPickerItem key={index} {...providerProps} onSelect={(provider) => {
+                              onSelect?.(provider);
+                              setOpen(false);
+                          }} />
                         ))}
                         {detectedProvider.length <= 0 && (
                             <DialogDescription className="!text-[14px] font-[var(--font-sans)] text-[var(--color-white-3)]">
