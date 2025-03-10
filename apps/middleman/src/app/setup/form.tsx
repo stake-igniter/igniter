@@ -62,10 +62,7 @@ const FormComponent: React.FC<FormProps> = ({
     },
   });
 
-  const isUpdate = useMemo(
-    () => defaultValues.id !== undefined,
-    [defaultValues]
-  );
+  const isUpdate = useMemo(() => defaultValues.id !== 0, [defaultValues]);
 
   return (
     <Form {...form}>

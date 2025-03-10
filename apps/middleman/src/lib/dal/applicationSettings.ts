@@ -25,7 +25,7 @@ const defaultSettings: ApplicationSettings = {
   updatedAt: new Date(),
 };
 
-export async function getApplicationSettings() {
+export async function getApplicationSettings(): Promise<ApplicationSettings> {
   const dbSettings = await getApplicationSettingsFromDatabase();
 
   const envSettings = {
@@ -35,6 +35,7 @@ export async function getApplicationSettings() {
   };
 
   return {
+    ...defaultSettings,
     ...envSettings,
     ...(dbSettings ?? {}),
   };
