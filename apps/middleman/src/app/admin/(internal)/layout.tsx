@@ -1,6 +1,6 @@
 import {CurrencyContextProvider} from "@igniter/ui/context/currency";
 import {SidebarInset, SidebarProvider} from "@igniter/ui/components/sidebar";
-import AppTopBar from "@igniter/ui/components/AppTopBar/index";
+import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
 import AppSidebar from "@igniter/ui/components/AppSidebar";
 import OverviewDark from "@/app/assets/icons/dark/overview.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";

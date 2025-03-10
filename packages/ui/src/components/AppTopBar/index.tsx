@@ -6,7 +6,7 @@ export interface AppTopBarProps {
   children?: React.ReactNode;
 }
 
-export default async function AppTopBar({ logoIcon: LogoIcon, children } : Readonly<AppTopBarProps>) {
+export async function AppTopBar({ logoIcon: LogoIcon, children } : Readonly<AppTopBarProps>) {
   return (
     <header
       className={

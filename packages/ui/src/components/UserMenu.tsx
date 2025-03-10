@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@igniter/ui/components/dropdown-menu";
-import { UserAvatar } from "./UserAvatar";
+import { UserAvatar } from "./AppTopBar/UserAvatar";
 import { getRandomInt, getShortAddress } from "@igniter/ui/lib/utils";
 
 export default function UserMenu() {

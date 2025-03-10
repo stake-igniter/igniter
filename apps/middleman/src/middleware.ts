@@ -16,7 +16,7 @@ const middleware: any = auth(async (req: NextRequest) => {
   });
 
   if (!isLoggedIn) {
-    return NextResponse.redirect(new URL("/", req.nextUrl));
+    // return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 });
 
