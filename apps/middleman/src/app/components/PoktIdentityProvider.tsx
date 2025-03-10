@@ -1,12 +1,12 @@
 "use client";
 
-import {getCsrfToken, signIn} from "next-auth/react";
-import {useEffect} from "react";
-import {SiwpMessage} from "@poktscan/vault-siwp";
+import { getCsrfToken, signIn } from "next-auth/react";
+import { useEffect } from "react";
+import { SiwpMessage } from "@poktscan/vault-siwp";
 import { Button } from "@igniter/ui/components/button";
 import { PocketLogo } from "@igniter/ui/assets";
-import {useWalletConnection} from "@/app/context/WalletConnection";
-import {useApplicationSettings} from "@/app/context/ApplicationSettings";
+import { useWalletConnection } from "@/app/context/WalletConnection";
+import { useApplicationSettings } from "@/app/context/ApplicationSettings";
 
 const PoktIdentityProvider = () => {
   const {
@@ -17,17 +17,17 @@ const PoktIdentityProvider = () => {
     getChain,
     getPublicKey,
     switchChain,
-    signMessage
+    signMessage,
   } = useWalletConnection();
 
-  const { configuredChain } = useApplicationSettings();
+  const { chainId } = useApplicationSettings();
 
   const authenticateUser = async (address: string) => {
     try {
       const chainOnWallet = await getChain();
 
-      if (chainOnWallet !== configuredChain?.toLowerCase()) {
-        await switchChain('mainnet');
+      if (chainOnWallet !== chainId?.toLowerCase()) {
+        await switchChain("mainnet");
       }
 
       const message = new SiwpMessage({
@@ -36,7 +36,7 @@ const PoktIdentityProvider = () => {
         statement: "Sign in to Igniter",
         uri: window.location.origin,
         version: "1",
-        chainId: configuredChain,
+        chainId: chainId,
         nonce: await getCsrfToken(),
       });
 
@@ -62,11 +62,7 @@ const PoktIdentityProvider = () => {
   }, [isConnected, connectedIdentity]);
 
   return (
-    <Button
-      onClick={connect}
-      variant="secondary"
-      disabled={!isWalletAvailable}
-    >
+    <Button onClick={connect} variant="secondary" disabled={!isWalletAvailable}>
       Login with POKT
       <PocketLogo />
     </Button>
