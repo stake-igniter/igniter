@@ -66,7 +66,8 @@ export type User = typeof usersTable.$inferSelect;
 export const providersTable = pgTable("providers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  publicKey: varchar({ length: 255 }).notNull(),
+  publicKey: varchar({ length: 255 }).notNull().unique(),
+  url: varchar({ length: 255 }).notNull(),
   enabled: boolean().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),

@@ -1,5 +1,4 @@
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,13 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@igniter/ui/components/select";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { upsertSettings } from "@/actions/ApplicationSettings";
 import { ApplicationSettings } from "@/db/schema";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;
-  goToNextStep: () => void;
+  goNext: () => void;
 }
 
 export const formSchema = z.object({
@@ -44,10 +43,8 @@ export const formSchema = z.object({
   privacyPolicy: z.string().optional(),
 });
 
-const FormComponent: React.FC<FormProps> = ({
-  defaultValues,
-  goToNextStep,
-}) => {
+const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,8 +65,10 @@ const FormComponent: React.FC<FormProps> = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(async (values: any) => {
+          setIsLoading(true);
           await upsertSettings(values, isUpdate);
-          goToNextStep();
+          setIsLoading(false);
+          goNext();
         })}
         className="grid gap-4"
       >
@@ -227,9 +226,12 @@ const FormComponent: React.FC<FormProps> = ({
           )}
         />
 
-        <Button type="submit" variant="default">
-          Save Settings
-        </Button>
+        <div className="flex justify-end gap-4">
+          <Button disabled>Back</Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Saving..." : "Next"}
+          </Button>
+        </div>
       </form>
     </Form>
   );
