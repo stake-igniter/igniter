@@ -11,6 +11,6 @@ export default async function Page() {
   if (isBootstrapped) {
     return redirect("/admin/overview");
   } else {
-    return redirect("/setup");
+    return redirect("/admin/setup");
   }
 }

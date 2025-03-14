@@ -5,7 +5,7 @@ import {
   pgEnum,
   pgTable,
   text,
-  timestamp,
+  timestamp, uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -55,13 +55,13 @@ export const blockchainProtocolEnum = pgEnum(
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   identity: varchar({ length: 255 }).notNull(),
-  email: varchar({ length: 255 }).unique(),
+  email: varchar({ length: 255 }),
   role: roleEnum().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
 
-export type User = typeof usersTable.$inferSelect;
+export type User = typeof usersTable.$inferSelect
 
 export const providersTable = pgTable("providers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

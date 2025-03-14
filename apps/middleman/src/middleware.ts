@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 import authConfig from "./auth.config";
 
 const { auth } = NextAuth(authConfig);
@@ -10,7 +9,7 @@ const middleware: any = auth(async (req: NextRequest) => {
   const isLoggedIn = !!req.auth;
 
   if (!isLoggedIn) {
-    // return NextResponse.redirect(new URL("/", req.nextUrl));
+    return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 });
 

@@ -8,12 +8,9 @@ import {
   useState,
 } from "react";
 import { getApplicationSettings } from "@/actions/ApplicationSettings";
+import {ApplicationSettings} from "@/db/schema";
 
-export interface ApplicationSettings {
-  chainId?: string;
-}
-
-const ApplicationSettingsContext = createContext<ApplicationSettings>({});
+const ApplicationSettingsContext = createContext<ApplicationSettings | undefined>(undefined);
 
 export const ApplicationSettingsProvider = ({
   children,
@@ -21,7 +18,7 @@ export const ApplicationSettingsProvider = ({
   children: ReactNode;
 }) => {
   const [applicationSettings, setApplicationSettings] =
-    useState<ApplicationSettings>({});
+    useState<ApplicationSettings | undefined>();
 
   useEffect(() => {
     (async () => {

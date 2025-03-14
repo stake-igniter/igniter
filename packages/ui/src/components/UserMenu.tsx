@@ -1,34 +1,36 @@
-import React from "react";
+import React, {ReactNode} from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@igniter/ui/components/dropdown-menu";
-import { UserAvatar } from "./AppTopBar/UserAvatar";
+import { UserAvatar } from "./UserAvatar";
 import { getRandomInt, getShortAddress } from "@igniter/ui/lib/utils";
 
-export default function UserMenu() {
+export interface UserMenuProps {
+  user: {
+    identity: string;
+    role: string;
+  };
+  children: ReactNode;
+}
+
+export default function UserMenu({ user, children }: Readonly<UserMenuProps>) {
   const randomAvatar = getRandomInt(1, 4);
-  const tempAddress = "1234512234db6eab078c0526f0531565f5b66789";
+  const address = user.identity;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <div className="flex items-center gap-2 border rounded-md p-2">
-          <UserAvatar address={tempAddress} selectedAvatar={randomAvatar} />
+          <UserAvatar address={address} selectedAvatar={randomAvatar} />
           <span className="font-mono text-sm">
-            {getShortAddress(tempAddress, 5)}
+            {getShortAddress(address, 5)}
           </span>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem className="max-h-[38px]">
-          <UserAvatar address={tempAddress} selectedAvatar={randomAvatar} />
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>Sign out</DropdownMenuItem>
+        {children}
       </DropdownMenuContent>
     </DropdownMenu>
   );

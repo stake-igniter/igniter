@@ -32,6 +32,7 @@ export async function getApplicationSettings(): Promise<ApplicationSettings> {
     chainId: process.env.CHAIN_ID as ChainId,
     ownerIdentity: process.env.OWNER_IDENTITY!,
     blockchainProtocol: process.env.BLOCKCHAIN_PROTOCOL as BlockchainProtocol,
+    ownerEmail: process.env.OWNER_EMAIL!,
   };
 
   return {
@@ -42,8 +43,7 @@ export async function getApplicationSettings(): Promise<ApplicationSettings> {
 }
 
 export async function getApplicationSettingsFromDatabase() {
-  const settings = await db.query.applicationSettingsTable.findFirst();
-  return settings;
+  return db.query.applicationSettingsTable.findFirst();
 }
 
 export async function insertApplicationSettings(
@@ -87,4 +87,10 @@ export async function updateApplicationSettings(
   }
 
   return updatedSettings;
+}
+
+
+export async function isAppBootstrapped() {
+  const settings = await getApplicationSettingsFromDatabase();
+  return settings?.isBootstrapped ?? false;
 }
