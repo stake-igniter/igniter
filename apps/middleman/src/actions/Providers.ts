@@ -35,8 +35,8 @@ export async function loadProvidersFromCdn(): Promise<Provider[]> {
         `Failed to fetch providers from CDN: ${response.statusText}`
       );
     }
-    const parsedResponse: ProvidersResponse = await response.json();
-    return parsedResponse.items;
+    return await response.json();
+
   } catch (error) {
     console.error("Error loading providers from CDN:", error);
     return [];

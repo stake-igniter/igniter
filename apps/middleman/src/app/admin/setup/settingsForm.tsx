@@ -78,7 +78,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Middleman Name</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -150,6 +150,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
+                    disabled={true} // TODO: Change when enabling shannon support
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Blockchain Protocol" />

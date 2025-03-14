@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 export default async function Page() {
   const settings = await getApplicationSettings();
   const providers = await loadProvidersFromCdn();
+
   const session = await auth();
 
   if (!session || session.user.role !== UserRole.Owner) {
