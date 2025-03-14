@@ -18,8 +18,7 @@ export interface ProviderInfo {
 export interface WalletConnection {
   isConnected: boolean;
   connectedIdentity?: string;
-  isWalletAvailable: boolean;
-  connect(): Promise<void>;
+  connect(provider: Provider): Promise<void>;
   getChain(): Promise<string>;
   getPublicKey(address: string): Promise<string>;
   getBalance(address: string): Promise<number>;
@@ -30,7 +29,6 @@ export interface WalletConnection {
 
 export const WalletConnectionContext = createContext<WalletConnection>({
   isConnected: false,
-  isWalletAvailable: false,
   connect: async () => {
     console.warn('Method not implemented: connect. Something is wrong with the wallet connection provider.');
   },
@@ -73,15 +71,9 @@ export const WalletConnectionProvider = ({ children }: { children: ReactNode }) 
   // TODO: Shannon. Receive the user configuration and instantiate the correct wallet connection.
   const morseConnection = useMemo(() => new MorseWalletConnection(), []);
 
-  useEffect(() => {
-    if (morseConnection.isWalletAvailable) {
-      setIsWalletAvailable(true);
-    }
-  }, [morseConnection]);
-
-  const connect = async () => {
+  const connect = async (provider: Provider) => {
     try {
-      await morseConnection.connect();
+      await morseConnection.connect(provider);
       setIsConnected(morseConnection.isConnected);
       setConnectedIdentity(morseConnection.connectedIdentity);
     } catch (error) {
@@ -95,7 +87,6 @@ export const WalletConnectionProvider = ({ children }: { children: ReactNode }) 
     <WalletConnectionContext.Provider value={
       {
         isConnected,
-        isWalletAvailable,
         connectedIdentity,
         connect,
         getChain: morseConnection.getChain,

@@ -1,8 +1,11 @@
 import {
+  boolean,
+  decimal,
   integer,
   pgEnum,
   pgTable,
-  timestamp,
+  text,
+  timestamp, uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -18,36 +21,54 @@ export enum UserRole {
   Owner = "owner",
 }
 
-export enum SystemEvent {
-  SystemBootstrapped = "system_bootstrapped",
+export enum MinimumStakeIncrement {
+  "15k" = "15000",
+  "30k" = "30000",
+  "45k" = "45000",
+  "60k" = "60000",
+}
+
+export enum ChainId {
+  Mainnet = "mainnet",
+  Testnet = "testnet",
+}
+
+export enum BlockchainProtocol {
+  Morse = "morse",
+  Shannon = "shannon",
 }
 
 export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
 
-export const systemEventEnum = pgEnum("type", enumToPgEnum(SystemEvent));
+export const minimumStakeIncrementEnum = pgEnum(
+  "minimum_stake_increment",
+  enumToPgEnum(MinimumStakeIncrement)
+);
+
+export const chainIdEnum = pgEnum("chain_ids", enumToPgEnum(ChainId));
+
+export const blockchainProtocolEnum = pgEnum(
+  "protocols",
+  enumToPgEnum(BlockchainProtocol)
+);
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   identity: varchar({ length: 255 }).notNull(),
-  email: varchar({ length: 255 }).unique(),
+  email: varchar({ length: 255 }),
   role: roleEnum().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
 
-export type User = typeof usersTable.$inferSelect;
-
-export const systemEventsTable = pgTable("system_events", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: systemEventEnum().notNull(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
-});
+export type User = typeof usersTable.$inferSelect
 
 export const providersTable = pgTable("providers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  publicKey: varchar({ length: 255 }).notNull(),
+  publicKey: varchar({ length: 255 }).notNull().unique(),
+  url: varchar({ length: 255 }).notNull(),
+  enabled: boolean().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
@@ -56,7 +77,16 @@ export type Provider = typeof providersTable.$inferSelect;
 
 export const applicationSettingsTable = pgTable("application_settings", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  configuredChain: varchar({ length: 255 }).notNull(),
+  name: varchar({ length: 255 }),
+  supportEmail: varchar({ length: 255 }),
+  ownerEmail: varchar({ length: 255 }),
+  ownerIdentity: varchar({ length: 255 }).notNull(),
+  middlemanFee: decimal({ precision: 5, scale: 2 }).notNull(),
+  minimumStakeIncrement: minimumStakeIncrementEnum(),
+  isBootstrapped: boolean().notNull(),
+  chainId: chainIdEnum().notNull(),
+  blockchainProtocol: blockchainProtocolEnum().notNull(),
+  privacyPolicy: text(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });

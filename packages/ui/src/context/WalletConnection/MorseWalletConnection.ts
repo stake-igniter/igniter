@@ -1,4 +1,5 @@
 import {ProviderInfo, WalletConnection} from "@igniter/ui/context/WalletConnection/index";
+import {Provider} from "./";
 
 export enum PocketMorseMethod {
   REQUEST_ACCOUNTS = "pokt_requestAccounts",
@@ -12,21 +13,16 @@ export enum PocketMorseMethod {
 export class MorseWalletConnection implements WalletConnection {
     isConnected: boolean;
     connectedIdentity?: string | undefined;
+    private _provider?: Provider;
 
     constructor() {
       this.isConnected = false;
     }
 
-    get isWalletAvailable(): boolean {
-      /**
-       * TODO: Improve this with feature detection. We need to be able to validate whether the available wallet supports are requirements.
-       */
-      return !!window.pocketNetwork;
-    }
-
-    connect = async (): Promise<void> => {
+    connect = async (provider: Provider): Promise<void> => {
+      this._provider = provider;
       try {
-        const [connectedIdentity] = await window.pocketNetwork.send(
+        const [connectedIdentity] = await this._provider?.send(
           PocketMorseMethod.REQUEST_ACCOUNTS
         );
 
@@ -40,7 +36,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   getChain = async (): Promise<string> => {
     try {
-      return await window.pocketNetwork.send(
+      return await this._provider?.send(
         PocketMorseMethod.CHAIN,
       );
     } catch (err) {
@@ -51,7 +47,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   getPublicKey = async (address: string): Promise<string> => {
     try {
-      const { publicKey } = await window.pocketNetwork.send(
+      const { publicKey } = await this._provider?.send(
         PocketMorseMethod.PUBLIC_KEY,
         [{ address }]
       );
@@ -64,7 +60,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   getBalance = async (address: string): Promise<number> => {
     try {
-      const { balance } = await window.pocketNetwork.send(
+      const { balance } = await this._provider?.send(
         PocketMorseMethod.BALANCE,
         [{ address }]
       );
@@ -77,7 +73,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   switchChain = async (chainId: string): Promise<void> => {
     try {
-      await window.pocketNetwork.send(
+      await this._provider?.send(
         PocketMorseMethod.SWITCH_CHAIN,
         [{ chainId }],
       );
@@ -89,7 +85,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   signMessage = async (message: string, address: string): Promise<string> => {
     try {
-      const { signature } = await window.pocketNetwork.send(PocketMorseMethod.SIGN_MESSAGE, [{ message, address }]);
+      const { signature } = await this._provider?.send(PocketMorseMethod.SIGN_MESSAGE, [{ message, address }]);
       return signature;
     } catch (err) {
       console.error(err);

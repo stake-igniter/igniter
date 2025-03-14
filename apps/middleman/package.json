@@ -12,6 +12,7 @@
     "build:docker": "cd ../.. && docker build -t igniter-middleman:latest -f ./apps/middleman/Dockerfile ."
   },
   "dependencies": {
+    "@hookform/resolvers": "4.1.3",
     "@igniter/eslint-config": "workspace:*",
     "@igniter/middleman-workflows": "workspace:*",
     "@igniter/ui": "workspace:*",
@@ -30,15 +31,19 @@
     "next": "15.1.6",
     "next-auth": "5.0.0-beta.25",
     "next-themes": "0.4.3",
+    "pg": "^8.14.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-hook-form": "7.54.2",
     "server-only": "^0.0.1",
-    "siwe": "^3.0.0"
+    "siwe": "3.0.0",
+    "zod": "3.23.8"
   },
   "devDependencies": {
     "@igniter/eslint-config": "workspace:*",
     "@igniter/typescript-config": "workspace:*",
     "@types/node": "^22",
+    "@types/pg": "^8.11.11",
     "@types/react": "19.0.8",
     "@types/react-dom": "19.0.3",
     "drizzle-kit": "0.30.4",

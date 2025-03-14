@@ -8,3 +8,4 @@ export { default as AvatarFallbackTwo } from './avatar/fallback-2.svg';
 export { default as AvatarFallbackThree } from './avatar/fallback-3.svg';
 export { default as AvatarFallbackFour } from './avatar/fallback-4.svg';
 export { default as HorizontalArrowIcon } from './icons/dark/horizontal_arrow.svg';
+export { default  as LoaderIcon } from './icons/dark/loader.svg';

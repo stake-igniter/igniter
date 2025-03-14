@@ -97,28 +97,16 @@ export default function RootLayout({
       >
         <ApplicationSettingsProvider>
           <WalletConnectionProvider>
-            <CurrencyContextProvider>
-              <SidebarProvider className="flex flex-col">
-                <AppTopBar>
-                  <PriceWidget />
-                  <CurrencySelector />
-                  <CurrentUser />
-                </AppTopBar>
-                <div className="flex flex-1">
-                  <AppSidebar
-                    mainRoutes={mainRoutes}
-                    footerRoutes={footerRoutes}
-                  />
-                  <SidebarInset>
-                    <div className={"w-full h-full flex overflow-x-hidden"}>
-                      <div className="flex flex-col w-full gap-6">
-                        {children}
-                      </div>
-                    </div>
-                  </SidebarInset>
+            <AppTopBar>
+              <CurrentUser />
+            </AppTopBar>
+            <div className="flex flex-1">
+              <div className={"w-full h-full flex overflow-x-hidden"}>
+                <div className="flex flex-col w-full gap-6">
+                  {children}
                 </div>
-              </SidebarProvider>
-            </CurrencyContextProvider>
+              </div>
+            </div>
           </WalletConnectionProvider>
         </ApplicationSettingsProvider>
       </ThemeProvider>

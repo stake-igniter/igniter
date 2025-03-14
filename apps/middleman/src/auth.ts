@@ -1,7 +1,9 @@
 import NextAuth, { type NextAuthResult } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { SiwpMessage } from "@poktscan/vault-siwp";
-import { getUser } from "./lib/dal";
+import {createUser, getUser} from "./lib/dal/users";
+import authConfig from "./auth.config";
+import {User} from "@/db/schema";
 
 const authConfigResult = NextAuth({
   providers: [
@@ -25,8 +27,11 @@ const authConfigResult = NextAuth({
           placeholder: "0x0",
         },
       },
-      //@ts-ignore
-      authorize: async (credentials, req) => {
+      // @TODO: Remove ts-ignore. Once we learn how to update the User type next-auth expects.
+      // @ts-ignore
+      authorize: async (credentials, req): Promise<User | null> => {
+        console.log('Does authorize happen?');
+
         try {
           const siwp = new SiwpMessage(
             JSON.parse((credentials?.message || "{}") as string)
@@ -43,11 +48,13 @@ const authConfigResult = NextAuth({
           let user;
 
           if (result.success) {
-            //siwp verification successful, need to fetch and/or create user in db.
-
             user = await getUser(siwp.address);
 
-            return user;
+            if (!user) {
+              user = await createUser(siwp.address);
+            }
+
+            return user ?? null;
           }
           return null;
         } catch (error) {
@@ -61,15 +68,14 @@ const authConfigResult = NextAuth({
     signIn: "/",
   },
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
+        // @TODO: Remove ts-ignore. Once we learn how to update the User type next-auth expects.
+        // @ts-ignore
         token.user = user;
       }
       return token;
-    },
-    async session({ session, token }) {
-      session.user = token.user;
-      return session;
     },
   },
 });

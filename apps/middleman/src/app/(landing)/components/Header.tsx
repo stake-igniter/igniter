@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import {ComponentType} from "react";
 import {PlaceholderLogo} from "@igniter/ui/assets";
-import { WalletPicker } from "@igniter/ui/components/WalletPicker/index";
 import EngagementLinks from "@/app/components/EngagementLinks";
 import GithubIcon from "@/app/assets/icons/dark/socials/github.svg";
 import DiscordIcon from "@/app/assets/icons/dark/socials/discord.svg";
