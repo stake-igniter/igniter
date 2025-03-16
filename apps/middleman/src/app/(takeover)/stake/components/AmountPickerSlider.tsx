@@ -29,7 +29,7 @@ export function AmountPickerSlider({amount, onValueChange, balance, amountIncrem
                     {intervals.map((interval) => (
                         <div
                             key={interval}
-                            className="absolute w-[4px] h-[4px] rounded-[3px] bg-[var(--color-black-1)]  top-1/2 transform -translate-y-1/2"
+                            className="absolute w-[4px] h-[4px] rounded-[3px] bg-[var(--color-black-1)]  top-1/2 transform -translate-y-1/2 hover:cursor-pointer"
                             style={{ left: `${(interval / balance) * 100}%` }}
                         />
                     ))}

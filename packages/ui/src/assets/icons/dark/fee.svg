@@ -1,0 +1,10 @@
+<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient x1="50%" y1=".647%" x2="50%" y2="100%" id="pytss9tyoa">
+            <stop stop-color="#788AA0" offset="0%"/>
+            <stop stop-color="#526277" offset="100%"/>
+        </linearGradient>
+    </defs>
+    <path d="M5.256 1.005a4.5 4.5 0 0 0 5.74 5.74 5.5 5.5 0 1 1-5.74-5.74zM9.5 0a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z"
+          fill="url(#pytss9tyoa)" fill-rule="evenodd"/>
+</svg>
