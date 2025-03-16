@@ -6,8 +6,10 @@ import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
 import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
 import CurrentUser from "@/app/components/CurrentUser";
 import {jost, overpass_mono} from "@/styles/layout";
+import PriceWidget from "@/app/components/PriceWidget";
+import CurrencySelector from "@igniter/ui/components/AppTopBar/CurrencySelector";
 
-export default function AdminSetupLayout({
+export default function TakeOverLayout({
                                      children,
                                    }: Readonly<{
   children: React.ReactNode;
@@ -29,6 +31,8 @@ export default function AdminSetupLayout({
         <ApplicationSettingsProvider>
           <WalletConnectionProvider>
             <AppTopBar>
+              <PriceWidget />
+              <CurrencySelector />
               <CurrentUser />
             </AppTopBar>
             <div className="flex flex-1">

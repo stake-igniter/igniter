@@ -1,5 +1,3 @@
-import type { Metadata } from "next";
-import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
@@ -18,27 +16,7 @@ import NodesDark from "@/app/assets/icons/dark/nodes.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";
 import HelpDark from "@/app/assets/icons/dark/help.svg";
 import ContactDark from "@/app/assets/icons/dark/contact.svg";
-
-export const metadata: Metadata = {
-  title: "Igniter",
-  description: "Light up your earnings with Igniter",
-};
-
-const jost = Jost({
-  variable: "--font-jost",
-  weight: ["400", "600", "500", "700"],
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const overpass_mono = Overpass_Mono({
-  variable: "--font-overpass-mono",
-  weight: ["400", "600", "500", "700"],
-  style: ["normal"],
-  subsets: ["latin"],
-  display: "swap",
-});
+import {jost, overpass_mono} from "@/styles/layout";
 
 const mainRoutes = [
   {

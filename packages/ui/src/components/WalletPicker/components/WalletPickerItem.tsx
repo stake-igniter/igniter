@@ -1,5 +1,4 @@
-import { ComponentType } from "react";
-import { HorizontalArrowIcon } from "@igniter/ui/assets";
+import { ArrowBackIcon } from "@igniter/ui/assets";
 import {Provider} from "@igniter/ui/context/WalletConnection/index";
 
 export interface WalletPickerItemProps {
@@ -21,7 +20,7 @@ export default function WalletPickerItem({ name, icon, provider, onSelect  }: Re
                     {name}
                 </span>
             </div>
-            <HorizontalArrowIcon className="hidden group-hover:block rotate-180 transition-transform duration-200" />
+            <ArrowBackIcon className="hidden group-hover:block rotate-180 transition-transform duration-200" />
         </div>
     );
 }

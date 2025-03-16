@@ -26,3 +26,11 @@ export function getShortAddress(address: string, length = 8) {
         ? address.slice(0, length) + "..." + address.slice(-length)
         : "";
 }
+
+export function toCurrencyFormat(value: number, maxFractionDigits = 2) {
+    return new Intl.NumberFormat("en-US", {
+        style: "decimal",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maxFractionDigits
+    }).format(value)
+}
