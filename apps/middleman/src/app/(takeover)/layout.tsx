@@ -36,8 +36,8 @@ export default function TakeOverLayout({
               <CurrentUser />
             </AppTopBar>
             <div className="flex flex-1">
-              <div className={"w-full h-full flex overflow-x-hidden"}>
-                <div className="flex flex-col w-full gap-6">
+              <div className={"w-full h-full flex"}>
+                <div className="flex flex-col w-full gap-6 h-screen overflow-y-scroll">
                   {children}
                 </div>
               </div>

@@ -1,6 +1,12 @@
 import ProviderIcon from '@/app/assets/icons/dark/providers.svg';
-import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {CheckIcon, FeeIcon, FeeDisabledIcon, InfoIcon, RewardsIcon, RewardsSelectedIcon} from "@igniter/ui/assets";
+import {StakeDistributionOffer} from '@/lib/models/StakeDistributionOffer';
+import {CheckIcon, FeeIcon, FeeDisabledIcon, InfoIcon, RewardsIcon, RewardsSelectedIcon} from '@igniter/ui/assets';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@igniter/ui/components/popover';
+import {toCurrencyFormat} from "@igniter/ui/lib/utils";
 
 export interface ProviderOfferItemProps {
     offer: StakeDistributionOffer;
@@ -17,7 +23,7 @@ export function ProviderOfferItem({ isSelected, offer, onSelect, disabled }: Rea
 
     return (
         <div className={className} onClick={() => onSelect?.(offer)}>
-            <div className={`absolute inset-0 flex flex-row items-center m-[0.5px] bg-[var(--background)] rounded-[8px] ${disabled ? '' : 'hover:cursor-pointer'} p-[20px_25px] ${isSelected ? 'justify-between' : 'flex-start'}`}>
+            <div className={`absolute inset-0 flex flex-row items-center m-[0.5px] bg-[var(--background)] rounded-[8px] p-[20px_25px] ${isSelected ? 'justify-between' : 'flex-start'}`}>
                 <span className="flex flex-row items-center gap-5">
                     <span>
                         <ProviderIcon />
@@ -25,7 +31,46 @@ export function ProviderOfferItem({ isSelected, offer, onSelect, disabled }: Rea
                     <span className="flex flex-col gap-2">
                         <span className="flex flex-row items-center gap-2">
                             <span className={`${disabled ? 'text-[var(--color-white-3)]' : ''}`}>{offer.name}</span>
-                            <InfoIcon />
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <InfoIcon />
+                                </PopoverTrigger>
+                                <PopoverContent className="flex flex-col w-[260px] bg-[var(--color-slate-2)] p-0">
+                                    <span className="text-[14px] font-medium text-[var(--color-white-1)] p-[12px_16px]">
+                                        About {offer.name}
+                                    </span>
+                                    <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
+                                    <span className="flex flex-col gap-2.5 p-[12px_16px]">
+                                        <span className="flex flex-row items-center justify-between">
+                                            <span className="flex flex-row items-center gap-2">
+                                                <FeeIcon />
+                                                <span>Fee</span>
+                                            </span>
+                                            <span className="font-mono">
+                                                {offer.fee}%
+                                            </span>
+                                        </span>
+                                        <span className="text-[14px] text-[var(--color-white-3)]">
+                                            Share of rewards providers charge for node running services.
+                                        </span>
+                                    </span>
+                                    <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
+                                    <span className="flex flex-col gap-2.5 p-[12px_16px]">
+                                        <span className="flex flex-row items-center justify-between">
+                                            <span className="flex flex-row items-center gap-2">
+                                                <RewardsSelectedIcon />
+                                                <span>Rewards</span>
+                                            </span>
+                                            <span className="font-mono">
+                                                {toCurrencyFormat(offer.rewards, 2)}
+                                            </span>
+                                        </span>
+                                        <span className="text-[14px] text-[var(--color-white-3)]">
+                                            Net $POKT rewards for the last 7 days per 15,000 $POKT staked.
+                                        </span>
+                                    </span>
+                                </PopoverContent>
+                            </Popover>
                         </span>
                         <span>
                             {!disabled && !isSelected && (
