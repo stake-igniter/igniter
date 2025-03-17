@@ -17,3 +17,5 @@ export { default as FeeDisabledIcon } from './icons/dark/fee_disabled.svg';
 export { default as RewardsIcon } from './icons/dark/rewards.svg';
 export { default as RewardsSelectedIcon } from './icons/dark/rewards_selected.svg';
 export { default as CaretIcon}  from './icons/dark/caret.svg';
+export { default as CaretSmallIcon } from './icons/dark/caret_small.svg';
+export { default as CornerIcon } from './icons/dark/corner.svg';

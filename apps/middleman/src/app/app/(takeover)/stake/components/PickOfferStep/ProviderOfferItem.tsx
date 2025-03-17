@@ -18,7 +18,7 @@ export interface ProviderOfferItemProps {
 export function ProviderOfferItem({ isSelected, offer, onSelect, disabled }: Readonly<ProviderOfferItemProps>) {
     const className =
         isSelected
-            ? 'relative flex h-[88px] gradient-border'
+            ? 'relative flex h-[88px] gradient-border-purple'
             : 'relative flex h-[88px] rounded-[8px] border-[2px] border-[--black-dividers]';
 
     return (

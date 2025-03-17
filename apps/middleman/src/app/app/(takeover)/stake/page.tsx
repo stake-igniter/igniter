@@ -1,9 +1,9 @@
 "use client";
 
 import {useState} from "react";
-import {PickStakeAmountStep} from "@/app/(takeover)/stake/components/PickStakeAmountStep";
-import {PickOfferStep} from "@/app/(takeover)/stake/components/PickOfferStep";
-import {ReviewStep} from "@/app/(takeover)/stake/components/ReviewStep";
+import {PickStakeAmountStep} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep";
+import {PickOfferStep} from "@/app/app/(takeover)/stake/components/PickOfferStep";
+import {ReviewStep} from "@/app/app/(takeover)/stake/components/ReviewStep";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 
 enum StakeActivitySteps {

@@ -2,10 +2,10 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {Button} from "@igniter/ui/components/button";
-import {ActivityHeader} from "@/app/(takeover)/stake/components/ActivityHeader";
+import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {toCurrencyFormat} from "@igniter/ui/lib/utils";
-import {ProviderOfferItem} from "@/app/(takeover)/stake/components/PickOfferStep/ProviderOfferItem";
+import {ProviderOfferItem} from "@/app/app/(takeover)/stake/components/PickOfferStep/ProviderOfferItem";
 import {CaretIcon} from "@igniter/ui/assets";
 
 export interface PickOfferStepProps {

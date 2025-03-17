@@ -2,10 +2,10 @@
 
 import {useState} from "react";
 import {InfoIcon} from "@igniter/ui/assets";
-import {AmountPickerSlider} from "@/app/(takeover)/stake/components/AmountPickerSlider";
-import {AmountDisplay} from "@/app/(takeover)/stake/components/AmountDisplay";
+import {AmountPickerSlider} from "@/app/app/(takeover)/stake/components/AmountPickerSlider";
+import {AmountDisplay} from "@/app/app/(takeover)/stake/components/AmountDisplay";
 import {Button} from "@igniter/ui/components/button";
-import {ActivityHeader} from "@/app/(takeover)/stake/components/ActivityHeader";
+import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 
 
 export interface PickStakeAmountStepProps {

@@ -1,3 +1,5 @@
+import {StakeBin} from "@/types";
+
 export interface StakeDistributionOffer {
     id: number;
     name: string;
@@ -7,6 +9,6 @@ export interface StakeDistributionOffer {
 }
 
 export interface NodeStakeDistributionItem {
-    bin: '15k' | '30k' | '45k' | '60k' | 'Validator';
+    bin: StakeBin;
     qty: number;
 }
