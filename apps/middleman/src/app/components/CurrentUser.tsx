@@ -39,6 +39,10 @@ export default function CurrentUser() {
         await switchChain(settingsChainId);
       }
 
+      if (status === 'authenticated') {
+        return;
+      }
+
       const message = new SiwpMessage({
         domain: window.location.host,
         address,
@@ -65,11 +69,11 @@ export default function CurrentUser() {
 
   useEffect(() => {
     (async () => {
-      if (isConnected && connectedIdentity) {
+      if (isConnected && connectedIdentity && applicationSettings) {
         await authenticateUser(connectedIdentity);
       }
     })();
-  }, [isConnected, connectedIdentity]);
+  }, [isConnected, connectedIdentity, applicationSettings]);
 
   const isLanding = currentPath === Routes.root;
   const isAdmin = currentPath.startsWith(Routes.adminRoot);

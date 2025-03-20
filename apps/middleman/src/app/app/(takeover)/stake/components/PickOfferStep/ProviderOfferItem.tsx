@@ -1,6 +1,13 @@
 import ProviderIcon from '@/app/assets/icons/dark/providers.svg';
 import {StakeDistributionOffer} from '@/lib/models/StakeDistributionOffer';
-import {CheckIcon, FeeIcon, FeeDisabledIcon, InfoIcon, RewardsIcon, RewardsSelectedIcon} from '@igniter/ui/assets';
+import {
+    CheckIcon,
+    FeeIcon,
+    FeeDisabledIcon,
+    InfoIcon,
+    RewardsIcon,
+    RewardsDisabledIcon
+} from '@igniter/ui/assets';
 import {
     Popover,
     PopoverContent,
@@ -58,7 +65,7 @@ export function ProviderOfferItem({ isSelected, offer, onSelect, disabled }: Rea
                                     <span className="flex flex-col gap-2.5 p-[12px_16px]">
                                         <span className="flex flex-row items-center justify-between">
                                             <span className="flex flex-row items-center gap-2">
-                                                <RewardsSelectedIcon />
+                                                <RewardsIcon />
                                                 <span>Rewards</span>
                                             </span>
                                             <span className="font-mono">
@@ -92,7 +99,7 @@ export function ProviderOfferItem({ isSelected, offer, onSelect, disabled }: Rea
                                         <span className="font-mono leading-[1.6] relative top-[0.05em] text-[14px]">{`${offer.fee}%`}</span>
                                     </span>
                                     <span className="flex flex-row items-center gap-2">
-                                        <RewardsSelectedIcon />
+                                        <RewardsIcon />
                                         <span className="font-mono leading-[1.6] relative top-[0.05em] text-[14px]">{offer.rewards}</span>
                                     </span>
                                 </span>
@@ -104,7 +111,7 @@ export function ProviderOfferItem({ isSelected, offer, onSelect, disabled }: Rea
                                         <span className="font-mono leading-[1.6] relative top-[0.05em] text-[14px]">{`${offer.fee}%`}</span>
                                     </span>
                                     <span className="flex flex-row items-center gap-2">
-                                        <RewardsIcon />
+                                        <RewardsDisabledIcon />
                                         <span className="font-mono leading-[1.6] relative top-[0.05em] text-[14px]">{offer.rewards}</span>
                                     </span>
                                 </span>

@@ -81,7 +81,7 @@ export const applicationSettingsTable = pgTable("application_settings", {
   supportEmail: varchar({ length: 255 }),
   ownerEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),
-  middlemanFee: decimal({ precision: 5, scale: 2 }).notNull(),
+  fee: decimal({ precision: 5, scale: 2 }).notNull(),
   minimumStakeIncrement: minimumStakeIncrementEnum(),
   isBootstrapped: boolean().notNull(),
   chainId: chainIdEnum().notNull(),

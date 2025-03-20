@@ -18,6 +18,7 @@ import NodesDark from "@/app/assets/icons/dark/nodes.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";
 import HelpDark from "@/app/assets/icons/dark/help.svg";
 import ContactDark from "@/app/assets/icons/dark/contact.svg";
+import {auth} from "@/auth";
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -76,11 +77,13 @@ const footerRoutes = [
   },
 ];
 
-export default function RootLayout({
+export default async function RootLayout({
                                      children,
                                    }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <html
       lang="en"
@@ -96,7 +99,7 @@ export default function RootLayout({
         disableTransitionOnChange
       >
         <ApplicationSettingsProvider>
-          <WalletConnectionProvider>
+          <WalletConnectionProvider expectedIdentity={session?.user?.identity}>
             <CurrencyContextProvider>
               <SidebarProvider className="flex flex-col">
                 <AppTopBar>

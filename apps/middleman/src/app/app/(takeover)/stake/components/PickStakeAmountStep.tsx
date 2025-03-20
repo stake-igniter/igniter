@@ -1,11 +1,13 @@
 'use client';
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {InfoIcon} from "@igniter/ui/assets";
 import {AmountPickerSlider} from "@/app/app/(takeover)/stake/components/AmountPickerSlider";
 import {AmountDisplay} from "@/app/app/(takeover)/stake/components/AmountDisplay";
 import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
+import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
+import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 
 
 export interface PickStakeAmountStepProps {
@@ -16,7 +18,28 @@ export interface PickStakeAmountStepProps {
 
 export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<PickStakeAmountStepProps>) {
     const [selectedAmount, setSelectedAmount] = useState<number>(defaultAmount);
-    const balance = 153205.89;
+    const [balance, setBalance] = useState<number>(0);
+    const { getBalance, connectedIdentity } = useWalletConnection();
+    const applicationSettings = useApplicationSettings();
+
+  useEffect(() => {
+    console.log('debug: connectedIdentity', connectedIdentity);
+  }, [connectedIdentity]);
+
+
+  useEffect(() => {
+    if (connectedIdentity) {
+      (async () => {
+        try {
+          const balance = await getBalance(connectedIdentity);
+          setBalance(balance / 1e6);
+        } catch {
+          console.log('An error occurred while getting the balance from your connected wallet.');
+        }
+      })();
+    }
+  }, [connectedIdentity]);
+
     const amountIncrements = 15000;
 
     return (
@@ -28,7 +51,6 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<
             />
             <AmountPickerSlider
                 balance={balance}
-                amountIncrements={amountIncrements}
                 amount={selectedAmount}
                 onValueChange={setSelectedAmount}
             />
@@ -42,10 +64,12 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<
                     </span>
                     <InfoIcon/>
                 </span>
-                <span className="text-[14px] text-[var(--color-white-1)]">1%</span>
+              {applicationSettings?.fee && (
+                <span className="text-[14px] text-[var(--color-white-1)]">{Number(applicationSettings?.fee).toFixed(0)}%</span>
+              )}
             </div>
-            <Button
-                disabled={selectedAmount === 0}
+          <Button
+            disabled={selectedAmount === 0}
                 className="w-full h-[40px]"
                 onClick={() => onAmountSelected(selectedAmount)}
             >

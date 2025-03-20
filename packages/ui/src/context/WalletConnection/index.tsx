@@ -1,6 +1,6 @@
 "use client";
 
-import {createContext, ReactNode, useContext, useEffect, useMemo, useState} from 'react';
+import {createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {MorseWalletConnection} from "./MorseWalletConnection";
 
 export interface Provider {
@@ -8,11 +8,11 @@ export interface Provider {
 }
 
 export interface ProviderInfo {
-  uuid: string;
-  name: string;
-  icon: string;
-  rdns: string;
-  provider: Provider;
+  uuid?: string;
+  name?: string;
+  icon?: string;
+  rdns?: string;
+  provider?: Provider;
 };
 
 export interface WalletConnection {
@@ -25,6 +25,7 @@ export interface WalletConnection {
   switchChain(chain: string): Promise<void>;
   signMessage(message: string, address: string): Promise<string>;
   getAvailableProviders(): Promise<ProviderInfo[]>;
+  reconnect(address: string): Promise<boolean>;
 }
 
 export const WalletConnectionContext = createContext<WalletConnection>({
@@ -54,24 +55,27 @@ export const WalletConnectionContext = createContext<WalletConnection>({
   getAvailableProviders: async (): Promise<ProviderInfo[]> => {
     console.warn('Method not implemented: getProvidersInfo. Something is wrong with the wallet connection provider.');
     return [];
+  },
+  reconnect: async (address: string)=> {
+    console.warn('Method not implemented: reconnect. Something is wrong with the wallet connection provider.');
+    return false;
   }
 });
 
 /**
  * Wallet connection provider - Exposes an instance of WalletConnection to the app.
  * @param children
+ * @param reconnect
  * @constructor
  */
-export const WalletConnectionProvider = ({ children }: { children: ReactNode }) => {
-  const [isWalletAvailable, setIsWalletAvailable] = useState(false);
+export const WalletConnectionProvider = ({ children, expectedIdentity }: { expectedIdentity?: string, children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectedIdentity, setConnectedIdentity] = useState<string | undefined>(undefined);
-
 
   // TODO: Shannon. Receive the user configuration and instantiate the correct wallet connection.
   const morseConnection = useMemo(() => new MorseWalletConnection(), []);
 
-  const connect = async (provider: Provider) => {
+  const connect = useCallback(async (provider?: Provider) => {
     try {
       await morseConnection.connect(provider);
       setIsConnected(morseConnection.isConnected);
@@ -81,7 +85,28 @@ export const WalletConnectionProvider = ({ children }: { children: ReactNode }) 
       setIsConnected(morseConnection.isConnected);
       setConnectedIdentity(morseConnection.connectedIdentity);
     }
-  }
+  }, []);
+
+  const reconnect = useCallback(async (address: string) => {
+    const reconnected = await morseConnection.reconnect(address);
+
+    setIsConnected(morseConnection.isConnected);
+    setConnectedIdentity(morseConnection.connectedIdentity);
+
+    if (!reconnected) {
+      throw new Error('Failed to reconnect');
+    }
+
+    return true;
+  }, []);
+
+  useEffect(() => {
+    if (expectedIdentity) {
+      (async () => {
+        await reconnect(expectedIdentity);
+      })();
+    }
+  }, [expectedIdentity]);
 
   return (
     <WalletConnectionContext.Provider value={
@@ -89,6 +114,7 @@ export const WalletConnectionProvider = ({ children }: { children: ReactNode }) 
         isConnected,
         connectedIdentity,
         connect,
+        reconnect,
         getChain: morseConnection.getChain,
         getPublicKey: morseConnection.getPublicKey,
         getBalance: morseConnection.getBalance,

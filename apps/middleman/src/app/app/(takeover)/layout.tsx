@@ -1,19 +1,21 @@
 import "@/app/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/app/theme";
-import {WalletConnectionProvider} from "@igniter/ui/context/WalletConnection";
+import {WalletConnectionProvider} from "@igniter/ui/context/WalletConnection/index";
 import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
-import {AppTopBar} from "@igniter/ui/components/AppTopBar";
+import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
 import CurrentUser from "@/app/components/CurrentUser";
 import {jost, overpass_mono} from "@/styles/layout";
 import PriceWidget from "@/app/components/PriceWidget";
 import CurrencySelector from "@igniter/ui/components/AppTopBar/CurrencySelector";
+import {auth} from "@/auth";
 
-export default function TakeOverLayout({
+export default async function TakeOverLayout({
                                      children,
                                    }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html
       lang="en"
@@ -29,7 +31,7 @@ export default function TakeOverLayout({
         disableTransitionOnChange
       >
         <ApplicationSettingsProvider>
-          <WalletConnectionProvider>
+          <WalletConnectionProvider expectedIdentity={session?.user?.identity}>
             <AppTopBar>
               <PriceWidget />
               <CurrencySelector />

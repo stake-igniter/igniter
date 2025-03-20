@@ -22,8 +22,12 @@ export const ApplicationSettingsProvider = ({
 
   useEffect(() => {
     (async () => {
-      const settings = await getApplicationSettings();
-      setApplicationSettings(settings);
+      try {
+        const settings = await getApplicationSettings();
+        setApplicationSettings(settings);
+      } catch (error) {
+       console.error(error);
+      }
     })();
   }, []);
 

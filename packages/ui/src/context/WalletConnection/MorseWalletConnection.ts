@@ -8,35 +8,53 @@ export enum PocketMorseMethod {
   BALANCE = "pokt_balance",
   CHAIN = "pokt_chain",
   SWITCH_CHAIN = "wallet_switchPocketChain",
+  ACCOUNTS = "pokt_accounts",
 }
 
 export class MorseWalletConnection implements WalletConnection {
-    isConnected: boolean;
-    connectedIdentity?: string | undefined;
-    private _provider?: Provider;
+  isConnected: boolean;
+  connectedIdentity?: string | undefined;
+  private _provider?: Provider;
 
-    constructor() {
-      this.isConnected = false;
+  constructor() {
+    this.isConnected = false;
+  }
+
+  connect = async (provider?: Provider): Promise<void> => {
+    this._provider = provider ?? window.pocketNetwork;
+    try {
+      const [connectedIdentity] = await this.provider.send(
+        PocketMorseMethod.REQUEST_ACCOUNTS
+      );
+
+      this.isConnected = true;
+      this.connectedIdentity = connectedIdentity;
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
+  };
 
-    connect = async (provider: Provider): Promise<void> => {
-      this._provider = provider;
-      try {
-        const [connectedIdentity] = await this._provider?.send(
-          PocketMorseMethod.REQUEST_ACCOUNTS
-        );
+  reconnect = async (address: string): Promise<boolean> => {
+    try {
+      const accounts = await this.provider.send(PocketMorseMethod.ACCOUNTS);
 
+      if (accounts.includes(address)) {
+        this.connectedIdentity = address;
         this.isConnected = true;
-        this.connectedIdentity = connectedIdentity;
-      } catch (err) {
-        console.error(err);
-        throw err;
+        return true;
       }
-    };
+
+      return false;
+    } catch (error) {
+      console.warn(`Something failed while interacting with the Pocket Network wallet provider. method: ${PocketMorseMethod.ACCOUNTS}`);
+      return false;
+    }
+  }
 
   getChain = async (): Promise<string> => {
     try {
-      return await this._provider?.send(
+      return await this.provider.send(
         PocketMorseMethod.CHAIN,
       );
     } catch (err) {
@@ -47,7 +65,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   getPublicKey = async (address: string): Promise<string> => {
     try {
-      const { publicKey } = await this._provider?.send(
+      const { publicKey } = await this.provider.send(
         PocketMorseMethod.PUBLIC_KEY,
         [{ address }]
       );
@@ -60,7 +78,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   getBalance = async (address: string): Promise<number> => {
     try {
-      const { balance } = await this._provider?.send(
+      const { balance } = await this.provider.send(
         PocketMorseMethod.BALANCE,
         [{ address }]
       );
@@ -73,7 +91,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   switchChain = async (chainId: string): Promise<void> => {
     try {
-      await this._provider?.send(
+      await this.provider.send(
         PocketMorseMethod.SWITCH_CHAIN,
         [{ chainId }],
       );
@@ -85,7 +103,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   signMessage = async (message: string, address: string): Promise<string> => {
     try {
-      const { signature } = await this._provider?.send(PocketMorseMethod.SIGN_MESSAGE, [{ message, address }]);
+      const { signature } = await this.provider.send(PocketMorseMethod.SIGN_MESSAGE, [{ message, address }]);
       return signature;
     } catch (err) {
       console.error(err);
@@ -118,4 +136,7 @@ export class MorseWalletConnection implements WalletConnection {
     });
   };
 
+  get provider() {
+    return this._provider ?? window.pocketNetwork;
+  }
 }
