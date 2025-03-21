@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "../../packages/ui/src/styles/globals.css",
+    "baseColor": "zinc",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@/components/test",
+    "hooks": "@/hooks",
+    "lib": "@/lib",
+    "utils": "@igniter/ui/lib/utils",
+    "ui": "@igniter/ui/components"
+  }
+}
