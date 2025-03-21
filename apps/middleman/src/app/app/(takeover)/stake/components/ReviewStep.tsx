@@ -6,9 +6,8 @@ import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {toCurrencyFormat} from "@igniter/ui/lib/utils";
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
 import {CaretSmallIcon, CornerIcon} from "@igniter/ui/assets";
-import {useMemo, useState} from "react";
-import {StakeBin} from "@/types";
-import {toStakeAmount} from "@/lib/utils";
+import {useMemo, useState} from "react"
+import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 
 export interface ReviewStepProps {
     amount: number;
@@ -19,10 +18,11 @@ export interface ReviewStepProps {
 
 export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<ReviewStepProps>) {
     const [isShowingTransactionDetails, setIsShowingTransactionDetails] = useState<boolean>(false);
+    const applicationSettings = useApplicationSettings();
 
     const prospectTransactions = useMemo(() => {
-        return selectedOffer.stakeDistribution.reduce<StakeBin[]>((txs, stakeDistribution) => {
-            return [...txs, ...Array.from({length: stakeDistribution.qty}, () => stakeDistribution.bin)];
+        return selectedOffer.stakeDistribution.reduce<number[]>((txs, stakeDistribution) => {
+            return [...txs, ...Array.from({length: stakeDistribution.qty}, () => stakeDistribution.amount)];
         }, []);
     }, [selectedOffer]);
 
@@ -67,16 +67,16 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                 <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                     <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
                         <span>
-                            Middleman Fee
+                            Service Fee
                         </span>
                         <QuickInfoPopOverIcon
-                            title="Middleman Fee"
-                            description="The % of the rewards that the Middleman charges retain for providing the service."
+                            title="Service Fee"
+                            description="The % of the rewards that this website retain for handling the service."
                             url={''}
                         />
                     </span>
                     <span className="text-[14px] text-[var(--color-white-1)]">
-                        1%
+                        {applicationSettings?.fee}%
                     </span>
                 </span>
                 <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
@@ -166,7 +166,7 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                             </span>
                             <span className="flex flex-row gap-2">
                                 <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                                    {toStakeAmount(tx)}
+                                    {tx}
                                 </span>
                                 <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                                     $POKT

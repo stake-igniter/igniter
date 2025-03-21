@@ -7,6 +7,8 @@ import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {toCurrencyFormat} from "@igniter/ui/lib/utils";
 import {ProviderOfferItem} from "@/app/app/(takeover)/stake/components/PickOfferStep/ProviderOfferItem";
 import {CaretIcon} from "@igniter/ui/assets";
+import {CalculateStakeDistribution} from "@/actions/Stake";
+import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
 
 export interface PickOfferStepProps {
     amount: number;
@@ -18,75 +20,11 @@ export interface PickOfferStepProps {
 export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer}: Readonly<PickOfferStepProps>) {
     const [selectedOffer, setSelectedOffer] = useState<StakeDistributionOffer | undefined>(defaultOffer);
     const [isShowingUnavailable, setIsShowingUnavailable] = useState<boolean>(false);
+    const [offers, setOffers] = useState<StakeDistributionOffer[]>([]);
+    const [isLoadingOffers, setIsLoadingOffers] = useState<boolean>(false);
+
     {/* TODO: Calculate the amount based on POKT. Using the function provided by currency context. Show the currency from the context. */}
     const subtitle = `Pick a node runner for your ${toCurrencyFormat(amount)} $POKT stake.`;
-
-    const offers: StakeDistributionOffer[] = useMemo(() => {
-        return [
-            {
-                id: 1,
-                name: "Poktscan",
-                fee: 20,
-                rewards: 203.18,
-                stakeDistribution: [
-                    {
-                        bin:'45k',
-                        qty: 1,
-                    }
-                ]
-            },
-            {
-                id: 2,
-                name: "QuantumSpider",
-                fee: 15,
-                rewards: 182.77,
-                stakeDistribution: [
-                    {
-                        bin:'45k',
-                        qty: 1,
-                    }
-                ]
-            },
-            {
-                id: 3,
-                name: "StakeNodes",
-                fee: 30,
-                rewards: 225.04,
-                stakeDistribution: [
-                    {
-                        bin:'45k',
-                        qty: 1,
-                    }
-                ]
-            },
-            {
-                id: 4,
-                name: "Node Fleet",
-                fee: 25,
-                rewards: 133.25,
-                stakeDistribution: [
-                    {
-                        bin:'45k',
-                        qty: 1,
-                    }
-                ]
-            },
-            {
-                id: 5,
-                name: "Easy2Stake",
-                fee: 20,
-                rewards: 174.90,
-                stakeDistribution: []
-            },
-            {
-                id: 6,
-                name: "Nodies",
-                fee: 30,
-                rewards: 78.26,
-                stakeDistribution: []
-            }
-        ];
-    }, []);
 
     const availableOffers = useMemo(() => {
         return offers.filter((offer) => offer.stakeDistribution.length > 0);
@@ -106,6 +44,22 @@ export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer}: R
         }
     }, [offers, selectedOffer]);
 
+    useEffect(() => {
+        (async () => {
+            setIsLoadingOffers(true);
+            try {
+                const calculatedOffers = await CalculateStakeDistribution(amount);
+                console.log(calculatedOffers);
+                setOffers(calculatedOffers);
+            } catch (error) {
+                console.warn('An error occurred while calculating the stake distribution!');
+                console.error(error);
+            } finally {
+                setIsLoadingOffers(false);
+            }
+        })();
+    }, []);
+
     return (
         <div
             className="flex flex-col w-[480px] border-x border-b border-[--balck-deviders] p-[33px] rounded-b-[12px] gap-8">
@@ -114,6 +68,10 @@ export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer}: R
                 title="Provider"
                 subtitle={subtitle}
             />
+
+            {isLoadingOffers && (
+              <ActivityContentLoading />
+            )}
 
             <div className="flex flex-col gap-3">
                 {availableOffers.map((offer) => (

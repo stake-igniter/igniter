@@ -7,19 +7,13 @@ import SliderPrimitive from "@igniter/ui/components/slider";
 export interface AmountPickerSliderProps {
     amount: number;
     balance: number;
+    minimumStake: number;
     onValueChange: (value: number) => void;
 }
 
-export function AmountPickerSlider({amount, onValueChange, balance}: Readonly<AmountPickerSliderProps>) {
-    if (balance < 0) {
-        return 'loading';
-    }
-
-    const possibleIncrements = [15000, 30000, 45000, 60000];
-    const minRequiredIncrement = Math.ceil(balance / 19);
-    const amountIncrements = possibleIncrements.find(i => i >= minRequiredIncrement) || 60000;
-    const intervals = Array.from({ length: Math.floor(balance / amountIncrements) + 1 }, (_, i) => i * amountIncrements);
-    const maxAmount = Math.floor(balance / amountIncrements) * amountIncrements;
+export function AmountPickerSlider({amount, onValueChange, balance, minimumStake}: Readonly<AmountPickerSliderProps>) {
+    const intervals = Array.from({ length: Math.floor(balance / minimumStake) + 1 }, (_, i) => i * minimumStake);
+    const maxAmount = Math.floor(balance / minimumStake) * minimumStake;
 
     return (
         <div className="relative w-full flex flex-col items-center">
@@ -27,7 +21,7 @@ export function AmountPickerSlider({amount, onValueChange, balance}: Readonly<Am
                 defaultValue={[amount]}
                 value={[amount]}
                 max={maxAmount}
-                step={amountIncrements}
+                step={minimumStake}
                 onValueChange={([value]) => onValueChange(value!)}
                 className="relative flex w-full touch-none select-none items-center"
             >

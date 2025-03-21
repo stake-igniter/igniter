@@ -1,14 +1,13 @@
-import {StakeBin} from "@/types";
-
 export interface StakeDistributionOffer {
     id: number;
     name: string;
-    fee: number;
-    rewards: number;
+    fee: string;
+    rewards: string;
+    disqualificationReasons: string[];
     stakeDistribution: NodeStakeDistributionItem[];
 }
 
 export interface NodeStakeDistributionItem {
-    bin: StakeBin;
+    amount: number;
     qty: number;
 }

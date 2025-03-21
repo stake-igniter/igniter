@@ -15,5 +15,3 @@ declare module "next-auth" {
     isAppBootstrapped: boolean;
   }
 }
-
-export type StakeBin = '15k' | '30k' | '45k' | '60k';

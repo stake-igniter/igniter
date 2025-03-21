@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {InfoIcon} from "@igniter/ui/assets";
 import {AmountPickerSlider} from "@/app/app/(takeover)/stake/components/AmountPickerSlider";
 import {AmountDisplay} from "@/app/app/(takeover)/stake/components/AmountDisplay";
@@ -8,6 +8,7 @@ import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
+import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
 
 
 export interface PickStakeAmountStepProps {
@@ -18,29 +19,33 @@ export interface PickStakeAmountStepProps {
 
 export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<PickStakeAmountStepProps>) {
     const [selectedAmount, setSelectedAmount] = useState<number>(defaultAmount);
-    const [balance, setBalance] = useState<number>(0);
+    const [balance, setBalance] = useState<number>(-1);
     const { getBalance, connectedIdentity } = useWalletConnection();
+    const [minimumStake, setMinimumStake] = useState<number>(0);
     const applicationSettings = useApplicationSettings();
+    const isViewReady = useMemo(() => {
+      return balance >= 0 && minimumStake > 0;
+    }, [balance, minimumStake])
 
-  useEffect(() => {
-    console.log('debug: connectedIdentity', connectedIdentity);
-  }, [connectedIdentity]);
 
+    useEffect(() => {
+      if (connectedIdentity) {
+        (async () => {
+          try {
+            const balance = await getBalance(connectedIdentity);
+            setBalance(balance / 1e6);
+          } catch {
+            console.log('An error occurred while getting the balance from your connected wallet.');
+          }
+        })();
+      }
+    }, [connectedIdentity]);
 
-  useEffect(() => {
-    if (connectedIdentity) {
-      (async () => {
-        try {
-          const balance = await getBalance(connectedIdentity);
-          setBalance(balance / 1e6);
-        } catch {
-          console.log('An error occurred while getting the balance from your connected wallet.');
-        }
-      })();
-    }
-  }, [connectedIdentity]);
-
-    const amountIncrements = 15000;
+    useEffect(() => {
+      if (applicationSettings) {
+        setMinimumStake(Number(applicationSettings.minimumStake));
+      }
+    }, [applicationSettings]);
 
     return (
         <div
@@ -49,25 +54,39 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<
                 title="Stake"
                 subtitle="Use the slider below to pick an amount to stake."
             />
-            <AmountPickerSlider
-                balance={balance}
-                amount={selectedAmount}
-                onValueChange={setSelectedAmount}
-            />
-            <AmountDisplay balance={balance} amount={selectedAmount}
-                           onMaxSelected={() => setSelectedAmount(Math.floor(balance / amountIncrements) * amountIncrements)}/>
-            <div
-                className="flex flex-row items-center justify-between border border-[--black-dividers] rounded-[8px] p-4">
+
+            {!isViewReady && (
+              <ActivityContentLoading />
+            )}
+
+            {isViewReady && (
+              <>
+                <AmountPickerSlider
+                  balance={balance}
+                  amount={selectedAmount}
+                  minimumStake={minimumStake}
+                  onValueChange={setSelectedAmount}
+                />
+                <AmountDisplay
+                  balance={balance}
+                  amount={selectedAmount}
+                  onMaxSelected={() => setSelectedAmount(Math.floor(balance / minimumStake) * minimumStake)}
+                />
+                <div
+                  className="flex flex-row items-center justify-between border border-[--black-dividers] rounded-[8px] p-4">
                 <span className="flex flex-row items-center gap-2">
                     <span className="text-[14px] text-[var(--color-white-3)]">
                         Middleman Fee
                     </span>
                     <InfoIcon/>
                 </span>
-              {applicationSettings?.fee && (
-                <span className="text-[14px] text-[var(--color-white-1)]">{Number(applicationSettings?.fee).toFixed(0)}%</span>
-              )}
-            </div>
+                  {applicationSettings?.fee && (
+                    <span className="text-[14px] text-[var(--color-white-1)]">{Number(applicationSettings?.fee).toFixed(0)}%</span>
+                  )}
+                </div>
+              </>
+            )}
+
           <Button
             disabled={selectedAmount === 0}
                 className="w-full h-[40px]"

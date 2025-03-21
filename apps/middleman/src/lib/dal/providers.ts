@@ -4,9 +4,9 @@ import { Provider, providersTable } from "@/db/schema";
 import { sql } from "drizzle-orm";
 
 export async function upsertProviders(
-  providers: Omit<Provider, "id" | "createdAt" | "updatedAt">[]
+  providers: Pick<Provider, "name" | "url" | "publicKey" | "enabled" | "visible">[]
 ) {
-  return await db
+  return db
     .insert(providersTable)
     .values(providers)
     .onConflictDoUpdate({
@@ -16,4 +16,12 @@ export async function upsertProviders(
       },
     })
     .returning();
+}
+
+export async function list() {
+  return db.query.providersTable.findMany({
+    where: (providers, {eq}) => {
+      return eq(providers.enabled, true) && eq(providers.visible, true);
+    }
+  })
 }
