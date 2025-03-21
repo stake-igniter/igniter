@@ -66,9 +66,14 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       <form
         onSubmit={form.handleSubmit(async (values: any) => {
           setIsLoading(true);
-          await upsertSettings(values, isUpdate);
-          setIsLoading(false);
-          goNext();
+          try {
+            await upsertSettings(values, isUpdate);
+            goNext();
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setIsLoading(false);
+          }
         })}
         className="grid gap-4"
       >

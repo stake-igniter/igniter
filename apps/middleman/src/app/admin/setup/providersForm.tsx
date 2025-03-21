@@ -45,9 +45,14 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
       <form
         onSubmit={form.handleSubmit(async (values) => {
           setIsLoading(true);
-          await submitProviders(values, providers);
-          setIsLoading(false);
-          goNext();
+          try {
+            await submitProviders(values, providers);
+            goNext();
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setIsLoading(false);
+          }
         })}
         className="grid gap-4"
       >

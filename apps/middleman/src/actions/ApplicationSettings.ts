@@ -34,11 +34,8 @@ export async function upsertSettings(
 ) {
   const validatedFields = updateSettingsSchema.safeParse(values);
 
-  // Return early if the form data is invalid
   if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-    };
+    throw new Error("Invalid form data");
   }
 
   if (isUpdate) {
