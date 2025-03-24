@@ -35,11 +35,11 @@ export const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email(),
-  middlemanFee: z.coerce
+  fee: z.coerce
     .number()
     .min(1, "Middleman fee must be greater than 0")
     .max(100),
-  minimumStakeIncrement: z.enum(["15000", "30000", "45000", "60000"]),
+  minimumStake: z.coerce.number().default(15000),
   privacyPolicy: z.string().optional(),
 });
 
@@ -53,8 +53,8 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       name: defaultValues.name || "",
       supportEmail: defaultValues.supportEmail || "",
       ownerEmail: defaultValues.ownerEmail || "",
-      middlemanFee: Number(defaultValues.middlemanFee) || 1,
-      minimumStakeIncrement: defaultValues.minimumStakeIncrement || "15000",
+      fee: Number(defaultValues.fee) || 1,
+      minimumStake: defaultValues.minimumStake,
       privacyPolicy: defaultValues.privacyPolicy || "",
     },
   });
@@ -174,11 +174,11 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
-            name="middlemanFee"
+            name="fee"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Middleman Fee</FormLabel>
+                <FormLabel>Service Fee</FormLabel>
                 <FormControl>
                   <div className="flex items-center">
                     <Input {...field} type="number" className="flex-grow" />
@@ -191,15 +191,15 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           />
 
           <FormField
-            name="minimumStakeIncrement"
+            name="minimumStake"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Minimum Stake Increment</FormLabel>
+                <FormLabel>Minimum Stake</FormLabel>
                 <FormControl>
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    defaultValue={field.value.toString()}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select Minimum Stake Increment" />

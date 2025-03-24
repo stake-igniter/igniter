@@ -15,6 +15,6 @@
     "utils": "@igniter/ui/lib/utils",
     "hooks": "@igniter/ui/hooks",
     "lib": "@igniter/ui/lib",
-    "ui": "@igniter/ui/components"
+    "ui": "src/components"
   }
 }

@@ -16,11 +16,11 @@ const updateSettingsSchema = z.object({
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email(),
-  middlemanFee: z.coerce
+  fee: z.coerce
     .number()
     .min(1, "Middleman fee must be greater than 0")
     .max(100),
-  minimumStakeIncrement: z.enum(["15000", "30000", "45000", "60000"]),
+  minimumStake: z.number(),
   privacyPolicy: z.string().optional(),
 });
 
@@ -44,7 +44,7 @@ export async function upsertSettings(
     await insertApplicationSettings(values as ApplicationSettings);
   }
 
-  await revalidatePath("/setup");
+  revalidatePath("/admin/setup");
 }
 
 export async function completeSetup() {

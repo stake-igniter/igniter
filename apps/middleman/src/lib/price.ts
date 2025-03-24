@@ -15,7 +15,6 @@ const API_URL =
 const getPrice = cache(
   unstable_cache(
     async (): Promise<Price> => {
-      //do we need to use pro version here?
       const data = await fetch(API_URL, {
         next: { revalidate: 60 },
       }).then((res) => res.json());

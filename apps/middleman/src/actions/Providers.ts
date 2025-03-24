@@ -1,6 +1,6 @@
 "use server";
 
-import { upsertProviders } from "@/lib/dal/providers";
+import {list, upsertProviders} from "@/lib/dal/providers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -63,9 +63,14 @@ export async function submitProviders(
   const updatedProviders = providers.map(({ id, ...provider }) => ({
     ...provider,
     enabled: values.providers.includes(provider.publicKey),
+    visible: values.providers.includes(provider.publicKey),
   }));
 
   await upsertProviders(updatedProviders);
 
-  await revalidatePath("/setup");
+  revalidatePath("/admin/setup");
+}
+
+export async function listProviders() {
+  return list();
 }

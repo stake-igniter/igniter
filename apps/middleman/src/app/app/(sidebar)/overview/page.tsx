@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Button } from "@igniter/ui/components/button";
 import ChangeIndicator from "@igniter/ui/components/ChangeIndicator";
 import BinCardList from "./components/BinCardList";
@@ -26,7 +27,9 @@ export default async function Page() {
             </div>
             <div className="flex flex-col">
               <div className="flex flex-row gap-3">
-                <Button> Stake $POKT</Button>
+                <Link href="/app/stake">
+                  <Button>Stake</Button>
+                </Link>
                 <Button> Buy $POKT</Button>
               </div>
             </div>

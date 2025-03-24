@@ -26,3 +26,15 @@ export function getShortAddress(address: string, length = 8) {
         ? address.slice(0, length) + "..." + address.slice(-length)
         : "";
 }
+
+export function toCurrencyFormat(value: number, maxFractionDigits = 2, minimumFractionDigits = 0) {
+    return new Intl.NumberFormat("en-US", {
+        style: "decimal",
+        minimumFractionDigits: minimumFractionDigits,
+        maximumFractionDigits: maxFractionDigits
+    }).format(value)
+}
+
+export function toCompactFormat(value: number) {
+  return new Intl.NumberFormat('en', { notation: 'compact' }).format(value);
+}

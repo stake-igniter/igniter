@@ -34,9 +34,6 @@ export const CurrencyContextProvider = ({
         setCurrency(newCurrency);
         return newCurrency;
       },
-      setCurrency: (currency: Currency) => {
-        setCurrency(currency);
-      },
       currency,
     }),
     [currency]

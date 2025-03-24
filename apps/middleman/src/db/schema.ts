@@ -5,7 +5,7 @@ import {
   pgEnum,
   pgTable,
   text,
-  timestamp, uuid,
+  timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -21,13 +21,6 @@ export enum UserRole {
   Owner = "owner",
 }
 
-export enum MinimumStakeIncrement {
-  "15k" = "15000",
-  "30k" = "30000",
-  "45k" = "45000",
-  "60k" = "60000",
-}
-
 export enum ChainId {
   Mainnet = "mainnet",
   Testnet = "testnet",
@@ -39,11 +32,6 @@ export enum BlockchainProtocol {
 }
 
 export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
-
-export const minimumStakeIncrementEnum = pgEnum(
-  "minimum_stake_increment",
-  enumToPgEnum(MinimumStakeIncrement)
-);
 
 export const chainIdEnum = pgEnum("chain_ids", enumToPgEnum(ChainId));
 
@@ -69,6 +57,11 @@ export const providersTable = pgTable("providers", {
   publicKey: varchar({ length: 255 }).notNull().unique(),
   url: varchar({ length: 255 }).notNull(),
   enabled: boolean().notNull(),
+  visible: boolean().notNull().default(true),
+  fee: decimal().notNull().default('1.00'),
+  domains: text().array().default([]),
+  minimumStake: integer().notNull().default(0),
+  operationalFunds: integer().notNull().default(5),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
@@ -81,8 +74,8 @@ export const applicationSettingsTable = pgTable("application_settings", {
   supportEmail: varchar({ length: 255 }),
   ownerEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),
-  middlemanFee: decimal({ precision: 5, scale: 2 }).notNull(),
-  minimumStakeIncrement: minimumStakeIncrementEnum(),
+  fee: decimal({ precision: 5, scale: 2 }).notNull(),
+  minimumStake: integer().notNull().default(15000),
   isBootstrapped: boolean().notNull(),
   chainId: chainIdEnum().notNull(),
   blockchainProtocol: blockchainProtocolEnum().notNull(),

@@ -5,7 +5,6 @@ import {
   applicationSettingsTable,
   ChainId,
   BlockchainProtocol,
-  MinimumStakeIncrement,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -15,11 +14,11 @@ const defaultSettings: ApplicationSettings = {
   supportEmail: "",
   ownerEmail: "",
   ownerIdentity: "",
-  middlemanFee: "0",
-  minimumStakeIncrement: MinimumStakeIncrement["15k"],
+  fee: "1",
+  minimumStake: 15000,
   isBootstrapped: false,
   chainId: "mainnet" as ChainId,
-  blockchainProtocol: "morse" as BlockchainProtocol,
+  blockchainProtocol: BlockchainProtocol.Morse,
   privacyPolicy: "",
   createdAt: new Date(),
   updatedAt: new Date(),
