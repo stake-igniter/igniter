@@ -11,7 +11,7 @@
     "prefix": ""
   },
   "aliases": {
-    "components": "@igniter/ui/components@igniter/ui/components",
+    "components": "@igniter/ui/components",
     "utils": "@igniter/ui/lib/utils",
     "hooks": "@igniter/ui/hooks",
     "lib": "@igniter/ui/lib",
