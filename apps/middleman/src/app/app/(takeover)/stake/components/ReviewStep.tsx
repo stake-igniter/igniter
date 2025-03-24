@@ -3,7 +3,7 @@
 import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {toCurrencyFormat} from "@igniter/ui/lib/utils";
+import {toCompactFormat, toCurrencyFormat} from "@igniter/ui/lib/utils";
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
 import {CaretSmallIcon, CornerIcon} from "@igniter/ui/assets";
 import {useMemo, useState} from "react"
@@ -25,6 +25,14 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
             return [...txs, ...Array.from({length: stakeDistribution.qty}, () => stakeDistribution.amount)];
         }, []);
     }, [selectedOffer]);
+
+    const totalNetworkFee = useMemo(() => {
+        return prospectTransactions.length * 0.01;
+    }, [prospectTransactions]);
+
+    const totalTransactionsToSign = useMemo(() => {
+        return prospectTransactions.length * 2;
+    }, [prospectTransactions])
 
     return (
         <div
@@ -92,7 +100,7 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                     </span>
                     <span className="flex flex-row gap-2">
                         <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                            0.01
+                            {totalNetworkFee}
                         </span>
                         <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                             $POKT
@@ -112,7 +120,7 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                     </span>
                     <span className="flex flex-row gap-2">
                         <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                            1.00
+                            {toCurrencyFormat(prospectTransactions.length * selectedOffer.operationalFundsAmount, 2, 2)}
                         </span>
                         <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                             $POKT
@@ -154,7 +162,7 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                             <CaretSmallIcon />
                         )}
                         <span className="text-[14px] text-[var(--color-white-3)]">
-                            {`Transactions to Sign (${prospectTransactions.length * 2})`}
+                            {`Transactions to Sign (${totalTransactionsToSign})`}
                         </span>
                     </span>
                 </span>
@@ -162,11 +170,11 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                     <>
                         <span key={`stake-${index}`} className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                             <span className="text-[14px] text-[var(--color-white-3)]">
-                                {`Stake (${tx})`}
+                                {`Stake (${toCompactFormat(tx)})`}
                             </span>
                             <span className="flex flex-row gap-2">
                                 <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                                    {tx}
+                                    {toCurrencyFormat(tx, 2, 2)}
                                 </span>
                                 <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                                     $POKT
@@ -182,7 +190,7 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                             </span>
                             <span className="flex flex-row gap-2">
                                 <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                                    1.00
+                                    {toCurrencyFormat(selectedOffer.operationalFundsAmount, 2, 2)}
                                 </span>
                                 <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                                     $POKT

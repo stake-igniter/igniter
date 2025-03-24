@@ -27,10 +27,14 @@ export function getShortAddress(address: string, length = 8) {
         : "";
 }
 
-export function toCurrencyFormat(value: number, maxFractionDigits = 2) {
+export function toCurrencyFormat(value: number, maxFractionDigits = 2, minimumFractionDigits = 0) {
     return new Intl.NumberFormat("en-US", {
         style: "decimal",
-        minimumFractionDigits: 0,
+        minimumFractionDigits: minimumFractionDigits,
         maximumFractionDigits: maxFractionDigits
     }).format(value)
+}
+
+export function toCompactFormat(value: number) {
+  return new Intl.NumberFormat('en', { notation: 'compact' }).format(value);
 }

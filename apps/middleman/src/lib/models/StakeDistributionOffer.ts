@@ -3,7 +3,7 @@ export interface StakeDistributionOffer {
     name: string;
     fee: string;
     rewards: string;
-    disqualificationReasons: string[];
+    operationalFundsAmount: number;
     stakeDistribution: NodeStakeDistributionItem[];
 }
 

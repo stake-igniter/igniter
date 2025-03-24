@@ -12,16 +12,12 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
     return [];
   }
 
-  // Allowed node sizes in descending order.
   const availableNodeSizes = [60000, 45000, 30000, 15000];
 
   return providers.map(provider => {
     let distribution: NodeStakeDistributionItem[] = [];
-    let disqualificationReasons: string[] = [];
 
-    // Only attempt distribution if provider is enabled.
     if (provider.enabled) {
-      // Filter allowed node sizes based on the provider's minimum stake.
       const allowedSizes = availableNodeSizes.filter(amount => amount >= provider.minimumStake);
 
       let remaining = stakeAmount;
@@ -37,7 +33,6 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       }, []);
 
       if (remaining !== 0) {
-        disqualificationReasons = [`Remaining Stake amount: ${remaining}`];
         distribution = [];
       }
     }
@@ -47,7 +42,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       name: provider.name,
       fee: provider.fee,
       rewards: 'N/A',
-      disqualificationReasons,
+      operationalFundsAmount: provider.operationalFunds,
       stakeDistribution: distribution
     };
   });

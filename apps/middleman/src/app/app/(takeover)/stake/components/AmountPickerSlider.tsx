@@ -11,8 +11,25 @@ export interface AmountPickerSliderProps {
     onValueChange: (value: number) => void;
 }
 
+function getSliderIntervals(balance: number, minimumStake: number, maxTicks = 16) {
+    const totalSteps = Math.floor(balance / minimumStake);
+    let intervals = [];
+
+    if (totalSteps < maxTicks) {
+        intervals = Array.from({ length: totalSteps + 1 }, (_, i) => i * minimumStake);
+    } else {
+        const tickSkipFactor = Math.ceil(totalSteps / (maxTicks - 1));
+        for (let i = 0; i < maxTicks - 1; i++) {
+            intervals.push(i * tickSkipFactor * minimumStake);
+        }
+        intervals.push(Math.floor(balance / minimumStake) * minimumStake);
+    }
+
+    return intervals;
+}
+
 export function AmountPickerSlider({amount, onValueChange, balance, minimumStake}: Readonly<AmountPickerSliderProps>) {
-    const intervals = Array.from({ length: Math.floor(balance / minimumStake) + 1 }, (_, i) => i * minimumStake);
+    const intervals = getSliderIntervals(balance, minimumStake);
     const maxAmount = Math.floor(balance / minimumStake) * minimumStake;
 
     return (
@@ -26,7 +43,7 @@ export function AmountPickerSlider({amount, onValueChange, balance, minimumStake
                 className="relative flex w-full touch-none select-none items-center"
             >
                 <SliderPrimitive.Track className="h-[10px] w-full rounded-[3px]  bg-[var(--color-slate-3)]">
-                    {intervals.length < 20 && intervals.map((interval) => (
+                    {intervals.map((interval) => (
                         <div
                             key={interval}
                             className="absolute w-[4px] h-[4px] rounded-[3px] bg-[var(--color-black-1)]  top-1/2 transform -translate-y-1/2 hover:cursor-pointer"

@@ -61,6 +61,7 @@ export const providersTable = pgTable("providers", {
   fee: decimal().notNull().default('1.00'),
   domains: text().array().default([]),
   minimumStake: integer().notNull().default(0),
+  operationalFunds: integer().notNull().default(5),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
