@@ -9,13 +9,6 @@ export async function getActivity(activityId: number) {
   });
 }
 
-export async function createActivity(activity: Activity) {
-  return await db
-    .insert(activityTable)
-    .values(activity)
-    .returning()
-    .then((res) => res[0]);
-}
 
 export async function updateActivity(
   activityId: number,
