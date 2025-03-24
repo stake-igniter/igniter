@@ -15,13 +15,6 @@ export async function getDependantTransactions(transactionId: number) {
   });
 }
 
-export async function createTransaction(transaction: Transaction) {
-  return await db
-    .insert(transactionsTable)
-    .values(transaction)
-    .returning()
-    .then((res) => res[0]);
-}
 
 export async function updateTransaction(
   transactionId: number,
