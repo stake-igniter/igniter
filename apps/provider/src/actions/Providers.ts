@@ -36,6 +36,7 @@ export async function loadProvidersFromCdn(): Promise<Provider[]> {
       );
     }
     return await response.json();
+
   } catch (error) {
     console.error("Error loading providers from CDN:", error);
     return [];
@@ -57,7 +58,9 @@ export async function submitProviders(
   const validatedFields = updateProvidersSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    throw new Error("Invalid form data");
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
   }
 
   const updatedProviders = providers.map(({ id, ...provider }) => ({

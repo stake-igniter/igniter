@@ -12,7 +12,6 @@ import {
   FormMessage,
 } from "@igniter/ui/components/form";
 import { Input } from "@igniter/ui/components/input";
-import { Textarea } from "@igniter/ui/components/textarea";
 import {
   Select,
   SelectContent,
@@ -23,6 +22,7 @@ import {
 import React, { useMemo, useState } from "react";
 import { upsertSettings } from "@/actions/ApplicationSettings";
 import { ApplicationSettings } from "@/db/schema";
+import { MINIMUM_STAKE, STAKE_OPTIONS } from "@/lib/constants";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;
@@ -34,13 +34,15 @@ export const formSchema = z.object({
   blockchainProtocol: z.enum(["morse", "shannon"]),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
-  ownerEmail: z.string().email(),
-  middlemanFee: z.coerce
+  providerFee: z.coerce
     .number()
-    .min(1, "Middleman fee must be greater than 0")
+    .min(1, "Provider fee must be greater than 0")
     .max(100),
-  minimumStakeIncrement: z.enum(["15000", "30000", "45000", "60000"]),
-  privacyPolicy: z.string().optional(),
+  delegatorRewardsAddress: z.string().refine(
+    (value) => value.length === 40,
+    (val) => ({ message: `${val} is not a valid address` })
+  ),
+  minimumStake: z.number().min(MINIMUM_STAKE, "Minimum stake is required"),
 });
 
 const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
@@ -52,10 +54,9 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       blockchainProtocol: defaultValues.blockchainProtocol || "morse",
       name: defaultValues.name || "",
       supportEmail: defaultValues.supportEmail || "",
-      ownerEmail: defaultValues.ownerEmail || "",
-      middlemanFee: Number(defaultValues.middlemanFee) || 1,
-      minimumStakeIncrement: defaultValues.minimumStakeIncrement || "15000",
-      privacyPolicy: defaultValues.privacyPolicy || "",
+      providerFee: Number(defaultValues.providerFee) || 1,
+      delegatorRewardsAddress: defaultValues.delegatorRewardsAddress || "",
+      minimumStake: defaultValues.minimumStake || MINIMUM_STAKE,
     },
   });
 
@@ -77,26 +78,13 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
         })}
         className="grid gap-4"
       >
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             name="name"
             control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="ownerEmail"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Owner Email</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -174,11 +162,11 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
         <div className="grid grid-cols-2 gap-4">
           <FormField
-            name="middlemanFee"
+            name="providerFee"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Middleman Fee</FormLabel>
+                <FormLabel>Provider Fee</FormLabel>
                 <FormControl>
                   <div className="flex items-center">
                     <Input {...field} type="number" className="flex-grow" />
@@ -191,24 +179,43 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           />
 
           <FormField
-            name="minimumStakeIncrement"
+            name="delegatorRewardsAddress"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Minimum Stake Increment</FormLabel>
+                <FormLabel>Delegator rewards address</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div>
+          <FormLabel>Select your minimum supported stake:</FormLabel>
+          <FormField
+            name="minimumStake"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
                 <FormControl>
                   <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(Number(value));
+                    }}
+                    value={String(field.value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select Minimum Stake Increment" />
+                      <SelectValue placeholder="Select minimum stake" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="15000">15000</SelectItem>
-                      <SelectItem value="30000">30000</SelectItem>
-                      <SelectItem value="45000">45000</SelectItem>
-                      <SelectItem value="60000">60000</SelectItem>
+                      {STAKE_OPTIONS.map((item) => (
+                        <SelectItem key={item} value={String(item)}>
+                          {item}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -217,20 +224,6 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
             )}
           />
         </div>
-
-        <FormField
-          name="privacyPolicy"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Privacy Policy</FormLabel>
-              <FormControl>
-                <Textarea className="resize-none" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
 
         <div className="flex justify-end gap-4">
           <Button disabled>Back</Button>
