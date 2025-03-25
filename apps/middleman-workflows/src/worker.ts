@@ -1,5 +1,7 @@
 import { NativeConnection, Worker } from "@temporalio/worker";
-import * as activities from "./activities";
+import { createActivities } from "./activities";
+import bootstrap from "./bootstrap";
+import setupPoktProvider, { BlockchainProtocol } from "./lib/blockchain/pokt";
 
 export async function setupTemporalWorker() {
   // Step 1: Establish a connection with Temporal server.
@@ -20,6 +22,12 @@ export async function setupTemporalWorker() {
 
   const NAMESPACE = process.env.TEMPORAL_NAMESPACE || "middleman";
   const TASK_QUEUE = process.env.TEMPORAL_TASK_QUEUE || "middleman-operations";
+  const BLOCKCHAIN_PROTOCOL = (process.env.BLOCKCHAIN_PROTOCOL ||
+    BlockchainProtocol.Morse) as BlockchainProtocol;
+
+  await bootstrap();
+
+  const blockchainProvider = setupPoktProvider(BLOCKCHAIN_PROTOCOL);
 
   const worker = await Worker.create({
     connection,
@@ -27,7 +35,7 @@ export async function setupTemporalWorker() {
     taskQueue: TASK_QUEUE,
     // Workflows are registered using a path as they run in a separate JS context.
     workflowsPath: require.resolve("./workflows"),
-    activities,
+    activities: createActivities(blockchainProvider),
   });
 
   // Step 3: Start accepting tasks on the `background-check` queue

@@ -1,17 +1,12 @@
 {
-    "extends": "@igniter/typescript-config/base.json",
-    "compilerOptions": {
-      "plugins": [
-      ],
-      "paths": {
-        "@/*": ["./src/*"]
-      },
-      "outDir": "./dist/",
+  "extends": "@igniter/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "paths": {
     },
-    "include": ["./**/*.ts"],
-    "exclude": [
-      "node_modules",
-       "dist",
-    ]
-  }
-  
+    "module": "commonjs",
+    "moduleResolution":null
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
