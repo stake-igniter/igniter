@@ -36,6 +36,7 @@ export enum BlockchainProtocol {
 
 export enum KeyManagementStrategyType {
   Dynamic = "dynamic",
+  Manual = "manual",
 }
 
 const encryptedText = customType<{ data: string }>({
@@ -101,38 +102,7 @@ export const chainsTable = pgTable("chains", {
   updatedAt: timestamp().defaultNow(),
 });
 
-export const chainsRelations = relations(chainsTable, ({ many }) => ({
-  chainsToAddressGroups: many(chainsToAddressGroup),
-}));
-
 export type Chain = typeof chainsTable.$inferSelect;
-
-export const chainsToAddressGroup = pgTable(
-  "chains_to_address_groups",
-  {
-    chainId: integer("chain_id")
-      .notNull()
-      .references(() => chainsTable.id),
-    addressGroupId: integer("address_group_id")
-      .notNull()
-      .references(() => addressGroupTable.id),
-  },
-  (t) => [primaryKey({ columns: [t.chainId, t.addressGroupId] })]
-);
-
-export const chainsToAddressGroupRelations = relations(
-  chainsToAddressGroup,
-  ({ one }) => ({
-    addressGroup: one(addressGroupTable, {
-      fields: [chainsToAddressGroup.addressGroupId],
-      references: [addressGroupTable.id],
-    }),
-    chain: one(chainsTable, {
-      fields: [chainsToAddressGroup.chainId],
-      references: [chainsTable.id],
-    }),
-  })
-);
 
 //TODO: Add encryption
 export const addressesTable = pgTable("addresses", {
@@ -160,6 +130,7 @@ export const addressGroupTable = pgTable("address_groups", {
   identity: varchar({ length: 255 }).notNull().unique(),
   domain: varchar({ length: 255 }).notNull(),
   pattern: varchar({ length: 255 }).notNull(),
+  defaultChains: varchar({ length: 255 }).array().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
@@ -168,7 +139,6 @@ export const groupAddressRelation = relations(
   addressGroupTable,
   ({ many }) => ({
     addresses: many(addressesTable),
-    chainsToAddressGroups: many(chainsToAddressGroup),
   })
 );
 
