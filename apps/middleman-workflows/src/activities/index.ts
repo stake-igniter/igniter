@@ -1,55 +1,44 @@
-import { heartbeat, sleep, ApplicationFailure } from "@temporalio/activity";
-import { BlockchainProvider } from "../lib/blockchain";
-import {
-  createActivity,
-  getActivity,
-  updateActivity,
-} from "../lib/dal/activity";
-import {
-  getDependantTransactions,
-  getTransaction,
-  updateTransaction,
-} from "../lib/dal/transaction";
+import { heartbeat, sleep } from "@temporalio/activity";
 import { RawTxRequest } from "@pokt-foundation/pocketjs-types";
+import { BlockchainProvider } from "../lib/blockchain";
+import * as activityDAL from "../lib/dal/activity";
+import * as transactionDAL from "../lib/dal/transaction";
 import { Activity, Transaction } from "../lib/db/schema";
 
 export const createActivities = (blockchainProvider: BlockchainProvider) => ({
-  async getMiddlemanActivity(activityId: number) {
-    const activity = await getActivity(activityId);
+  async getActivity(activityId: number) {
+    const activity = await activityDAL.getActivity(activityId);
     if (!activity) {
       throw new Error("Activity not found");
     }
     return activity;
   },
-  async updateMiddlemanActivity(
-    activityId: number,
-    payload: Partial<Activity>
-  ) {
-    const activity = await getActivity(activityId);
+  async updateActivity(activityId: number, payload: Partial<Activity>) {
+    const activity = await activityDAL.getActivity(activityId);
     if (!activity) {
       throw new Error("Activity not found");
     }
-    return await updateActivity(activityId, payload);
+    return await activityDAL.updateActivity(activityId, payload);
   },
-  async getMiddlemanTransaction(transactionId: number) {
-    const transaction = await getTransaction(transactionId);
+  async getTransaction(transactionId: number) {
+    const transaction = await transactionDAL.getTransaction(transactionId);
     if (!transaction) {
       throw new Error("Transaction not found");
     }
     return transaction;
   },
-  async getMiddlemanDependantTransactions(transactionId: number) {
-    return await getDependantTransactions(transactionId);
+  async getDependantTransactions(transactionId: number) {
+    return await transactionDAL.getDependantTransactions(transactionId);
   },
-  async updateMiddlemanTransaction(
+  async updateTransaction(
     transactionId: number,
     payload: Partial<Transaction>
   ) {
-    const transaction = await getTransaction(transactionId);
+    const transaction = await transactionDAL.getTransaction(transactionId);
     if (!transaction) {
       throw new Error("Transaction not found");
     }
-    return await updateTransaction(transactionId, payload);
+    return await transactionDAL.updateTransaction(transactionId, payload);
   },
   async executeTransaction(address: string, signedPayload: string) {
     const request = new RawTxRequest(address, signedPayload);

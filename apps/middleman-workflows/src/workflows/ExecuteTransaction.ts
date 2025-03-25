@@ -1,7 +1,6 @@
 import { log, proxyActivities, startChild } from "@temporalio/workflow";
 import { createActivities } from "../activities";
 import { TransactionStatus } from "../lib/db/schema";
-import { d } from "drizzle-kit/index-Z-1TKnbX";
 
 interface TransactionArgs {
   transactionId: number;
@@ -11,12 +10,12 @@ export async function ExecuteTransaction(args: TransactionArgs) {
   const { transactionId } = args;
 
   const {
-    getMiddlemanTransaction,
-    updateMiddlemanTransaction,
+    getTransaction,
+    updateTransaction,
     executeTransaction,
     getBlockHeight,
     verifyTransaction,
-    getMiddlemanDependantTransactions,
+    getDependantTransactions,
   } = proxyActivities<ReturnType<typeof createActivities>>({
     startToCloseTimeout: "30s",
     retry: {
@@ -24,7 +23,7 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     },
   });
 
-  const transaction = await getMiddlemanTransaction(transactionId);
+  const transaction = await getTransaction(transactionId);
 
   if (!transaction || !transaction.signedPayload) {
     throw new Error("Transaction not found");
@@ -57,13 +56,12 @@ export async function ExecuteTransaction(args: TransactionArgs) {
 
   const txStatus = (status.code ? "failed" : "success") as TransactionStatus;
 
-  await updateMiddlemanTransaction(transactionId, {
+  await updateTransaction(transactionId, {
     status: txStatus,
     hash,
   });
 
-  const dependantTransactions =
-    await getMiddlemanDependantTransactions(transactionId);
+  const dependantTransactions = await getDependantTransactions(transactionId);
 
   for (const transaction of dependantTransactions) {
     await startChild(ExecuteTransaction, {

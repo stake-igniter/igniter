@@ -10,7 +10,7 @@ export interface StakeArgs {
 export async function ExecuteStake(args: StakeArgs) {
   const { activityId } = args;
 
-  const { getMiddlemanActivity, updateMiddlemanActivity } = proxyActivities<
+  const { getActivity, updateActivity } = proxyActivities<
     ReturnType<typeof createActivities>
   >({
     startToCloseTimeout: "30s",
@@ -19,7 +19,7 @@ export async function ExecuteStake(args: StakeArgs) {
     },
   });
 
-  const activity = await getMiddlemanActivity(activityId);
+  const activity = await getActivity(activityId);
 
   if (activity?.type !== ActivityType.Stake) {
     return "Activity is not a Stake, skipping";
@@ -58,7 +58,7 @@ export async function ExecuteStake(args: StakeArgs) {
     failedWorkflows.length > 0 ? "failed" : "success"
   ) as ActivityStatus;
 
-  await updateMiddlemanActivity(activityId, {
+  await updateActivity(activityId, {
     status: activityStatus,
   });
 
