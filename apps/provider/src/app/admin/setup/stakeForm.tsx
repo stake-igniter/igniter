@@ -68,7 +68,7 @@ const FormComponent: React.FC<FormProps> = ({ goNext, chainMap }) => {
         className="grid gap-4"
       >
         <FormDescription>
-          Configure your first address group, this will allow you to have
+          Configure your first address group, this will allow you to save
           multiple stake configurations.
         </FormDescription>
         <div className="grid grid-cols-3 gap-4">
