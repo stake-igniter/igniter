@@ -1,11 +1,11 @@
 import { db } from "@/db";
-import { Address, addressesTable } from "@/db/schema";
+import { Address, addressesTable, AddressGroup } from "@/db/schema";
 import { sha256 } from "js-sha256";
 import Sodium from "libsodium-wrappers";
-import { getApplicationSettings } from "./applicationSettings";
+import { eq } from "drizzle-orm";
 import { getActiveKeyManagementStrategy } from "./keyManagementStrategies";
 import { getAddressGroupsByIdentity } from "./addressGroups";
-import { eq } from "drizzle-orm";
+import { KeyManagementStrategyFactory } from "../keyStrategies";
 
 export interface KeyPair {
   public_key: string;
@@ -32,40 +32,6 @@ export function addressFromPublicKey(publicKey: Buffer): string {
   return Buffer.from(hash.hex(), "hex").slice(0, 20).toString("hex");
 }
 
-export interface IKeyManagementStrategy {
-  addressGroupAssignmentId: number;
-
-  getAddresses(amount: number): Promise<any>;
-}
-
-export class DynamicKeyManagementStrategy implements IKeyManagementStrategy {
-  addressGroupAssignmentId: number;
-
-  constructor(addressGroupAssignmentId: number) {
-    this.addressGroupAssignmentId = addressGroupAssignmentId;
-  }
-
-  async getAddresses(amount: number) {
-    const addresses = [];
-
-    for (let i = 0; i < amount; i++) {
-      const { public_key, private_key } = await createKeyPair();
-      const address = addressFromPublicKey(Buffer.from(public_key, "hex"));
-      addresses.push({
-        address,
-        privateKey: private_key,
-        addressGroupId: this.addressGroupAssignmentId,
-      });
-    }
-
-    await insertAddresses(addresses as Address[]);
-
-    return addresses.map((address) => ({
-      address: address.address,
-    }));
-  }
-}
-
 export async function insertAddresses(addresses: Address[]) {
   return await db.insert(addressesTable).values(addresses).returning();
 }
@@ -85,36 +51,56 @@ export async function getAddress(address: string) {
 export async function getFinalStakeAddresses(
   stakeDistribution: NodeStakeDistributionItem[]
 ) {
-  const keyManagementStrategy = await getActiveKeyManagementStrategy();
-  const addressGroup = await getAddressGroupsByIdentity(
-    keyManagementStrategy.addressGroupAssignment
-  );
-
-  const strategy = new DynamicKeyManagementStrategy(addressGroup.id);
+  const keyManagementStrategies = await getActiveKeyManagementStrategy();
 
   const neededAddresses = stakeDistribution.reduce(
     (acc, { qty }) => acc + qty,
     0
   );
-  const addresses = await strategy.getAddresses(neededAddresses);
 
-  const finalStakeAddresses = stakeDistribution.flatMap(({ amount, qty }) =>
+  let addresses: { address: string; addressGroup: AddressGroup }[] = [];
+  for (const keyManagementStrategy of keyManagementStrategies) {
+    if (addresses.length >= neededAddresses) break;
+
+    const addressGroup = await getAddressGroupsByIdentity(
+      keyManagementStrategy.addressGroupAssignment
+    );
+
+    const strategy = KeyManagementStrategyFactory.create(
+      keyManagementStrategy.type,
+      addressGroup.id
+    );
+
+    const newAddresses = await strategy.getAddresses(
+      neededAddresses - addresses.length
+    );
+
+    addresses = addresses.concat(
+      newAddresses.map((address) => ({
+        address: address,
+        addressGroup,
+      }))
+    );
+  }
+
+  const nodes = stakeDistribution.flatMap(({ amount, qty }) =>
     Array.from({ length: qty }, (_, i) => ({
       address: addresses[i]?.address ?? "",
       bin: amount,
+      addressGroup: addresses[i]?.addressGroup,
     }))
   );
 
-  const stakes = finalStakeAddresses.map((address) => {
-    const serviceUrl = addressGroup.pattern
-      .replace("{{domain}}", addressGroup.domain)
-      .replace("{{identity}}", addressGroup.identity)
-      .replace("{{address}}", address.address);
+  const stakes = nodes.map((node) => {
+    const serviceUrl = node?.addressGroup?.pattern
+      .replace("{{domain}}", node?.addressGroup?.domain)
+      .replace("{{identity}}", node?.addressGroup?.identity)
+      .replace("{{address}}", node.address);
 
     return {
-      address: address.address,
-      amount: address.bin,
-      chains: addressGroup.chainsToAddressGroups.map((chain) => chain.chainId),
+      address: node.address,
+      amount: node.bin,
+      chains: node?.addressGroup?.defaultChains,
       serviceUrl,
     };
   });
