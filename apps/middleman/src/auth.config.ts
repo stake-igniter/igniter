@@ -17,6 +17,10 @@ const authConfig: NextAuthConfig = {
          return '/auth/error?error=OwnerOnly';
        }
 
+      if (!isBootstrapped && address === process.env.OWNER_IDENTITY) {
+        return '/admin/setup';
+      }
+
        return true;
     },
     async session({ session, token }) {

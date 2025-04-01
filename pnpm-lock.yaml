@@ -32,9 +32,6 @@ importers:
       '@igniter/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@poktscan/vault-siwp':
-        specifier: github:pokt-scan/vault-siwp
-        version: git+https://git@github.com:pokt-scan/vault-siwp.git#80ce88fd3ef6d497341fa0cdbd194494a2e44833
       '@radix-ui/react-slot':
         specifier: 1.1.1
         version: 1.1.1(@types/react@19.0.8)(react@19.0.0)
@@ -47,6 +44,9 @@ importers:
       '@temporalio/client':
         specifier: 1.11.7
         version: 1.11.7
+      '@trustsoothe/vault-siwp':
+        specifier: github:trustsoothe/vault-siwp
+        version: '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833'
       '@vercel/postgres':
         specifier: 0.10.0
         version: 0.10.0
@@ -1769,6 +1769,10 @@ packages:
 
   '@poktscan/vault-siwp@git+https://git@github.com:pokt-scan/vault-siwp.git#80ce88fd3ef6d497341fa0cdbd194494a2e44833':
     resolution: {commit: 80ce88fd3ef6d497341fa0cdbd194494a2e44833, repo: git@github.com:pokt-scan/vault-siwp.git, type: git}
+    version: 0.0.1
+
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833':
+    resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833}
     version: 0.0.1
 
   '@protobufjs/aspromise@1.1.2':
@@ -6791,6 +6795,13 @@ snapshots:
   '@panva/hkdf@1.2.1': {}
 
   '@poktscan/vault-siwp@git+https://git@github.com:pokt-scan/vault-siwp.git#80ce88fd3ef6d497341fa0cdbd194494a2e44833':
+    dependencies:
+      '@noble/curves': 1.8.1
+      apg-js: 4.4.0
+      hex-lite: 1.5.0
+      valid-url: 1.0.9
+
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833':
     dependencies:
       '@noble/curves': 1.8.1
       apg-js: 4.4.0

@@ -46,7 +46,14 @@ yarn-error.log*
 .idea
 
 
-
 .qodo
 *.crt
 *.key
+
+# deployment files
+/**/*.crt
+/**/*.key
+/**/postgres/**/postgres-secrets.yml
+/**/postgres/**/tls-secret.yml
+
+

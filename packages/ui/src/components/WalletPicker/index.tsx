@@ -33,7 +33,7 @@ export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
                 const walletPickerItems = providers.map((provider) => ({
                     name: provider.name,
                     icon: provider.icon,
-                    provider: provider.provider,
+                    provider: provider.provider!,
                     onSelect: onWalletSelect,
                 }));
 

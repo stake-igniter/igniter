@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: middleman
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: middleman
+  template:
+    metadata:
+      labels:
+        app: middleman
+    spec:
+      containers:
+        - name: middleman
+          image: igniter/middleman:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: middleman-config
+            - secretRef:
+                name: middleman-secrets
+            - secretRef:
+                name: postgres-middleman-connection
