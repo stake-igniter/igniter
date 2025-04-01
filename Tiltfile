@@ -11,12 +11,8 @@ def base64_file(path):
 
 def generate_password(length = 24):
     charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    result = ""
-    for _ in range(length):
-        rand = str(local("sh -c \"echo $RANDOM\"", quiet=True)).strip()
-        idx = int(rand) % len(charset)
-        result += charset[idx]
-    return result
+    script = "import random; print(''.join(random.choice('{}') for _ in range({})))".format(charset, length)
+    return str(local('python3 -c "{}"'.format(script), quiet=True)).strip()
 
 if config.tilt_subcommand == 'up':
     print("🔼 Executing tilt up tasks...")
@@ -63,7 +59,7 @@ data:
         cluster = "postgres"
         namespace = "default"
         host = "{}-rw.{}.svc.cluster.local".format(cluster, namespace)
-        conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=require".format(username, password, host, db_name)
+        conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, db_name)
 
         # Replace or create the secret live in k8s
         local("kubectl delete secret postgres-middleman-connection --ignore-not-found --namespace={}".format(namespace))

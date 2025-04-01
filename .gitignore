@@ -54,6 +54,6 @@ yarn-error.log*
 /**/*.crt
 /**/*.key
 /**/postgres/**/postgres-secrets.yml
-/**/postgres/**/tls-secret.yml
+/**/postgres/**/postgres-tls.yml
 
 
