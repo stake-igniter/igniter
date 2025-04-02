@@ -1,0 +1,5 @@
+resources:
+  - provider-config.yml
+  - provider-secrets.yml
+  - deployment.yml
+  - service.yml

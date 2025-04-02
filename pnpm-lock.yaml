@@ -197,8 +197,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui
       '@poktscan/vault-siwp':
-        specifier: github:pokt-scan/vault-siwp
-        version: git+https://git@github.com:pokt-scan/vault-siwp.git#80ce88fd3ef6d497341fa0cdbd194494a2e44833
+        specifier: github:trustsoothe/vault-siwp
+        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833
       '@stepperize/react':
         specifier: 5.0.1
         version: 5.0.1(react@19.0.0)
@@ -239,7 +239,7 @@ importers:
         specifier: 0.4.3
         version: 0.4.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       pg:
-        specifier: 8.14.0
+        specifier: ^8.14.0
         version: 8.14.0
       react:
         specifier: 19.0.0
@@ -266,6 +266,9 @@ importers:
       '@types/node':
         specifier: ^22
         version: 22.12.0
+      '@types/pg':
+        specifier: ^8.11.11
+        version: 8.11.11
       '@types/react':
         specifier: 19.0.8
         version: 19.0.8
@@ -2131,10 +2134,6 @@ packages:
   '@pokt-network/amino-js@0.7.5-alpha.1':
     resolution: {integrity: sha512-fw/a/4RldtN11PaF2lcatFB7PrZd2MeYlPh/sCs97JaMkvhv56R79rei/UVgTiwWoPWKIWwdbAhLwhUKqGkeVg==}
     engines: {node: '>=10'}
-
-  '@poktscan/vault-siwp@git+https://git@github.com:pokt-scan/vault-siwp.git#80ce88fd3ef6d497341fa0cdbd194494a2e44833':
-    resolution: {commit: 80ce88fd3ef6d497341fa0cdbd194494a2e44833, repo: git@github.com:pokt-scan/vault-siwp.git, type: git}
-    version: 0.0.1
 
   '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833':
     resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833}
@@ -9703,13 +9702,6 @@ snapshots:
     dependencies:
       '@tendermint/belt': 0.2.1
       '@tendermint/types': 0.1.1
-
-  '@poktscan/vault-siwp@git+https://git@github.com:pokt-scan/vault-siwp.git#80ce88fd3ef6d497341fa0cdbd194494a2e44833':
-    dependencies:
-      '@noble/curves': 1.8.1
-      apg-js: 4.4.0
-      hex-lite: 1.5.0
-      valid-url: 1.0.9
 
   '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/80ce88fd3ef6d497341fa0cdbd194494a2e44833':
     dependencies:

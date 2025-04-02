@@ -4,10 +4,6 @@ import {list, upsertProviders} from "@/lib/dal/providers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-interface ProvidersResponse {
-  items: Provider[];
-}
-
 export interface Provider {
   id: number;
   name: string;

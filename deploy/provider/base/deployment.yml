@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: provider
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: provider
+      component: web
+  template:
+    metadata:
+      labels:
+        app: provider
+        component: web
+    spec:
+      containers:
+        - name: provider
+          image: igniter/provider:latest
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: provider-config
+            - secretRef:
+                name: provider-secrets
+            - secretRef:
+                name: postgres-provider-connection

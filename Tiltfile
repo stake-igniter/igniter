@@ -57,15 +57,19 @@ data:
         ))
 
         print("🔗 Generating connection string secret for middleman...")
-        db_name = "igniter_middleman"
         cluster = "postgres"
         namespace = "default"
         host = "{}-rw.{}.svc.cluster.local".format(cluster, namespace)
-        conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, db_name)
+        middleman_conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, "igniter_middleman")
+        provider_conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, "igniter_provider")
 
         # Replace or create the secret live in k8s
         local("kubectl delete secret postgres-middleman-connection --ignore-not-found --namespace={}".format(namespace))
-        local("kubectl create secret generic postgres-middleman-connection --from-literal=DATABASE_URL='{}' --namespace={}".format(conn_str, namespace))
+        local("kubectl create secret generic postgres-middleman-connection --from-literal=DATABASE_URL='{}' --namespace={}".format(middleman_conn_str, namespace))
+
+        # Replace or create the secret live in k8s
+        local("kubectl delete secret postgres-provider-connection --ignore-not-found --namespace={}".format(namespace))
+        local("kubectl create secret generic postgres-provider-connection --from-literal=DATABASE_URL='{}' --namespace={}".format(provider_conn_str, namespace))
 
 watch_settings(
     ignore=[
@@ -120,6 +124,25 @@ k8s_resource(
     objects=['middleman-workflows-config'],
     extra_pod_selectors=[{"app": "middleman", "component": "workflows-worker"}],
     new_name="Middleman Worker"
+)
+
+# Build and Load Provider
+docker_build(
+    'igniter/provider',
+    context='.',
+    dockerfile='deploy/provider/provider.dockerfile',
+    live_update=[],
+    ignore=['node_modules'],
+)
+
+k8s_yaml(kustomize("deploy/provider/dev"))
+
+k8s_resource(
+    "provider",
+    port_forwards=["3001:3001"],
+    objects=['provider-config','provider-secrets'],
+    extra_pod_selectors=[{"app": "provider", "component": "web"}],
+    new_name="Provider Web"
 )
 
 if config.tilt_subcommand == 'down':
