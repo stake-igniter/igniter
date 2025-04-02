@@ -1,5 +1,3 @@
 resources:
   - middleman-workflows-config.yml
-  - middleman-workflows-secrets.yml
   - deployment.yml
-  - service.yml

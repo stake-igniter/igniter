@@ -8,10 +8,12 @@ spec:
   selector:
     matchLabels:
       app: middleman
+      component: web
   template:
     metadata:
       labels:
         app: middleman
+        component: web
     spec:
       containers:
         - name: middleman

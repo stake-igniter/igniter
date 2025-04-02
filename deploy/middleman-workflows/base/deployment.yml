@@ -7,12 +7,14 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: middleman-workflows
+      app: middleman
+      component: workflows-worker
   template:
     metadata:
       labels:
         app: middleman
-    specs:
+        component: workflows-worker
+    spec:
       containers:
         - name: middleman
           image: igniter/middleman-workflows:latest
@@ -20,4 +22,4 @@ spec:
             - configMapRef:
                 name: middleman-workflows-config
             - secretRef:
-                name: middleman-workflows-secrets
+                name: postgres-middleman-connection

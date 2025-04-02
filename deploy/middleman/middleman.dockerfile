@@ -30,10 +30,16 @@ FROM base AS installer
 RUN apk update && apk add --no-cache libc6-compat git openssh
 
 WORKDIR /app
+
+# Copy the lockfile explicitly
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+
+# Copy pruned monorepo
 COPY --from=builder /app/out/full/ .
 
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 RUN pnpm turbo run build --filter=@igniter/middleman
+
 
 # ------------------------------
 # Production runtime

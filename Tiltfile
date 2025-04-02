@@ -5,6 +5,8 @@ CSR_PATH = CERT_DIR + "/server.csr"
 TLS_SECRET_PATH = "deploy/postgres/dev/postgres-tls.yml"
 PG_SECRET_PATH = "deploy/postgres/dev/postgres-secrets.yml"
 PG_SECRET_NAME = "postgres-secrets"
+PG_SECRET_SQL_NAME = "postgres-secret-sql"
+PG_SECRET_SQL_PATH = "deploy/postgres/dev/postgres-secret-sql.yml"
 
 def base64_file(path):
     return str(local("base64 -i {}".format(path), quiet=True)).replace("\n", "")
@@ -83,6 +85,7 @@ k8s_resource(
     extra_pod_selectors=[{'cnpg.io/cluster': 'postgres'}],
 )
 
+# Build and Load Middleman
 docker_build(
     'igniter/middleman',
     context='.',
@@ -91,17 +94,33 @@ docker_build(
     ignore=['node_modules'],
 )
 
-# Load middleman config and resources
 k8s_yaml(kustomize("deploy/middleman/dev"))
 
 k8s_resource(
     "middleman",
     port_forwards=["3000:3000"],
     objects=['middleman-config','middleman-secrets'],
-    extra_pod_selectors=[{"app": "middleman"}],
-    new_name="Middleman"
+    extra_pod_selectors=[{"app": "middleman", "component": "web"}],
+    new_name="Middleman Web"
 )
 
+# Build and Load Middleman Workflows
+docker_build(
+    'igniter/middleman-workflows',
+    context='.',
+    dockerfile='deploy/middleman-workflows/middleman-workflows.dockerfile',
+    live_update=[],
+    ignore=['node_modules'],
+)
+
+k8s_yaml(kustomize("deploy/middleman-workflows/dev"))
+
+k8s_resource(
+    "middleman-workflows",
+    objects=['middleman-workflows-config'],
+    extra_pod_selectors=[{"app": "middleman", "component": "workflows-worker"}],
+    new_name="Middleman Worker"
+)
 
 if config.tilt_subcommand == 'down':
     print("🔽 Executing tilt down cleanup...")
