@@ -56,6 +56,5 @@ USER nextjs
 # Copy final output
 COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/.next/standalone ./
 COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/.next/static ./apps/provider/.next/static
-COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/public ./apps/provider/public
 
 CMD node apps/provider/server.js
