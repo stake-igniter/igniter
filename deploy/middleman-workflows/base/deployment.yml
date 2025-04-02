@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: middleman-workflows
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: middleman-workflows
+  template:
+    metadata:
+      labels:
+        app: middleman
+    specs:
+      containers:
+        - name: middleman
+          image: igniter/middleman-workflows:latest
+          envFrom:
+            - configMapRef:
+                name: middleman-workflows-config
+            - secretRef:
+                name: middleman-workflows-secrets
