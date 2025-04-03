@@ -5,8 +5,8 @@ metadata:
 data:
   AUTH_TRUST_HOST: "http://localhost:3001"
   APP_URL: "http://localhost:3001"
-  AUTH_URL: "http://localhost:3000"
-  OWNER_IDENTITY: "82ba736e51e4f13fea40a2df567d34ef4a8d39a1"
+  AUTH_URL: "http://localhost:3001"
+  OWNER_IDENTITY: "e5e87a03577606b9d8be9456c0424f228b06893d"
   CHAIN_ID: "testnet"
   BLOCKCHAIN_PROTOCOL: "morse"
   OWNER_EMAIL: "julio@poktscan.com"
