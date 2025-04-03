@@ -72,6 +72,7 @@ data:
         local("kubectl delete secret postgres-provider-connection --ignore-not-found --namespace={}".format(namespace))
         local("kubectl create secret generic postgres-provider-connection --from-literal=DATABASE_URL='{}' --namespace={}".format(provider_conn_str, namespace))
 
+        local("kubectl get namespace temporal || kubectl create namespace temporal")
         local("kubectl delete secret credentials --ignore-not-found --namespace={}".format(TEMPORAL_NAMESPACE))
         local("kubectl create secret generic credentials --from-literal=postgresql_pwd='{}' --namespace={}".format(password, TEMPORAL_NAMESPACE))
 
