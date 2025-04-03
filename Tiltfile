@@ -7,6 +7,7 @@ PG_SECRET_PATH = "deploy/postgres/dev/postgres-secrets.yml"
 PG_SECRET_NAME = "postgres-secrets"
 PG_SECRET_SQL_NAME = "postgres-secret-sql"
 PG_SECRET_SQL_PATH = "deploy/postgres/dev/postgres-secret-sql.yml"
+TEMPORAL_NAMESPACE = "temporal"
 
 def base64_file(path):
     return str(local("base64 -i {}".format(path), quiet=True)).replace("\n", "")
@@ -71,6 +72,9 @@ data:
         local("kubectl delete secret postgres-provider-connection --ignore-not-found --namespace={}".format(namespace))
         local("kubectl create secret generic postgres-provider-connection --from-literal=DATABASE_URL='{}' --namespace={}".format(provider_conn_str, namespace))
 
+        local("kubectl delete secret credentials --ignore-not-found --namespace={}".format(TEMPORAL_NAMESPACE))
+        local("kubectl create secret generic credentials --from-literal=postgresql_pwd='{}' --namespace={}".format(password, TEMPORAL_NAMESPACE))
+
 watch_settings(
     ignore=[
         TLS_SECRET_PATH,
@@ -88,6 +92,11 @@ k8s_resource(
     port_forwards=['5432:5432'],
     extra_pod_selectors=[{'cnpg.io/cluster': 'postgres'}],
 )
+
+# Install Temporal Server
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+helm_repo('temporal', 'https://go.temporal.io/helm-charts')
+helm_resource(name='Temporal Server', release_name="temporal", chart="temporal/temporal", namespace="temporal", resource_deps=["temporal"], flags=["--create-namespace", "--values=deploy/temporal/values.yml"])
 
 # Build and Load Middleman
 docker_build(
