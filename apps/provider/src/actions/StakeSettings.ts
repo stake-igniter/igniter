@@ -56,15 +56,16 @@ export async function upsertStakeSettings(values: StakeSettings) {
         values.defaultChains.findIndex((id) => id.includes(chain.chainId)) !==
         -1
     )
-    .map((chain) => chain.id);
+    .map((chain) => chain.chainId);
 
   const addressGroup = {
     identity: values.identity,
     domain: values.domain,
     pattern: values.pattern,
+    defaultChains,
   } as AddressGroup;
 
-  await createAddressGroup(addressGroup, defaultChains);
+  await createAddressGroup(addressGroup);
 
   const keyManagementStrategy = {
     weight: 1,

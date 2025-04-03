@@ -25,7 +25,7 @@ export async function getKeyManagementStrategy(id: number) {
 }
 
 export async function getActiveKeyManagementStrategy() {
-  const strategy = await db.query.keyManagementStrategyTable.findFirst({
+  const strategy = await db.query.keyManagementStrategyTable.findMany({
     where: eq(keyManagementStrategyTable.disabled, false),
     orderBy: (strategy, { asc }) => [asc(strategy.weight)],
   });
