@@ -162,7 +162,8 @@ export const transactionsTable = pgTable("transactions", {
   //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
   dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
 
-  signedPayload: varchar(),
+  signedPayload: varchar().notNull(),
+  fromAddress: varchar({ length: 255 }).notNull(),
   signatureTimestamp: timestamp().notNull(),
   activityId: integer()
     .notNull()
