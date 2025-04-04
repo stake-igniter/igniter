@@ -3,7 +3,13 @@ import { RawTxRequest } from "@pokt-foundation/pocketjs-types";
 import { BlockchainProvider } from "../lib/blockchain";
 import * as activityDAL from "../lib/dal/activity";
 import * as transactionDAL from "../lib/dal/transaction";
-import { Activity, Transaction } from "../lib/db/schema";
+import * as providerDAL from "../lib/dal/provider";
+import {
+  Activity,
+  Provider,
+  ProviderStatus,
+  Transaction,
+} from "../lib/db/schema";
 
 export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   async getActivity(activityId: number) {
@@ -26,6 +32,53 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       throw new Error("Transaction not found");
     }
     return transaction;
+  },
+  async getProviders() {
+    const providers = await providerDAL.list();
+    return providers;
+  },
+  async fetchProviderStatus(providers: Provider[]) {
+    const providerStatus = await Promise.allSettled(
+      providers.map(async (provider) => {
+        try {
+          const STATUS_URL = `${provider.url}/api/status`;
+          const status = await fetch(STATUS_URL, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const statusResponse = await status.json();
+
+          let finalStatus;
+          if (statusResponse.healthy) {
+            finalStatus = ProviderStatus.Healthy;
+          } else {
+            finalStatus = ProviderStatus.Unhealthy;
+          }
+
+          return { ...provider, status: finalStatus };
+        } catch (error) {
+          console.error("Error fetching provider status:", error);
+          return { ...provider, status: ProviderStatus.Unreachable };
+        }
+      })
+    );
+
+    const updatedProviders = providerStatus.map((result) => {
+      if (result.status === "fulfilled") {
+        return result.value;
+      } else {
+        return {
+          ...result.reason,
+        };
+      }
+    });
+
+    return updatedProviders;
+  },
+  async updateProvidersStatus(providers: Provider[]) {
+    await providerDAL.updatedProvidersStatus(providers);
   },
   async getDependantTransactions(transactionId: number) {
     return await transactionDAL.getDependantTransactions(transactionId);

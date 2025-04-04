@@ -1,6 +1,10 @@
 import { getTemporalConfig, setupTemporalClient } from "./lib/client";
 import Long from "long";
 
+enum ScheduledWorkflowType {
+  ProviderStatus = "ProviderStatus",
+}
+
 async function bootstrapNamespace() {
   const client = await setupTemporalClient();
   const config = getTemporalConfig();
@@ -41,9 +45,42 @@ async function bootstrapNamespace() {
 }
 
 async function bootstrapScheduledWorkflows() {
-  return Promise.resolve();
-}
+  const client = await setupTemporalClient();
+  const config = getTemporalConfig();
 
+  for (const type of Object.values(ScheduledWorkflowType)) {
+    const workflowType = type;
+    try {
+      await client.connection.workflowService.describeSchedule({
+        namespace: config.namespace,
+        scheduleId: `${workflowType}-scheduled`,
+      });
+      console.log(
+        `Scheduled workflow "${workflowType}" already exists. Skipping registration...`
+      );
+    } catch (error: unknown) {
+      try {
+        console.log(
+          `Scheduled workflow "${workflowType}" does not exist. Registering...`
+        );
+        await client.schedule.create({
+          action: {
+            type: "startWorkflow",
+            workflowType,
+            taskQueue: config.taskQueue!,
+          },
+          scheduleId: `${workflowType}-scheduled`,
+          spec: {
+            intervals: [{ every: "10m" }],
+          },
+        });
+      } catch (error) {
+        console.error(`Error scheduling ${workflowType}`, error);
+        throw error;
+      }
+    }
+  }
+}
 export default async function bootstrap() {
   await bootstrapNamespace();
   await bootstrapScheduledWorkflows();
