@@ -1,9 +1,12 @@
 import { relations } from "drizzle-orm";
 import {
   AnyPgColumn,
+  boolean,
+  decimal,
   integer,
   pgEnum,
   pgTable,
+  text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -50,26 +53,39 @@ export enum TransactionStatus {
   NotExecuted = "not_executed",
 }
 
-export const activityTypeEnum = pgEnum("type", enumToPgEnum(ActivityType));
+export enum ProviderStatus {
+  Healthy = "healthy",
+  Unhealthy = "unhealthy",
+  Unknown = "unknown",
+  Unreachable = "unreachable",
+}
+
+export const activityTypeEnum = pgEnum(
+  "activity_type",
+  enumToPgEnum(ActivityType)
+);
 
 export const activityStatusEnum = pgEnum(
-  "status",
+  "activity_status",
   enumToPgEnum(ActivityStatus)
 );
 
 export const transactionTypeEnum = pgEnum(
-  "type",
+  "tx_type",
   enumToPgEnum(TransactionType)
 );
 
 export const transactionStatusEnum = pgEnum(
-  "status",
+  "tx_status",
   enumToPgEnum(TransactionStatus)
 );
 
-export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
+export const providerStatusEnum = pgEnum(
+  "provider_status",
+  enumToPgEnum(ProviderStatus)
+);
 
-export const systemEventEnum = pgEnum("type", enumToPgEnum(SystemEvent));
+export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -82,17 +98,18 @@ export const usersTable = pgTable("users", {
 
 export type User = typeof usersTable.$inferSelect;
 
-export const systemEventsTable = pgTable("system_events", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: systemEventEnum().notNull(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
-});
-
 export const providersTable = pgTable("providers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  publicKey: varchar({ length: 255 }).notNull(),
+  publicKey: varchar({ length: 255 }).notNull().unique(),
+  url: varchar({ length: 255 }).notNull(),
+  enabled: boolean().notNull(),
+  visible: boolean().notNull().default(true),
+  fee: decimal().notNull().default("1.00"),
+  domains: text().array().default([]),
+  status: providerStatusEnum().notNull().default(ProviderStatus.Unknown),
+  minimumStake: integer().notNull().default(0),
+  operationalFunds: integer().notNull().default(5),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
