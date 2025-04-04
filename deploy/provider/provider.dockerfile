@@ -36,6 +36,9 @@ COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
 # Copy pruned monorepo
 COPY --from=builder /app/out/full/ .
+COPY --from=builder /app/out/full/apps/provider/drizzle.config.ts ./apps/provider/drizzle.config.ts
+COPY --from=builder /app/out/full/apps/provider/drizzle/ ./apps/provider/drizzle/
+COPY --from=builder /app/out/full/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm turbo run build --filter=@igniter/provider
@@ -48,6 +51,9 @@ FROM base AS runner
 
 WORKDIR /app
 
+# Install drizzle-kit and related dependencies as production dependencies (as root)
+RUN pnpm add drizzle-kit@0.30.4 drizzle-orm@0.39.1 pg@^8.14.0 dotenv --prod
+
 # Don't run as root
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -56,5 +62,8 @@ USER nextjs
 # Copy final output
 COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/.next/standalone ./
 COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/.next/static ./apps/provider/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/drizzle.config.ts ./apps/provider/drizzle.config.ts
+COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/drizzle/ ./apps/provider/drizzle/
+COPY --from=installer --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 CMD node apps/provider/server.js

@@ -36,26 +36,33 @@ COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
 
 # Copy pruned monorepo
 COPY --from=builder /app/out/full/ .
+COPY --from=builder /app/out/full/apps/middleman/drizzle.config.ts ./apps/middleman/drizzle.config.ts
+COPY --from=builder /app/out/full/apps/middleman/drizzle/ ./apps/middleman/drizzle/
+COPY --from=builder /app/out/full/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm turbo run build --filter=@igniter/middleman
 
-
 # ------------------------------
-# Production runtime
+# Production runtime (runner)
 # ------------------------------
 FROM base AS runner
 
 WORKDIR /app
 
-# Don't run as root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Install drizzle-kit and related dependencies as production dependencies (as root)
+RUN pnpm add drizzle-kit@0.30.4 drizzle-orm@0.39.1 pg@^8.14.0 dotenv --prod
+
+# Create non-root user and switch
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
 USER nextjs
 
-# Copy final output
+# Copy final build output
 COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/.next/standalone ./
 COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/.next/static ./apps/middleman/.next/static
 COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/public ./apps/middleman/public
+COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/drizzle.config.ts ./apps/middleman/drizzle.config.ts
+COPY --from=installer --chown=nextjs:nodejs /app/apps/middleman/drizzle/ ./apps/middleman/drizzle/
+COPY --from=installer --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 CMD node apps/middleman/server.js

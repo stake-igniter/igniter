@@ -152,7 +152,7 @@ importers:
         version: 1.11.7
       '@temporalio/worker':
         specifier: 1.11.7
-        version: 1.11.7(@swc/helpers@0.5.15)
+        version: 1.11.7(@swc/helpers@0.5.15)(esbuild@0.19.12)
       '@temporalio/workflow':
         specifier: 1.11.7
         version: 1.11.7
@@ -10709,7 +10709,7 @@ snapshots:
       long: 5.3.1
       protobufjs: 7.4.0
 
-  '@temporalio/worker@1.11.7(@swc/helpers@0.5.15)':
+  '@temporalio/worker@1.11.7(@swc/helpers@0.5.15)(esbuild@0.19.12)':
     dependencies:
       '@swc/core': 1.10.16(@swc/helpers@0.5.15)
       '@temporalio/activity': 1.11.7
@@ -10723,11 +10723,11 @@ snapshots:
       memfs: 4.17.0
       rxjs: 7.8.1
       source-map: 0.7.4
-      source-map-loader: 4.0.2(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)))
+      source-map-loader: 4.0.2(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12))
       supports-color: 8.1.1
-      swc-loader: 0.2.6(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)))
+      swc-loader: 0.2.6(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12))
       unionfs: 4.5.4
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
+      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)
     transitivePeerDependencies:
       - '@swc/helpers'
       - esbuild
@@ -15662,11 +15662,11 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
-  source-map-loader@4.0.2(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))):
+  source-map-loader@4.0.2(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)):
     dependencies:
       iconv-lite: 0.6.3
       source-map-js: 1.2.1
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
+      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)
 
   source-map-support@0.5.21:
     dependencies:
@@ -15908,11 +15908,11 @@ snapshots:
       lower-case: 1.1.4
       upper-case: 1.1.3
 
-  swc-loader@0.2.6(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))):
+  swc-loader@0.2.6(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)):
     dependencies:
       '@swc/core': 1.10.16(@swc/helpers@0.5.15)
       '@swc/counter': 0.1.3
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
+      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)
 
   symbol-tree@3.2.4: {}
 
@@ -15961,16 +15961,17 @@ snapshots:
       supports-hyperlinks: 2.3.0
     optional: true
 
-  terser-webpack-plugin@5.3.11(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))):
+  terser-webpack-plugin@5.3.11(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 4.3.0
       serialize-javascript: 6.0.2
       terser: 5.39.0
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
+      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)
     optionalDependencies:
       '@swc/core': 1.10.16(@swc/helpers@0.5.15)
+      esbuild: 0.19.12
 
   terser@5.39.0:
     dependencies:
@@ -16383,7 +16384,7 @@ snapshots:
 
   webpack-sources@3.2.3: {}
 
-  webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)):
+  webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.6
@@ -16405,7 +16406,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.11(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)))
+      terser-webpack-plugin: 5.3.11(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12)(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.19.12))
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     transitivePeerDependencies:

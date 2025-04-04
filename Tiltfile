@@ -12,7 +12,7 @@ TEMPORAL_NAMESPACE = "temporal"
 def base64_file(path):
     return str(local("base64 -i {}".format(path), quiet=True)).replace("\n", "")
 
-def generate_password(length = 24):
+def generate_password(length=24):
     charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     script = "import random; print(''.join(random.choice('{}') for _ in range({})))".format(charset, length)
     return str(local('python3 -c "{}"'.format(script), quiet=True)).strip()
@@ -57,20 +57,34 @@ data:
             PG_SECRET_PATH
         ))
 
-        print("🔗 Generating connection string secret for middleman...")
+        print("🔗 Generating connection string secrets...")
         cluster = "postgres"
         namespace = "default"
         host = "{}-rw.{}.svc.cluster.local".format(cluster, namespace)
-        middleman_conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, "igniter_middleman")
-        provider_conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, "igniter_provider")
+        middleman_db = "igniter_middleman"
+        provider_db = "igniter_provider"
+        middleman_conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, middleman_db)
+        provider_conn_str = "postgres://{}:{}@{}:5432/{}?sslmode=disable".format(username, password, host, provider_db)
 
-        # Replace or create the secret live in k8s
+        # Replace or create the secret live in k8s for middleman
         local("kubectl delete secret postgres-middleman-connection --ignore-not-found --namespace={}".format(namespace))
-        local("kubectl create secret generic postgres-middleman-connection --from-literal=DATABASE_URL='{}' --namespace={}".format(middleman_conn_str, namespace))
+        local("kubectl create secret generic postgres-middleman-connection \
+          --from-literal=PGHOST={} \
+          --from-literal=PGUSER={} \
+          --from-literal=PGPASSWORD={} \
+          --from-literal=DATABASE_URL='{}' \
+          --from-literal=DB_NAME='{}' \
+          --namespace={}".format(host, username, password, middleman_conn_str, middleman_db, namespace))
 
-        # Replace or create the secret live in k8s
+        # Replace or create the secret live in k8s for provider
         local("kubectl delete secret postgres-provider-connection --ignore-not-found --namespace={}".format(namespace))
-        local("kubectl create secret generic postgres-provider-connection --from-literal=DATABASE_URL='{}' --namespace={}".format(provider_conn_str, namespace))
+        local("kubectl create secret generic postgres-provider-connection \
+          --from-literal=PGHOST={} \
+          --from-literal=PGUSER={} \
+          --from-literal=PGPASSWORD={} \
+          --from-literal=DATABASE_URL='{}' \
+          --from-literal=DB_NAME='{}' \
+          --namespace={}".format(host, username, password, provider_conn_str, provider_db, namespace))
 
         local("kubectl get namespace temporal || kubectl create namespace temporal")
         local("kubectl delete secret credentials --ignore-not-found --namespace={}".format(TEMPORAL_NAMESPACE))

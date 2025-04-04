@@ -15,6 +15,27 @@ spec:
         app: provider
         component: web
     spec:
+      initContainers:
+        - name: create-db
+          image: postgres:16-alpine
+          command: [ "sh", "-c" ]
+          args:
+            - |
+              echo "🛠️ Creating database '$DB_NAME' if it doesn't exist...";
+              export PGPASSWORD="$PGPASSWORD"
+              psql -h "$PGHOST" -U "$PGUSER" -d "$PGADMIN_DB" -v ON_ERROR_STOP=1 <<EOF
+              SELECT 'CREATE DATABASE "$DB_NAME"'
+              WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\gexec
+              EOF
+          envFrom:
+            - secretRef:
+                name: postgres-provider-connection
+        - name: db-migrations
+          image: igniter/provider:latest
+          command: [ "pnpm", "--filter=@igniter/provider", "exec", "drizzle-kit", "migrate" ]
+          envFrom:
+            - secretRef:
+                name: postgres-provider-connection
       containers:
         - name: provider
           image: igniter/provider:latest

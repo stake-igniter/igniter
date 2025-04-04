@@ -15,6 +15,27 @@ spec:
         app: middleman
         component: web
     spec:
+      initContainers:
+        - name: create-db
+          image: postgres:16-alpine
+          command: [ "sh", "-c" ]
+          args:
+            - |
+              echo "🛠️ Creating database '$DB_NAME' if it doesn't exist...";
+              export PGPASSWORD="$PGPASSWORD"
+              psql -h "$PGHOST" -U "$PGUSER" -d "$PGADMIN_DB" -v ON_ERROR_STOP=1 <<EOF
+              SELECT 'CREATE DATABASE "$DB_NAME"'
+              WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\gexec
+              EOF
+          envFrom:
+            - secretRef:
+                name: postgres-middleman-connection
+        - name: db-migrations
+          image: igniter/middleman:latest
+          command: ["pnpm", "--filter=@igniter/middleman", "exec", "drizzle-kit", "migrate"]
+          envFrom:
+            - secretRef:
+                name: postgres-middleman-connection
       containers:
         - name: middleman
           image: igniter/middleman:latest
