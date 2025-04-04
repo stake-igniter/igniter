@@ -1,0 +1,5 @@
+resources:
+  - middleman-config.yml
+  - middleman-secrets.yml
+  - deployment.yml
+  - service.yml

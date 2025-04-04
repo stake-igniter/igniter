@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: middleman-workflows
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: middleman
+      component: workflows-worker
+  template:
+    metadata:
+      labels:
+        app: middleman
+        component: workflows-worker
+    spec:
+      containers:
+        - name: middleman
+          image: igniter/middleman-workflows:latest
+          envFrom:
+            - configMapRef:
+                name: middleman-workflows-config
+            - secretRef:
+                name: postgres-middleman-connection

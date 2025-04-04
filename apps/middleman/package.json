@@ -14,9 +14,8 @@
   "dependencies": {
     "@hookform/resolvers": "4.1.3",
     "@igniter/eslint-config": "workspace:*",
-    "@igniter/middleman-workflows": "workspace:*",
     "@igniter/ui": "workspace:*",
-    "@poktscan/vault-siwp": "github:pokt-scan/vault-siwp",
+    "@poktscan/vault-siwp": "github:trustsoothe/vault-siwp",
     "@radix-ui/react-slot": "1.1.1",
     "@stepperize/react": "^5.0.1",
     "@svgr/webpack": "^8.1.0",

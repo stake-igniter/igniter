@@ -69,7 +69,7 @@ export function ProviderOfferItem({ isSelected, offer, onSelect, disabled }: Rea
                                                 <span>Rewards</span>
                                             </span>
                                             <span className="font-mono">
-                                                {toCurrencyFormat(offer.rewards, 2)}
+                                                {toCurrencyFormat(Number(offer.rewards), 2)}
                                             </span>
                                         </span>
                                         <span className="text-[14px] text-[var(--color-white-3)]">

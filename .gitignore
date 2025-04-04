@@ -6,7 +6,7 @@ node_modules
 .pnp.js
 
 # Local env files
-.env
+apps/provider/.env
 .env.local
 .env.development.local
 .env.test.local
@@ -46,7 +46,14 @@ yarn-error.log*
 .idea
 
 
-
 .qodo
 *.crt
 *.key
+
+# deployment files
+/**/*.crt
+/**/*.key
+/**/postgres/**/postgres-secrets.yml
+/**/postgres/**/postgres-tls.yml
+
+

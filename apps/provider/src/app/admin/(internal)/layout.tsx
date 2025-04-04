@@ -1,17 +1,16 @@
 import type { Metadata } from "next";
-import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
-import {WalletConnectionProvider} from "@igniter/ui/context/WalletConnection/index";
-import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
-import {SidebarInset, SidebarProvider} from "@igniter/ui/components/sidebar";
-import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
+import { WalletConnectionProvider } from "@igniter/ui/context/WalletConnection/index";
+import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
+import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
+import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
 import PriceWidget from "@/app/components/PriceWidget";
 import CurrencySelector from "@igniter/ui/components/AppTopBar/CurrencySelector";
 import CurrentUser from "@/app/components/CurrentUser";
 import AppSidebar from "@igniter/ui/components/AppSidebar";
-import {CurrencyContextProvider} from "@igniter/ui/context/currency";
+import { CurrencyContextProvider } from "@igniter/ui/context/currency";
 import OverviewDark from "@/app/assets/icons/dark/overview.svg";
 import ActivityDark from "@/app/assets/icons/dark/activity.svg";
 import NodesDark from "@/app/assets/icons/dark/nodes.svg";
@@ -23,22 +22,6 @@ export const metadata: Metadata = {
   title: "Igniter",
   description: "Light up your earnings with Igniter",
 };
-
-const jost = Jost({
-  variable: "--font-jost",
-  weight: ["400", "600", "500", "700"],
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const overpass_mono = Overpass_Mono({
-  variable: "--font-overpass-mono",
-  weight: ["400", "600", "500", "700"],
-  style: ["normal"],
-  subsets: ["latin"],
-  display: "swap",
-});
 
 const mainRoutes = [
   {
@@ -77,17 +60,11 @@ const footerRoutes = [
 ];
 
 export default function RootLayout({
-                                     children,
-                                   }: Readonly<{
+  children,
+}: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${overpass_mono.variable} ${jost.variable} overflow-hidden`}
-      suppressHydrationWarning
-    >
-    <body>
     <SessionProvider>
       <ThemeProvider
         attribute="class"
@@ -123,7 +100,5 @@ export default function RootLayout({
         </ApplicationSettingsProvider>
       </ThemeProvider>
     </SessionProvider>
-    </body>
-    </html>
   );
 }

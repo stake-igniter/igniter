@@ -2,8 +2,8 @@ import { ArrowBackIcon } from "@igniter/ui/assets";
 import {Provider} from "@igniter/ui/context/WalletConnection/index";
 
 export interface WalletPickerItemProps {
-    name: string;
-    icon: string;
+    name?: string;
+    icon?: string;
     provider: Provider;
     onSelect?: (provider: Provider) => void;
 }

@@ -32,8 +32,8 @@ export async function ExecuteTransaction(args: TransactionArgs) {
   const txHeight = await getBlockHeight();
 
   const hash = await executeTransaction(
-    "8fecad2cd0324344e9230acf9e92ba64af44ead0",
-    transaction.signedPayload!
+    transaction.fromAddress,
+    transaction.signedPayload
   );
 
   if (!hash) {

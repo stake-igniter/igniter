@@ -3,7 +3,6 @@ import { Stepper } from "./stepper";
 import { auth } from "@/auth";
 import { UserRole } from "@/db/schema";
 import { getApplicationSettings } from "@/lib/dal/applicationSettings";
-import { loadProvidersFromCdn } from "@/actions/Providers";
 import getChainsMap from "@/lib/supportedChains";
 
 export const dynamic = "force-dynamic";
