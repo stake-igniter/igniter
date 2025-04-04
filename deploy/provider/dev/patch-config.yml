@@ -13,3 +13,4 @@ data:
   TEMPORAL_URL: "__TEMPORAL_URL__"
   TEMPORAL_NAMESPACE: "__TEMPORAL_NAMESPACE_IN_DEV__"
   TEMPORAL_TASK_QUEUE: "__TEMPORAL_TASK_QUEUE_IN_DEV__"
+  CHAINS_CDN_URL: "https://soothe-vault.nyc3.cdn.digitaloceanspaces.com/pokt-chains-map.json"

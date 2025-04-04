@@ -97,7 +97,7 @@ k8s_resource(
 # Install Temporal Server
 load('ext://helm_resource', 'helm_resource', 'helm_repo')
 helm_repo('temporal', 'https://go.temporal.io/helm-charts')
-helm_resource(name='Temporal Server', release_name="temporal", chart="temporal/temporal", namespace="temporal", resource_deps=["temporal"], flags=["--create-namespace", "--values=deploy/temporal/values.yml"])
+helm_resource(name='Temporal Server', release_name="temporal", chart="temporal/temporal", namespace="temporal", resource_deps=["temporal", "Postgres Cluster"], flags=["--create-namespace", "--values=deploy/temporal/values.yml"])
 
 # Build and Load Middleman
 docker_build(
@@ -105,7 +105,7 @@ docker_build(
     context='.',
     dockerfile='deploy/middleman/middleman.dockerfile',
     live_update=[],
-    ignore=['node_modules'],
+    ignore=['node_modules']
 )
 
 k8s_yaml(kustomize("deploy/middleman/dev"))
@@ -124,7 +124,7 @@ docker_build(
     context='.',
     dockerfile='deploy/middleman-workflows/middleman-workflows.dockerfile',
     live_update=[],
-    ignore=['node_modules'],
+    ignore=['node_modules']
 )
 
 k8s_yaml(kustomize("deploy/middleman-workflows/dev"))
