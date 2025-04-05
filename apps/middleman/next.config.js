@@ -26,7 +26,12 @@ const nextConfig = {
     {
       source: "/app",
       destination: "/app/overview",
-      permanent: true,
+      permanent: false,
+    },
+    {
+      source: "/admin",
+      destination: "/admin/redirect",
+      permanent: false,
     }
   ],
 };
