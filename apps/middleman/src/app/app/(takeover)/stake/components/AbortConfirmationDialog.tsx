@@ -12,7 +12,7 @@ import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
 
 export interface AbortConfirmationDialogProps {
     isOpen: boolean;
-    onResponse: (abort: true) => void;
+    onResponse: (abort: boolean) => void;
 }
 
 export function AbortConfirmationDialog({ isOpen, onResponse }: Readonly<AbortConfirmationDialogProps>) {

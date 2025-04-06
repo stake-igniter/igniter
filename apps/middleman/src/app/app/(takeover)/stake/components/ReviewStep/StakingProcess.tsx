@@ -127,8 +127,7 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
                         isCancellable: false,
                     }));
 
-                    setCurrentStep(StakingProcessStep.SchedulingTransactions);;
-
+                    setCurrentStep(StakingProcessStep.SchedulingTransactions);
                 }, 3000);
 
                 return () => {

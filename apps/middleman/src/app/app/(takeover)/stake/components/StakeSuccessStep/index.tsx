@@ -55,7 +55,7 @@ export function StakeSuccessStep({amount, selectedOffer, activity, onClose}: Rea
 
     return (
         <div
-            className="flex flex-col w-[480px] border-x border-b border-[--balck-deviders] bg-[--black-1] p-[33px] rounded-b-[12px] gap-8">
+            className="flex flex-col w-[480px] border-x border-b border-[--black-dividers] bg-[--black-1] p-[33px] rounded-b-[12px] gap-8">
             <ActivityHeader
                 title="Success!"
                 subtitle="Below are the details of your stake operation."
