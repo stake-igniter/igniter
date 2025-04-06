@@ -140,14 +140,14 @@ export const activityTable = pgTable("activity", {
   updatedAt: timestamp().defaultNow(),
 });
 
+export type BaseActivity = typeof activityTable.$inferSelect;
+
 export const activityTransactionRelation = relations(
   activityTable,
   ({ many }) => ({
     transactions: many(transactionsTable),
   })
 );
-
-export type Activity = typeof activityTable.$inferSelect;
 
 export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -158,6 +158,7 @@ export const transactionsTable = pgTable("transactions", {
   executionTimestamp: timestamp(),
   verificationHeight: integer(),
   verificationTimestamp: timestamp(),
+  amount: integer().notNull(),
 
   //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
   dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
@@ -193,3 +194,7 @@ export const transactionsDependsOnRelation = relations(
 );
 
 export type Transaction = typeof transactionsTable.$inferSelect;
+
+export type Activity = typeof activityTable.$inferSelect & {
+  transactions: Transaction[];
+};

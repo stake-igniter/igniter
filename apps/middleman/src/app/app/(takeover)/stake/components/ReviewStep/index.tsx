@@ -8,15 +8,18 @@ import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon"
 import {CaretSmallIcon, CornerIcon} from "@igniter/ui/assets";
 import {useMemo, useState} from "react"
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
+import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
+import {Activity} from "@/db/schema";
 
 export interface ReviewStepProps {
     amount: number;
     selectedOffer: StakeDistributionOffer;
-    onConfirm: (amount: number) => void;
+    onStakeCompleted: (status: StakingProcessStatus, activity?: Activity) => void;
     onBack: () => void;
+    onClose: () => void;
 }
 
-export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<ReviewStepProps>) {
+export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onClose}: Readonly<ReviewStepProps>) {
     const [isShowingTransactionDetails, setIsShowingTransactionDetails] = useState<boolean>(false);
     const applicationSettings = useApplicationSettings();
 
@@ -39,6 +42,7 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
             className="flex flex-col w-[480px] border-x border-b border-[--balck-deviders] bg-[--black-1] p-[33px] rounded-b-[12px] gap-8">
             <ActivityHeader
                 onBack={onBack}
+                onClose={onClose}
                 title="Review"
                 subtitle="Please review the details of your stake operation."
             />
@@ -201,11 +205,7 @@ export function ReviewStep({onConfirm, amount, selectedOffer, onBack}: Readonly<
                 ))}
             </div>
 
-            <Button
-                className="w-full h-[40px]"
-            >
-                Stake
-            </Button>
+            <StakingProcess offer={selectedOffer} onStakeCompleted={onStakeCompleted} />
         </div>
     );
 }

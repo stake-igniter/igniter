@@ -5,17 +5,24 @@ import {PickStakeAmountStep} from "@/app/app/(takeover)/stake/components/PickSta
 import {PickOfferStep} from "@/app/app/(takeover)/stake/components/PickOfferStep";
 import {ReviewStep} from "@/app/app/(takeover)/stake/components/ReviewStep";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
+import {StakeSuccessStep} from "@/app/app/(takeover)/stake/components/StakeSuccessStep";
+import {Activity} from "@/db/schema";
+import {redirect} from "next/navigation";
+import {AbortConfirmationDialog} from '@/app/app/(takeover)/stake/components/AbortConfirmationDialog'
 
 enum StakeActivitySteps {
     PickStakeAmount = 'PickStakeAmount',
     PickOffer = 'PickOffer',
     Review = 'Review',
+    Success = 'Success'
 }
 
 export default function StakePage() {
     const [step, setStep] = useState<StakeActivitySteps>(StakeActivitySteps.PickStakeAmount);
     const [stakeAmount, setStakeAmount] = useState<number>(0);
     const [selectedOffer, setSelectedOffer] = useState<StakeDistributionOffer | undefined>();
+    const [activity, setActivity] = useState<Activity | undefined>(undefined);
+    const [isAbortDialogOpen, setAbortDialogOpen] = useState(false);
 
     const handleStakeAmountChange = (amount: number) => {
         setStakeAmount(amount);
@@ -23,37 +30,74 @@ export default function StakePage() {
     };
 
     return (
-        <div className="flex flex-row justify-center w-full">
-            {step === StakeActivitySteps.PickStakeAmount && (
-                <PickStakeAmountStep defaultAmount={stakeAmount} onAmountSelected={handleStakeAmountChange} />
-            )}
+        <>
+            <div className="flex flex-row justify-center w-full">
+                {step === StakeActivitySteps.PickStakeAmount && (
+                    <PickStakeAmountStep
+                        defaultAmount={stakeAmount}
+                        onAmountSelected={handleStakeAmountChange}
+                        onClose={() => setAbortDialogOpen(true)}
+                    />
+                )}
 
-            {step === StakeActivitySteps.PickOffer && (
-                <PickOfferStep
-                    amount={stakeAmount}
-                    defaultOffer={selectedOffer}
-                    onOfferSelected={(offer) => {
-                        setSelectedOffer(offer);
-                        setStep(StakeActivitySteps.Review);
-                    }}
-                    onBack={() => {
-                        setStep(StakeActivitySteps.PickStakeAmount);
-                    }}
-                />
-            )}
+                {step === StakeActivitySteps.PickOffer && (
+                    <PickOfferStep
+                        amount={stakeAmount}
+                        defaultOffer={selectedOffer}
+                        onOfferSelected={(offer) => {
+                            setSelectedOffer(offer);
+                            setStep(StakeActivitySteps.Review);
+                        }}
+                        onBack={() => {
+                            setStep(StakeActivitySteps.PickStakeAmount);
+                        }}
+                        onClose={() => setAbortDialogOpen(true)}
+                    />
+                )}
 
-            {step === StakeActivitySteps.Review && (
-                <ReviewStep
-                    amount={stakeAmount}
-                    selectedOffer={selectedOffer!}
-                    onConfirm={() => {
+                {step === StakeActivitySteps.Review && (
+                    <ReviewStep
+                        amount={stakeAmount}
+                        selectedOffer={selectedOffer!}
+                        onStakeCompleted={(result, activity) => {
+                            console.log(result);
+                            if (
+                                result.requestStakeInfoDone &&
+                                result.stakeSignatureDone &&
+                                result.operationalFundsSignatureDone &&
+                                result.schedulingTransactionsDone
+                            ) {
+                                setStep(StakeActivitySteps.Success);
+                                setActivity(activity)
+                            }
+                        }}
+                        onBack={() => {
+                            setStep(StakeActivitySteps.PickOffer);
+                        }}
+                        onClose={() => setAbortDialogOpen(true)}
+                    />
+                )}
 
-                    }}
-                    onBack={() => {
-                        setStep(StakeActivitySteps.PickOffer);
-                    }}
-                />
-            )}
-        </div>
+                {step === StakeActivitySteps.Success && (
+                    <StakeSuccessStep
+                        activity={activity!}
+                        amount={stakeAmount}
+                        selectedOffer={selectedOffer!}
+                        onClose={() => {
+                            redirect('/app');
+                        }}
+                    />
+                )}
+            </div>
+            <AbortConfirmationDialog
+                isOpen={isAbortDialogOpen}
+                onResponse={(abort) => {
+                    setAbortDialogOpen(false);
+                    if (abort) {
+                        redirect("/app");
+                    }
+                }}
+            />
+        </>
     );
 }

@@ -15,9 +15,10 @@ export interface PickOfferStepProps {
     defaultOffer?: StakeDistributionOffer;
     onOfferSelected: (offer: StakeDistributionOffer) => void;
     onBack: () => void;
+    onClose: () => void;
 }
 
-export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer}: Readonly<PickOfferStepProps>) {
+export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer, onClose}: Readonly<PickOfferStepProps>) {
     const [selectedOffer, setSelectedOffer] = useState<StakeDistributionOffer | undefined>(defaultOffer);
     const [isShowingUnavailable, setIsShowingUnavailable] = useState<boolean>(false);
     const [offers, setOffers] = useState<StakeDistributionOffer[]>([]);
@@ -64,6 +65,7 @@ export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer}: R
         <div
             className="flex flex-col w-[480px] border-x border-b border-[--balck-deviders] p-[33px] rounded-b-[12px] gap-8">
             <ActivityHeader
+                onClose={onClose}
                 onBack={onBack}
                 title="Provider"
                 subtitle={subtitle}
