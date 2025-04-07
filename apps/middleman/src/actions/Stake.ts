@@ -43,6 +43,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       fee: provider.fee,
       url: provider.url,
       rewards: 'N/A',
+      delegatorRewardsAddress: provider.delegatorRewardsAddress,
       operationalFundsAmount: provider.operationalFunds,
       stakeDistribution: distribution
     };

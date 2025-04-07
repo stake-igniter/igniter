@@ -107,6 +107,7 @@ export const providersTable = pgTable("providers", {
   domains: text().array().default([]),
   minimumStake: integer().notNull().default(0),
   operationalFunds: integer().notNull().default(5),
+  delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
@@ -124,6 +125,7 @@ export const applicationSettingsTable = pgTable("application_settings", {
   isBootstrapped: boolean().notNull(),
   chainId: chainIdEnum().notNull(),
   blockchainProtocol: blockchainProtocolEnum().notNull(),
+  delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
   privacyPolicy: text(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),

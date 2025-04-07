@@ -12,9 +12,10 @@ import {useEffect, useState} from "react";
 import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {Activity, ActivityStatus, ActivityType, TransactionStatus, TransactionType} from "@/db/schema";
+import {requestKeys} from "@/lib/services/provider";
 
 export interface StakingProcessStatus {
-    requestStakeInfoDone: boolean;
+    requestStakeKeysDone: boolean;
     stakeSignatureDone: boolean;
     operationalFundsSignatureDone: boolean;
     schedulingTransactionsDone: boolean;
@@ -27,7 +28,7 @@ export interface StakingProcessProps {
 }
 
 enum StakingProcessStep {
-    RequestStakeInfo,
+    RequestKeys,
     StakeSignature,
     OperationalFundsSignature,
     SchedulingTransactions,
@@ -37,44 +38,28 @@ enum StakingProcessStep {
 export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProcessProps>) {
     const [open, setOpen] = useState(false);
     const [stakingStatus, setStakingStatus] = useState<StakingProcessStatus>({
-        requestStakeInfoDone: false,
+        requestStakeKeysDone: false,
         stakeSignatureDone: false,
         operationalFundsSignatureDone: false,
         schedulingTransactionsDone: false,
         isCancellable: true,
     });
 
-    const [currentStep, setCurrentStep] = useState<StakingProcessStep>(StakingProcessStep.RequestStakeInfo);
+    const [currentStep, setCurrentStep] = useState<StakingProcessStep>(StakingProcessStep.RequestKeys);
 
     useEffect(() => {
-        let timeout: ReturnType<typeof setTimeout>;
-
         (async () => {
-            if (!open || currentStep !== StakingProcessStep.RequestStakeInfo) {
+            if (!open || currentStep !== StakingProcessStep.RequestKeys) {
                 return;
             }
             try {
-                // TODO: call offer.url to get the list of nodes to stake
+                const keys = await requestKeys(offer)
 
-                timeout = setTimeout(() => {
-                    setStakingStatus((prev) => ({
-                        ...prev,
-                        requestStakeInfoDone: true,
-                    }));
-
-                    setCurrentStep(StakingProcessStep.StakeSignature);
-                }, 3000);
             } catch (err) {
-                console.log('An error occurred while collecting the stake info from the service provider.');
+                console.log('An error occurred while retrieving the keys from the service provider.');
                 console.error(err);
             }
         })();
-
-        return () => {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-        }
     }, [open, currentStep]);
 
     useEffect(() => {
@@ -245,9 +230,9 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
         setOpen(open);
 
         if (!open) {
-            setCurrentStep(StakingProcessStep.RequestStakeInfo);
+            setCurrentStep(StakingProcessStep.RequestKeys);
             setStakingStatus({
-                requestStakeInfoDone: false,
+                requestStakeKeysDone: false,
                 stakeSignatureDone: false,
                 operationalFundsSignatureDone: false,
                 schedulingTransactionsDone: false,
@@ -275,8 +260,8 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
                 </DialogTitle>
                 <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
                 <div className="flex flex-row justify-between items-center py-3 px-4">
-                    <span className="text-[14px]">Requesting Stake Info</span>
-                    {stakingStatus.requestStakeInfoDone && <CheckSuccess/>}
+                    <span className="text-[14px]">Requesting Keys</span>
+                    {stakingStatus.requestStakeKeysDone && <CheckSuccess/>}
                 </div>
                 <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
                 <div className="flex flex-row justify-between items-center py-3 px-4">

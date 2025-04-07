@@ -50,7 +50,6 @@ export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer, on
             setIsLoadingOffers(true);
             try {
                 const calculatedOffers = await CalculateStakeDistribution(amount);
-                console.log(calculatedOffers);
                 setOffers(calculatedOffers);
             } catch (error) {
                 console.warn('An error occurred while calculating the stake distribution!');

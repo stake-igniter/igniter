@@ -62,7 +62,7 @@ export default function StakePage() {
                         onStakeCompleted={(result, activity) => {
                             console.log(result);
                             if (
-                                result.requestStakeInfoDone &&
+                                result.requestStakeKeysDone &&
                                 result.stakeSignatureDone &&
                                 result.operationalFundsSignatureDone &&
                                 result.schedulingTransactionsDone
