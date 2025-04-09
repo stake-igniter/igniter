@@ -8,12 +8,12 @@ export interface ServiceProviderKey {
     chains: string[];
 }
 
-export interface StakeTransaction extends ServiceProviderKey {
+export interface StakeTransactionSignatureRequest extends ServiceProviderKey {
     outputAddress: string;
     delegatorRewards: Record<string, string>;
 }
 
-export interface OperationalFundsTransaction {
+export interface OperationalFundsTransactionSignatureRequest {
     fromAddress: string;
     toAddress: string;
     amount: number;
@@ -33,7 +33,9 @@ export interface CreateOperationalFundsTransactionParams {
     key: ServiceProviderKey;
 }
 
-export function createStakeTransaction(params: CreateStakeTransactionParams): StakeTransaction {
+export type TransactionSignatureRequest = StakeTransactionSignatureRequest | OperationalFundsTransactionSignatureRequest;
+
+export function createStakeTransaction(params: CreateStakeTransactionParams): StakeTransactionSignatureRequest {
     return {
         ...params.key,
         outputAddress: params.outputAddress,
@@ -44,7 +46,7 @@ export function createStakeTransaction(params: CreateStakeTransactionParams): St
     };
 }
 
-export function createOperationalFundsTransaction(params: CreateOperationalFundsTransactionParams): OperationalFundsTransaction {
+export function createOperationalFundsTransaction(params: CreateOperationalFundsTransactionParams): OperationalFundsTransactionSignatureRequest {
     return {
         fromAddress: params.stakeTransaction.fromAddress,
         toAddress: params.key.address,

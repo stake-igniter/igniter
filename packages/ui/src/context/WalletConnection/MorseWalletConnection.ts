@@ -5,6 +5,7 @@ export enum PocketMorseMethod {
   REQUEST_ACCOUNTS = "pokt_requestAccounts",
   PUBLIC_KEY = "pokt_publicKey",
   SIGN_MESSAGE = "pokt_signMessage",
+  SIGN_TRANSACTION = "pokt_signTransaction",
   BALANCE = "pokt_balance",
   CHAIN = "pokt_chain",
   SWITCH_CHAIN = "wallet_switchPocketChain",

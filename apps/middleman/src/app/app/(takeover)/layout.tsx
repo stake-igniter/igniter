@@ -39,7 +39,7 @@ export default async function TakeOverLayout({
             </AppTopBar>
             <div className="flex flex-1">
               <div className={"w-full h-full flex"}>
-                <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-none">
+                <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
                   {children}
                 </div>
               </div>

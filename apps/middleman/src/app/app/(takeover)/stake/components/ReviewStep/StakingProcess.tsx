@@ -8,26 +8,30 @@ import {
     DialogTrigger,
 } from "@igniter/ui/components/dialog";
 import {DialogClose} from "@igniter/ui/components/dialog";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {
     Activity,
     ActivityStatus,
     ActivityType,
-    ApplicationSettings,
     TransactionStatus,
     TransactionType
 } from "@/db/schema";
 import {requestKeys} from "@/lib/services/provider";
-import {createStakeTransaction} from "@/lib/models/Transactions";
+import {
+    createStakeTransaction,
+    TransactionSignatureRequest
+} from "@/lib/models/Transactions";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 
 export interface StakingProcessStatus {
     requestStakeKeysDone: boolean;
     stakeSignatureDone: boolean;
+    signedStakeTransactionsCount: number;
     operationalFundsSignatureDone: boolean;
+    signedOperationalFundsTransactionsCount: number;
     schedulingTransactionsDone: boolean;
     isCancellable: boolean;
 }
@@ -52,11 +56,19 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
         stakeSignatureDone: false,
         operationalFundsSignatureDone: false,
         schedulingTransactionsDone: false,
+        signedStakeTransactionsCount: 0,
+        signedOperationalFundsTransactionsCount: 0,
         isCancellable: true,
     });
     const [currentStep, setCurrentStep] = useState<StakingProcessStep>(StakingProcessStep.RequestKeys);
     const settings = useApplicationSettings();
     const { connectedIdentity } = useWalletConnection();
+    const [transactions, setTransactions] = useState<TransactionSignatureRequest[]>([]);
+    const stakeTransactionsCount = useMemo(() => {
+        return offer.stakeDistribution.reduce((count, stakeDistribution) => {
+            return count + stakeDistribution.qty;
+        }, 0);
+    }, [offer]);
 
     useEffect(() => {
         (async () => {
@@ -73,8 +85,12 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
                         outputAddress: connectedIdentity!,
                     }));
 
-
-
+                setTransactions(stakeTransactions);
+                setStakingStatus((prev) => ({
+                    ...prev,
+                    requestStakeKeysDone: true,
+                }));
+                setCurrentStep(StakingProcessStep.StakeSignature);
             } catch (err) {
                 console.log('An error occurred while retrieving the keys from the service provider.');
                 console.error(err);
@@ -254,7 +270,9 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
             setStakingStatus({
                 requestStakeKeysDone: false,
                 stakeSignatureDone: false,
+                signedStakeTransactionsCount: 0,
                 operationalFundsSignatureDone: false,
+                signedOperationalFundsTransactionsCount: 0,
                 schedulingTransactionsDone: false,
                 isCancellable: true,
             });
@@ -285,12 +303,12 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
                 </div>
                 <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
                 <div className="flex flex-row justify-between items-center py-3 px-4">
-                    <span className="text-[14px]">Stake Signature (0/0)</span>
+                    <span className="text-[14px]">Stake Signature ({`${stakingStatus.signedStakeTransactionsCount}`}/{`${stakeTransactionsCount}`})</span>
                     {stakingStatus.stakeSignatureDone && <CheckSuccess/>}
                 </div>
                 <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
                 <div className="flex flex-row justify-between items-center py-3 px-4 font-size[14px]">
-                    <span className="text-[14px]">Operational Funds Signature (0/0)</span>
+                    <span className="text-[14px]">Operational Funds Signature ({`${stakingStatus.signedOperationalFundsTransactionsCount}`}/{`${stakeTransactionsCount}`})</span>
                     {stakingStatus.operationalFundsSignatureDone && <CheckSuccess/>}
                 </div>
                 <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
