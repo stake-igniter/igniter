@@ -11,8 +11,18 @@ import {DialogClose} from "@igniter/ui/components/dialog";
 import {useEffect, useState} from "react";
 import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {Activity, ActivityStatus, ActivityType, TransactionStatus, TransactionType} from "@/db/schema";
+import {
+    Activity,
+    ActivityStatus,
+    ActivityType,
+    ApplicationSettings,
+    TransactionStatus,
+    TransactionType
+} from "@/db/schema";
 import {requestKeys} from "@/lib/services/provider";
+import {createStakeTransaction} from "@/lib/models/Transactions";
+import {useApplicationSettings} from "@/app/context/ApplicationSettings";
+import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 
 export interface StakingProcessStatus {
     requestStakeKeysDone: boolean;
@@ -44,8 +54,9 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
         schedulingTransactionsDone: false,
         isCancellable: true,
     });
-
     const [currentStep, setCurrentStep] = useState<StakingProcessStep>(StakingProcessStep.RequestKeys);
+    const settings = useApplicationSettings();
+    const { connectedIdentity } = useWalletConnection();
 
     useEffect(() => {
         (async () => {
@@ -53,7 +64,16 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
                 return;
             }
             try {
-                const keys = await requestKeys(offer)
+                const keys = await requestKeys(offer);
+                const stakeTransactions = keys.map((key) =>
+                    createStakeTransaction({
+                        key,
+                        offer,
+                        settings: settings!,
+                        outputAddress: connectedIdentity!,
+                    }));
+
+
 
             } catch (err) {
                 console.log('An error occurred while retrieving the keys from the service provider.');

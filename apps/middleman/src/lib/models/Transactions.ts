@@ -1,5 +1,5 @@
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {ApplicationSettings} from "@/db/schema";
+import {ApplicationSettings, Transaction} from "@/db/schema";
 
 export interface ServiceProviderKey {
     address: string;
@@ -17,6 +17,7 @@ export interface OperationalFundsTransaction {
     fromAddress: string;
     toAddress: string;
     amount: number;
+    dependsOn: number;
 }
 
 export interface CreateStakeTransactionParams {
@@ -28,7 +29,8 @@ export interface CreateStakeTransactionParams {
 
 export interface CreateOperationalFundsTransactionParams {
     offer: StakeDistributionOffer;
-    stakeTransaction: StakeTransaction;
+    stakeTransaction: Transaction;
+    key: ServiceProviderKey;
 }
 
 export function createStakeTransaction(params: CreateStakeTransactionParams): StakeTransaction {
@@ -44,8 +46,9 @@ export function createStakeTransaction(params: CreateStakeTransactionParams): St
 
 export function createOperationalFundsTransaction(params: CreateOperationalFundsTransactionParams): OperationalFundsTransaction {
     return {
-        fromAddress: params.stakeTransaction.outputAddress,
-        toAddress: params.stakeTransaction.address,
+        fromAddress: params.stakeTransaction.fromAddress,
+        toAddress: params.key.address,
         amount: params.offer.operationalFundsAmount,
+        dependsOn: params.stakeTransaction.id,
     };
 }

@@ -107,7 +107,7 @@ export const providersTable = pgTable("providers", {
   domains: text().array().default([]),
   minimumStake: integer().notNull().default(0),
   operationalFunds: integer().notNull().default(5),
-  delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
+  delegatorRewardsAddress: varchar({ length: 255 }).default(''),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
