@@ -4,12 +4,16 @@ import { BlockchainProvider } from "../lib/blockchain";
 import * as activityDAL from "../lib/dal/activity";
 import * as transactionDAL from "../lib/dal/transaction";
 import * as providerDAL from "../lib/dal/provider";
+import * as nodeDAL from "../lib/dal/node";
 import {
   Activity,
+  Node,
+  NewNode,
   Provider,
   ProviderStatus,
   Transaction,
 } from "../lib/db/schema";
+import { addressFromPublicKey } from "./utils";
 
 export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   async getActivity(activityId: number) {
@@ -112,7 +116,10 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   },
   async verifyTransaction(hash: string) {
     const tx = await blockchainProvider.getTransaction(hash);
-    return tx.tx_result;
+    if (!tx) {
+      throw new Error("Transaction data is incomplete or not found");
+    }
+    return [tx.tx_result, tx.stdTx.msg] as const;
   },
   async simulateTransaction(transactionId: number) {
     await sleep(3 * 60 * 1000);
@@ -120,5 +127,16 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       transactionId,
       status: "success",
     };
+  },
+  async parseNodesPublicKey(
+    nodes: (Omit<NewNode, "address"> & { publicKey: string })[]
+  ) {
+    return nodes.map(({ publicKey, ...rest }) => ({
+      ...rest,
+      address: addressFromPublicKey(Buffer.from(publicKey, "hex")),
+    }));
+  },
+  async insertNodes(nodes: NewNode[]) {
+    return await nodeDAL.insertNodes(nodes);
   },
 });
