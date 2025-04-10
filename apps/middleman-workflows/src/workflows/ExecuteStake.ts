@@ -1,4 +1,9 @@
-import { log, proxyActivities, startChild } from "@temporalio/workflow";
+import {
+  ApplicationFailure,
+  log,
+  proxyActivities,
+  startChild,
+} from "@temporalio/workflow";
 import { ExecuteTransaction } from "./ExecuteTransaction";
 import { createActivities } from "../activities";
 import {
@@ -30,6 +35,14 @@ export async function ExecuteStake(args: StakeArgs) {
   if (activity?.type !== ActivityType.Stake) {
     return "Activity is not a Stake, skipping";
   }
+
+  if (activity.status !== ActivityStatus.Pending) {
+    return "Activity is in process or already finished, skipping";
+  }
+
+  await updateActivity(activityId, {
+    status: ActivityStatus.InProgress,
+  });
 
   const nonDependantTransactions = activity.transactions.filter(
     (transaction) => !transaction.dependsOn
@@ -69,8 +82,12 @@ export async function ExecuteStake(args: StakeArgs) {
     status: activityStatus,
   });
 
-  log.info(`Successful workflows: ${successfulWorkflows.length}`);
-  log.error(`Failed workflows: ${failedWorkflows.length}`);
+  if (failedWorkflows.length > 0) {
+    log.error(`Failed workflows: ${failedWorkflows.length}`);
+  }
+  if (successfulWorkflows.length > 0) {
+    log.info(`Successful workflows: ${successfulWorkflows.length}`);
+  }
 
   if (successfulWorkflows.length > 0) {
     const nodes = successfulWorkflows.map((result) => {
@@ -87,6 +104,7 @@ export async function ExecuteStake(args: StakeArgs) {
         userId: transaction.userId,
         providerId: 0,
         balance: 0,
+        rewards: 0,
       };
     });
     const nodesWithAddresses = await parseNodesPublicKey(nodes);
@@ -94,7 +112,7 @@ export async function ExecuteStake(args: StakeArgs) {
   }
 
   if (failedWorkflows.length > 0) {
-    throw new Error("1 or more stake transactions failed");
+    throw new ApplicationFailure("1 or more stake transactions failed");
   }
 
   return "Stake completed";
