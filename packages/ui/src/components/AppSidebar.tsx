@@ -6,12 +6,10 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "./sidebar";
 
-import {SootheLogo} from "@igniter/ui/assets";
-import {ComponentType} from "react";
+import { SootheLogo } from "@igniter/ui/assets";
+import { ComponentType } from "react";
 
 export interface AppSidebarRoute {
   title: string;
@@ -20,14 +18,14 @@ export interface AppSidebarRoute {
 }
 
 export interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  mainRoutes: AppSidebarRoute[];
-  footerRoutes: AppSidebarRoute[];
+  MainRoutes: React.ReactNode;
+  FooterRoutes: React.ReactNode;
 }
 
 export default function AppSidebar({
-                                   mainRoutes,
-                                   footerRoutes,
-                                     ...sidebarProps
+  MainRoutes,
+  FooterRoutes,
+  ...sidebarProps
 }: Readonly<AppSidebarProps>) {
   return (
     <Sidebar
@@ -38,36 +36,14 @@ export default function AppSidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {mainRoutes.map((route) => (
-                <SidebarMenuItem key={route.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={route.url}>
-                      <route.icon />
-                      <span>{route.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{MainRoutes}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {footerRoutes.map((route) => (
-                <SidebarMenuItem key={route.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={route.url}>
-                      <route.icon />
-                      <span>{route.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{FooterRoutes}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>

@@ -8,7 +8,7 @@
     "build": "tsc --build ./tsconfig.json",
     "start": "node -r dotenv/config ./dist/src/worker.js",
     "check-types": "tsc --noEmit",
-    "build:docker": "cd ../.. && docker build -t igniter-middleman-workflows:latest -f ./apps/workflows/Dockerfile . --no-cache"
+    "build:docker": "cd ../.. && docker build -t igniter-middleman-workflows:latest -f ./apps/middleman-workflows/Dockerfile . --no-cache"
   },
   "dependencies": {
     "@pokt-foundation/pocketjs-provider": "2.2.1",
@@ -22,6 +22,7 @@
     "@temporalio/workflow": "1.11.7",
     "dotenv": "16.4.7",
     "drizzle-orm": "0.39.1",
+    "js-sha256": "^0.11.0",
     "long": "5.3.1",
     "pg": "^8.14.0"
   },

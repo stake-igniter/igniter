@@ -7,6 +7,7 @@ export interface StatusResponse {
   providerFee: string;
   domains: string[];
   healthy: boolean;
+  delegatorRewardsAddress: string;
 }
 
 export async function GET(request: Request) {
@@ -21,6 +22,7 @@ export async function GET(request: Request) {
       minimumStake: minimumStake,
       providerFee: applicationSettings.providerFee,
       domains: addressGroups.map((group) => group.domain),
+      delegatorRewardsAddress: applicationSettings.delegatorRewardsAddress,
       healthy: true, //TODO: check if all services are healthy, for future
     };
 

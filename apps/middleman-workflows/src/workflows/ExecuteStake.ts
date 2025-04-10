@@ -1,7 +1,14 @@
 import { log, proxyActivities, startChild } from "@temporalio/workflow";
 import { ExecuteTransaction } from "./ExecuteTransaction";
 import { createActivities } from "../activities";
-import { ActivityStatus, ActivityType } from "../lib/db/schema";
+import {
+  ActivityStatus,
+  ActivityType,
+  NewNode,
+  NodeStatus,
+} from "../lib/db/schema";
+import { StakeTransactionMsg } from "../lib/types";
+import { amountToPokt } from "./utils";
 
 export interface StakeArgs {
   activityId: number;
@@ -10,14 +17,13 @@ export interface StakeArgs {
 export async function ExecuteStake(args: StakeArgs) {
   const { activityId } = args;
 
-  const { getActivity, updateActivity } = proxyActivities<
-    ReturnType<typeof createActivities>
-  >({
-    startToCloseTimeout: "30s",
-    retry: {
-      maximumAttempts: 3,
-    },
-  });
+  const { getActivity, updateActivity, insertNodes, parseNodesPublicKey } =
+    proxyActivities<ReturnType<typeof createActivities>>({
+      startToCloseTimeout: "30s",
+      retry: {
+        maximumAttempts: 3,
+      },
+    });
 
   const activity = await getActivity(activityId);
 
@@ -54,9 +60,10 @@ export async function ExecuteStake(args: StakeArgs) {
     (result) => result.status === "fulfilled"
   );
 
-  const activityStatus = (
-    failedWorkflows.length > 0 ? "failed" : "success"
-  ) as ActivityStatus;
+  const activityStatus =
+    failedWorkflows.length > 0
+      ? ActivityStatus.Failure
+      : ActivityStatus.Success;
 
   await updateActivity(activityId, {
     status: activityStatus,
@@ -64,6 +71,27 @@ export async function ExecuteStake(args: StakeArgs) {
 
   log.info(`Successful workflows: ${successfulWorkflows.length}`);
   log.error(`Failed workflows: ${failedWorkflows.length}`);
+
+  if (successfulWorkflows.length > 0) {
+    const nodes = successfulWorkflows.map((result) => {
+      const transaction = result.value;
+      const txMsg = transaction.txMsg as StakeTransactionMsg;
+      const stakeParams = txMsg.value;
+      return {
+        publicKey: stakeParams.public_key.value,
+        stakeAmount: amountToPokt(stakeParams.value),
+        chains: stakeParams.chains,
+        serviceUrl: stakeParams.service_url,
+        outputAddress: stakeParams.output_address,
+        status: NodeStatus.Staked,
+        userId: transaction.userId,
+        providerId: 0,
+        balance: 0,
+      };
+    });
+    const nodesWithAddresses = await parseNodesPublicKey(nodes);
+    await insertNodes(nodesWithAddresses as NewNode[]);
+  }
 
   if (failedWorkflows.length > 0) {
     throw new Error("1 or more stake transactions failed");

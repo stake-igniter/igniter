@@ -13,6 +13,14 @@ export async function getActivity(
   });
 }
 
+export async function getActivitiesByUser() {
+  return await db.query.activityTable.findMany({
+    with: {
+      transactions: true,
+    },
+  });
+}
+
 export async function createActivity(activity: Activity) {
   return await db
     .insert(activityTable)

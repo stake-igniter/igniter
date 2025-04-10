@@ -1,6 +1,7 @@
 import { log, proxyActivities, startChild } from "@temporalio/workflow";
 import { createActivities } from "../activities";
-import { TransactionStatus } from "../lib/db/schema";
+import { TransactionStatus, TransactionType } from "../lib/db/schema";
+import { StakeTransactionMsg } from "../lib/types";
 
 interface TransactionArgs {
   transactionId: number;
@@ -52,9 +53,11 @@ export async function ExecuteTransaction(args: TransactionArgs) {
 
   await waitForNextBlock(txHeight);
 
-  const status = await verifyTransaction(hash);
+  const [status, msg] = await verifyTransaction(hash);
 
-  const txStatus = (status.code ? "failed" : "success") as TransactionStatus;
+  const txStatus = status.code
+    ? TransactionStatus.Failure
+    : TransactionStatus.Success;
 
   await updateTransaction(transactionId, {
     status: txStatus,
@@ -81,5 +84,11 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     );
   }
 
-  return hash;
+  return {
+    ...transaction,
+    status: txStatus,
+    hash,
+    txHeight,
+    txMsg: msg,
+  };
 }
