@@ -52,6 +52,7 @@ export enum ActivityStatus {
   Pending = "pending",
   Success = "success",
   Failure = "failure",
+  InProgress = "in_progress",
 }
 
 export enum TransactionStatus {
