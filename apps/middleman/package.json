@@ -8,8 +8,7 @@
     "build": "next build --experimental-build-mode compile",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
-    "check-types": "tsc --noEmit",
-    "build:docker": "cd ../.. && docker build -t igniter-middleman:latest -f ./apps/middleman/Dockerfile ."
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "4.1.3",

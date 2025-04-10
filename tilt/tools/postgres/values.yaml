@@ -1,0 +1,8 @@
+global:
+  postgresql:
+    auth:
+      postgresPassword: "postgres"
+primary:
+  persistentVolumeClaimRetentionPolicy:
+    enabled: true
+    whenDeleted: Delete

@@ -4,11 +4,10 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "dev": "tsc-watch --onSuccess \"node -r dotenv/config ./dist/src/worker.js\"",
+    "dev": "tsc-watch --onSuccess \"node ./dist/src/worker.js\"",
     "build": "tsc --build ./tsconfig.json",
     "start": "node -r dotenv/config ./dist/src/worker.js",
-    "check-types": "tsc --noEmit",
-    "build:docker": "cd ../.. && docker build -t igniter-middleman-workflows:latest -f ./apps/middleman-workflows/Dockerfile . --no-cache"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@pokt-foundation/pocketjs-provider": "2.2.1",
