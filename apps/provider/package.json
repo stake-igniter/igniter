@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack --port 3001",
-    "build": "next build",
+    "build": "next build --experimental-build-mode compile",
     "start": "next start --port 3001",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build:docker": "cd ../.. && docker build -t igniter-provider:latest -f ./apps/provider/Dockerfile ."

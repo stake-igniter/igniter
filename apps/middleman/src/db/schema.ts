@@ -107,6 +107,7 @@ export const providersTable = pgTable("providers", {
   domains: text().array().default([]),
   minimumStake: integer().notNull().default(0),
   operationalFunds: integer().notNull().default(5),
+  delegatorRewardsAddress: varchar({ length: 255 }).default(''),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
@@ -124,6 +125,7 @@ export const applicationSettingsTable = pgTable("application_settings", {
   isBootstrapped: boolean().notNull(),
   chainId: chainIdEnum().notNull(),
   blockchainProtocol: blockchainProtocolEnum().notNull(),
+  delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
   privacyPolicy: text(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
@@ -134,11 +136,13 @@ export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
 export const activityTable = pgTable("activity", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   type: activityTypeEnum().notNull(),
-  status: activityStatusEnum().notNull(),
+  status: activityStatusEnum().notNull().default(ActivityStatus.Pending),
   seenOn: timestamp(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
+
+export type BaseActivity = typeof activityTable.$inferSelect;
 
 export const activityTransactionRelation = relations(
   activityTable,
@@ -147,27 +151,24 @@ export const activityTransactionRelation = relations(
   })
 );
 
-export type Activity = typeof activityTable.$inferSelect;
-
 export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   hash: varchar({ length: 255 }),
   type: transactionTypeEnum().notNull(),
-  status: transactionStatusEnum().notNull(),
+  status: transactionStatusEnum().notNull().default(TransactionStatus.Pending),
+  amount: integer().notNull(),
+  signedPayload: varchar().notNull(),
+  fromAddress: varchar({ length: 255 }).notNull(),
+  activityId: integer()
+    .notNull()
+    .references(() => activityTable.id),
+  //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
+  dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
+
   executionHeight: integer(),
   executionTimestamp: timestamp(),
   verificationHeight: integer(),
   verificationTimestamp: timestamp(),
-
-  //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
-  dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
-
-  signedPayload: varchar().notNull(),
-  fromAddress: varchar({ length: 255 }).notNull(),
-  signatureTimestamp: timestamp().notNull(),
-  activityId: integer()
-    .notNull()
-    .references(() => activityTable.id),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
@@ -193,3 +194,7 @@ export const transactionsDependsOnRelation = relations(
 );
 
 export type Transaction = typeof transactionsTable.$inferSelect;
+
+export type Activity = typeof activityTable.$inferSelect & {
+  transactions: Transaction[];
+};

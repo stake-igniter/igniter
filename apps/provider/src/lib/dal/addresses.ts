@@ -58,7 +58,7 @@ export async function getFinalStakeAddresses(
     0
   );
 
-  let addresses: { address: string; addressGroup: AddressGroup }[] = [];
+  let addresses: { address: string; addressGroup: AddressGroup, publicKey: string; }[] = [];
   for (const keyManagementStrategy of keyManagementStrategies) {
     if (addresses.length >= neededAddresses) break;
 
@@ -76,8 +76,9 @@ export async function getFinalStakeAddresses(
     );
 
     addresses = addresses.concat(
-      newAddresses.map((address) => ({
+      newAddresses.map(([address, publicKey]) => ({
         address: address,
+        publicKey,
         addressGroup,
       }))
     );
@@ -86,12 +87,13 @@ export async function getFinalStakeAddresses(
   const nodes = stakeDistribution.flatMap(({ amount, qty }) =>
     Array.from({ length: qty }, (_, i) => ({
       address: addresses[i]?.address ?? "",
+      publicKey: addresses[i]?.publicKey ?? "",
       bin: amount,
       addressGroup: addresses[i]?.addressGroup,
     }))
   );
 
-  const stakes = nodes.map((node) => {
+  return nodes.map((node) => {
     const serviceUrl = node?.addressGroup?.pattern
       .replace("{{domain}}", node?.addressGroup?.domain)
       .replace("{{identity}}", node?.addressGroup?.identity)
@@ -99,11 +101,10 @@ export async function getFinalStakeAddresses(
 
     return {
       address: node.address,
+      publicKey: node.publicKey,
       amount: node.bin,
       chains: node?.addressGroup?.defaultChains,
       serviceUrl,
     };
   });
-
-  return stakes;
 }

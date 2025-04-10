@@ -8,7 +8,7 @@ import { Address, KeyManagementStrategyType } from "@/db/schema";
 export interface IKeyManagementStrategy {
   addressGroupAssignmentId: number;
 
-  getAddresses(amount: number): Promise<string[]>;
+  getAddresses(amount: number): Promise<[string, string][]>;
 }
 
 export class DynamicKeyManagementStrategy implements IKeyManagementStrategy {
@@ -18,7 +18,7 @@ export class DynamicKeyManagementStrategy implements IKeyManagementStrategy {
     this.addressGroupAssignmentId = addressGroupAssignmentId;
   }
 
-  async getAddresses(amount: number) {
+  async getAddresses(amount: number): Promise<[string, string][]> {
     const addresses = [];
 
     for (let i = 0; i < amount; i++) {
@@ -26,6 +26,7 @@ export class DynamicKeyManagementStrategy implements IKeyManagementStrategy {
       const address = addressFromPublicKey(Buffer.from(public_key, "hex"));
       addresses.push({
         address,
+        publicKey: public_key,
         privateKey: private_key,
         addressGroupId: this.addressGroupAssignmentId,
       });
@@ -33,7 +34,7 @@ export class DynamicKeyManagementStrategy implements IKeyManagementStrategy {
 
     await insertAddresses(addresses as Address[]);
 
-    return addresses.map((address) => address.address);
+    return addresses.map((address) => [address.address, address.publicKey]);
   }
 }
 
@@ -44,7 +45,7 @@ export class ManualKeyManagementStrategy implements IKeyManagementStrategy {
     this.addressGroupAssignmentId = addressGroupAssignmentId;
   }
 
-  async getAddresses(amount: number): Promise<string[]> {
+  async getAddresses(amount: number): Promise<[string, string][]> {
     throw new Error("Method not implemented.");
   }
 }

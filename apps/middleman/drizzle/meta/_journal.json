@@ -8,6 +8,27 @@
       "when": 1743685469900,
       "tag": "0000_clammy_triathlon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744043580092,
+      "tag": "0001_free_hairball",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744214909799,
+      "tag": "0002_spotty_emma_frost",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1744257936901,
+      "tag": "0003_mysterious_shockwave",
+      "breakpoints": true
     }
   ]
 }

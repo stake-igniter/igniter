@@ -19,3 +19,4 @@ export { default as RewardsDisabledIcon } from './icons/dark/rewards_disabled.sv
 export { default as CaretIcon}  from './icons/dark/caret.svg';
 export { default as CaretSmallIcon } from './icons/dark/caret_small.svg';
 export { default as CornerIcon } from './icons/dark/corner.svg';
+export { default as CheckSuccess } from './icons/dark/check_success.svg';

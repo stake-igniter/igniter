@@ -39,6 +39,10 @@ export const formSchema = z.object({
     .number()
     .min(1, "Middleman fee must be greater than 0")
     .max(100),
+  delegatorRewardsAddress: z.string().refine(
+    (value) => value.length === 40,
+    (val) => ({ message: `${val} is not a valid address` })
+  ),
   minimumStake: z.coerce.number().default(15000),
   privacyPolicy: z.string().optional(),
 });
@@ -172,7 +176,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             name="fee"
             control={form.control}
@@ -211,6 +215,20 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                       <SelectItem value="60000">60000</SelectItem>
                     </SelectContent>
                   </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            name="delegatorRewardsAddress"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Delegator rewards address</FormLabel>
+                <FormControl>
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

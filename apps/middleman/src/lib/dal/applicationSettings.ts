@@ -17,6 +17,7 @@ const defaultSettings: ApplicationSettings = {
   fee: "1",
   minimumStake: 15000,
   isBootstrapped: false,
+  delegatorRewardsAddress: '',
   chainId: "mainnet" as ChainId,
   blockchainProtocol: BlockchainProtocol.Morse,
   privacyPolicy: "",
