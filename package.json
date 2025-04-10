@@ -6,8 +6,10 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "build:middleman:docker": "pnpm --filter @igniter/middleman run build:docker",
-    "build:middleman-workflows:docker": "pnpm --filter @igniter/middleman-workflows run build:docker"
+    "build:middleman:docker": "./tools/docker/build.sh middleman",
+    "build:workflows:docker": "./tools/docker/build.sh middleman-workflows",
+    "build:provider:docker": "./tools/docker/build.sh provider",
+    "create-cluster": "./tools/docker/cluster.sh"
   },
   "workspaces": [
     "apps/*",
