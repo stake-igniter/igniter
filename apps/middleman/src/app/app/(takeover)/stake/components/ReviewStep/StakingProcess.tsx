@@ -11,20 +11,18 @@ import {DialogClose} from "@igniter/ui/components/dialog";
 import {useEffect, useMemo, useState} from "react";
 import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {
-    Activity,
-    ActivityStatus,
-    ActivityType,
-    TransactionStatus,
-    TransactionType
-} from "@/db/schema";
+import { Activity } from "@/db/schema";
 import {requestKeys} from "@/lib/services/provider";
 import {
+    createOperationalFundsTransaction,
     createStakeTransaction,
-    TransactionSignatureRequest
+    StakeTransactionSignatureRequest,
+    SignedOperationalFundsTransaction,
+    SignedStakeTransaction, OperationalFundsTransactionSignatureRequest,
 } from "@/lib/models/Transactions";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
+import {CreateStakeActivity} from "@/actions/Stake";
 
 export interface StakingProcessStatus {
     requestStakeKeysDone: boolean;
@@ -62,8 +60,13 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
     });
     const [currentStep, setCurrentStep] = useState<StakingProcessStep>(StakingProcessStep.RequestKeys);
     const settings = useApplicationSettings();
-    const { connectedIdentity } = useWalletConnection();
-    const [transactions, setTransactions] = useState<TransactionSignatureRequest[]>([]);
+    const { connectedIdentity, signStakeTransactions, signOperationalFundsTransactions } = useWalletConnection();
+    const [unsignedStakeTransactions, setUnsignedStakeTransactions] = useState<StakeTransactionSignatureRequest[]>([]);
+    const [stakeTransactions, setStakeTransactions] = useState<SignedStakeTransaction[]>([]);
+    const [unsignedOperationalFundsTransactions, setUnsignedOperationalFundsTransactions] = useState<OperationalFundsTransactionSignatureRequest[]>([])
+    const [operationalFundsTransactions, setOperationalFundsTransactions] = useState<SignedOperationalFundsTransaction[]>([])
+    const [activity, setActivity] = useState<Activity>();
+
     const stakeTransactionsCount = useMemo(() => {
         return offer.stakeDistribution.reduce((count, stakeDistribution) => {
             return count + stakeDistribution.qty;
@@ -85,7 +88,7 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
                         outputAddress: connectedIdentity!,
                     }));
 
-                setTransactions(stakeTransactions);
+                setUnsignedStakeTransactions(stakeTransactions);
                 setStakingStatus((prev) => ({
                     ...prev,
                     requestStakeKeysDone: true,
@@ -99,163 +102,99 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
     }, [open, currentStep]);
 
     useEffect(() => {
-        let timeout: ReturnType<typeof setTimeout>;
-
         (async () => {
             if (!open || currentStep !== StakingProcessStep.StakeSignature) {
                 return;
             }
 
             try {
-                // TODO: request stake signatures from the wallet connection.
+                const signedTransactions = await signStakeTransactions(unsignedStakeTransactions);
 
-                timeout = setTimeout(() => {
-                    setStakingStatus((prev) => ({
-                        ...prev,
-                        stakeSignatureDone: true,
+                setStakeTransactions(signedTransactions);
+
+                setStakingStatus((prev) => ({
+                    ...prev,
+                    stakeSignatureDone: true,
+                    signedStakeTransactionsCount: signedTransactions.length,
+                }));
+
+                const ofTransactions =
+                  signedTransactions.map((stakeTransaction) =>
+                    createOperationalFundsTransaction({
+                        stakeTransaction,
+                        offer,
                     }));
 
-                    setCurrentStep(StakingProcessStep.OperationalFundsSignature);
-                }, 3000);
+                setUnsignedOperationalFundsTransactions(ofTransactions);
+
+                setCurrentStep(StakingProcessStep.OperationalFundsSignature);
             } catch (err) {
                 console.log('An error occurred while collecting the stake info from the service provider.');
                 console.error(err);
             }
         })();
-
-        return () => {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-        }
     }, [open, currentStep]);
 
     useEffect(() => {
-        let timeout: ReturnType<typeof setTimeout>;
-
         (async () => {
             if (!open || currentStep !== StakingProcessStep.OperationalFundsSignature) {
                 return;
             }
 
             try {
-                // TODO: Create the activity object and store it
+                const signedOFTransactions = await signOperationalFundsTransactions(unsignedOperationalFundsTransactions);
 
-                timeout = setTimeout(() => {
-                    setStakingStatus((prev) => ({
-                        ...prev,
-                        operationalFundsSignatureDone: true,
-                        isCancellable: false,
-                    }));
+                setOperationalFundsTransactions(signedOFTransactions);
 
-                    setCurrentStep(StakingProcessStep.SchedulingTransactions);
-                }, 3000);
+                setStakingStatus((prev) => ({
+                    ...prev,
+                    operationalFundsSignatureDone: true,
+                    isCancellable: false,
+                    signedOperationalFundsTransactionsCount: signedOFTransactions.length,
+                }));
 
-                return () => {
-                    clearTimeout(timeout);
-                }
+                setCurrentStep(StakingProcessStep.SchedulingTransactions);
             } catch (err) {
                 console.log('An error occurred while collecting the stake info from the service provider.');
                 console.error(err);
             }
         })();
-
-        return () => {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-        }
     }, [open, currentStep]);
 
     useEffect(() => {
-        let timeout: ReturnType<typeof setTimeout>;
-
         (async () => {
             if (!open || currentStep !== StakingProcessStep.SchedulingTransactions) {
                 return;
             }
 
             try {
-                // TODO: request of signatures from the wallet connection.
+                const activity = await CreateStakeActivity({
+                    offer,
+                    stakeTransactions,
+                    operationalFundsTransactions,
+                });
 
-                timeout = setTimeout(() => {
-                    setStakingStatus((prev) => ({
-                        ...prev,
-                        schedulingTransactionsDone: true,
-                    }));
+                setActivity(activity);
 
-                    setCurrentStep(StakingProcessStep.Completed);
-                }, 3000);
+                setStakingStatus((prev) => ({
+                    ...prev,
+                    schedulingTransactionsDone: true,
+                }));
 
-                return () => {
-                    clearTimeout(timeout);
-                }
+                setCurrentStep(StakingProcessStep.Completed);
             } catch (err) {
                 console.log('An error occurred while collecting the stake info from the service provider.');
                 console.error(err);
             }
         })();
-
-        return () => {
-            if (timeout) {
-                clearTimeout(timeout);
-            }
-        }
     }, [open, currentStep]);
 
     useEffect(() => {
         if (open && currentStep === StakingProcessStep.Completed) {
-            const sampleActivity: Activity = {
-                id: 1,
-                type: ActivityType.Stake,
-                status: ActivityStatus.Pending,
-                seenOn: new Date("2025-04-01T12:00:00Z"),
-                createdAt: new Date("2025-04-01T11:50:00Z"),
-                updatedAt: new Date("2025-04-01T11:55:00Z"),
-
-                transactions: [
-                    {
-                        id: 101,
-                        hash: "0xabc123",
-                        type: TransactionType.Stake,
-                        status: TransactionStatus.Pending,
-                        executionHeight: null,
-                        executionTimestamp: null,
-                        verificationHeight: null,
-                        verificationTimestamp: null,
-                        amount: 10000,
-                        dependsOn: null,
-                        signedPayload: "signed_payload_data_1",
-                        fromAddress: "0xWalletAddress1",
-                        signatureTimestamp: new Date("2025-04-01T11:51:00Z"),
-                        activityId: 1,
-                        createdAt: new Date("2025-04-01T11:51:30Z"),
-                        updatedAt: new Date("2025-04-01T11:51:30Z"),
-                    },
-                    {
-                        id: 102,
-                        hash: "0xdef456",
-                        type: TransactionType.Send,
-                        status: TransactionStatus.Pending,
-                        executionHeight: null,
-                        executionTimestamp: null,
-                        verificationHeight: null,
-                        verificationTimestamp: null,
-                        amount: 5000,
-                        dependsOn: 101, // referencing the first transaction
-                        signedPayload: "signed_payload_data_2",
-                        fromAddress: "0xWalletAddress2",
-                        signatureTimestamp: new Date("2025-04-01T11:52:00Z"),
-                        activityId: 1,
-                        createdAt: new Date("2025-04-01T11:52:30Z"),
-                        updatedAt: new Date("2025-04-01T11:52:30Z"),
-                    },
-                ],
-            };
             setTimeout(() => {
                 onStakeCompleted({
                     ...stakingStatus,
-                }, sampleActivity);
+                }, activity);
                 setOpen(false);
             }, 1000);
         }

@@ -136,7 +136,7 @@ export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
 export const activityTable = pgTable("activity", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   type: activityTypeEnum().notNull(),
-  status: activityStatusEnum().notNull(),
+  status: activityStatusEnum().notNull().default(ActivityStatus.Pending),
   seenOn: timestamp(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
@@ -155,22 +155,20 @@ export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   hash: varchar({ length: 255 }),
   type: transactionTypeEnum().notNull(),
-  status: transactionStatusEnum().notNull(),
+  status: transactionStatusEnum().notNull().default(TransactionStatus.Pending),
+  amount: integer().notNull(),
+  signedPayload: varchar().notNull(),
+  fromAddress: varchar({ length: 255 }).notNull(),
+  activityId: integer()
+    .notNull()
+    .references(() => activityTable.id),
+  //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
+  dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
+
   executionHeight: integer(),
   executionTimestamp: timestamp(),
   verificationHeight: integer(),
   verificationTimestamp: timestamp(),
-  amount: integer().notNull(),
-
-  //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
-  dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
-
-  signedPayload: varchar().notNull(),
-  fromAddress: varchar({ length: 255 }).notNull(),
-  signatureTimestamp: timestamp().notNull(),
-  activityId: integer()
-    .notNull()
-    .references(() => activityTable.id),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });

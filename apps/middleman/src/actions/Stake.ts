@@ -1,7 +1,13 @@
-import {NodeStakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
+"use server";
+
 import {getApplicationSettings} from "@/actions/ApplicationSettings";
-import {BlockchainProtocol} from "@/db/schema";
 import {listProviders} from "@/actions/Providers";
+import {NodeStakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
+import {
+  BlockchainProtocol,
+} from "@/db/schema";
+import {CreateStakeActivityRequest} from "@/lib/models/Activities";
+import {createStakeActivity} from "@/lib/dal/activity";
 
 export async function CalculateStakeDistribution(stakeAmount: number): Promise<StakeDistributionOffer[]> {
   const applicationSettings = await getApplicationSettings();
@@ -17,7 +23,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
   return providers.map(provider => {
     let distribution: NodeStakeDistributionItem[] = [];
 
-    if (provider.enabled) {
+    if (provider.enabled && provider.delegatorRewardsAddress && provider.operationalFunds && provider.minimumStake) {
       const allowedSizes = availableNodeSizes.filter(amount => amount >= provider.minimumStake);
 
       let remaining = stakeAmount;
@@ -43,9 +49,14 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       fee: provider.fee,
       url: provider.url,
       rewards: 'N/A',
-      delegatorRewardsAddress: provider.delegatorRewardsAddress,
+      delegatorRewardsAddress: provider.delegatorRewardsAddress || '',
       operationalFundsAmount: provider.operationalFunds,
       stakeDistribution: distribution
     };
   });
 }
+
+export async function CreateStakeActivity(request: CreateStakeActivityRequest) {
+  return createStakeActivity(request);
+}
+

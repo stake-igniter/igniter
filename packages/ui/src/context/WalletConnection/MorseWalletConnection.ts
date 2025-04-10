@@ -1,5 +1,11 @@
 import {ProviderInfo, WalletConnection} from "@igniter/ui/context/WalletConnection/index";
-import {Provider} from "./";
+import {
+  Provider,
+  StakeTransactionSignatureRequest,
+  OperationalFundsTransactionSignatureRequest,
+  SignedOperationalFundsTransaction,
+  SignedStakeTransaction,
+} from "./";
 
 export enum PocketMorseMethod {
   REQUEST_ACCOUNTS = "pokt_requestAccounts",
@@ -11,6 +17,13 @@ export enum PocketMorseMethod {
   SWITCH_CHAIN = "wallet_switchPocketChain",
   ACCOUNTS = "pokt_accounts",
 }
+
+export enum PocketNetworkTransactionTypes {
+  NodeStake = "node_stake",
+  NodeUnstake = "node_unstake",
+  Send = "send",
+}
+
 
 export class MorseWalletConnection implements WalletConnection {
   isConnected: boolean;
@@ -136,6 +149,50 @@ export class MorseWalletConnection implements WalletConnection {
       }, 500);
     });
   };
+
+  async signStakeTransactions(transactions: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]> {
+    return Promise.all(transactions.map(async (tx) => {
+      const signatureResult = await this.provider.send(PocketMorseMethod.SIGN_TRANSACTION, [{
+        type: PocketNetworkTransactionTypes.NodeStake,
+        transaction: {
+          amount: tx.amount,
+          serviceURL: tx.serviceUrl,
+          // TODO: change when we add separte identity and managed addresses.
+          address: this.connectedIdentity,
+          outputAddress: this.connectedIdentity,
+          operatorPublicKey: tx.publicKey,
+          rewardDelegators: tx.delegatorRewards,
+          // TODO: Add configurable memo
+        },
+      }]);
+
+      return {
+        ...tx,
+        signedPayload: signatureResult.signature,
+        hash: signatureResult.transactionHex,
+      };
+    }));
+  }
+
+  async signOperationalFundsTransactions(transactions: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]> {
+    return Promise.all(transactions.map(async (tx) => {
+      const signatureResult = await this.provider.send(PocketMorseMethod.SIGN_TRANSACTION, [{
+        type: PocketNetworkTransactionTypes.Send,
+        transaction: {
+          from: tx.fromAddress,
+          to: tx.toAddress,
+          amount: tx.amount,
+          // TODO: Add configurable memo
+        },
+      }]);
+
+      return {
+        ...tx,
+        signedPayload: signatureResult.signature,
+        hash: signatureResult.transactionHex,
+      };
+    }));
+  }
 
   get provider() {
     return this._provider ?? window.pocketNetwork;
