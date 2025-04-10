@@ -4,7 +4,7 @@ import { createActivities } from "../activities";
 export interface ProviderStatusArgs {}
 
 export async function ProviderStatus(args: ProviderStatusArgs) {
-  const { getProviders, fetchProviderStatus, updateProvidersStatus } =
+  const { listProviders, fetchProviderStatus, updateProvidersStatus } =
     proxyActivities<ReturnType<typeof createActivities>>({
       startToCloseTimeout: "30s",
       retry: {
@@ -12,7 +12,7 @@ export async function ProviderStatus(args: ProviderStatusArgs) {
       },
     });
 
-  const providers = await getProviders();
+  const providers = await listProviders();
   const providerStatus = await fetchProviderStatus(providers);
 
   await updateProvidersStatus(providerStatus);
