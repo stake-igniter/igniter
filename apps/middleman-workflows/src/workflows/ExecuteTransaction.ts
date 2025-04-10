@@ -1,4 +1,9 @@
-import { log, proxyActivities, startChild } from "@temporalio/workflow";
+import {
+  ApplicationFailure,
+  log,
+  proxyActivities,
+  startChild,
+} from "@temporalio/workflow";
 import { createActivities } from "../activities";
 import { TransactionStatus, TransactionType } from "../lib/db/schema";
 import { StakeTransactionMsg } from "../lib/types";
@@ -41,6 +46,10 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     throw new Error("Transaction failed");
   }
 
+  await updateTransaction(transactionId, {
+    executionHeight: txHeight,
+  });
+
   const { waitForNextBlock } = proxyActivities<
     ReturnType<typeof createActivities>
   >({
@@ -62,7 +71,14 @@ export async function ExecuteTransaction(args: TransactionArgs) {
   await updateTransaction(transactionId, {
     status: txStatus,
     hash,
+    verificationHeight: txHeight + 2,
   });
+
+  if (txStatus === TransactionStatus.Failure) {
+    throw new ApplicationFailure(
+      `Transaction ${transaction.id} failed with code: ${status.code}`
+    );
+  }
 
   const dependantTransactions = await getDependantTransactions(transactionId);
 
