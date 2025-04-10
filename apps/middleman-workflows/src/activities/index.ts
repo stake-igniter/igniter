@@ -23,6 +23,10 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     }
     return activity;
   },
+  async listActivities() {
+    const activities = await activityDAL.listActivities();
+    return activities;
+  },
   async updateActivity(activityId: number, payload: Partial<Activity>) {
     const activity = await activityDAL.getActivity(activityId);
     if (!activity) {
@@ -37,7 +41,7 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     }
     return transaction;
   },
-  async getProviders() {
+  async listProviders() {
     const providers = await providerDAL.list();
     return providers;
   },

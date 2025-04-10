@@ -1,9 +1,19 @@
+import { Duration } from "@temporalio/common";
 import { getTemporalConfig, setupTemporalClient } from "./lib/client";
 import Long from "long";
 
 enum ScheduledWorkflowType {
   ProviderStatus = "ProviderStatus",
+  ProcessActivity = "ProcessActivity",
 }
+
+const ScheduledWorkflowConfig: Record<
+  ScheduledWorkflowType,
+  { interval: string }
+> = {
+  [ScheduledWorkflowType.ProviderStatus]: { interval: "10m" },
+  [ScheduledWorkflowType.ProcessActivity]: { interval: "2m" },
+};
 
 async function bootstrapNamespace() {
   const client = await setupTemporalClient();
@@ -50,6 +60,7 @@ async function bootstrapScheduledWorkflows() {
 
   for (const type of Object.values(ScheduledWorkflowType)) {
     const workflowType = type;
+    const { interval } = ScheduledWorkflowConfig[workflowType];
     try {
       await client.connection.workflowService.describeSchedule({
         namespace: config.namespace,
@@ -71,7 +82,7 @@ async function bootstrapScheduledWorkflows() {
           },
           scheduleId: `${workflowType}-scheduled`,
           spec: {
-            intervals: [{ every: "10m" }],
+            intervals: [{ every: interval as Duration }],
           },
         });
       } catch (error) {
@@ -81,6 +92,7 @@ async function bootstrapScheduledWorkflows() {
     }
   }
 }
+
 export default async function bootstrap() {
   await bootstrapNamespace();
   await bootstrapScheduledWorkflows();

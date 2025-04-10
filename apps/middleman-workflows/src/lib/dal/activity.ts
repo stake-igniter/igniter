@@ -9,6 +9,9 @@ export async function getActivity(activityId: number) {
   });
 }
 
+export async function listActivities() {
+  return await db.query.activityTable.findMany({});
+}
 
 export async function updateActivity(
   activityId: number,
