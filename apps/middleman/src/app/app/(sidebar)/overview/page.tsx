@@ -30,7 +30,6 @@ export default async function Page() {
                 <Link href="/app/stake">
                   <Button>Stake</Button>
                 </Link>
-                <Button> Buy $POKT</Button>
               </div>
             </div>
           </div>
@@ -50,23 +49,6 @@ export default async function Page() {
           </div>
           <div className="flex flex-col gap-3">
             <BinCardList bins={binCards} />
-          </div>
-        </div>
-      </div>
-      <div className="mx-30 py-8 border-b-1">
-        <div className="flex flex-row justify-between items-center">
-          <div className="flex flex-col gap-3">
-            <h3 className="text-(--slightly-muted-foreground)">Rewards</h3>
-            <h1 className="font-mono">
-              308.25 <span className="text-muted-foreground">$POKT</span>
-            </h1>
-            <p className="flex flex-row gap-2">
-              <span className="text-(--slightly-muted-foreground)">
-                Past 24hs
-              </span>
-              <ChangeIndicator change={-0.13} />
-              <span className="text-muted-foreground">vs. Yesterday</span>
-            </p>
           </div>
         </div>
       </div>

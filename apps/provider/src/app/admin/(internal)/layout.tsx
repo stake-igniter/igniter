@@ -7,7 +7,6 @@ import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
 import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
 import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
 import PriceWidget from "@/app/components/PriceWidget";
-import CurrencySelector from "@igniter/ui/components/AppTopBar/CurrencySelector";
 import CurrentUser from "@/app/components/CurrentUser";
 import AppSidebar from "@igniter/ui/components/AppSidebar";
 import { CurrencyContextProvider } from "@igniter/ui/context/currency";
@@ -78,7 +77,6 @@ export default function RootLayout({
               <SidebarProvider className="flex flex-col">
                 <AppTopBar>
                   <PriceWidget />
-                  <CurrencySelector />
                   <CurrentUser />
                 </AppTopBar>
                 <div className="flex flex-1">
