@@ -33,3 +33,20 @@ export async function updatedProvidersStatus(providers: Provider[]) {
     .set({ status: finalSql })
     .where(inArray(providersTable.id, ids));
 }
+
+export async function updateProvider(
+  providerId: number,
+  provider: Partial<Provider>
+) {
+  return await db
+    .update(providersTable)
+    .set(provider)
+    .where(eq(providersTable.id, providerId));
+}
+
+export async function updateProviders(providers: Provider[]) {
+  const updates = providers.map(({ id, ...rest }) => {
+    return updateProvider(id, rest);
+  });
+  await Promise.all(updates);
+}
