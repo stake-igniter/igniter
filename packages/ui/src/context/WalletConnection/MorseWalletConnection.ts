@@ -182,8 +182,7 @@ export class MorseWalletConnection implements WalletConnection {
 
       return {
         ...tx,
-        signedPayload: signature.signature,
-        hex: signature.transactionHex,
+        signedPayload: signature.transactionHex,
       };
     });
   }
@@ -211,8 +210,7 @@ export class MorseWalletConnection implements WalletConnection {
 
       return {
         ...tx,
-        signedPayload: signature.signature,
-        hex: signature.transactionHex,
+        signedPayload: signature.transactionHex,
       };
     });
   }

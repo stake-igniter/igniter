@@ -154,7 +154,6 @@ export const activityTransactionRelation = relations(
 export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   hash: varchar({ length: 255 }),
-  hex: varchar({ length: 255 }),
   type: transactionTypeEnum().notNull(),
   status: transactionStatusEnum().notNull().default(TransactionStatus.Pending),
   amount: integer().notNull(),

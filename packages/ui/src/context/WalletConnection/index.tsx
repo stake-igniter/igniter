@@ -13,12 +13,10 @@ export interface ServiceProviderKey {
 }
 
 export interface SignedTransaction {
-  hex: string;
   signedPayload: string;
 }
 
 export interface StakeTransactionSignatureRequest extends ServiceProviderKey {
-  id: string;
   outputAddress: string;
   delegatorRewards: Record<string, string>;
 }

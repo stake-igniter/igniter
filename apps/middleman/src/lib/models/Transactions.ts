@@ -1,6 +1,5 @@
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {ApplicationSettings} from "@/db/schema";
-import {generateId} from "@igniter/ui/lib/utils";
 
 export interface ServiceProviderKey {
     address: string;
@@ -11,12 +10,10 @@ export interface ServiceProviderKey {
 }
 
 export interface SignedTransaction {
-    hex: string;
     signedPayload: string;
 }
 
 export interface StakeTransactionSignatureRequest extends ServiceProviderKey {
-    id: string;
     outputAddress: string;
     delegatorRewards: Record<string, string>;
 }
@@ -46,7 +43,6 @@ export interface CreateOperationalFundsTransactionParams {
 
 export function createStakeTransaction(params: CreateStakeTransactionParams): StakeTransactionSignatureRequest {
     return {
-        id: generateId(25),
         ...params.key,
         outputAddress: params.outputAddress,
         delegatorRewards: {
@@ -61,6 +57,6 @@ export function createOperationalFundsTransaction(params: CreateOperationalFunds
         fromAddress: params.stakeTransaction.outputAddress,
         toAddress: params.stakeTransaction.address,
         amount: params.offer.operationalFundsAmount,
-        dependsOn: params.stakeTransaction.hex.slice(0, 200),
+        dependsOn: params.stakeTransaction.signedPayload,
     };
 }
