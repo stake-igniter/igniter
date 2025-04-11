@@ -305,15 +305,33 @@ input[type="number"]::-webkit-outer-spin-button {
     background: linear-gradient(261deg, #4d6078, #394758 0%);
   }
 
+  .gradient-border-green {
+    position: relative;
+    z-index: 1;
+    border-radius: 8px; /* Adjust the border radius as needed */
+  }
+
+  .gradient-border-green::before {
+    content: '';
+    position: absolute;
+    top: -2px; /* Adjust based on border width */
+    left: -2px; /* Adjust based on border width */
+    right: -2px; /* Adjust based on border width */
+    bottom: -2px; /* Adjust based on border width */
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(261deg, var(--color-green-1), #86b35e 0%);
+  }
+
   td:first-child {
       border-left-style: solid;
-      border-top-left-radius: var(--radius-xl); 
-      border-bottom-left-radius: var(--radius-xl); 
+      border-top-left-radius: var(--radius-xl);
+      border-bottom-left-radius: var(--radius-xl);
   }
   td:last-child {
       border-right-style: solid;
-      border-bottom-right-radius: var(--radius-xl); 
-      border-top-right-radius: var(--radius-xl); 
+      border-bottom-right-radius: var(--radius-xl);
+      border-top-right-radius: var(--radius-xl);
   }
 
 }

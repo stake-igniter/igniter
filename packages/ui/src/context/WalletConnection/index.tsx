@@ -3,6 +3,35 @@
 import {createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {MorseWalletConnection} from "./MorseWalletConnection";
 
+// TODO: Unify this with apps/middleman/src/lib/models/Transactions.ts:4
+export interface ServiceProviderKey {
+  address: string;
+  amount: number;
+  serviceUrl: string;
+  chains: string[];
+  publicKey: string;
+}
+
+export interface SignedTransaction {
+  signedPayload: string;
+}
+
+export interface StakeTransactionSignatureRequest extends ServiceProviderKey {
+  outputAddress: string;
+  delegatorRewards: Record<string, string>;
+}
+
+export type SignedStakeTransaction = SignedTransaction & StakeTransactionSignatureRequest;
+
+export interface OperationalFundsTransactionSignatureRequest {
+  fromAddress: string;
+  toAddress: string;
+  amount: number;
+  dependsOn: string;
+}
+
+export type SignedOperationalFundsTransaction = SignedTransaction & OperationalFundsTransactionSignatureRequest;
+
 export interface Provider {
   send: (method: string, params?: any[]) => Promise<any>;
 }
@@ -25,6 +54,8 @@ export interface WalletConnection {
   switchChain(chain: string): Promise<void>;
   signMessage(message: string, address: string): Promise<string>;
   getAvailableProviders(): Promise<ProviderInfo[]>;
+  signStakeTransactions(transactions: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]>;
+  signOperationalFundsTransactions(transactions: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]>;
   reconnect(address: string): Promise<boolean>;
 }
 
@@ -59,7 +90,15 @@ export const WalletConnectionContext = createContext<WalletConnection>({
   reconnect: async (address: string)=> {
     console.warn('Method not implemented: reconnect. Something is wrong with the wallet connection provider.');
     return false;
-  }
+  },
+  async signStakeTransactions(transactions: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]> {
+    console.warn('Method not implemented: signStakeTransactions. Something is wrong with the wallet connection provider.');
+    return [];
+  },
+  async signOperationalFundsTransactions(transactions: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]> {
+    console.warn('Method not implemented: signOperationalFundsTransactions. Something is wrong with the wallet connection provider.');
+    return [];
+  },
 });
 
 /**
@@ -121,6 +160,8 @@ export const WalletConnectionProvider = ({ children, expectedIdentity }: { expec
         switchChain: morseConnection.switchChain,
         signMessage: morseConnection.signMessage,
         getAvailableProviders: morseConnection.getAvailableProviders,
+        signStakeTransactions: morseConnection.signStakeTransactions,
+        signOperationalFundsTransactions: morseConnection.signOperationalFundsTransactions,
       }
     }>
       {children}

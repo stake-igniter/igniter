@@ -163,7 +163,7 @@ k8s_yaml(kustomize("deploy/provider/dev"))
 
 k8s_resource(
     "provider",
-    port_forwards=["3001:3000"],
+    port_forwards=["3001:3001"],
     objects=['provider-config','provider-secrets'],
     extra_pod_selectors=[{"app": "provider", "component": "web"}],
     new_name="Provider Web"

@@ -18,10 +18,16 @@ export async function upsertProviders(
     .returning();
 }
 
-export async function list() {
-  return db.query.providersTable.findMany({
+export async function list() : Promise<Provider[]> {
+  const providers = await db.query.providersTable.findMany({
     where: (providers, {eq}) => {
       return eq(providers.enabled, true) && eq(providers.visible, true);
     }
   })
+
+  if (!providers) {
+    return [];
+  }
+
+  return providers;
 }

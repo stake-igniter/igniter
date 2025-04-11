@@ -48,3 +48,17 @@ export function toCompactFormat(value: number) {
 export function amountToPokt(amount: string | number): number {
   return Number(amount) / UPOKT_CONSTANT;
 }
+
+export function toDateFormat(value: Date | null) {
+    return value
+        ? value.toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+        }).replace(",", "")
+        : "N/A";
+}

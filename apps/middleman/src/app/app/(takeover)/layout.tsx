@@ -7,7 +7,6 @@ import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
 import CurrentUser from "@/app/components/CurrentUser";
 import {jost, overpass_mono} from "@/styles/layout";
 import PriceWidget from "@/app/components/PriceWidget";
-import CurrencySelector from "@igniter/ui/components/AppTopBar/CurrencySelector";
 import {auth} from "@/auth";
 
 export default async function TakeOverLayout({
@@ -34,12 +33,11 @@ export default async function TakeOverLayout({
           <WalletConnectionProvider expectedIdentity={session?.user?.identity}>
             <AppTopBar>
               <PriceWidget />
-              <CurrencySelector />
               <CurrentUser />
             </AppTopBar>
             <div className="flex flex-1">
               <div className={"w-full h-full flex"}>
-                <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-none">
+                <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
                   {children}
                 </div>
               </div>

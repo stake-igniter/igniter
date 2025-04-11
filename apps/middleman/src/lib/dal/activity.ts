@@ -1,46 +1,73 @@
 import "server-only";
 import { db } from "@/db";
-import { Activity, activityTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  Activity,
+  ActivityStatus,
+  activityTable,
+  ActivityType,
+  transactionsTable,
+  TransactionStatus,
+  TransactionType
+} from "@/db/schema";
+import {CreateStakeActivityRequest} from "@/lib/models/Activities";
 
-export async function getActivity(
-  activityId: number,
-  withTransactions = false
-) {
-  return await db.query.activityTable.findFirst({
-    where: eq(activityTable.id, activityId),
-    with: withTransactions ? { transactions: true } : {},
+export async function createStakeActivity(request: CreateStakeActivityRequest) : Promise<Activity> {
+  return db.transaction(async trx => {
+    const [newActivity] = await trx.insert(activityTable).values({
+      type: ActivityType.Stake,
+      status: ActivityStatus.Pending,
+      totalValue: request.stakeTransactions.reduce((acc, tx) => acc + tx.amount, 0),
+    }).returning();
+
+    if (!newActivity) {
+      throw new Error("Failed to create new activity");
+    }
+
+    const stakeTransactions = request.stakeTransactions.map(tx => {
+      return {
+        type: TransactionType.Stake,
+        status: TransactionStatus.Pending,
+        amount: tx.amount,
+        signedPayload: tx.signedPayload,
+        fromAddress: tx.outputAddress,
+        activityId: newActivity.id,
+      };
+    });
+
+    const returningStakeTransactions = await trx.insert(transactionsTable).values(stakeTransactions).returning();
+
+    const operationalFundsTransactions = request.operationalFundsTransactions.map(tx => {
+      return {
+        type: TransactionType.OperationalFunds,
+        status: TransactionStatus.Pending,
+        amount: tx.amount,
+        signedPayload: tx.signedPayload,
+        fromAddress: tx.fromAddress,
+        activityId: newActivity.id,
+        dependsOn: returningStakeTransactions.find(t => t.signedPayload === tx.dependsOn)?.id,
+      };
+    });
+
+    if (operationalFundsTransactions.some(t => !t.dependsOn)) {
+      throw new Error("Some operational funds transactions are missing their dependency. Something is wrong.");
+    }
+
+    const returningOperationalFundsTransactions = await trx.insert(transactionsTable).values(operationalFundsTransactions).returning();
+
+    return {
+      ...newActivity,
+      transactions: [
+        ...returningStakeTransactions,
+        ...returningOperationalFundsTransactions,
+      ],
+    };
   });
 }
 
 export async function getActivitiesByUser() {
-  return await db.query.activityTable.findMany({
+  return db.query.activityTable.findMany({
     with: {
       transactions: true,
     },
   });
-}
-
-export async function createActivity(activity: Activity) {
-  return await db
-    .insert(activityTable)
-    .values(activity)
-    .returning()
-    .then((res) => res[0]);
-}
-
-export async function updateActivity(
-  activityId: number,
-  payload: Partial<Activity>
-) {
-  const activity = await getActivity(activityId);
-  if (!activity) {
-    throw new Error("Activity not found");
-  }
-  return await db
-    .update(activityTable)
-    .set(payload)
-    .where(eq(activityTable.id, activity.id))
-    .returning()
-    .then((res) => res[0]);
 }

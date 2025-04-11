@@ -56,16 +56,21 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
               "Content-Type": "application/json",
             },
           });
-          const statusResponse = await status.json();
 
-          let finalStatus;
-          if (statusResponse.healthy) {
-            finalStatus = ProviderStatus.Healthy;
+          const {healthy, ...statusProps} = await status.json();
+
+          if (healthy) {
+            return {
+              ...provider,
+              ...statusProps,
+              status: ProviderStatus.Healthy,
+            };
           } else {
-            finalStatus = ProviderStatus.Unhealthy;
+            return {
+              ...provider,
+              status: ProviderStatus.Unhealthy,
+            }
           }
-
-          return { ...provider, status: finalStatus };
         } catch (error) {
           console.error("Error fetching provider status:", error);
           return { ...provider, status: ProviderStatus.Unreachable };

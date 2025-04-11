@@ -108,6 +108,7 @@ export type Chain = typeof chainsTable.$inferSelect;
 export const addressesTable = pgTable("addresses", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   address: varchar({ length: 255 }).notNull(),
+  publicKey: varchar({ length: 64 }).notNull(),
   privateKey: encryptedText("privateKey").notNull(),
   addressGroupId: integer("address_group_id").references(
     () => addressGroupTable.id

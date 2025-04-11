@@ -66,4 +66,6 @@ COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/drizzle.config.ts
 COPY --from=installer --chown=nextjs:nodejs /app/apps/provider/drizzle/ ./apps/provider/drizzle/
 COPY --from=installer --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
+ENV PORT=3001
+
 CMD node apps/provider/server.js

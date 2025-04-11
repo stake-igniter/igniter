@@ -1,9 +1,8 @@
 'use client';
 
 import {useEffect, useMemo, useState} from "react";
-import {InfoIcon} from "@igniter/ui/assets";
-import {AmountPickerSlider} from "@/app/app/(takeover)/stake/components/AmountPickerSlider";
-import {AmountDisplay} from "@/app/app/(takeover)/stake/components/AmountDisplay";
+import {AmountPickerSlider} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep/AmountPickerSlider";
+import {AmountDisplay} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep/AmountDisplay";
 import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
@@ -15,10 +14,11 @@ import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon"
 export interface PickStakeAmountStepProps {
     defaultAmount: number;
     onAmountSelected: (amount: number) => void;
+    onClose: () => void;
 }
 
 
-export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<PickStakeAmountStepProps>) {
+export function PickStakeAmountStep({onAmountSelected, defaultAmount, onClose}: Readonly<PickStakeAmountStepProps>) {
     const [selectedAmount, setSelectedAmount] = useState<number>(defaultAmount);
     const [balance, setBalance] = useState<number>(-1);
     const { getBalance, connectedIdentity } = useWalletConnection();
@@ -54,6 +54,7 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<
             <ActivityHeader
                 title="Stake"
                 subtitle="Use the slider below to pick an amount to stake."
+                onClose={onClose}
             />
 
             {!isViewReady && (
@@ -68,6 +69,19 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount}: Readonly<
                   minimumStake={minimumStake}
                   onValueChange={setSelectedAmount}
                 />
+                {balance < minimumStake && (
+                    <div className="flex flex-col bg-[var(--color-slate-2)] p-0 rounded-[8px]">
+                        <span className="text-[14px] text-[var(--color-white-3)] p-[11px_16px]">
+                            Token balance is not enough to stake. Transfer more tokens to your wallet to stake $POKT.
+                        </span>
+                        <div className="h-[1px] bg-[var(--slate-dividers)]" />
+                        <div className="p-2">
+                            <Button variant="secondaryBorder" className="w-full">
+                                About Staking
+                            </Button>
+                        </div>
+                    </div>
+                )}
                 <AmountDisplay
                   balance={balance}
                   amount={selectedAmount}

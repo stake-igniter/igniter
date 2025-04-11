@@ -8,6 +8,48 @@
       "when": 1743685469900,
       "tag": "0000_clammy_triathlon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744043580092,
+      "tag": "0001_free_hairball",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744214909799,
+      "tag": "0002_spotty_emma_frost",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1744257936901,
+      "tag": "0003_mysterious_shockwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1744329176163,
+      "tag": "0004_crazy_sharon_ventura",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1744391151956,
+      "tag": "0005_smiling_spirit",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1744393333443,
+      "tag": "0006_lethal_post",
+      "breakpoints": true
     }
   ]
 }
