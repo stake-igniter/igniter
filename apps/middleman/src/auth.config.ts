@@ -4,6 +4,17 @@ import { bootstrapStatus } from "@/lib/services/bootstrap";
 import { SiwpMessage } from "@poktscan/vault-siwp";
 
 const authConfig: NextAuthConfig = {
+  cookies: {
+    sessionToken: {
+      name: `middleman.authjs.session-token`,
+    },
+    callbackUrl: {
+      name: `middleman.authjs.callback-url`,
+    },
+    csrfToken: {
+      name: `middleman.authjs.csrf-token`,
+    },
+  },
   providers: [Credentials],
   callbacks: {
     async signIn({ user, credentials }) {

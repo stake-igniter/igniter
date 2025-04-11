@@ -6,6 +6,7 @@ import authConfig from "./auth.config";
 import {User} from "@/db/schema";
 
 const authConfigResult = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       id: "siwp",
