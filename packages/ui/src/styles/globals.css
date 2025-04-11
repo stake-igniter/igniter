@@ -94,6 +94,7 @@
   --secondary-foreground: var(--color-white-1);
   --muted: var(--color-slate-2);
   --muted-foreground: var(--color-white-3);
+  --divider: var(--slate-dividers);
 
   --slightly-muted-foreground: var(--color-white-2);
   --very-muted-foreground: var(--color-white-4);
@@ -147,6 +148,7 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
+  --color-divider: var(--divider);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -320,6 +322,18 @@ input[type="number"]::-webkit-outer-spin-button {
     border-radius: inherit;
     background: linear-gradient(261deg, var(--color-green-1), #86b35e 0%);
   }
+
+  td:first-child {
+      border-left-style: solid;
+      border-top-left-radius: var(--radius-xl);
+      border-bottom-left-radius: var(--radius-xl);
+  }
+  td:last-child {
+      border-right-style: solid;
+      border-bottom-right-radius: var(--radius-xl);
+      border-top-right-radius: var(--radius-xl);
+  }
+
 }
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;

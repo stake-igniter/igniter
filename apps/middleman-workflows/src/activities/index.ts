@@ -3,7 +3,17 @@ import { RawTxRequest } from "@pokt-foundation/pocketjs-types";
 import { BlockchainProvider } from "../lib/blockchain";
 import * as activityDAL from "../lib/dal/activity";
 import * as transactionDAL from "../lib/dal/transaction";
-import { Activity, Transaction } from "../lib/db/schema";
+import * as providerDAL from "../lib/dal/provider";
+import * as nodeDAL from "../lib/dal/node";
+import {
+  Activity,
+  Node,
+  NewNode,
+  Provider,
+  ProviderStatus,
+  Transaction,
+} from "../lib/db/schema";
+import { addressFromPublicKey } from "./utils";
 
 export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   async getActivity(activityId: number) {
@@ -12,6 +22,10 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       throw new Error("Activity not found");
     }
     return activity;
+  },
+  async listActivities() {
+    const activities = await activityDAL.listActivities();
+    return activities;
   },
   async updateActivity(activityId: number, payload: Partial<Activity>) {
     const activity = await activityDAL.getActivity(activityId);
@@ -26,6 +40,58 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       throw new Error("Transaction not found");
     }
     return transaction;
+  },
+  async listProviders() {
+    const providers = await providerDAL.list();
+    return providers;
+  },
+  async fetchProviderStatus(providers: Provider[]) {
+    const providerStatus = await Promise.allSettled(
+      providers.map(async (provider) => {
+        try {
+          const STATUS_URL = `${provider.url}/api/status`;
+          const status = await fetch(STATUS_URL, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const {healthy, ...statusProps} = await status.json();
+
+          if (healthy) {
+            return {
+              ...provider,
+              ...statusProps,
+              status: ProviderStatus.Healthy,
+            };
+          } else {
+            return {
+              ...provider,
+              status: ProviderStatus.Unhealthy,
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching provider status:", error);
+          return { ...provider, status: ProviderStatus.Unreachable };
+        }
+      })
+    );
+
+    const updatedProviders = providerStatus.map((result) => {
+      if (result.status === "fulfilled") {
+        return result.value;
+      } else {
+        return {
+          ...result.reason,
+        };
+      }
+    });
+
+    return updatedProviders;
+  },
+  async updateProvidersStatus(providers: Provider[]) {
+    await providerDAL.updatedProvidersStatus(providers);
   },
   async getDependantTransactions(transactionId: number) {
     return await transactionDAL.getDependantTransactions(transactionId);
@@ -59,7 +125,10 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   },
   async verifyTransaction(hash: string) {
     const tx = await blockchainProvider.getTransaction(hash);
-    return tx.tx_result;
+    if (!tx) {
+      throw new Error("Transaction data is incomplete or not found");
+    }
+    return [tx.tx_result, tx.stdTx.msg] as const;
   },
   async simulateTransaction(transactionId: number) {
     await sleep(3 * 60 * 1000);
@@ -67,5 +136,16 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       transactionId,
       status: "success",
     };
+  },
+  async parseNodesPublicKey(
+    nodes: (Omit<NewNode, "address"> & { publicKey: string })[]
+  ) {
+    return nodes.map(({ publicKey, ...rest }) => ({
+      ...rest,
+      address: addressFromPublicKey(Buffer.from(publicKey, "hex")),
+    }));
+  },
+  async insertNodes(nodes: NewNode[]) {
+    return await nodeDAL.insertNodes(nodes);
   },
 });

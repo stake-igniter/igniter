@@ -3,21 +3,16 @@ import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
-import {WalletConnectionProvider} from "@igniter/ui/context/WalletConnection/index";
-import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
-import {SidebarInset, SidebarProvider} from "@igniter/ui/components/sidebar";
-import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
+import { WalletConnectionProvider } from "@igniter/ui/context/WalletConnection/index";
+import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
+import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
+import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
 import PriceWidget from "@/app/components/PriceWidget";
 import CurrentUser from "@/app/components/CurrentUser";
-import AppSidebar from "@igniter/ui/components/AppSidebar";
-import {CurrencyContextProvider} from "@igniter/ui/context/currency";
-import OverviewDark from "@/app/assets/icons/dark/overview.svg";
-import ActivityDark from "@/app/assets/icons/dark/activity.svg";
-import NodesDark from "@/app/assets/icons/dark/nodes.svg";
-import SettingsDark from "@/app/assets/icons/dark/settings.svg";
-import HelpDark from "@/app/assets/icons/dark/help.svg";
-import ContactDark from "@/app/assets/icons/dark/contact.svg";
-import {auth} from "@/auth";
+import { CurrencyContextProvider } from "@igniter/ui/context/currency";
+import { auth } from "@/auth";
+import Sidebar from "@/app/components/Sidebar";
+import { Toaster } from "@igniter/ui/components/sonner";
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -40,45 +35,9 @@ const overpass_mono = Overpass_Mono({
   display: "swap",
 });
 
-const mainRoutes = [
-  {
-    title: "Overview",
-    url: "/app/overview",
-    icon: OverviewDark,
-  },
-  {
-    title: "Activity",
-    url: "/app/activity",
-    icon: ActivityDark,
-  },
-  {
-    title: "Nodes",
-    url: "/app/nodes",
-    icon: NodesDark,
-  },
-  {
-    title: "Settings",
-    url: "/app/settings",
-    icon: SettingsDark,
-  },
-];
-
-const footerRoutes = [
-  {
-    title: "Help",
-    url: "/help",
-    icon: HelpDark,
-  },
-  {
-    title: "Contact",
-    url: "/contact",
-    icon: ContactDark,
-  },
-];
-
 export default async function RootLayout({
-                                     children,
-                                   }: Readonly<{
+  children,
+}: Readonly<{
   children: React.ReactNode;
 }>) {
   const session = await auth();
@@ -89,42 +48,42 @@ export default async function RootLayout({
       className={`${overpass_mono.variable} ${jost.variable} overflow-hidden`}
       suppressHydrationWarning
     >
-    <body>
-    <SessionProvider>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="dark"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <ApplicationSettingsProvider>
-          <WalletConnectionProvider expectedIdentity={session?.user?.identity}>
-            <CurrencyContextProvider>
-              <SidebarProvider className="flex flex-col">
-                <AppTopBar>
-                  <PriceWidget />
-                  <CurrentUser />
-                </AppTopBar>
-                <div className="flex flex-1">
-                  <AppSidebar
-                    mainRoutes={mainRoutes}
-                    footerRoutes={footerRoutes}
-                  />
-                  <SidebarInset>
-                    <div className={"w-full h-full flex overflow-x-hidden"}>
-                      <div className="flex flex-col w-full gap-6">
-                        {children}
-                      </div>
+      <body>
+        <SessionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ApplicationSettingsProvider>
+              <WalletConnectionProvider
+                expectedIdentity={session?.user?.identity}
+              >
+                <CurrencyContextProvider>
+                  <SidebarProvider className="flex flex-col">
+                    <AppTopBar>
+                      <PriceWidget />
+                      <CurrentUser />
+                    </AppTopBar>
+                    <div className="flex flex-1">
+                      <Sidebar />
+                      <SidebarInset>
+                        <div className={"w-full h-full flex overflow-x-hidden"}>
+                          <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
+                            {children}
+                            <Toaster />
+                          </div>
+                        </div>
+                      </SidebarInset>
                     </div>
-                  </SidebarInset>
-                </div>
-              </SidebarProvider>
-            </CurrencyContextProvider>
-          </WalletConnectionProvider>
-        </ApplicationSettingsProvider>
-      </ThemeProvider>
-    </SessionProvider>
-    </body>
+                  </SidebarProvider>
+                </CurrencyContextProvider>
+              </WalletConnectionProvider>
+            </ApplicationSettingsProvider>
+          </ThemeProvider>
+        </SessionProvider>
+      </body>
     </html>
   );
 }

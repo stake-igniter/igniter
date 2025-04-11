@@ -1,0 +1,16 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient x1="100%" y1="0%" x2="0%" y2="100%" id="rmp9d66zqb">
+            <stop stop-color="#EEB569" offset="0%"/>
+            <stop stop-color="#DC7442" offset="100%"/>
+        </linearGradient>
+        <rect id="buakxqjk6a" x="0" y="0" width="16" height="16" rx="4"/>
+    </defs>
+    <g fill="none" fill-rule="evenodd">
+        <mask id="ud4hwoe82c" fill="#fff">
+            <use xlink:href="#buakxqjk6a"/>
+        </mask>
+        <use fill="url(#rmp9d66zqb)" xlink:href="#buakxqjk6a"/>
+        <path d="M9 4v9l1.293-1.293a1 1 0 0 1 1.497 1.32l-.083.094-2.293 2.293a2 2 0 0 1-2.701.117l-.127-.117-2.293-2.293a1 1 0 0 1 1.32-1.497l.094.083L7 13V4h2z" fill="#583215" fill-rule="nonzero" mask="url(#ud4hwoe82c)" transform="matrix(1 0 0 -1 0 20)"/>
+    </g>
+</svg>

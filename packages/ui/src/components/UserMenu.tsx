@@ -1,4 +1,4 @@
-import React, {ReactNode} from "react";
+import React, { ReactNode } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,16 +22,14 @@ export default function UserMenu({ user, children }: Readonly<UserMenuProps>) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <div className="flex items-center gap-2 border rounded-md p-2">
+        <div className="flex items-center gap-2 p-2">
           <UserAvatar address={address} selectedAvatar={randomAvatar} />
           <span className="font-mono text-sm">
             {getShortAddress(address, 5)}
           </span>
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {children}
-      </DropdownMenuContent>
+      <DropdownMenuContent>{children}</DropdownMenuContent>
     </DropdownMenu>
   );
 }

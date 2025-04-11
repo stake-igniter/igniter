@@ -9,6 +9,7 @@ import {
   text,
   timestamp,
   varchar,
+  bigint,
 } from "drizzle-orm/pg-core";
 
 export function enumToPgEnum<T extends Record<string, any>>(
@@ -34,22 +35,24 @@ export enum BlockchainProtocol {
 }
 
 export enum ActivityType {
-  Stake = "stake",
-  Unstake = "unstake",
-  Upstake = "upstake",
-  OperationalFunds = "operational_funds",
+  Stake = "Stake",
+  Unstake = "Unstake",
+  Upstake = "Upstake",
+  OperationalFunds = "Operational Funds",
 }
 
 export enum TransactionType {
-  Stake = "stake",
-  Unstake = "unstake",
-  Send = "send",
+  Stake = "Stake",
+  Unstake = "Unstake",
+  Upstake = "Upstake",
+  OperationalFunds = "Operational Funds",
 }
 
 export enum ActivityStatus {
   Pending = "pending",
   Success = "success",
   Failure = "failure",
+  InProgress = "in_progress",
 }
 
 export enum TransactionStatus {
@@ -59,21 +62,43 @@ export enum TransactionStatus {
   NotExecuted = "not_executed",
 }
 
-export const activityTypeEnum = pgEnum("type", enumToPgEnum(ActivityType));
+export enum ProviderStatus {
+  Healthy = "healthy",
+  Unhealthy = "unhealthy",
+  Unknown = "unknown",
+  Unreachable = "unreachable",
+}
+
+export enum NodeStatus {
+  Staked = "staked",
+  Staking = "staking",
+  Unstaked = "unstaked",
+  Unstaking = "unstaking",
+}
+
+export const activityTypeEnum = pgEnum(
+  "activity_type",
+  enumToPgEnum(ActivityType)
+);
 
 export const activityStatusEnum = pgEnum(
-  "status",
+  "activity_status",
   enumToPgEnum(ActivityStatus)
 );
 
 export const transactionTypeEnum = pgEnum(
-  "type",
+  "tx_type",
   enumToPgEnum(TransactionType)
 );
 
 export const transactionStatusEnum = pgEnum(
-  "status",
+  "tx_status",
   enumToPgEnum(TransactionStatus)
+);
+
+export const providerStatusEnum = pgEnum(
+  "provider_status",
+  enumToPgEnum(ProviderStatus)
 );
 
 export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
@@ -81,9 +106,11 @@ export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
 export const chainIdEnum = pgEnum("chain_ids", enumToPgEnum(ChainId));
 
 export const blockchainProtocolEnum = pgEnum(
-  "protocols",
+  "blockchain_protocols",
   enumToPgEnum(BlockchainProtocol)
 );
+
+export const nodeStatusEnum = pgEnum("node_status", enumToPgEnum(NodeStatus));
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -105,12 +132,17 @@ export const providersTable = pgTable("providers", {
   visible: boolean().notNull().default(true),
   fee: decimal().notNull().default("1.00"),
   domains: text().array().default([]),
+  status: providerStatusEnum().notNull().default(ProviderStatus.Unknown),
+  delegatorRewardsAddress: varchar({ length: 255 }).default(''),
   minimumStake: integer().notNull().default(0),
   operationalFunds: integer().notNull().default(5),
-  delegatorRewardsAddress: varchar({ length: 255 }).default(''),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
+
+export const providersRelations = relations(providersTable, ({ many }) => ({
+  nodes: many(nodesTable),
+}));
 
 export type Provider = typeof providersTable.$inferSelect;
 
@@ -138,63 +170,94 @@ export const activityTable = pgTable("activity", {
   type: activityTypeEnum().notNull(),
   status: activityStatusEnum().notNull().default(ActivityStatus.Pending),
   seenOn: timestamp(),
-  createdAt: timestamp().defaultNow(),
+  totalValue: integer().notNull(),
+  createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow(),
+  userId: integer().references(() => usersTable.id),
 });
-
-export type BaseActivity = typeof activityTable.$inferSelect;
 
 export const activityTransactionRelation = relations(
   activityTable,
-  ({ many }) => ({
+  ({ many, one }) => ({
     transactions: many(transactionsTable),
+    createdBy: one(usersTable, {
+      fields: [activityTable.userId],
+      references: [usersTable.id],
+    }),
   })
 );
+
+export type BaseActivity = typeof activityTable.$inferSelect;
 
 export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   hash: varchar({ length: 255 }),
   type: transactionTypeEnum().notNull(),
-  status: transactionStatusEnum().notNull().default(TransactionStatus.Pending),
-  amount: integer().notNull(),
-  signedPayload: varchar().notNull(),
-  fromAddress: varchar({ length: 255 }).notNull(),
-  activityId: integer()
-    .notNull()
-    .references(() => activityTable.id),
-  //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
-  dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
-
+  status: transactionStatusEnum().notNull(),
   executionHeight: integer(),
   executionTimestamp: timestamp(),
   verificationHeight: integer(),
   verificationTimestamp: timestamp(),
+
+  //Self-referencing foreign key workaround: https://orm.drizzle.team/docs/indexes-constraints#foreign-key
+  dependsOn: integer().references((): AnyPgColumn => transactionsTable.id),
+
+  signedPayload: varchar().notNull(),
+  fromAddress: varchar({ length: 255 }).notNull(),
+  activityId: integer().references(() => activityTable.id),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
+  userId: integer().references(() => usersTable.id),
 });
 
-export const transactionsActivityRelation = relations(
+export const transactionsRelations = relations(
   transactionsTable,
   ({ one }) => ({
     activity: one(activityTable, {
       fields: [transactionsTable.activityId],
       references: [activityTable.id],
     }),
-  })
-);
-
-export const transactionsDependsOnRelation = relations(
-  transactionsTable,
-  ({ one }) => ({
     dependsOn: one(transactionsTable, {
       fields: [transactionsTable.dependsOn],
       references: [transactionsTable.id],
+    }),
+    createdBy: one(usersTable, {
+      fields: [transactionsTable.userId],
+      references: [usersTable.id],
     }),
   })
 );
 
 export type Transaction = typeof transactionsTable.$inferSelect;
 
+export const nodesTable = pgTable("nodes", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  address: varchar({ length: 255 }).notNull(),
+  status: nodeStatusEnum().notNull(),
+  stakeAmount: integer().notNull(),
+  balance: bigint({ mode: "number" }).notNull(),
+  rewards: bigint({ mode: "number" }).notNull(),
+  serviceUrl: varchar({ length: 255 }),
+  chains: varchar({ length: 255 }).array(),
+  providerId: integer(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow(),
+  userId: integer().references(() => usersTable.id),
+});
+
+export const nodesRelations = relations(nodesTable, ({ one }) => ({
+  provider: one(providersTable, {
+    fields: [nodesTable.providerId],
+    references: [providersTable.id],
+  }),
+  createdBy: one(usersTable, {
+    fields: [nodesTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
+export type Node = typeof nodesTable.$inferSelect;
+export type NewNode = typeof nodesTable.$inferInsert;
 export type Activity = typeof activityTable.$inferSelect & {
   transactions: Transaction[];
 };

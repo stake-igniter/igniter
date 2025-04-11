@@ -12,21 +12,16 @@ import {
 import {CreateStakeActivityRequest} from "@/lib/models/Activities";
 
 export async function createStakeActivity(request: CreateStakeActivityRequest) : Promise<Activity> {
-  console.log('debug: request', request);
-
   return db.transaction(async trx => {
-    console.log('debug: creating activity');
-
     const [newActivity] = await trx.insert(activityTable).values({
       type: ActivityType.Stake,
       status: ActivityStatus.Pending,
+      totalValue: request.stakeTransactions.reduce((acc, tx) => acc + tx.amount, 0),
     }).returning();
 
     if (!newActivity) {
       throw new Error("Failed to create new activity");
     }
-
-    console.log('debug: activity created', newActivity);
 
     const stakeTransactions = request.stakeTransactions.map(tx => {
       return {
@@ -39,15 +34,11 @@ export async function createStakeActivity(request: CreateStakeActivityRequest) :
       };
     });
 
-    console.log('debug: transactions prepared', stakeTransactions);
-
     const returningStakeTransactions = await trx.insert(transactionsTable).values(stakeTransactions).returning();
-
-    console.log('debug: stake transactions created', returningStakeTransactions);
 
     const operationalFundsTransactions = request.operationalFundsTransactions.map(tx => {
       return {
-        type: TransactionType.Send,
+        type: TransactionType.OperationalFunds,
         status: TransactionStatus.Pending,
         amount: tx.amount,
         signedPayload: tx.signedPayload,
@@ -61,11 +52,7 @@ export async function createStakeActivity(request: CreateStakeActivityRequest) :
       throw new Error("Some operational funds transactions are missing their dependency. Something is wrong.");
     }
 
-    console.log('debug: operational funds transactions prepared', operationalFundsTransactions);
-
     const returningOperationalFundsTransactions = await trx.insert(transactionsTable).values(operationalFundsTransactions).returning();
-
-    console.log('debug: operational funds transactions created', returningOperationalFundsTransactions);
 
     return {
       ...newActivity,
@@ -74,5 +61,13 @@ export async function createStakeActivity(request: CreateStakeActivityRequest) :
         ...returningOperationalFundsTransactions,
       ],
     };
+  });
+}
+
+export async function getActivitiesByUser() {
+  return db.query.activityTable.findMany({
+    with: {
+      transactions: true,
+    },
   });
 }

@@ -16,47 +16,12 @@ import NodesDark from "@/app/assets/icons/dark/nodes.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";
 import HelpDark from "@/app/assets/icons/dark/help.svg";
 import ContactDark from "@/app/assets/icons/dark/contact.svg";
+import Sidebar from "@/app/components/Sidebar";
 
 export const metadata: Metadata = {
   title: "Igniter",
   description: "Light up your earnings with Igniter",
 };
-
-const mainRoutes = [
-  {
-    title: "Overview",
-    url: "/app/overview",
-    icon: OverviewDark,
-  },
-  {
-    title: "Activity",
-    url: "/app/activity",
-    icon: ActivityDark,
-  },
-  {
-    title: "Nodes",
-    url: "/app/nodes",
-    icon: NodesDark,
-  },
-  {
-    title: "Settings",
-    url: "/app/settings",
-    icon: SettingsDark,
-  },
-];
-
-const footerRoutes = [
-  {
-    title: "Help",
-    url: "/help",
-    icon: HelpDark,
-  },
-  {
-    title: "Contact",
-    url: "/contact",
-    icon: ContactDark,
-  },
-];
 
 export default function RootLayout({
   children,
@@ -80,10 +45,7 @@ export default function RootLayout({
                   <CurrentUser />
                 </AppTopBar>
                 <div className="flex flex-1">
-                  <AppSidebar
-                    mainRoutes={mainRoutes}
-                    footerRoutes={footerRoutes}
-                  />
+                  <Sidebar />
                   <SidebarInset>
                     <div className={"w-full h-full flex overflow-x-hidden"}>
                       <div className="flex flex-col w-full gap-6">
