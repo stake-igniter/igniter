@@ -1,0 +1,48 @@
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+
+# Add bitnami repo
+helm_repo(
+  name='bitnami',
+  url='https://charts.bitnami.com/bitnami',
+  labels=['helm_repo'],
+  resource_name='helm-repo-bitnami'
+)
+
+# Add runix/pgadmin4 repo https://artifacthub.io/packages/helm/runix/pgadmin4
+helm_repo(
+  name='runix',
+  url='https://helm.runix.net',
+  labels=['helm_repo'],
+  resource_name='helm-repo-runix'
+)
+
+# Add postgresql helm release
+helm_resource(
+  name='postgresql',
+  chart='bitnami/postgresql',
+  release_name='postgresql',
+  flags=[
+    '--version=16.6.2',
+    '--values=./values.yaml'
+  ],
+  port_forwards=['5432:5432'],
+  pod_readiness='wait',
+  labels=['tooling'],
+)
+
+helm_resource(
+  name='pgadmin4',
+  chart='runix/pgadmin4',
+  release_name='pgadmin4',
+  flags=[
+    '--version=1.37.0',
+    '--values=./pgadmin4.yaml'
+  ],
+  port_forwards=['5050:80'],
+  pod_readiness='wait',
+  labels=['tooling'],
+  links=[
+      link('localhost:5050', 'User: igniter@tilt-dev.com'),
+      link('localhost:5050', 'Pass: igniter'),
+   ]
+)

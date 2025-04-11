@@ -1,0 +1,33 @@
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+load('ext://k8s_attach', 'k8s_attach')
+
+# Add temporal repo
+helm_repo(
+  name='temporal',
+  url='https://go.temporal.io/helm-charts',
+  labels=['helm_repo'],
+  resource_name='helm-repo-temporal'
+)
+
+# Add temporal helm release
+helm_resource(
+  name='temporal',
+  chart='temporal/temporal',
+  release_name='temporal',
+  flags=[
+    '--version=0.60.0',
+    '--values=./values.yaml'
+  ],
+  resource_deps=['postgresql'],
+  pod_readiness='wait',
+  labels=['tooling']
+)
+
+k8s_attach(
+    name="temporal-web",
+    obj="deployment/temporal-web",
+    port_forwards=["8080"],
+    resource_deps=["temporal"],
+    labels=['tooling'],
+)
+

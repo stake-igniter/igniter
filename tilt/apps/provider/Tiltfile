@@ -1,0 +1,40 @@
+custom_build(
+    ref='localhost:5001/provider',
+    command='./tilt/docker/build.sh provider',
+    dir='../../../',
+    deps=['../../../apps/provider', '../../../packages'],
+    ignore=['node_modules', '**/node_modules', 'packages/**/node_modules', 'apps/**/node_modules'],
+    live_update=[
+      sync('../../../apps/provider', '/app/apps/provider'),
+      sync('../../../packages', '/app/packages'),
+    ]
+)
+
+OWNER_IDENTITY=os.getenv('PROVIDER_OWNER_IDENTITY', '')
+
+if OWNER_IDENTITY == '':
+   fail('Missing PROVIDER_OWNER_IDENTITY env variable')
+
+# read from kustomize build
+objects = decode_yaml_stream(kustomize("./dev"))
+
+for o in objects:
+  if o['metadata']['name'] == 'provider-config':
+    o['data']['OWNER_IDENTITY'] = OWNER_IDENTITY
+    break
+
+# encode it after replace env vars
+k8s_yaml(encode_yaml_stream(objects), allow_duplicates=False)
+
+k8s_resource(
+    "provider",
+    port_forwards=["3001:3001"],
+    objects=[
+      'provider-config:configmap',
+      'provider-secrets:secret',
+      'postgres-provider-connection:secret'
+    ],
+    extra_pod_selectors=[{"app": "provider", "component": "web"}],
+    labels=['apps'],
+    resource_deps=["postgresql", "temporal"],
+)

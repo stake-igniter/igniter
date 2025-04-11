@@ -1,0 +1,40 @@
+custom_build(
+    ref='localhost:5001/middleman',
+    command='./tilt/docker/build.sh middleman',
+    dir='../../../',
+    deps=['../../../apps/middleman', '../../../packages'],
+    ignore=['node_modules', '**/node_modules', 'packages/**/node_modules', 'apps/**/node_modules'],
+    live_update=[
+      sync('../../../apps/middleman', '/app/apps/middleman'),
+      sync('../../../packages', '/app/packages'),
+    ]
+)
+
+OWNER_IDENTITY=os.getenv('MIDDLEMAN_OWNER_IDENTITY', '')
+
+if OWNER_IDENTITY == '':
+   fail('Missing MIDDLEMAN_OWNER_IDENTITY env variable')
+
+# read from kustomize build
+objects = decode_yaml_stream(kustomize("./dev"))
+
+for o in objects:
+  if o['metadata']['name'] == 'middleman-config':
+    o['data']['OWNER_IDENTITY'] = OWNER_IDENTITY
+    break
+
+# encode it after replace env vars
+k8s_yaml(encode_yaml_stream(objects), allow_duplicates=False)
+
+k8s_resource(
+    "middleman",
+    port_forwards=["3000:3000"],
+    extra_pod_selectors=[{"app": "middleman", "component": "web"}],
+    objects=[
+      'middleman-config:configmap',
+      'middleman-secrets:secret',
+      'postgres-middleman-connection:secret',
+    ],
+    labels=['apps'],
+    resource_deps=["postgresql", "temporal"],
+)
