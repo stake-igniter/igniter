@@ -11,7 +11,7 @@ export interface ServiceProviderKey {
 }
 
 export interface SignedTransaction {
-    hash: string;
+    hex: string;
     signedPayload: string;
 }
 
@@ -61,6 +61,6 @@ export function createOperationalFundsTransaction(params: CreateOperationalFunds
         fromAddress: params.stakeTransaction.outputAddress,
         toAddress: params.stakeTransaction.address,
         amount: params.offer.operationalFundsAmount,
-        dependsOn: params.stakeTransaction.hash!,
+        dependsOn: params.stakeTransaction.hex.slice(0, 200),
     };
 }

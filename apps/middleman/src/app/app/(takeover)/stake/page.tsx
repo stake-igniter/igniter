@@ -60,7 +60,6 @@ export default function StakePage() {
                         amount={stakeAmount}
                         selectedOffer={selectedOffer!}
                         onStakeCompleted={(result, activity) => {
-                            console.log(result);
                             if (
                                 result.requestStakeKeysDone &&
                                 result.stakeSignatureDone &&

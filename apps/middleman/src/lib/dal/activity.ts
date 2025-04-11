@@ -30,7 +30,7 @@ export async function createStakeActivity(request: CreateStakeActivityRequest) :
 
     const stakeTransactions = request.stakeTransactions.map(tx => {
       return {
-        hash: tx.hash,
+        hex: tx.hex.slice(0, 200),
         type: TransactionType.Stake,
         status: TransactionStatus.Pending,
         amount: tx.amount,
@@ -48,14 +48,14 @@ export async function createStakeActivity(request: CreateStakeActivityRequest) :
 
     const operationalFundsTransactions = request.operationalFundsTransactions.map(tx => {
       return {
-        hash: tx.hash,
+        hex: tx.hex.slice(0, 200),
         type: TransactionType.Send,
         status: TransactionStatus.Pending,
         amount: tx.amount,
         signedPayload: tx.signedPayload,
         fromAddress: tx.fromAddress,
         activityId: newActivity.id,
-        dependsOn: returningStakeTransactions.find(t => t.hash === tx.dependsOn)?.id,
+        dependsOn: returningStakeTransactions.find(t => t.hex === tx.dependsOn)?.id,
       };
     });
 

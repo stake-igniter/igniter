@@ -13,7 +13,7 @@ export interface ServiceProviderKey {
 }
 
 export interface SignedTransaction {
-  hash: string;
+  hex: string;
   signedPayload: string;
 }
 

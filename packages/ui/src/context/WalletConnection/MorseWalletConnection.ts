@@ -12,6 +12,7 @@ export enum PocketMorseMethod {
   PUBLIC_KEY = "pokt_publicKey",
   SIGN_MESSAGE = "pokt_signMessage",
   SIGN_TRANSACTION = "pokt_signTransaction",
+  SIGN_BULK_TRANSACTION = "pokt_bulkSignTransaction",
   BALANCE = "pokt_balance",
   CHAIN = "pokt_chain",
   SWITCH_CHAIN = "wallet_switchPocketChain",
@@ -150,48 +151,70 @@ export class MorseWalletConnection implements WalletConnection {
     });
   };
 
-  async signStakeTransactions(transactions: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]> {
-    return Promise.all(transactions.map(async (tx) => {
-      const signatureResult = await this.provider.send(PocketMorseMethod.SIGN_TRANSACTION, [{
-        type: PocketNetworkTransactionTypes.NodeStake,
-        transaction: {
-          amount: tx.amount,
-          serviceURL: tx.serviceUrl,
-          // TODO: change when we add separte identity and managed addresses.
-          address: this.connectedIdentity,
-          outputAddress: this.connectedIdentity,
-          operatorPublicKey: tx.publicKey,
-          rewardDelegators: tx.delegatorRewards,
-          // TODO: Add configurable memo
-        },
-      }]);
+  signStakeTransactions = async (txs: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]> => {
+    const transactions = txs.map((tx, id) => ({
+      id,
+      type: PocketNetworkTransactionTypes.NodeStake,
+      transaction: {
+        amount: (tx.amount * 1e6).toString(),
+        serviceURL: tx.serviceUrl,
+        chains: tx.chains,
+        // TODO: change when we add separate identity and managed addresses.
+        address: this.connectedIdentity,
+        outputAddress: this.connectedIdentity,
+        operatorPublicKey: tx.publicKey,
+        rewardDelegators: Object.entries(tx.delegatorRewards).reduce((delegatorRewards, [key, value]) => ({
+          ...delegatorRewards,
+          [key]: Number(value),
+        }), {}),
+        // TODO: Add configurable memo
+      },
+    }));
+
+    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMorseMethod.SIGN_BULK_TRANSACTION, transactions);
+
+    return txs.map((tx, id) => {
+      const signature = signatures.find((s) => s.id.toString() === id.toString());
+
+      if (!signature) {
+        throw new Error('Signature for transaction was not found.');
+      }
 
       return {
         ...tx,
-        signedPayload: signatureResult.signature,
-        hash: signatureResult.transactionHex,
+        signedPayload: signature.signature,
+        hex: signature.transactionHex,
       };
-    }));
+    });
   }
 
-  async signOperationalFundsTransactions(transactions: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]> {
-    return Promise.all(transactions.map(async (tx) => {
-      const signatureResult = await this.provider.send(PocketMorseMethod.SIGN_TRANSACTION, [{
-        type: PocketNetworkTransactionTypes.Send,
-        transaction: {
-          from: tx.fromAddress,
-          to: tx.toAddress,
-          amount: tx.amount,
-          // TODO: Add configurable memo
-        },
-      }]);
+  signOperationalFundsTransactions = async (txs: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]> => {
+    const transactions = txs.map((tx, id) => ({
+      id,
+      type: PocketNetworkTransactionTypes.Send,
+      transaction: {
+        from: tx.fromAddress,
+        to: tx.toAddress,
+        amount: (tx.amount * 1e6).toString(),
+        // TODO: Add configurable memo
+      },
+    }));
+
+    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMorseMethod.SIGN_BULK_TRANSACTION, transactions);
+
+    return txs.map((tx, id) => {
+      const signature = signatures.find((s) => s.id.toString() === id.toString());
+
+      if (!signature) {
+        throw new Error('Signature for transaction was not found.');
+      }
 
       return {
         ...tx,
-        signedPayload: signatureResult.signature,
-        hash: signatureResult.transactionHex,
+        signedPayload: signature.signature,
+        hex: signature.transactionHex,
       };
-    }));
+    });
   }
 
   get provider() {
