@@ -57,23 +57,26 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
             },
           });
 
-          const {healthy, ...statusProps} = await status.json();
+          const { healthy, ...statusProps } = await status.json();
 
           if (healthy) {
             return {
-              ...provider,
               ...statusProps,
+              id: provider.id,
               status: ProviderStatus.Healthy,
             };
           } else {
             return {
-              ...provider,
+              id: provider.id,
               status: ProviderStatus.Unhealthy,
-            }
+            };
           }
         } catch (error) {
           console.error("Error fetching provider status:", error);
-          return { ...provider, status: ProviderStatus.Unreachable };
+          return {
+            id: provider.id,
+            status: ProviderStatus.Unreachable,
+          };
         }
       })
     );
@@ -90,8 +93,8 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
 
     return updatedProviders;
   },
-  async updateProvidersStatus(providers: Provider[]) {
-    await providerDAL.updatedProvidersStatus(providers);
+  async updateProviders(providers: Provider[]) {
+    await providerDAL.updateProviders(providers);
   },
   async getDependantTransactions(transactionId: number) {
     return await transactionDAL.getDependantTransactions(transactionId);
