@@ -161,3 +161,14 @@ export const keyManagementStrategyTable = pgTable("key_management_strategies", {
 
 export type KeyManagementStrategy =
   typeof keyManagementStrategyTable.$inferSelect;
+
+export const allowedDelegatorsTable = pgTable("allowed_delegators", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+  identity: varchar({ length: 255 }).notNull().unique(),
+  publicKey: varchar({ length: 255 }).notNull().unique(),
+  enabled: boolean().notNull(),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow(),
+});
+

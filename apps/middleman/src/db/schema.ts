@@ -10,6 +10,7 @@ import {
   timestamp,
   varchar,
   bigint,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 export function enumToPgEnum<T extends Record<string, any>>(
@@ -149,6 +150,7 @@ export type Provider = typeof providersTable.$inferSelect;
 export const applicationSettingsTable = pgTable("application_settings", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }),
+  appIdentity: uuid().defaultRandom().notNull(),
   supportEmail: varchar({ length: 255 }),
   ownerEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),

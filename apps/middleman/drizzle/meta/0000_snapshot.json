@@ -1,5 +1,5 @@
 {
-  "id": "05b6cece-2010-4494-b900-b59a5ecd618c",
+  "id": "dfc5b0b7-1a4a-45c8-b3f5-df1e36f55c83",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -121,6 +121,13 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
+        },
+        "appIdentity": {
+          "name": "appIdentity",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "supportEmail": {
           "name": "supportEmail",

@@ -1,6 +1,6 @@
 "use server";
 
-import {list, upsertProviders} from "@/lib/dal/providers";
+import {list, upsertProviders, getByPublicKey} from "@/lib/dal/providers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -69,4 +69,8 @@ export async function submitProviders(
 
 export async function listProviders() {
   return list();
+}
+
+export async function getByIdentity(publicKey: string) {
+  return getByPublicKey(publicKey);
 }

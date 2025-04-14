@@ -47,7 +47,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       id: provider.id,
       name: provider.name,
       fee: provider.fee,
-      url: provider.url,
+      publicKey: provider.publicKey,
       rewards: 'N/A',
       delegatorRewardsAddress: provider.delegatorRewardsAddress || '',
       operationalFundsAmount: provider.operationalFunds,

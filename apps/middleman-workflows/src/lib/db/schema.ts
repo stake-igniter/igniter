@@ -133,6 +133,7 @@ export const providersTable = pgTable("providers", {
   fee: decimal().notNull().default("1.00"),
   domains: text().array().default([]),
   status: providerStatusEnum().notNull().default(ProviderStatus.Unknown),
+  delegatorRewardsAddress: varchar({ length: 255 }).default(''),
   minimumStake: integer().notNull().default(0),
   operationalFunds: integer().notNull().default(5),
   createdAt: timestamp().defaultNow(),
@@ -156,6 +157,7 @@ export const applicationSettingsTable = pgTable("application_settings", {
   isBootstrapped: boolean().notNull(),
   chainId: chainIdEnum().notNull(),
   blockchainProtocol: blockchainProtocolEnum().notNull(),
+  delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
   privacyPolicy: text(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
@@ -166,7 +168,7 @@ export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
 export const activityTable = pgTable("activity", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   type: activityTypeEnum().notNull(),
-  status: activityStatusEnum().notNull(),
+  status: activityStatusEnum().notNull().default(ActivityStatus.Pending),
   seenOn: timestamp(),
   totalValue: integer().notNull(),
   createdAt: timestamp().defaultNow().notNull(),
@@ -185,7 +187,7 @@ export const activityTransactionRelation = relations(
   })
 );
 
-export type Activity = typeof activityTable.$inferSelect;
+export type BaseActivity = typeof activityTable.$inferSelect;
 
 export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -202,7 +204,6 @@ export const transactionsTable = pgTable("transactions", {
 
   signedPayload: varchar().notNull(),
   fromAddress: varchar({ length: 255 }).notNull(),
-  signatureTimestamp: timestamp().notNull(),
   activityId: integer().references(() => activityTable.id),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
@@ -257,3 +258,6 @@ export const nodesRelations = relations(nodesTable, ({ one }) => ({
 
 export type Node = typeof nodesTable.$inferSelect;
 export type NewNode = typeof nodesTable.$inferInsert;
+export type Activity = typeof activityTable.$inferSelect & {
+  transactions: Transaction[];
+};

@@ -60,6 +60,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       fee: Number(defaultValues.fee) || 1,
       minimumStake: defaultValues.minimumStake,
       privacyPolicy: defaultValues.privacyPolicy || "",
+      delegatorRewardsAddress: defaultValues.delegatorRewardsAddress || "",
     },
   });
 
