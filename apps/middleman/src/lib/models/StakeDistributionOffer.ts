@@ -1,11 +1,11 @@
 export interface StakeDistributionOffer {
     id: number;
+    publicKey: string;
     name: string;
     fee: string;
     rewards: string;
     operationalFundsAmount: number;
     delegatorRewardsAddress: string;
-    url: string;
     stakeDistribution: NodeStakeDistributionItem[];
 }
 

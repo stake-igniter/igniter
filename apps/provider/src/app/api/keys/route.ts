@@ -4,6 +4,8 @@ import {
   NodeStakeDistributionItem,
 } from "@/lib/dal/addresses";
 import { getApplicationSettings } from "@/lib/dal/applicationSettings";
+import {getDelegatorByIdentity} from "@/lib/dal/allowedDelegators";
+import {verifySignature} from "@/lib/crypto";
 
 export async function OPTIONS() {
   return NextResponse.json({}, {
@@ -16,23 +18,50 @@ export async function OPTIONS() {
   });
 }
 
-
 export async function POST(request: Request) {
   try {
-    //maybe middleware checks this
     const { isBootstrapped } = await getApplicationSettings();
 
     if (!isBootstrapped) {
       return NextResponse.json(
-        { error: "Application not bootstrapped" },
-        { status: 400 }
+        { error: "Forbidden. Application is not ready for requests." },
+        { status: 403 }
       );
     }
 
-    const data: NodeStakeDistributionItem[] = await request.json();
+    const delegatorIdentity = request.headers.get("X-Middleman-Identity");
+
+    if (!delegatorIdentity) {
+      return NextResponse.json({ error: "Invalid request. X-Middleman-Identity header was not provided." }, { status: 400 });
+    }
+
+    const allowedDelegator = await getDelegatorByIdentity(delegatorIdentity);
+
+    if (!allowedDelegator) {
+      return NextResponse.json({ error: "Forbidden. The client is not allowed." }, { status: 403 });
+    }
+
+    let data: NodeStakeDistributionItem[];
+
+    try {
+      data = await request.json();
+    } catch (err) {
+      console.error(err);
+      return NextResponse.json({ error: `Invalid request. Is the request valid JSON?` }, { status: 400 });
+    }
+
+    const isValidSignature = verifySignature(
+      JSON.stringify(data),
+      Buffer.from(allowedDelegator.publicKey, 'hex').toString('base64'),
+      request.headers.get("X-Middleman-Signature") || "",
+    );
+
+    if (!isValidSignature) {
+      return NextResponse.json({ error: `Invalid request. Signature could not be verified with public key: ${allowedDelegator.publicKey}` }, { status: 400 });
+    }
 
     if (!data || !data.length) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid request. Empty node stake distribution." }, { status: 400 });
     }
 
     const response = await getFinalStakeAddresses(data);

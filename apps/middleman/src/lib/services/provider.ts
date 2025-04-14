@@ -4,12 +4,16 @@ import {ServiceProviderKey} from "@/lib/models/Transactions";
 
 export async function requestKeys(stakeOffer: StakeDistributionOffer): Promise<ServiceProviderKey[]> {
     try {
-        const response = await fetch(urlJoin(stakeOffer.url, "/api/keys"), {
+        const response = await fetch("/api/provider-rpc", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(stakeOffer.stakeDistribution),
+            body: JSON.stringify({
+                provider: stakeOffer.publicKey,
+                path: "/api/keys",
+                data: stakeOffer.stakeDistribution,
+            }),
         });
 
         if (!response.ok) {

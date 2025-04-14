@@ -15,12 +15,22 @@ OWNER_IDENTITY=os.getenv('MIDDLEMAN_OWNER_IDENTITY', '')
 if OWNER_IDENTITY == '':
    fail('Missing MIDDLEMAN_OWNER_IDENTITY env variable')
 
+APP_IDENTITY=os.getenv('MIDDLEMAN_APP_IDENTITY', '')
+
+if APP_IDENTITY == '':
+   fail('Missing APP_IDENTITY env variable')
+
 # read from kustomize build
 objects = decode_yaml_stream(kustomize("./dev"))
 
 for o in objects:
   if o['metadata']['name'] == 'middleman-config':
     o['data']['OWNER_IDENTITY'] = OWNER_IDENTITY
+    break
+
+for o in objects:
+  if o['metadata']['name'] == 'middleman-secrets':
+    o['stringData']['APP_IDENTITY'] = APP_IDENTITY
     break
 
 # encode it after replace env vars

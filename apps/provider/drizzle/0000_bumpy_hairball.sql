@@ -23,6 +23,18 @@ CREATE TABLE "addresses" (
 	"updatedAt" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE "allowed_delegators" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "allowed_delegators_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"name" varchar(255) NOT NULL,
+	"identity" varchar(255) NOT NULL,
+	"publicKey" varchar(255) NOT NULL,
+	"enabled" boolean NOT NULL,
+	"createdAt" timestamp DEFAULT now(),
+	"updatedAt" timestamp DEFAULT now(),
+	CONSTRAINT "allowed_delegators_identity_unique" UNIQUE("identity"),
+	CONSTRAINT "allowed_delegators_publicKey_unique" UNIQUE("publicKey")
+);
+--> statement-breakpoint
 CREATE TABLE "application_settings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "application_settings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255),
