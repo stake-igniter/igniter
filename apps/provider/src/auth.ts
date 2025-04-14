@@ -30,9 +30,7 @@ const authConfigResult = NextAuth({
       },
       // @TODO: Remove ts-ignore. Once we learn how to update the User type next-auth expects.
       // @ts-ignore
-      authorize: async (credentials, req): Promise<User | null> => {
-        console.log('Does authorize happen?');
-
+      authorize: async (credentials, req): Promise<User | null> => {s
         try {
           const siwp = new SiwpMessage(
             JSON.parse((credentials?.message || "{}") as string)
