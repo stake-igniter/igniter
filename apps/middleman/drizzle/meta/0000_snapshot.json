@@ -1,5 +1,5 @@
 {
-  "id": "c9745a0a-7db1-4833-99ca-9d141394d9be",
+  "id": "05b6cece-2010-4494-b900-b59a5ecd618c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -27,17 +27,18 @@
         },
         "type": {
           "name": "type",
-          "type": "type",
+          "type": "activity_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "status": {
           "name": "status",
-          "type": "status",
+          "type": "activity_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'pending'"
         },
         "seenOn": {
           "name": "seenOn",
@@ -45,11 +46,17 @@
           "primaryKey": false,
           "notNull": false
         },
+        "totalValue": {
+          "name": "totalValue",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now()"
         },
         "updatedAt": {
@@ -58,10 +65,30 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "activity_userId_users_id_fk": {
+          "name": "activity_userId_users_id_fk",
+          "tableFrom": "activity",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -141,8 +168,14 @@
         },
         "blockchainProtocol": {
           "name": "blockchainProtocol",
-          "type": "protocols",
+          "type": "blockchain_protocols",
           "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "delegatorRewardsAddress": {
+          "name": "delegatorRewardsAddress",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -169,6 +202,119 @@
       },
       "indexes": {},
       "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.nodes": {
+      "name": "nodes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "nodes_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "node_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stakeAmount": {
+          "name": "stakeAmount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "balance": {
+          "name": "balance",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rewards": {
+          "name": "rewards",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "serviceUrl": {
+          "name": "serviceUrl",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "chains": {
+          "name": "chains",
+          "type": "varchar(255)[]",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "providerId": {
+          "name": "providerId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "nodes_userId_users_id_fk": {
+          "name": "nodes_userId_users_id_fk",
+          "tableFrom": "nodes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -240,6 +386,21 @@
           "primaryKey": false,
           "notNull": false,
           "default": "'{}'"
+        },
+        "status": {
+          "name": "status",
+          "type": "provider_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unknown'"
+        },
+        "delegatorRewardsAddress": {
+          "name": "delegatorRewardsAddress",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
         },
         "minimumStake": {
           "name": "minimumStake",
@@ -315,14 +476,14 @@
         },
         "type": {
           "name": "type",
-          "type": "type",
+          "type": "tx_type",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
         "status": {
           "name": "status",
-          "type": "status",
+          "type": "tx_status",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -361,11 +522,11 @@
           "name": "signedPayload",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "signatureTimestamp": {
-          "name": "signatureTimestamp",
-          "type": "timestamp",
+        "fromAddress": {
+          "name": "fromAddress",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -373,7 +534,7 @@
           "name": "activityId",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -388,6 +549,12 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "userId": {
+          "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -411,6 +578,19 @@
           "tableTo": "activity",
           "columnsFrom": [
             "activityId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "transactions_userId_users_id_fk": {
+          "name": "transactions_userId_users_id_fk",
+          "tableFrom": "transactions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -490,27 +670,28 @@
     }
   },
   "enums": {
-    "public.status": {
-      "name": "status",
+    "public.activity_status": {
+      "name": "activity_status",
       "schema": "public",
       "values": [
         "pending",
         "success",
         "failure",
-        "not_executed"
+        "in_progress"
       ]
     },
-    "public.type": {
-      "name": "type",
+    "public.activity_type": {
+      "name": "activity_type",
       "schema": "public",
       "values": [
-        "stake",
-        "unstake",
-        "send"
+        "Stake",
+        "Unstake",
+        "Upstake",
+        "Operational Funds"
       ]
     },
-    "public.protocols": {
-      "name": "protocols",
+    "public.blockchain_protocols": {
+      "name": "blockchain_protocols",
       "schema": "public",
       "values": [
         "morse",
@@ -525,6 +706,26 @@
         "testnet"
       ]
     },
+    "public.node_status": {
+      "name": "node_status",
+      "schema": "public",
+      "values": [
+        "staked",
+        "staking",
+        "unstaked",
+        "unstaking"
+      ]
+    },
+    "public.provider_status": {
+      "name": "provider_status",
+      "schema": "public",
+      "values": [
+        "healthy",
+        "unhealthy",
+        "unknown",
+        "unreachable"
+      ]
+    },
     "public.role": {
       "name": "role",
       "schema": "public",
@@ -532,6 +733,26 @@
         "admin",
         "user",
         "owner"
+      ]
+    },
+    "public.tx_status": {
+      "name": "tx_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "success",
+        "failure",
+        "not_executed"
+      ]
+    },
+    "public.tx_type": {
+      "name": "tx_type",
+      "schema": "public",
+      "values": [
+        "Stake",
+        "Unstake",
+        "Upstake",
+        "Operational Funds"
       ]
     }
   },

@@ -1,1 +1,0 @@
-ALTER TABLE "addresses" ADD COLUMN "publicKey" varchar(64) NOT NULL;
