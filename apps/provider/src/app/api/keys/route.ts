@@ -4,7 +4,7 @@ import {
   NodeStakeDistributionItem,
 } from "@/lib/dal/addresses";
 import { getApplicationSettings } from "@/lib/dal/applicationSettings";
-import {getDelegatorByIdentity} from "@/lib/dal/allowedDelegators";
+import {getDelegatorByIdentity} from "@/lib/dal/delegators";
 import {verifySignature} from "@/lib/crypto";
 
 export async function OPTIONS() {

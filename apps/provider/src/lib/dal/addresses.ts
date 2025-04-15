@@ -1,8 +1,7 @@
 import { db } from "@/db";
-import { Address, addressesTable, AddressGroup } from "@/db/schema";
+import {Address, addressesTable, AddressGroup, CreateAddress} from "@/db/schema";
 import { sha256 } from "js-sha256";
 import Sodium from "libsodium-wrappers";
-import { eq } from "drizzle-orm";
 import { getActiveKeyManagementStrategy } from "./keyManagementStrategies";
 import { getAddressGroupsByIdentity } from "./addressGroups";
 import { KeyManagementStrategyFactory } from "../keyStrategies";
@@ -32,24 +31,12 @@ export function addressFromPublicKey(publicKey: Buffer): string {
   return Buffer.from(hash.hex(), "hex").slice(0, 20).toString("hex");
 }
 
-export async function insertAddresses(addresses: Address[]) {
-  return await db.insert(addressesTable).values(addresses).returning();
-}
-
-export async function getAddress(address: string) {
-  const result = await db.query.addressesTable.findFirst({
-    where: eq(addressesTable.address, address),
-  });
-
-  if (!result) {
-    throw new Error("Address not found");
-  }
-
-  return result;
+export async function insertAddresses(addresses: CreateAddress[]) {
+  return db.insert(addressesTable).values(addresses).returning();
 }
 
 export async function getFinalStakeAddresses(
-  stakeDistribution: NodeStakeDistributionItem[]
+  stakeDistribution: NodeStakeDistributionItem[],
 ) {
   const keyManagementStrategies = await getActiveKeyManagementStrategy();
 

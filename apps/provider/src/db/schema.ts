@@ -7,7 +7,6 @@ import {
   integer,
   pgEnum,
   pgTable,
-  primaryKey,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -39,6 +38,16 @@ export enum KeyManagementStrategyType {
   Manual = "manual",
 }
 
+export enum AddressState {
+  Available = 'available',
+  Delivered = 'delivered',
+  Staking = 'staking',
+  Staked = 'staked',
+  StakeFailed = 'stake_failed',
+  Unstaking = 'unstaking',
+  Unstaked = 'unstaked',
+}
+
 const encryptedText = customType<{ data: string }>({
   dataType() {
     return "text";
@@ -64,6 +73,8 @@ export const keyManagementStrategyTypeEnum = pgEnum(
   "key_management_strategy_types",
   enumToPgEnum(KeyManagementStrategyType)
 );
+
+export const addressStateEnum = pgEnum("address_states", enumToPgEnum(AddressState));
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -104,12 +115,15 @@ export const chainsTable = pgTable("chains", {
 
 export type Chain = typeof chainsTable.$inferSelect;
 
-//TODO: Add encryption
 export const addressesTable = pgTable("addresses", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   address: varchar({ length: 255 }).notNull(),
   publicKey: varchar({ length: 64 }).notNull(),
   privateKey: encryptedText("privateKey").notNull(),
+  origin: keyManagementStrategyTypeEnum().notNull(),
+  state: addressStateEnum().notNull().default(AddressState.Available),
+  deliveredAt: timestamp(),
+  deliveredTo: integer("delegator_identity").references(() => delegatorsTable.identity),
   addressGroupId: integer("address_group_id").references(
     () => addressGroupTable.id
   ),
@@ -125,6 +139,8 @@ export const addressGroupRelations = relations(addressesTable, ({ one }) => ({
 }));
 
 export type Address = typeof addressesTable.$inferSelect;
+
+export type CreateAddress = typeof addressesTable.$inferInsert;
 
 export const addressGroupTable = pgTable("address_groups", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -162,7 +178,7 @@ export const keyManagementStrategyTable = pgTable("key_management_strategies", {
 export type KeyManagementStrategy =
   typeof keyManagementStrategyTable.$inferSelect;
 
-export const allowedDelegatorsTable = pgTable("allowed_delegators", {
+export const delegatorsTable = pgTable("delegators", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   identity: varchar({ length: 255 }).notNull().unique(),
