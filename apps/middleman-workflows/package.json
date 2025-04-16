@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node ./dist/src/worker.js\"",
     "build": "tsc --build ./tsconfig.json",
-    "start": "node -r dotenv/config ./dist/src/worker.js",
+    "start": "node ./dist/src/worker.js",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
