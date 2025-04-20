@@ -7,7 +7,7 @@ import {
   SignedStakeTransaction,
 } from "./";
 
-export enum PocketMorseMethod {
+export enum PocketMethod {
   REQUEST_ACCOUNTS = "pokt_requestAccounts",
   PUBLIC_KEY = "pokt_publicKey",
   SIGN_MESSAGE = "pokt_signMessage",
@@ -37,7 +37,7 @@ export class MorseWalletConnection implements WalletConnection {
     this._provider = provider ?? window.pocketNetwork;
     try {
       const [connectedIdentity] = await this.provider.send(
-        PocketMorseMethod.REQUEST_ACCOUNTS
+        PocketMethod.REQUEST_ACCOUNTS
       );
 
       this.isConnected = true;
@@ -50,7 +50,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   reconnect = async (address: string): Promise<boolean> => {
     try {
-      const accounts = await this.provider.send(PocketMorseMethod.ACCOUNTS);
+      const accounts = await this.provider.send(PocketMethod.ACCOUNTS);
 
       if (accounts.includes(address)) {
         this.connectedIdentity = address;
@@ -60,7 +60,7 @@ export class MorseWalletConnection implements WalletConnection {
 
       return false;
     } catch (error) {
-      console.warn(`Something failed while interacting with the Pocket Network wallet provider. method: ${PocketMorseMethod.ACCOUNTS}`);
+      console.warn(`Something failed while interacting with the Pocket Network wallet provider. method: ${PocketMethod.ACCOUNTS}`);
       return false;
     }
   }
@@ -68,7 +68,7 @@ export class MorseWalletConnection implements WalletConnection {
   getChain = async (): Promise<string> => {
     try {
       return await this.provider.send(
-        PocketMorseMethod.CHAIN,
+        PocketMethod.CHAIN,
       );
     } catch (err) {
       console.error(err);
@@ -79,7 +79,7 @@ export class MorseWalletConnection implements WalletConnection {
   getPublicKey = async (address: string): Promise<string> => {
     try {
       const { publicKey } = await this.provider.send(
-        PocketMorseMethod.PUBLIC_KEY,
+        PocketMethod.PUBLIC_KEY,
         [{ address }]
       );
       return publicKey;
@@ -92,7 +92,7 @@ export class MorseWalletConnection implements WalletConnection {
   getBalance = async (address: string): Promise<number> => {
     try {
       const { balance } = await this.provider.send(
-        PocketMorseMethod.BALANCE,
+        PocketMethod.BALANCE,
         [{ address }]
       );
       return balance;
@@ -105,7 +105,7 @@ export class MorseWalletConnection implements WalletConnection {
   switchChain = async (chainId: string): Promise<void> => {
     try {
       await this.provider.send(
-        PocketMorseMethod.SWITCH_CHAIN,
+        PocketMethod.SWITCH_CHAIN,
         [{ chainId }],
       );
     } catch (err) {
@@ -116,7 +116,7 @@ export class MorseWalletConnection implements WalletConnection {
 
   signMessage = async (message: string, address: string): Promise<string> => {
     try {
-      const { signature } = await this.provider.send(PocketMorseMethod.SIGN_MESSAGE, [{ message, address }]);
+      const { signature } = await this.provider.send(PocketMethod.SIGN_MESSAGE, [{ message, address }]);
       return signature;
     } catch (err) {
       console.error(err);
@@ -169,7 +169,7 @@ export class MorseWalletConnection implements WalletConnection {
       },
     }));
 
-    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMorseMethod.SIGN_BULK_TRANSACTION, transactions);
+    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMethod.SIGN_BULK_TRANSACTION, transactions);
 
     return txs.map((tx, id) => {
       const signature = signatures.find((s) => s.id.toString() === id.toString());
@@ -197,7 +197,7 @@ export class MorseWalletConnection implements WalletConnection {
       },
     }));
 
-    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMorseMethod.SIGN_BULK_TRANSACTION, transactions);
+    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMethod.SIGN_BULK_TRANSACTION, transactions);
 
     return txs.map((tx, id) => {
       const signature = signatures.find((s) => s.id.toString() === id.toString());

@@ -1,3 +1,4 @@
+CREATE TYPE "public"."address_states" AS ENUM('available', 'delivered', 'staking', 'staked', 'stake_failed', 'unstaking', 'unstaked');--> statement-breakpoint
 CREATE TYPE "public"."protocols" AS ENUM('morse', 'shannon');--> statement-breakpoint
 CREATE TYPE "public"."chain_ids" AS ENUM('mainnet', 'testnet');--> statement-breakpoint
 CREATE TYPE "public"."key_management_strategy_types" AS ENUM('dynamic', 'manual');--> statement-breakpoint
@@ -18,21 +19,13 @@ CREATE TABLE "addresses" (
 	"address" varchar(255) NOT NULL,
 	"publicKey" varchar(64) NOT NULL,
 	"privateKey" text NOT NULL,
+	"origin" "key_management_strategy_types" NOT NULL,
+	"state" "address_states" DEFAULT 'available' NOT NULL,
+	"deliveredAt" timestamp,
+	"delegator_identity" varchar,
 	"address_group_id" integer,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now()
-);
---> statement-breakpoint
-CREATE TABLE "allowed_delegators" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "allowed_delegators_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"name" varchar(255) NOT NULL,
-	"identity" varchar(255) NOT NULL,
-	"publicKey" varchar(255) NOT NULL,
-	"enabled" boolean NOT NULL,
-	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now(),
-	CONSTRAINT "allowed_delegators_identity_unique" UNIQUE("identity"),
-	CONSTRAINT "allowed_delegators_publicKey_unique" UNIQUE("publicKey")
 );
 --> statement-breakpoint
 CREATE TABLE "application_settings" (
@@ -59,6 +52,18 @@ CREATE TABLE "chains" (
 	"updatedAt" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+CREATE TABLE "delegators" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "delegators_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"name" varchar(255) NOT NULL,
+	"identity" varchar(255) NOT NULL,
+	"publicKey" varchar(255) NOT NULL,
+	"enabled" boolean NOT NULL,
+	"createdAt" timestamp DEFAULT now(),
+	"updatedAt" timestamp DEFAULT now(),
+	CONSTRAINT "delegators_identity_unique" UNIQUE("identity"),
+	CONSTRAINT "delegators_publicKey_unique" UNIQUE("publicKey")
+);
+--> statement-breakpoint
 CREATE TABLE "key_management_strategies" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "key_management_strategies_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"weight" integer NOT NULL,
@@ -79,4 +84,5 @@ CREATE TABLE "users" (
 	"updatedAt" timestamp DEFAULT now()
 );
 --> statement-breakpoint
+ALTER TABLE "addresses" ADD CONSTRAINT "addresses_delegator_identity_delegators_identity_fk" FOREIGN KEY ("delegator_identity") REFERENCES "public"."delegators"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "addresses" ADD CONSTRAINT "addresses_address_group_id_address_groups_id_fk" FOREIGN KEY ("address_group_id") REFERENCES "public"."address_groups"("id") ON DELETE no action ON UPDATE no action;

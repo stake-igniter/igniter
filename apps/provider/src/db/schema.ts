@@ -123,7 +123,7 @@ export const addressesTable = pgTable("addresses", {
   origin: keyManagementStrategyTypeEnum().notNull(),
   state: addressStateEnum().notNull().default(AddressState.Available),
   deliveredAt: timestamp(),
-  deliveredTo: integer("delegator_identity").references(() => delegatorsTable.identity),
+  deliveredTo: varchar("delegator_identity").references(() => delegatorsTable.identity),
   addressGroupId: integer("address_group_id").references(
     () => addressGroupTable.id
   ),

@@ -14,6 +14,9 @@ import {
   Transaction,
 } from "../lib/db/schema";
 import { addressFromPublicKey } from "./utils";
+import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "@/lib/constants";
+import {getAppIdentity, signPayload} from "@/lib/crypto";
+import {getApplicationSettingsFromDatabase} from "@/lib/dal/applicationSettings";
 
 export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   async getActivity(activityId: number) {
@@ -46,14 +49,27 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     return providers;
   },
   async fetchProviderStatus(providers: Provider[]) {
+    let identity: string;
+    let signature: string;
+
+    try {
+      const applicationSettings = await getApplicationSettingsFromDatabase();
+      identity = applicationSettings?.appIdentity ?? '';
+    } catch (error) {
+      throw new Error("Unable to load the application settings and determine the identity of the app");
+    }
+
     const providerStatus = await Promise.allSettled(
       providers.map(async (provider) => {
         try {
           const STATUS_URL = `${provider.url}/api/status`;
           const status = await fetch(STATUS_URL, {
-            method: "GET",
+            method: "POST",
+            body: JSON.stringify({}),
             headers: {
               "Content-Type": "application/json",
+              [REQUEST_IDENTITY_HEADER]: identity,
+              [REQUEST_SIGNATURE_HEADER]: signature,
             },
           });
 

@@ -2,8 +2,9 @@ import {z} from "zod";
 import urlJoin from 'url-join';
 import {getByIdentity} from "@/actions/Providers";
 import {Provider} from "@/db/schema";
-import {getAppIdentity, signPayload} from "@/lib/crypto";
+import {signPayload} from "@/lib/crypto";
 import {getApplicationSettings} from "@/lib/dal/applicationSettings";
+import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "@/lib/constants";
 
 export async function POST(request: Request) {
   const schema = z.object({
@@ -56,8 +57,8 @@ export async function POST(request: Request) {
       body: JSON.stringify(validatedData.data),
       headers: {
         "Content-Type": "application/json",
-        "X-Middleman-Identity": identity,
-        "X-Middleman-Signature": signature,
+        [REQUEST_IDENTITY_HEADER]: identity,
+        [REQUEST_SIGNATURE_HEADER]: signature,
       }
     });
   } catch (error) {

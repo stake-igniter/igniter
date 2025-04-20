@@ -12,6 +12,7 @@ const defaultSettings: ApplicationSettings = {
   id: 0,
   name: "",
   supportEmail: "",
+  appIdentity: "",
   ownerEmail: "",
   ownerIdentity: "",
   fee: "1",
