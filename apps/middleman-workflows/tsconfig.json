@@ -3,9 +3,11 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "paths": {
+      "@/*": ["./src/*"]
     },
     "module": "commonjs",
-    "moduleResolution":null
+    "moduleResolution":null,
+
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules", "dist"]

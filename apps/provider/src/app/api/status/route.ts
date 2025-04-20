@@ -1,17 +1,23 @@
 import { NextResponse } from "next/server";
 import { getApplicationSettings } from "@/lib/dal/applicationSettings";
 import { getAddressGroups } from "@/lib/dal/addressGroups";
+import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
+import {StatusRequest, StatusResponse} from "@/lib/models/status";
 
-export interface StatusResponse {
-  minimumStake: number;
-  providerFee: string;
-  domains: string[];
-  healthy: boolean;
-  delegatorRewardsAddress: string;
-}
-
-export async function GET(request: Request) {
+export async function POST(request: Request) {
   try {
+    const isBootstrappedResponse = await ensureApplicationIsBootstrapped();
+
+    if (isBootstrappedResponse instanceof NextResponse) {
+      return isBootstrappedResponse;
+    }
+
+    const signatureValidationResponse = await validateRequestSignature<StatusRequest>(request);
+
+    if (signatureValidationResponse instanceof NextResponse) {
+      return signatureValidationResponse;
+    }
+
     const applicationSettings = await getApplicationSettings();
     const addressGroups = await getAddressGroups();
 

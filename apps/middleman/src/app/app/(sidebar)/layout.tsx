@@ -15,7 +15,7 @@ import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
 
 export const metadata: Metadata = {
-  title: "Igniter",
+  title: "Middleman",
   description: "Light up your earnings with Igniter",
 };
 

@@ -22,3 +22,5 @@ spec:
                 name: middleman-workflows-config
             - secretRef:
                 name: postgres-middleman-connection
+            - secretRef:
+                name: middleman-secrets

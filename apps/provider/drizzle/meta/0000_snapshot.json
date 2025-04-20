@@ -1,5 +1,5 @@
 {
-  "id": "ecaeca45-1e87-491d-b525-a1fe773e38e4",
+  "id": "c4112e14-42b2-4c11-aaa7-f979e254d077",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -119,6 +119,33 @@
           "primaryKey": false,
           "notNull": true
         },
+        "origin": {
+          "name": "origin",
+          "type": "key_management_strategy_types",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "address_states",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'available'"
+        },
+        "deliveredAt": {
+          "name": "deliveredAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delegator_identity": {
+          "name": "delegator_identity",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "address_group_id": {
           "name": "address_group_id",
           "type": "integer",
@@ -142,6 +169,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "addresses_delegator_identity_delegators_identity_fk": {
+          "name": "addresses_delegator_identity_delegators_identity_fk",
+          "tableFrom": "addresses",
+          "tableTo": "delegators",
+          "columnsFrom": [
+            "delegator_identity"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "addresses_address_group_id_address_groups_id_fk": {
           "name": "addresses_address_group_id_address_groups_id_fk",
           "tableFrom": "addresses",
@@ -158,89 +198,6 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.allowed_delegators": {
-      "name": "allowed_delegators",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "allowed_delegators_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "identity": {
-          "name": "identity",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "publicKey": {
-          "name": "publicKey",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "enabled": {
-          "name": "enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "allowed_delegators_identity_unique": {
-          "name": "allowed_delegators_identity_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "identity"
-          ]
-        },
-        "allowed_delegators_publicKey_unique": {
-          "name": "allowed_delegators_publicKey_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "publicKey"
-          ]
-        }
-      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -407,6 +364,89 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.delegators": {
+      "name": "delegators",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "delegators_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "identity": {
+          "name": "identity",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publicKey": {
+          "name": "publicKey",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "delegators_identity_unique": {
+          "name": "delegators_identity_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "identity"
+          ]
+        },
+        "delegators_publicKey_unique": {
+          "name": "delegators_publicKey_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "publicKey"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.key_management_strategies": {
       "name": "key_management_strategies",
       "schema": "",
@@ -549,6 +589,19 @@
     }
   },
   "enums": {
+    "public.address_states": {
+      "name": "address_states",
+      "schema": "public",
+      "values": [
+        "available",
+        "delivered",
+        "staking",
+        "staked",
+        "stake_failed",
+        "unstaking",
+        "unstaked"
+      ]
+    },
     "public.protocols": {
       "name": "protocols",
       "schema": "public",

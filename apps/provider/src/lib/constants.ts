@@ -3,3 +3,7 @@ export const STAKE_OPTIONS = [15000, 30000, 45000, 60000];
 export const MINIMUM_STAKE = MORSE_MINIMUM_STAKE;
 export const DEFAULT_ADDRESS_GROUP_PATTERN =
   "https://{{address}}.{{identity}}.{{domain}}";
+
+// TODO: Refactor to a common constants package
+export const REQUEST_IDENTITY_HEADER = "X-Middleman-Identity";
+export const REQUEST_SIGNATURE_HEADER = "X-Middleman-Signature";
