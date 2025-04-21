@@ -1,6 +1,5 @@
 CREATE TYPE "public"."address_states" AS ENUM('available', 'delivered', 'staking', 'staked', 'stake_failed', 'unstaking', 'unstaked');--> statement-breakpoint
-CREATE TYPE "public"."protocols" AS ENUM('morse', 'shannon');--> statement-breakpoint
-CREATE TYPE "public"."chain_ids" AS ENUM('mainnet', 'testnet');--> statement-breakpoint
+CREATE TYPE "public"."chain_ids" AS ENUM('pocket', 'pocket-beta', 'pocket-alpha');--> statement-breakpoint
 CREATE TYPE "public"."key_management_strategy_types" AS ENUM('dynamic', 'manual');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'user', 'owner');--> statement-breakpoint
 CREATE TABLE "address_groups" (
@@ -37,7 +36,6 @@ CREATE TABLE "application_settings" (
 	"providerFee" numeric(5, 2) NOT NULL,
 	"delegatorRewardsAddress" varchar(255) NOT NULL,
 	"chainId" "chain_ids" NOT NULL,
-	"blockchainProtocol" "protocols" NOT NULL,
 	"minimumStake" integer NOT NULL,
 	"isBootstrapped" boolean NOT NULL,
 	"createdAt" timestamp DEFAULT now(),

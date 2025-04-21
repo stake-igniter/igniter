@@ -1,7 +1,7 @@
 "use client";
 
 import {createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {MorseWalletConnection} from "./MorseWalletConnection";
+import {PocketWalletConnection} from "./PocketWalletConnection";
 
 // TODO: Unify this with apps/middleman/src/lib/models/Transactions.ts:4
 export interface ServiceProviderKey {
@@ -111,26 +111,25 @@ export const WalletConnectionProvider = ({ children, expectedIdentity }: { expec
   const [isConnected, setIsConnected] = useState(false);
   const [connectedIdentity, setConnectedIdentity] = useState<string | undefined>(undefined);
 
-  // TODO: Shannon. Receive the user configuration and instantiate the correct wallet connection.
-  const morseConnection = useMemo(() => new MorseWalletConnection(), []);
+  const pocketConnection  = useMemo(() => new PocketWalletConnection(), []);
 
   const connect = useCallback(async (provider?: Provider) => {
     try {
-      await morseConnection.connect(provider);
-      setIsConnected(morseConnection.isConnected);
-      setConnectedIdentity(morseConnection.connectedIdentity);
+      await pocketConnection.connect(provider);
+      setIsConnected(pocketConnection.isConnected);
+      setConnectedIdentity(pocketConnection.connectedIdentity);
     } catch (error) {
       console.error(error);
-      setIsConnected(morseConnection.isConnected);
-      setConnectedIdentity(morseConnection.connectedIdentity);
+      setIsConnected(pocketConnection.isConnected);
+      setConnectedIdentity(pocketConnection.connectedIdentity);
     }
   }, []);
 
   const reconnect = useCallback(async (address: string) => {
-    const reconnected = await morseConnection.reconnect(address);
+    const reconnected = await pocketConnection.reconnect(address);
 
-    setIsConnected(morseConnection.isConnected);
-    setConnectedIdentity(morseConnection.connectedIdentity);
+    setIsConnected(pocketConnection.isConnected);
+    setConnectedIdentity(pocketConnection.connectedIdentity);
 
     if (!reconnected) {
       throw new Error('Failed to reconnect');
@@ -154,14 +153,14 @@ export const WalletConnectionProvider = ({ children, expectedIdentity }: { expec
         connectedIdentity,
         connect,
         reconnect,
-        getChain: morseConnection.getChain,
-        getPublicKey: morseConnection.getPublicKey,
-        getBalance: morseConnection.getBalance,
-        switchChain: morseConnection.switchChain,
-        signMessage: morseConnection.signMessage,
-        getAvailableProviders: morseConnection.getAvailableProviders,
-        signStakeTransactions: morseConnection.signStakeTransactions,
-        signOperationalFundsTransactions: morseConnection.signOperationalFundsTransactions,
+        getChain: pocketConnection.getChain,
+        getPublicKey: pocketConnection.getPublicKey,
+        getBalance: pocketConnection.getBalance,
+        switchChain: pocketConnection.switchChain,
+        signMessage: pocketConnection.signMessage,
+        getAvailableProviders: pocketConnection.getAvailableProviders,
+        signStakeTransactions: pocketConnection.signStakeTransactions,
+        signOperationalFundsTransactions: pocketConnection.signOperationalFundsTransactions,
       }
     }>
       {children}

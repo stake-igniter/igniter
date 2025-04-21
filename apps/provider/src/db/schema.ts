@@ -24,13 +24,9 @@ export enum UserRole {
 }
 
 export enum ChainId {
-  Mainnet = "mainnet",
-  Testnet = "testnet",
-}
-
-export enum BlockchainProtocol {
-  Morse = "morse",
-  Shannon = "shannon",
+  Pocket = "pocket",
+  PocketBeta = "pocket-beta",
+  PocketAlpha = "pocket-alpha",
 }
 
 export enum KeyManagementStrategyType {
@@ -64,11 +60,6 @@ export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
 
 export const chainIdEnum = pgEnum("chain_ids", enumToPgEnum(ChainId));
 
-export const blockchainProtocolEnum = pgEnum(
-  "protocols",
-  enumToPgEnum(BlockchainProtocol)
-);
-
 export const keyManagementStrategyTypeEnum = pgEnum(
   "key_management_strategy_types",
   enumToPgEnum(KeyManagementStrategyType)
@@ -96,7 +87,6 @@ export const applicationSettingsTable = pgTable("application_settings", {
   providerFee: decimal({ precision: 5, scale: 2 }).notNull(),
   delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
   chainId: chainIdEnum().notNull(),
-  blockchainProtocol: blockchainProtocolEnum().notNull(),
   minimumStake: integer().notNull(),
   isBootstrapped: boolean().notNull(),
   createdAt: timestamp().defaultNow(),

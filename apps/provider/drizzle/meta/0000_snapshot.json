@@ -1,5 +1,5 @@
 {
-  "id": "c4112e14-42b2-4c11-aaa7-f979e254d077",
+  "id": "b41535f3-fadc-4cd1-81d1-4cba864175df",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -262,13 +262,6 @@
         "chainId": {
           "name": "chainId",
           "type": "chain_ids",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "blockchainProtocol": {
-          "name": "blockchainProtocol",
-          "type": "protocols",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -602,20 +595,13 @@
         "unstaked"
       ]
     },
-    "public.protocols": {
-      "name": "protocols",
-      "schema": "public",
-      "values": [
-        "morse",
-        "shannon"
-      ]
-    },
     "public.chain_ids": {
       "name": "chain_ids",
       "schema": "public",
       "values": [
-        "mainnet",
-        "testnet"
+        "pocket",
+        "pocket-beta",
+        "pocket-alpha"
       ]
     },
     "public.key_management_strategy_types": {

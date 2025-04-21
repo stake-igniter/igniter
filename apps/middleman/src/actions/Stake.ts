@@ -3,9 +3,6 @@
 import {getApplicationSettings} from "@/actions/ApplicationSettings";
 import {listProviders} from "@/actions/Providers";
 import {NodeStakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {
-  BlockchainProtocol,
-} from "@/db/schema";
 import {CreateStakeActivityRequest} from "@/lib/models/Activities";
 import {createStakeActivity} from "@/lib/dal/activity";
 
@@ -13,12 +10,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
   const applicationSettings = await getApplicationSettings();
   const providers = await listProviders();
 
-  if (applicationSettings.blockchainProtocol == BlockchainProtocol.Shannon) {
-    // TODO: Shannon calculation is to be defined.
-    return [];
-  }
-
-  const availableNodeSizes = [60000, 45000, 30000, 15000];
+  const availableNodeSizes = [applicationSettings.minimumStake];
 
   return providers.map(provider => {
     let distribution: NodeStakeDistributionItem[] = [];
