@@ -64,6 +64,7 @@ export enum ProviderStatus {
   Unhealthy = "unhealthy",
   Unknown = "unknown",
   Unreachable = "unreachable",
+  ProcessingSignatureError = "processing_signature_error",
 }
 
 export enum NodeStatus {
