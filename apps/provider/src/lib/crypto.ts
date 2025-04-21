@@ -38,9 +38,8 @@ export function verifySignature(
   encoding: BufferEncoding = 'base64'
 ): boolean {
   try {
-    // Decode the public key
     const publicKeyBytes = Buffer.from(publicKeyStr, encoding);
-    // Must be 33 bytes, compressed form (0x02 or 0x03 prefix)
+
     if (
       publicKeyBytes.length !== 33 ||
       (publicKeyBytes[0] !== 0x02 && publicKeyBytes[0] !== 0x03)
@@ -52,25 +51,11 @@ export function verifySignature(
     const signature = Buffer.from(signatureStr, encoding);
 
     const spkiDer = Buffer.concat([
-      Buffer.from([
-        0x30, 0x2a,
-        0x30, 0x10,
-        0x06, 0x07,
-        0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
-        0x06, 0x05,
-        0x2b, 0x81, 0x04, 0x00, 0x0a,
-        0x03, 0x21, 0x00
-      ]),
+      Buffer.from([0x30, 0x36, 0x30, 0x10, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a, 0x03, 0x22, 0x00]),
       publicKeyBytes
     ]);
 
-    // Import the public key
-    const publicKey = crypto.createPublicKey({
-      key: spkiDer,
-      format: 'der',
-      type: 'spki',
-    });
-
+    const publicKey = crypto.createPublicKey({ key: spkiDer, format: 'der', type: 'spki' });
     return crypto.verify('sha256', Buffer.from(payload), publicKey, signature);
   } catch (e: unknown) {
     console.error('Signature verification failed:', (e as Error).message);
