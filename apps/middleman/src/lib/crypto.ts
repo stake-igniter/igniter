@@ -1,5 +1,4 @@
 import { createPrivateKey, sign } from 'crypto';
-import { getApplicationSettings } from "@/lib/dal/applicationSettings";
 
 /**
  * Signs the given payload string using secp256k1 and the APP_IDENTITY private key from the environment.
@@ -7,8 +6,6 @@ import { getApplicationSettings } from "@/lib/dal/applicationSettings";
  * @param payload
  */
 export async function signPayload(payload: string) {
-  const appSettings = await getApplicationSettings();
-
   const appIdentity = process.env.APP_IDENTITY;
   if (!appIdentity) {
     throw new Error("APP_IDENTITY environment variable is not defined.");

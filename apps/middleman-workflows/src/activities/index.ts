@@ -1,22 +1,21 @@
 import { heartbeat, sleep } from "@temporalio/activity";
 import { RawTxRequest } from "@pokt-foundation/pocketjs-types";
-import { BlockchainProvider } from "../lib/blockchain";
+import { BlockchainProvider } from "@/lib/blockchain";
 import * as activityDAL from "../lib/dal/activity";
 import * as transactionDAL from "../lib/dal/transaction";
 import * as providerDAL from "../lib/dal/provider";
 import * as nodeDAL from "../lib/dal/node";
 import {
   Activity,
-  Node,
   NewNode,
   Provider,
   ProviderStatus,
   Transaction,
 } from "../lib/db/schema";
 import { addressFromPublicKey } from "./utils";
-import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "@/lib/constants";
-import {getAppIdentity, signPayload} from "@/lib/crypto";
-import {getApplicationSettingsFromDatabase} from "@/lib/dal/applicationSettings";
+import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "../lib/constants";
+import {signPayload} from "../lib/crypto"
+import {getApplicationSettingsFromDatabase} from "../lib/dal/applicationSettings";
 
 export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   async getActivity(activityId: number) {
@@ -27,8 +26,7 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     return activity;
   },
   async listActivities() {
-    const activities = await activityDAL.listActivities();
-    return activities;
+    return await activityDAL.listActivities();
   },
   async updateActivity(activityId: number, payload: Partial<Activity>) {
     const activity = await activityDAL.getActivity(activityId);
@@ -45,8 +43,7 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     return transaction;
   },
   async listProviders() {
-    const providers = await providerDAL.list();
-    return providers;
+    return providerDAL.list();
   },
   async fetchProviderStatus(providers: Provider[]) {
     let identity: string;
@@ -57,6 +54,14 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       identity = applicationSettings?.appIdentity ?? '';
     } catch (error) {
       throw new Error("Unable to load the application settings and determine the identity of the app");
+    }
+
+    try {
+      const signatureBuffer = await signPayload(JSON.stringify({}));
+      signature = signatureBuffer.toString('base64');
+    } catch (error) {
+      console.error(error);
+      throw new Error('Unable to sign the payload.');
     }
 
     const providerStatus = await Promise.allSettled(
@@ -97,7 +102,7 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       })
     );
 
-    const updatedProviders = providerStatus.map((result) => {
+    return providerStatus.map((result) => {
       if (result.status === "fulfilled") {
         return result.value;
       } else {
@@ -106,8 +111,6 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
         };
       }
     });
-
-    return updatedProviders;
   },
   async updateProviders(providers: Provider[]) {
     await providerDAL.updateProviders(providers);
@@ -137,7 +140,7 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     let currentHeight = await blockchainProvider.getBlockNumber();
     while (currentHeight < txHeight + 2) {
       await sleep(5 * 60 * 1000);
-      await heartbeat();
+      heartbeat();
       currentHeight = await blockchainProvider.getBlockNumber();
     }
     return true;
@@ -148,13 +151,6 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
       throw new Error("Transaction data is incomplete or not found");
     }
     return [tx.tx_result, tx.stdTx.msg] as const;
-  },
-  async simulateTransaction(transactionId: number) {
-    await sleep(3 * 60 * 1000);
-    return {
-      transactionId,
-      status: "success",
-    };
   },
   async parseNodesPublicKey(
     nodes: (Omit<NewNode, "address"> & { publicKey: string })[]

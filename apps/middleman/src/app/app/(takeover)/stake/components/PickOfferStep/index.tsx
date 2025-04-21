@@ -39,8 +39,12 @@ export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer, on
         return unavailableOffers.length > 0;
     }, [unavailableOffers])
 
+    const selectableOffers = useMemo(() => {
+        return offers.filter((offer) => offer.stakeDistribution.length > 0);
+    }, [offers]);
+
     useEffect(() => {
-        if (!selectedOffer && offers) {
+        if (!selectedOffer && selectableOffers.length) {
             setSelectedOffer(offers[0]);
         }
     }, [offers, selectedOffer]);
