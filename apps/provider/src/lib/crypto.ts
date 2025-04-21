@@ -23,48 +23,55 @@ export function decrypt(text: string): string {
 }
 
 /**
- * Verifies an Ed25519 signature using the provided public key and payload.
- * @param payload - The original message (string)
- * @param publicKeyStr - The public key in hex or base64 (32-byte raw key)
- * @param signatureStr - The signature in base64 or hex (64-byte raw signature)
- * @param encoding - Optional: 'hex' or 'base64' (default: 'base64')
- * @returns true if the signature is valid, false otherwise
+ * Verifies a secp256k1/ECDSA signature (DER‐encoded) against the given payload.
+ *
+ * @param payload       The original message (string)
+ * @param publicKeyStr  The compressed public key (33‑byte) in base64 or hex
+ * @param signatureStr  The DER‑encoded ECDSA signature in base64 or hex
+ * @param encoding      'hex' or 'base64' (default: 'base64')
+ * @returns             true if the signature is valid, false otherwise
  */
 export function verifySignature(
   payload: string,
   publicKeyStr: string,
   signatureStr: string,
   encoding: BufferEncoding = 'base64'
-) {
+): boolean {
   try {
+    // Decode the public key
     const publicKeyBytes = Buffer.from(publicKeyStr, encoding);
+    // Must be 33 bytes, compressed form (0x02 or 0x03 prefix)
+    if (
+      publicKeyBytes.length !== 33 ||
+      (publicKeyBytes[0] !== 0x02 && publicKeyBytes[0] !== 0x03)
+    ) {
+      throw new Error('Public key must be 33 bytes in compressed secp256k1 format.');
+    }
+
+    // Decode the DER signature
     const signature = Buffer.from(signatureStr, encoding);
-
-    if (publicKeyBytes.length !== 32) {
-      throw new Error('Public key must be 32 bytes');
-    }
-
-    if (signature.length !== 64) {
-      throw new Error('Signature must be 64 bytes');
-    }
 
     const spkiDer = Buffer.concat([
       Buffer.from([
         0x30, 0x2a,
-        0x30, 0x05,
-        0x06, 0x03, 0x2b, 0x65, 0x70,
+        0x30, 0x10,
+        0x06, 0x07,
+        0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
+        0x06, 0x05,
+        0x2b, 0x81, 0x04, 0x00, 0x0a,
         0x03, 0x21, 0x00
       ]),
       publicKeyBytes
     ]);
 
+    // Import the public key
     const publicKey = crypto.createPublicKey({
       key: spkiDer,
       format: 'der',
       type: 'spki',
     });
 
-    return crypto.verify(null, Buffer.from(payload), publicKey, signature);
+    return crypto.verify('sha256', Buffer.from(payload), publicKey, signature);
   } catch (e: unknown) {
     console.error('Signature verification failed:', (e as Error).message);
     return false;

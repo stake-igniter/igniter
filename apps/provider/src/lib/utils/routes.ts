@@ -18,7 +18,7 @@ export interface SignedRequestPayload<TData> {
  * @return {Promise<void | NextResponse>} Resolves to void if the application is bootstrapped,
  * or a NextResponse object with a 403 status if it is not.
  */
-export async function ensureApplicationIsBootstrapped() {
+export async function ensureApplicationIsBootstrapped(): Promise<void | NextResponse> {
   const { isBootstrapped } = await getApplicationSettings();
 
   if (!isBootstrapped) {
