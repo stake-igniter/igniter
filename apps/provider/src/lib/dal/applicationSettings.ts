@@ -4,7 +4,6 @@ import {
   ApplicationSettings,
   applicationSettingsTable,
   ChainId,
-  BlockchainProtocol,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -17,8 +16,7 @@ const defaultSettings: ApplicationSettings = {
   providerFee: "0",
   delegatorRewardsAddress: "",
   isBootstrapped: false,
-  chainId: ChainId.Mainnet,
-  blockchainProtocol: BlockchainProtocol.Morse,
+  chainId: ChainId.Pocket,
   minimumStake: 15000,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -31,7 +29,6 @@ export async function getApplicationSettings(): Promise<ApplicationSettings> {
     chainId: process.env.CHAIN_ID as ChainId,
     ownerIdentity: process.env.OWNER_IDENTITY!,
     ownerEmail: process.env.OWNER_EMAIL!,
-    blockchainProtocol: process.env.BLOCKCHAIN_PROTOCOL as BlockchainProtocol,
   };
 
   return {

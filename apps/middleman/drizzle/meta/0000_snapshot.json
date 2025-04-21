@@ -1,5 +1,5 @@
 {
-  "id": "6293f4c5-670d-431f-9f6c-a53ee991fd21",
+  "id": "c5043459-54ef-4ca8-9071-4f175de1692f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -169,13 +169,6 @@
         "chainId": {
           "name": "chainId",
           "type": "chain_ids",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "blockchainProtocol": {
-          "name": "blockchainProtocol",
-          "type": "blockchain_protocols",
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
@@ -697,20 +690,13 @@
         "Operational Funds"
       ]
     },
-    "public.blockchain_protocols": {
-      "name": "blockchain_protocols",
-      "schema": "public",
-      "values": [
-        "morse",
-        "shannon"
-      ]
-    },
     "public.chain_ids": {
       "name": "chain_ids",
       "schema": "public",
       "values": [
-        "mainnet",
-        "testnet"
+        "pocket",
+        "pocket-beta",
+        "pocket-alpha"
       ]
     },
     "public.node_status": {

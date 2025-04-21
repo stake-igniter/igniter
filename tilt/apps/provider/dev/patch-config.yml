@@ -8,7 +8,7 @@ data:
   APP_URL: "http://localhost:3001"
   AUTH_URL: "http://localhost:3001"
   OWNER_IDENTITY: "CHANGE_THIS"
-  CHAIN_ID: "testnet"
+  CHAIN_ID: "pocket-beta"
   BLOCKCHAIN_PROTOCOL: "morse"
   OWNER_EMAIL: "fake-support@igniter.com"
   TEMPORAL_URL: "temporal-frontend.default.svc.cluster.local:7233"

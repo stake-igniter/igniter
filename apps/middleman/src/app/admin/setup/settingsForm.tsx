@@ -22,7 +22,7 @@ import {
 } from "@igniter/ui/components/select";
 import React, { useMemo, useState } from "react";
 import { upsertSettings } from "@/actions/ApplicationSettings";
-import { ApplicationSettings } from "@/db/schema";
+import {ApplicationSettings, ChainId} from "@/db/schema";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;
@@ -30,17 +30,16 @@ interface FormProps {
 }
 
 export const formSchema = z.object({
-  chainId: z.enum(["mainnet", "testnet"]),
-  blockchainProtocol: z.enum(["morse", "shannon"]),
+  chainId: z.nativeEnum(ChainId),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email(),
   fee: z.coerce
     .number()
-    .min(1, "Middleman fee must be greater than 0")
+    .min(1, "Service fee must be greater than 0")
     .max(100),
   delegatorRewardsAddress: z.string().refine(
-    (value) => value.length === 40,
+    (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
     (val) => ({ message: `${val} is not a valid address` })
   ),
   minimumStake: z.coerce.number().default(15000),
@@ -52,8 +51,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      chainId: defaultValues.chainId || "mainnet",
-      blockchainProtocol: defaultValues.blockchainProtocol || "morse",
+      chainId: defaultValues.chainId || ChainId.Pocket,
       name: defaultValues.name || "",
       supportEmail: defaultValues.supportEmail || "",
       ownerEmail: defaultValues.ownerEmail || "",
@@ -140,34 +138,9 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                       <SelectValue placeholder="Select Chain ID" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="mainnet">Mainnet</SelectItem>
-                      <SelectItem value="testnet">Testnet</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="blockchainProtocol"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Blockchain Protocol</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    disabled={true} // TODO: Change when enabling shannon support
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Blockchain Protocol" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="morse">Morse</SelectItem>
-                      <SelectItem value="shannon">Shannon</SelectItem>
+                      <SelectItem value="pocket">Mainnet</SelectItem>
+                      <SelectItem value="pocket-beta">Beta</SelectItem>
+                      <SelectItem value="pocket-alpha">Alpha</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -198,6 +171,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           <FormField
             name="minimumStake"
             control={form.control}
+            disabled={true}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Minimum Stake</FormLabel>
@@ -211,9 +185,6 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="15000">15000</SelectItem>
-                      <SelectItem value="30000">30000</SelectItem>
-                      <SelectItem value="45000">45000</SelectItem>
-                      <SelectItem value="60000">60000</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>

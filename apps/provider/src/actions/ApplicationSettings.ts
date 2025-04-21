@@ -1,7 +1,6 @@
 "use server";
 
-import { ApplicationSettings } from "@/db/schema";
-import { MINIMUM_STAKE } from "@/lib/constants";
+import {ApplicationSettings, ChainId} from "@/db/schema";
 import {
   getApplicationSettings as fetchApplicationSettings,
   insertApplicationSettings,
@@ -12,8 +11,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const updateSettingsSchema = z.object({
-  chainId: z.enum(["mainnet", "testnet"]),
-  blockchainProtocol: z.enum(["morse", "shannon"]),
+  chainId: z.nativeEnum(ChainId),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   providerFee: z.coerce
@@ -21,10 +19,10 @@ const updateSettingsSchema = z.object({
     .min(1, "Provider fee must be greater than 0")
     .max(100),
   delegatorRewardsAddress: z.string().refine(
-    (value) => value.length === 40,
+    (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
     (val) => ({ message: `${val} is not a valid address` })
   ),
-  minimumStake: z.number().min(MINIMUM_STAKE, "Minimum stake is required"),
+  minimumStake: z.number().min(15000, "Minimum stake is required").default(15000),
 });
 
 export async function getApplicationSettings() {

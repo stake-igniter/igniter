@@ -1,9 +1,10 @@
 import NextAuth, { type NextAuthResult } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { SiwpMessage } from "@poktscan/vault-siwp";
+
 import {createUser, getUser} from "./lib/dal/users";
 import authConfig from "./auth.config";
 import {User} from "@/db/schema";
+import {SiwpMessage} from "@poktscan/vault-siwp";
 
 const authConfigResult = NextAuth({
   ...authConfig,
@@ -32,11 +33,17 @@ const authConfigResult = NextAuth({
       // @ts-ignore
       authorize: async (credentials, req): Promise<User | null> => {
         try {
+          console.log(credentials?.message);
           const siwp = new SiwpMessage(
             JSON.parse((credentials?.message || "{}") as string)
           );
 
           const nextAuthUrl = new URL(process.env.AUTH_URL ?? "");
+
+          console.log('Verifying signature with:');
+          console.log('Signature:', credentials?.signature);
+          console.log('Domain:', nextAuthUrl.host);
+          console.log('Public Key:', credentials?.publicKey);
 
           const result = await siwp.verify({
             signature: (credentials?.signature as string) || "",

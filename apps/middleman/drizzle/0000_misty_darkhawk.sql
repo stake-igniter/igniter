@@ -1,7 +1,6 @@
 CREATE TYPE "public"."activity_status" AS ENUM('pending', 'success', 'failure', 'in_progress');--> statement-breakpoint
 CREATE TYPE "public"."activity_type" AS ENUM('Stake', 'Unstake', 'Upstake', 'Operational Funds');--> statement-breakpoint
-CREATE TYPE "public"."blockchain_protocols" AS ENUM('morse', 'shannon');--> statement-breakpoint
-CREATE TYPE "public"."chain_ids" AS ENUM('mainnet', 'testnet');--> statement-breakpoint
+CREATE TYPE "public"."chain_ids" AS ENUM('pocket', 'pocket-beta', 'pocket-alpha');--> statement-breakpoint
 CREATE TYPE "public"."node_status" AS ENUM('staked', 'staking', 'unstaked', 'unstaking');--> statement-breakpoint
 CREATE TYPE "public"."provider_status" AS ENUM('healthy', 'unhealthy', 'unknown', 'unreachable');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'user', 'owner');--> statement-breakpoint
@@ -29,7 +28,6 @@ CREATE TABLE "application_settings" (
 	"minimumStake" integer DEFAULT 15000 NOT NULL,
 	"isBootstrapped" boolean NOT NULL,
 	"chainId" "chain_ids" NOT NULL,
-	"blockchainProtocol" "blockchain_protocols" NOT NULL,
 	"delegatorRewardsAddress" varchar(255) NOT NULL,
 	"privacyPolicy" text,
 	"createdAt" timestamp DEFAULT now(),

@@ -31,7 +31,7 @@ importers:
         version: link:../../packages/ui
       '@poktscan/vault-siwp':
         specifier: github:trustsoothe/vault-siwp#shannon
-        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1d205862a8639c490ad180e4c1f93e93c77198c3
+        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76
       '@radix-ui/react-slot':
         specifier: 1.1.1
         version: 1.1.1(@types/react@19.0.8)(react@19.0.0)
@@ -210,7 +210,7 @@ importers:
         version: link:../../packages/ui
       '@poktscan/vault-siwp':
         specifier: github:trustsoothe/vault-siwp#shannon
-        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1d205862a8639c490ad180e4c1f93e93c77198c3
+        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76
       '@stepperize/react':
         specifier: 5.0.1
         version: 5.0.1(react@19.0.0)
@@ -2160,8 +2160,8 @@ packages:
     resolution: {integrity: sha512-fw/a/4RldtN11PaF2lcatFB7PrZd2MeYlPh/sCs97JaMkvhv56R79rei/UVgTiwWoPWKIWwdbAhLwhUKqGkeVg==}
     engines: {node: '>=10'}
 
-  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1d205862a8639c490ad180e4c1f93e93c77198c3':
-    resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1d205862a8639c490ad180e4c1f93e93c77198c3}
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76':
+    resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76}
     version: 0.0.1
 
   '@protobufjs/aspromise@1.1.2':
@@ -9763,7 +9763,7 @@ snapshots:
       '@tendermint/belt': 0.2.1
       '@tendermint/types': 0.1.1
 
-  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1d205862a8639c490ad180e4c1f93e93c77198c3':
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76':
     dependencies:
       '@cosmjs/encoding': 0.33.1
       '@noble/curves': 1.8.1

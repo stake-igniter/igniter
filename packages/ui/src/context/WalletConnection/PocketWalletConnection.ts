@@ -24,7 +24,7 @@ export enum PocketNetworkTransactionTypes {
   Send = "send",
 }
 
-export class MorseWalletConnection implements WalletConnection {
+export class PocketWalletConnection implements WalletConnection {
   isConnected: boolean;
   connectedIdentity?: string | undefined;
   private _provider?: Provider;
@@ -34,7 +34,7 @@ export class MorseWalletConnection implements WalletConnection {
   }
 
   connect = async (provider?: Provider): Promise<void> => {
-    this._provider = provider ?? window.pocketNetwork;
+    this._provider = provider ?? window.pocketShannon;
     try {
       const [connectedIdentity] = await this.provider.send(
         PocketMethod.REQUEST_ACCOUNTS
@@ -103,6 +103,7 @@ export class MorseWalletConnection implements WalletConnection {
   }
 
   switchChain = async (chainId: string): Promise<void> => {
+    console.log('debug: switching chain to', chainId);
     try {
       await this.provider.send(
         PocketMethod.SWITCH_CHAIN,
@@ -138,12 +139,12 @@ export class MorseWalletConnection implements WalletConnection {
         }
       };
 
-      window.addEventListener("pocket:announceProvider", handleProviderAnnouncement);
+      window.addEventListener("pocket_shannon:announceProvider", handleProviderAnnouncement);
 
-      window.dispatchEvent(new Event("pocket:requestProvider"));
+      window.dispatchEvent(new Event("pocket_shannon:requestProvider"));
 
       setTimeout(() => {
-        window.removeEventListener("pocket:announceProvider", handleProviderAnnouncement);
+        window.removeEventListener("pocket_shannon:announceProvider", handleProviderAnnouncement);
         resolve(detectedProviders);
       }, 500);
     });
@@ -214,6 +215,6 @@ export class MorseWalletConnection implements WalletConnection {
   }
 
   get provider() {
-    return this._provider ?? window.pocketNetwork;
+    return this._provider ?? window.pocketShannon;
   }
 }

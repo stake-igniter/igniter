@@ -1,6 +1,6 @@
 "use server";
 
-import { ApplicationSettings } from "@/db/schema";
+import {ApplicationSettings, ChainId} from "@/db/schema";
 import {
   getApplicationSettings as fetchApplicationSettings,
   insertApplicationSettings,
@@ -11,8 +11,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const updateSettingsSchema = z.object({
-  chainId: z.enum(["mainnet", "testnet"]),
-  blockchainProtocol: z.enum(["morse", "shannon"]),
+  chainId: z.nativeEnum(ChainId),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email(),
