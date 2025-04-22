@@ -1,6 +1,5 @@
 import {
   createKeyPair,
-  addressFromPublicKey,
   insertAddresses,
 } from "../dal/addresses";
 import { Address, KeyManagementStrategyType } from "@/db/schema";
@@ -22,10 +21,10 @@ export class DynamicKeyManagementStrategy implements IKeyManagementStrategy {
     const addresses = [];
 
     for (let i = 0; i < amount; i++) {
-      const { public_key, private_key } = await createKeyPair();
-      const address = addressFromPublicKey(Buffer.from(public_key, "hex"));
+      const { public_key, private_key, address } = await createKeyPair();
       addresses.push({
         address,
+        origin: KeyManagementStrategyType.Dynamic,
         publicKey: public_key,
         privateKey: private_key,
         addressGroupId: this.addressGroupAssignmentId,

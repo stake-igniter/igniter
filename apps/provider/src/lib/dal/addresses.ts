@@ -1,14 +1,16 @@
 import { db } from "@/db";
-import {Address, addressesTable, AddressGroup, CreateAddress} from "@/db/schema";
+import {addressesTable, AddressGroup, CreateAddress} from "@/db/schema";
 import { sha256 } from "js-sha256";
-import Sodium from "libsodium-wrappers";
 import { getActiveKeyManagementStrategy } from "./keyManagementStrategies";
 import { getAddressGroupsByIdentity } from "./addressGroups";
 import { KeyManagementStrategyFactory } from "../keyStrategies";
+import { Random } from '@cosmjs/crypto';
+import {DirectSecp256k1Wallet} from "@cosmjs/proto-signing";
 
 export interface KeyPair {
   public_key: string;
   private_key: string;
+  address: string;
 }
 
 export interface NodeStakeDistributionItem {
@@ -17,18 +19,18 @@ export interface NodeStakeDistributionItem {
 }
 
 export async function createKeyPair(): Promise<KeyPair> {
-  await Sodium.ready;
-  const keypair = Sodium.crypto_sign_keypair();
-  const private_key = Buffer.from(keypair.privateKey).toString("hex");
-  const public_key = Buffer.from(keypair.publicKey).toString("hex");
+  const privateKey = await Random.getBytes(32);
+  const wallet = await DirectSecp256k1Wallet.fromKey(privateKey, 'pokt')
+  const [account] = await wallet.getAccounts()
+  if (account) {
+    return {
+      public_key: Buffer.from(account.pubkey).toString('hex'),
+      private_key: Buffer.from(privateKey).toString('hex'),
+      address: account.address,
+    }
+  }
 
-  return { public_key, private_key };
-}
-
-export function addressFromPublicKey(publicKey: Buffer): string {
-  const hash = sha256.create();
-  hash.update(publicKey);
-  return Buffer.from(hash.hex(), "hex").slice(0, 20).toString("hex");
+  throw new Error('Failed to create key pair')
 }
 
 export async function insertAddresses(addresses: CreateAddress[]) {
