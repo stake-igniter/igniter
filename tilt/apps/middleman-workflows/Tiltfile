@@ -7,6 +7,7 @@ custom_build(
     live_update=[
       sync('../../../apps/middleman-workflows', '/app/apps/middleman-workflows'),
       sync('../../../packages', '/app/packages'),
+      run('pnpm run build', trigger=['../../../apps/middleman-workflows', '../../../packages']),
     ]
 )
 

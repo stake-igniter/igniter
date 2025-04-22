@@ -29,6 +29,8 @@ export async function setupTemporalWorker() {
 
   const blockchainProvider = setupPoktProvider(BLOCKCHAIN_PROTOCOL);
 
+  const shutdownGraceTime = 2500;
+
   const worker = await Worker.create({
     connection,
     namespace: NAMESPACE,
@@ -36,7 +38,17 @@ export async function setupTemporalWorker() {
     // Workflows are registered using a path as they run in a separate JS context.
     workflowsPath: require.resolve("./workflows"),
     activities: createActivities(blockchainProvider),
+    shutdownGraceTime,
   });
+
+  process.on("SIGHUP", function () {
+    console.log("Received SIGHUP, shutting down gracefully...");
+    worker.shutdown();
+    setTimeout(() => {
+      console.log("Forcefully shutting down...");
+      process.kill(process.pid, "SIGTERM");
+    }, shutdownGraceTime);
+  })
 
   // Step 3: Start accepting tasks on the `background-check` queue
   //
