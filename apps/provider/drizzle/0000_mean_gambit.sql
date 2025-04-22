@@ -16,7 +16,7 @@ CREATE TABLE "address_groups" (
 CREATE TABLE "addresses" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "addresses_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"address" varchar(255) NOT NULL,
-	"publicKey" varchar(64) NOT NULL,
+	"publicKey" varchar(66) NOT NULL,
 	"privateKey" text NOT NULL,
 	"origin" "key_management_strategy_types" NOT NULL,
 	"state" "address_states" DEFAULT 'available' NOT NULL,

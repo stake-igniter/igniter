@@ -1,5 +1,5 @@
 {
-  "id": "b41535f3-fadc-4cd1-81d1-4cba864175df",
+  "id": "a5a62b45-7ee5-4e1a-af68-8673ccc238de",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -109,7 +109,7 @@
         },
         "publicKey": {
           "name": "publicKey",
-          "type": "varchar(64)",
+          "type": "varchar(66)",
           "primaryKey": false,
           "notNull": true
         },
