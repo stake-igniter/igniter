@@ -13,7 +13,11 @@ export async function createAddressGroup(addressGroup: AddressGroup) {
 }
 
 export async function getAddressGroups(): Promise<AddressGroup[]> {
-  return db.query.addressGroupTable.findMany();
+  return db.query.addressGroupTable.findMany({
+    with: {
+      services: true,
+    }
+  });
 }
 
 export async function getAddressGroupsByIdentity(identity: string) {

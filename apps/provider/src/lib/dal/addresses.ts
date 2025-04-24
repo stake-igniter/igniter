@@ -6,6 +6,7 @@ import { getAddressGroupsByIdentity } from "./addressGroups";
 import { KeyManagementStrategyFactory } from "../keyStrategies";
 import { Random } from '@cosmjs/crypto';
 import {DirectSecp256k1Wallet} from "@cosmjs/proto-signing";
+import {Supplier} from "@/lib/models/supplier";
 
 export interface KeyPair {
   public_key: string;
@@ -37,9 +38,9 @@ export async function insertAddresses(addresses: CreateAddress[]) {
   return db.insert(addressesTable).values(addresses).returning();
 }
 
-export async function getFinalStakeAddresses(
+export async function getSupplierStakeConfigurations(
   stakeDistribution: NodeStakeDistributionItem[],
-) {
+): Promise<Supplier[]> {
   const keyManagementStrategies = await getActiveKeyManagementStrategy();
 
   const neededAddresses = stakeDistribution.reduce(
@@ -73,27 +74,26 @@ export async function getFinalStakeAddresses(
     );
   }
 
-  const nodes = stakeDistribution.flatMap(({ amount, qty }) =>
+  return stakeDistribution.flatMap(({ amount, qty }) =>
     Array.from({ length: qty }, (_, i) => ({
-      address: addresses[i]?.address ?? "",
-      publicKey: addresses[i]?.publicKey ?? "",
-      bin: amount,
-      addressGroup: addresses[i]?.addressGroup,
+      operatorAddress: addresses[i]?.address ?? "",
+      stake: amount.toString(),
+      services: [],
     }))
   );
 
-  return nodes.map((node) => {
-    const serviceUrl = node?.addressGroup?.pattern
-      .replace("{{domain}}", node?.addressGroup?.domain)
-      .replace("{{identity}}", node?.addressGroup?.identity)
-      .replace("{{address}}", node.address);
-
-    return {
-      address: node.address,
-      publicKey: node.publicKey,
-      amount: node.bin,
-      chains: node?.addressGroup?.defaultChains,
-      serviceUrl,
-    };
-  });
+  // return suppliers.map((node) => {
+  //   const serviceUrl = node?.addressGroup?.pattern
+  //     .replace("{{domain}}", node?.addressGroup?.domain)
+  //     .replace("{{identity}}", node?.addressGroup?.identity)
+  //     .replace("{{address}}", node.address);
+  //
+  //   return {
+  //     address: node.address,
+  //     publicKey: node.publicKey,
+  //     amount: node.bin,
+  //     chains: node?.addressGroup?.defaultChains,
+  //     serviceUrl,
+  //   };
+  // });
 }

@@ -3,6 +3,11 @@ import { getApplicationSettings } from "@/lib/dal/applicationSettings";
 import { getAddressGroups } from "@/lib/dal/addressGroups";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
+import {AddressGroup} from "@/db/schema";
+
+function getUniqueRegions(addressGroups: AddressGroup[]) {
+  return Array.from(new Set(addressGroups.map((group) => group.region)).values());
+}
 
 export async function POST(request: Request) {
   try {
@@ -21,15 +26,15 @@ export async function POST(request: Request) {
     const applicationSettings = await getApplicationSettings();
     const addressGroups = await getAddressGroups();
 
-    //TODO: needs to check if shannon or morse
     const minimumStake = applicationSettings.minimumStake;
 
     const response: StatusResponse = {
       minimumStake: minimumStake,
       providerFee: applicationSettings.providerFee,
-      domains: addressGroups.map((group) => group.domain),
+      regions: getUniqueRegions(addressGroups),
+      domains: [], // TODO: extract unique domains from the services endpoints.
       delegatorRewardsAddress: applicationSettings.delegatorRewardsAddress,
-      healthy: true, //TODO: check if all services are healthy, for future
+      healthy: true,
     };
 
     return NextResponse.json(response);
