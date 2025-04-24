@@ -3,6 +3,7 @@ import { getApplicationSettings } from "@/lib/dal/applicationSettings";
 import { getDelegatorByIdentity } from "@/lib/dal/delegators";
 import { verifySignature } from "@/lib/crypto";
 import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "@/lib/constants";
+import {APIResponse} from "@/lib/models/response";
 
 export interface SignedRequestPayload<TData> {
   delegator: ReturnType<typeof getDelegatorByIdentity> extends Promise<infer T> ? T : unknown;
@@ -18,7 +19,7 @@ export interface SignedRequestPayload<TData> {
  * @return {Promise<void | NextResponse>} Resolves to void if the application is bootstrapped,
  * or a NextResponse object with a 403 status if it is not.
  */
-export async function ensureApplicationIsBootstrapped(): Promise<void | NextResponse> {
+export async function ensureApplicationIsBootstrapped(): Promise<void | NextResponse<APIResponse>> {
   const { isBootstrapped } = await getApplicationSettings();
 
   if (!isBootstrapped) {
@@ -41,7 +42,7 @@ export async function ensureApplicationIsBootstrapped(): Promise<void | NextResp
  * If something is wrong, this function returns an error response;
  * otherwise it returns the allowed delegator and the parsed JSON data.
  */
-export async function validateRequestSignature<TData>(request: Request): Promise<SignedRequestPayload<TData> | NextResponse> {
+export async function validateRequestSignature<TData>(request: Request): Promise<SignedRequestPayload<TData> | NextResponse<APIResponse>> {
   const delegatorIdentity = request.headers.get(REQUEST_IDENTITY_HEADER);
 
   if (!delegatorIdentity) {
