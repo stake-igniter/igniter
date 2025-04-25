@@ -1,9 +1,11 @@
 import {NextResponse} from "next/server";
 import {
-  getFinalStakeAddresses,
+  getSupplierStakeConfigurations,
   NodeStakeDistributionItem,
 } from "@/lib/dal/addresses";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
+import {Supplier} from "@/lib/models/supplier";
+import {APIResponse} from "@/lib/models/response";
 
 export async function OPTIONS() {
   return NextResponse.json({}, {
@@ -16,7 +18,7 @@ export async function OPTIONS() {
   });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<NextResponse<APIResponse<Supplier[] | null>>> {
   try {
     const isBootstrappedResponse = await ensureApplicationIsBootstrapped();
 
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json({error: "Invalid request. Empty node stake distribution."}, {status: 400});
     }
 
-    const response = await getFinalStakeAddresses(data);
+    const response = await getSupplierStakeConfigurations(data);
 
     if (!response || response.length === 0) {
       return NextResponse.json(
@@ -50,7 +52,9 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json(response, {
+    return NextResponse.json({
+      data: response,
+    }, {
       headers: {
         "Access-Control-Allow-Origin": "*",
       }
