@@ -5,31 +5,35 @@ import React from "react";
 import { cn } from "@igniter/ui/lib/utils";
 import { ApplicationSettings } from "@/db/schema";
 import { completeSetup } from "@/actions/ApplicationSettings";
-import ApplicationSettingsForm from "./settingsForm";
-import StakeSettingsForm from "./stakeForm";
-import { ChainMap } from "@/lib/supportedChains";
+import ConfigureAppSettings from "./ConfigureAppSettings";
+import ConfigureAddressGroup from "./ConfigureAddressGroup";
+import ConfigureServices from "@/app/admin/setup/ConfigureServices";
 
 interface StepperProps {
   settings: Partial<ApplicationSettings>;
-  chainMap: ChainMap;
 }
 
 const { useStepper, steps, utils } = defineStepper(
   {
     id: "application-settings",
-    title: "Application Settings",
+    title: "General Settings",
   },
   {
-    id: "configure-stake",
-    title: "Configure Stake Settings",
+    id: "services",
+    title: "Select Provided Services"
+  },
+  {
+    id: "address-group",
+    title: "Address Group",
   },
   {
     id: "complete-bootstrap",
-    title: "Complete",
+    title: "Finish",
   }
 );
 
-const ApplicationSettingsComponent: React.FC<{
+
+const ConfigureAppSettingsStep: React.FC<{
   settings: Partial<ApplicationSettings>;
   goNext: () => void;
 }> = ({ settings, goNext }) => {
@@ -37,20 +41,35 @@ const ApplicationSettingsComponent: React.FC<{
     <div className="grid gap-4">
       <div className="grid gap-2">
         <h4>Fill out your system settings:</h4>
-        <ApplicationSettingsForm defaultValues={settings} goNext={goNext} />
+        <ConfigureAppSettings defaultValues={settings} goNext={goNext} />
       </div>
     </div>
   );
 };
 
-const StakeSettingsComponent: React.FC<{
+const ConfigureServicesStep: React.FC<{
   goNext: () => void;
-  chainMap: ChainMap;
-}> = ({ goNext, chainMap }) => {
+  goBack: () => void;
+}> = ({ goNext, goBack }) => {
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <StakeSettingsForm goNext={goNext} chainMap={chainMap} />
+        <ConfigureServices
+          goNext={goNext}
+          goBack={goBack}
+        />
+      </div>
+    </div>
+  );
+};
+
+const ConfigureAddressGroupStep: React.FC<{
+  goNext: () => void;
+}> = ({ goNext }) => {
+  return (
+    <div className="grid gap-4">
+      <div className="grid gap-2">
+        <ConfigureAddressGroup goNext={goNext} />
       </div>
     </div>
   );
@@ -60,7 +79,7 @@ const BootstrapCompleteComponent = () => {
   return <h3 className="text-lg py-4">System Bootstrap complete!</h3>;
 };
 
-export const Stepper: React.FC<StepperProps> = ({ settings, chainMap }) => {
+export const Stepper: React.FC<StepperProps> = ({ settings }) => {
   const stepper = useStepper();
 
   const currentIndex = utils.getIndex(stepper.current.id);
@@ -117,15 +136,20 @@ export const Stepper: React.FC<StepperProps> = ({ settings, chainMap }) => {
         <div className="space-y-5">
           {stepper.switch({
             "application-settings": () => (
-              <ApplicationSettingsComponent
+              <ConfigureAppSettingsStep
                 settings={settings}
                 goNext={stepper.next}
               />
             ),
-            "configure-stake": () => (
-              <StakeSettingsComponent
+            "services": () => (
+              <ConfigureServicesStep
                 goNext={stepper.next}
-                chainMap={chainMap}
+                goBack={stepper.prev}
+              />
+            ),
+            "address-group": () => (
+              <ConfigureAddressGroupStep
+                goNext={stepper.next}
               />
             ),
             "complete-bootstrap": () => <BootstrapCompleteComponent />,

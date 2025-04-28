@@ -1,5 +1,5 @@
 {
-  "id": "5abfbc4f-44e1-4b4d-88c4-b6583e8ac741",
+  "id": "bf2cfee7-718d-4658-afa0-314a3a95f3fd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -682,7 +682,7 @@
       "checkConstraints": {
         "check_endpoints_not_empty": {
           "name": "check_endpoints_not_empty",
-          "value": "jsonb_array_length(endpoints) > 0"
+          "value": "json_array_length(endpoints) > 0"
         }
       },
       "isRLSEnabled": false

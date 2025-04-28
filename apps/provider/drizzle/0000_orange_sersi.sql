@@ -92,7 +92,7 @@ CREATE TABLE "services" (
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now(),
 	CONSTRAINT "services_serviceId_unique" UNIQUE("serviceId"),
-	CONSTRAINT "check_endpoints_not_empty" CHECK (jsonb_array_length(endpoints) > 0)
+	CONSTRAINT "check_endpoints_not_empty" CHECK (json_array_length(endpoints) > 0)
 );
 --> statement-breakpoint
 CREATE TABLE "users" (

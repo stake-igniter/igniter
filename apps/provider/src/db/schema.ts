@@ -228,7 +228,7 @@ export const servicesTable = pgTable("services",
     return [
      check(
         "check_endpoints_not_empty",
-        sql`jsonb_array_length(endpoints) > 0`
+        sql`json_array_length(endpoints) > 0`
       ),
     ];
   }
