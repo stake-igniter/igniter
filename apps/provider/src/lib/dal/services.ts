@@ -22,10 +22,11 @@ export async function list(serviceIds: string[] = []): Promise<Service[]> {
     return db
       .select()
       .from(servicesTable)
-      .where(sql`${servicesTable.serviceId} IN ${serviceIds}`);
+      .where(sql`${servicesTable.serviceId} IN ${serviceIds}`)
+      .orderBy(servicesTable.name);
   }
 
-  return db.select().from(servicesTable);
+  return db.select().from(servicesTable).orderBy(servicesTable.name);
 }
 
 export async function remove(sId: string): Promise<Service> {
@@ -39,4 +40,22 @@ export async function remove(sId: string): Promise<Service> {
   }
 
   return deletedService;
+}
+
+export async function update(
+  serviceId: string,
+  serviceUpdates: Pick<Service, 'revSharePercentage' | 'endpoints'>,
+): Promise<Service> {
+
+  const [updatedService] = await db
+    .update(servicesTable)
+    .set(serviceUpdates)
+    .where(sql`${servicesTable.serviceId} = ${serviceId}`)
+    .returning();
+
+  if (!updatedService) {
+    throw new Error("Failed to update the service");
+  }
+
+  return updatedService;
 }

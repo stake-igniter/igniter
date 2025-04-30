@@ -22,7 +22,8 @@ import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {LoaderIcon} from "@igniter/ui/assets";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import urlJoin from "url-join";
-import {CreateService} from "@/actions/Services";
+import {CreateService, UpdateService} from "@/actions/Services";
+import {Service} from "@/db/schema";
 
 interface ServiceOnChain {
   serviceId: string;
@@ -44,6 +45,7 @@ const CreateServiceFormSchema = z.object({
 
 export interface AddServiceDialogProps {
   onClose: (shouldRefreshServices: boolean) => void;
+  service?: Pick<Service, 'serviceId' | 'name' | 'endpoints' | 'revSharePercentage'>;
 }
 
 interface ServiceResponse {
@@ -55,18 +57,21 @@ interface ServiceResponse {
   }
 }
 
-export function AddServiceDialog({
+export function AddOrUpdateServiceDialog({
                                              onClose,
+                                             service,
                                            }: Readonly<AddServiceDialogProps>) {
-  const [endpoints, setEndpoints] = useState<{ url: string; rpcType: RPCType }[]>([
-    { url: "", rpcType: RPCType.UNKNOWN_RPC }
-  ]);
+  const [endpoints, setEndpoints] = useState<{ url: string; rpcType: RPCType }[]>(
+    service?.endpoints ?? [{ url: "", rpcType: RPCType.UNKNOWN_RPC }]
+  );
+
   const [serviceOnChain, setServiceOnChain] = useState<ServiceOnChain | null>(null);
   const [isLoadingService, setIsLoadingService] = useState(false);
   const serviceIdInputRef = useRef<HTMLInputElement>(null);
   const [hasLoadServiceError, setHasLoadServiceError] = useState(false);
   const [isCancelling, setIsCanceling] = useState(false);
   const [isCreatingService, setIsCreatingService] = useState(false);
+  const [isUpdatingService, setIsUpdatingService] = useState(false);
   const settings = useApplicationSettings();
 
   const SERVICE_BY_ID_URL = useMemo(() => {
@@ -88,14 +93,13 @@ export function AddServiceDialog({
   const form = useForm<z.infer<typeof CreateServiceFormSchema>>({
     resolver: zodResolver(CreateServiceFormSchema),
     defaultValues: {
-      serviceId: "",
-      revSharePercentage: null,
-      endpoints: []
+      serviceId: service?.serviceId || "",
+      revSharePercentage: service?.revSharePercentage || null,
+      endpoints: service?.endpoints ?? [{ url: "", rpcType: RPCType.UNKNOWN_RPC }],
     },
   });
 
   const serviceId = form.watch('serviceId');
-
 
   useEffect(() => {
     // TODO: change to use react-query
@@ -162,26 +166,39 @@ export function AddServiceDialog({
     }
   };
 
-  const handleSubmit = async (values: z.infer<typeof CreateServiceFormSchema>) => {
-    console.log(values);
-
-    setIsCreatingService(true);
-    try {
-      await CreateService({
-        serviceId: values.serviceId,
-        name: serviceOnChain?.name ?? 'Unknown Service',
-        ownerAddress: serviceOnChain?.ownerAddress ?? '',
-        computeUnits: serviceOnChain?.computeUnits ?? 1,
-        revSharePercentage: values.revSharePercentage,
-        endpoints: values.endpoints.slice(),
-      });
-      onClose(true);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsCreatingService(false);
+  async function onSubmit(values: z.infer<typeof CreateServiceFormSchema>) {
+    if (service) {
+      setIsUpdatingService(true);
+      try {
+        await UpdateService(service.serviceId, {
+          revSharePercentage: values.revSharePercentage,
+          endpoints: values.endpoints.slice(),
+        });
+        onClose(true);
+      } catch (e) {
+        console.error("Failed to update service", e);
+      } finally {
+        setIsUpdatingService(false);
+      }
+    } else {
+      setIsCreatingService(true);
+      try {
+        await CreateService({
+          serviceId: values.serviceId,
+          name: serviceOnChain?.name ?? 'Unknown Service',
+          ownerAddress: serviceOnChain?.ownerAddress ?? '',
+          computeUnits: serviceOnChain?.computeUnits ?? 1,
+          revSharePercentage: values.revSharePercentage,
+          endpoints: values.endpoints.slice(),
+        });
+        onClose(true);
+      } catch (e) {
+        console.error("Failed to create service", e);
+      } finally {
+        setIsCreatingService(false);
+      }
     }
-  };
+  }
 
   return (
     <Dialog
@@ -195,7 +212,7 @@ export function AddServiceDialog({
         <DialogTitle asChild>
           <div className="flex flex-row justify-between items-center py-4 px-4">
             <span className="text-[14px]">
-              Add New Service
+              {service ? `Update Service: ${service.name}` : "Add New Service"}
             </span>
           </div>
         </DialogTitle>
@@ -203,7 +220,7 @@ export function AddServiceDialog({
 
         <div className="px-4 py-3 min-h-[384px]">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
 
               <div className="grid grid-cols-24 gap-1">
                 <div className={`${serviceOnChain ? 'col-span-10' : 'col-span-24'} flex flex-col gap-4 px-2`}>
@@ -215,7 +232,7 @@ export function AddServiceDialog({
                         <FormLabel>Service ID</FormLabel>
                         <FormControl>
                           <Input
-                            disabled={isLoadingService}
+                            disabled={isLoadingService || !!service}
                             {...field}
                             ref={(e) => {
                               field.ref(e);
@@ -372,10 +389,10 @@ export function AddServiceDialog({
             Cancel
           </Button>
           <Button
-            onClick={form.handleSubmit(handleSubmit)}
-            disabled={isCreatingService || !serviceOnChain}
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={isCreatingService || isUpdatingService || !serviceOnChain}
           >
-            Save Service
+            {service ? "Update Service" : "Add Service"}
           </Button>
         </DialogFooter>
         {isCancelling && (

@@ -22,7 +22,7 @@ export const columns: ColumnDef<Service>[] = [
   },
   {
     accessorKey: "endpoints",
-    header: "Endpoints",
+    header: "Protocols",
     cell: ({ row }) => {
       const endpoints = row.getValue("endpoints") as Service["endpoints"];
 
@@ -31,15 +31,10 @@ export const columns: ColumnDef<Service>[] = [
       }
 
       return (
-        <div className="flex flex-col gap-2">
+        <div className="flex gap-2">
           {endpoints.map((endpoint, index) => (
-            <div key={index} className="flex flex-wrap gap-2">
-              <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                {endpoint.rpcType}
-              </div>
-              <div className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full truncate max-w-[200px]" title={endpoint.url}>
-                {endpoint.url}
-              </div>
+            <div key={`protocol-${endpoint.rpcType}-${index}`} title={endpoint.url} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full cursor-pointer">
+              {endpoint.rpcType}
             </div>
           ))}
         </div>
