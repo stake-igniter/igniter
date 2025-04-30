@@ -8,6 +8,7 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {DataTable} from "./DataTable";
 import {columns} from "./Columns";
 import {AddOrUpdateServiceDialog} from "./AddOrUpdateServiceDialog";
+import {LoaderIcon} from "@igniter/ui/assets";
 
 export interface ConfigureServicesProp {
   goNext: () => void;
@@ -56,11 +57,16 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
       )
     : (
         <div className="flex justify-center items-center w-full h-full">
-          <Button
-            onClick={() => setIsAddingService(true) }
+          {!isLoading && (
+            <Button
+              onClick={() => setIsAddingService(true) }
             >
-            Add your first service
-          </Button>
+              Add your first service
+            </Button>
+          )}
+          {isLoading && (
+            <LoaderIcon className="animate-spin" />
+          )}
         </div>
       );
 
@@ -121,7 +127,7 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
           service={updateService}
         />
       )}
-      <div className="py-2 max-h-[500px] overflow-y-scroll">
+      <div className="py-2 max-h-[500px] min-h-[300px] overflow-y-scroll">
         {content}
       </div>
       <div className="flex justify-end gap-4">

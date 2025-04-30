@@ -75,12 +75,12 @@ export function AddOrUpdateServiceDialog({
   const settings = useApplicationSettings();
 
   const SERVICE_BY_ID_URL = useMemo(() => {
-    if (settings?.rpc) {
-      return urlJoin(settings?.rpc, '/pokt-network/poktroll/service/service/{service-id}');
+    if (settings?.rpcUrl) {
+      return urlJoin(settings?.rpcUrl, '/pokt-network/poktroll/service/service/{service-id}');
     }
 
     return '';
-  }, [settings?.rpc]);
+  }, [settings?.rpcUrl]);
 
   const handleCancel = useCallback(() => {
     if (serviceOnChain) {

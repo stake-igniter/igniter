@@ -46,15 +46,7 @@ CREATE TABLE "application_settings" (
 	"chainId" "chain_ids" NOT NULL,
 	"minimumStake" integer NOT NULL,
 	"isBootstrapped" boolean NOT NULL,
-	"rpc" varchar NOT NULL,
-	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now()
-);
---> statement-breakpoint
-CREATE TABLE "chains" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "chains_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"name" varchar(255),
-	"chainId" varchar(255) NOT NULL,
+	"rpcUrl" varchar NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now()
 );
