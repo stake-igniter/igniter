@@ -23,52 +23,14 @@ const { useStepper, steps, utils } = defineStepper(
     title: "Select Provided Services"
   },
   {
-    id: "address-group",
-    title: "Address Group",
+    id: "address-groups",
+    title: "Address Groups",
   },
   {
     id: "complete-bootstrap",
     title: "Finish",
   }
 );
-
-
-const ConfigureAppSettingsStep: React.FC<{
-  settings: Partial<ApplicationSettings>;
-  goNext: () => void;
-}> = ({ settings, goNext }) => {
-  return (
-    <div className="grid gap-4">
-      <div className="grid gap-2">
-        <ConfigureAppSettings defaultValues={settings} goNext={goNext} />
-      </div>
-    </div>
-  );
-};
-
-const ConfigureServicesStep: React.FC<{
-  goNext: () => void;
-  goBack: () => void;
-}> = ({ goNext, goBack }) => {
-  return (
-    <div className="grid gap-4">
-      <div className="grid gap-2">
-
-      </div>
-    </div>
-  );
-};
-
-const ConfigureAddressGroupStep: React.FC<{
-  goNext: () => void;
-}> = ({ goNext }) => {
-  return (
-    <div className="grid gap-4">
-      <div className="grid gap-2">
-      </div>
-    </div>
-  );
-};
 
 const BootstrapCompleteComponent = () => {
   return <h3 className="text-lg py-4">System Bootstrap complete!</h3>;
@@ -139,7 +101,7 @@ export const Stepper: React.FC<StepperProps> = ({ settings }) => {
                 goBack={stepper.prev}
               />
             ),
-            "address-group": () => (
+            "address-groups": () => (
               <ConfigureAddressGroup
                 goNext={stepper.next}
                 goBack={stepper.prev}
