@@ -417,8 +417,14 @@ export function AddOrUpdateServiceDialog({
         )}
         {isCreatingService && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-background animate-fade-in z-10">
-            <LoaderIcon className="h-8 w-8 animate-spin" />
+            <LoaderIcon className="animate-spin" />
             <p className="mt-4">Adding &#34;{serviceOnChain?.name}&#34;</p>
+          </div>
+        )}
+        {isUpdatingService && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background animate-fade-in z-10">
+            <LoaderIcon className="animate-spin" />
+            <p className="mt-4">Updating &#34;{serviceOnChain?.name}&#34;</p>
           </div>
         )}
       </DialogContent>
