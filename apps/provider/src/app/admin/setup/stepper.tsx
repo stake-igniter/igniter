@@ -40,7 +40,6 @@ const ConfigureAppSettingsStep: React.FC<{
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <h4>Fill out your system settings:</h4>
         <ConfigureAppSettings defaultValues={settings} goNext={goNext} />
       </div>
     </div>
@@ -54,10 +53,7 @@ const ConfigureServicesStep: React.FC<{
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <ConfigureServices
-          goNext={goNext}
-          goBack={goBack}
-        />
+
       </div>
     </div>
   );
@@ -69,7 +65,6 @@ const ConfigureAddressGroupStep: React.FC<{
   return (
     <div className="grid gap-4">
       <div className="grid gap-2">
-        <ConfigureAddressGroup goNext={goNext} />
       </div>
     </div>
   );
@@ -86,7 +81,7 @@ export const Stepper: React.FC<StepperProps> = ({ settings }) => {
 
   return (
     <>
-      <div className="space-y-6 p-6 border rounded-lg min-h-[400] flex flex-col justify-between">
+      <div className="space-y-6 p-6 min-h-[400] flex flex-col justify-between">
         <div className="flex flex-col gap-5">
           <div className="flex justify-between">
             <h2 className="text-lg font-medium">System Bootstrap</h2>
@@ -136,20 +131,18 @@ export const Stepper: React.FC<StepperProps> = ({ settings }) => {
         <div className="space-y-5">
           {stepper.switch({
             "application-settings": () => (
-              <ConfigureAppSettingsStep
-                settings={settings}
-                goNext={stepper.next}
-              />
+              <ConfigureAppSettings defaultValues={settings} goNext={stepper.next} />
             ),
             "services": () => (
-              <ConfigureServicesStep
+              <ConfigureServices
                 goNext={stepper.next}
                 goBack={stepper.prev}
               />
             ),
             "address-group": () => (
-              <ConfigureAddressGroupStep
+              <ConfigureAddressGroup
                 goNext={stepper.next}
+                goBack={stepper.prev}
               />
             ),
             "complete-bootstrap": () => <BootstrapCompleteComponent />,
