@@ -6,8 +6,8 @@ import { WalletConnectionProvider } from "@igniter/ui/context/WalletConnection/i
 import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
 import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
 import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
-import PriceWidget from "@/app/components/PriceWidget";
-import CurrentUser from "@/app/components/CurrentUser";
+import PriceWidget from "@/components/PriceWidget";
+import CurrentUser from "@/components/CurrentUser";
 import AppSidebar from "@igniter/ui/components/AppSidebar";
 import { CurrencyContextProvider } from "@igniter/ui/context/currency";
 import OverviewDark from "@/app/assets/icons/dark/overview.svg";
@@ -16,7 +16,7 @@ import NodesDark from "@/app/assets/icons/dark/nodes.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";
 import HelpDark from "@/app/assets/icons/dark/help.svg";
 import ContactDark from "@/app/assets/icons/dark/contact.svg";
-import Sidebar from "@/app/components/Sidebar";
+import Sidebar from "@/components/Sidebar";
 
 export const metadata: Metadata = {
   title: "Igniter",

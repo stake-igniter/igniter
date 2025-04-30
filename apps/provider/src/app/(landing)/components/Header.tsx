@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import {ComponentType} from "react";
 import {PlaceholderLogo} from "@igniter/ui/assets";
-import EngagementLinks from "@/app/components/EngagementLinks";
+import EngagementLinks from "@/components/EngagementLinks";
 import GithubIcon from "@/app/assets/icons/dark/socials/github.svg";
 import DiscordIcon from "@/app/assets/icons/dark/socials/discord.svg";
 import XIcon from "@/app/assets/icons/dark/socials/x.svg";
-import CurrentUser from "@/app/components/CurrentUser";
+import CurrentUser from "@/components/CurrentUser";
 
 export interface HeaderProps {
     logoIcon?: ComponentType;

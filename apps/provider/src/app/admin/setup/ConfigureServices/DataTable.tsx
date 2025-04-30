@@ -20,7 +20,7 @@ import {ReactNode} from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   addServiceAction?: ReactNode;
-  deleteServiceAction?: (row: TData) => ReactNode;
+  serviceItemActions?: (row: TData) => ReactNode;
   data: TData[];
 }
 
@@ -28,7 +28,7 @@ export function DataTable<TData, TValue>({
                                            columns,
                                            data,
                                            addServiceAction,
-                                           deleteServiceAction,
+                                           serviceItemActions,
                                          }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -57,7 +57,7 @@ export function DataTable<TData, TValue>({
                   </TableHead>
                 )
               })}
-              {deleteServiceAction && (
+              {serviceItemActions && (
                 <TableHead />
               )}
               {addServiceAction && (
@@ -76,17 +76,20 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className="bg-[--var(bg-black)] group"
+                className="bg-[--var(bg-black)] r group"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    className="px-2 !rounded-bl-none !rounded-tl-none"
+                    key={cell.id}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
                 {addServiceAction && <TableCell />}
-                {deleteServiceAction && (
-                  <TableCell className="flex flex-row-reverse opacity-0 group-hover:opacity-100 transition-opacity">
-                    {deleteServiceAction(row.original)}
+                {serviceItemActions && (
+                  <TableCell className="flex flex-row-reverse px-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {serviceItemActions(row.original)}
                   </TableCell>
                 )}
               </TableRow>
@@ -94,9 +97,9 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell
-                colSpan={addServiceAction && deleteServiceAction
+                colSpan={addServiceAction && serviceItemActions
                   ? columns.length + 2
-                  : addServiceAction || deleteServiceAction
+                  : addServiceAction || serviceItemActions
                     ? columns.length + 1
                     : columns.length}
                 className="h-24 text-center"

@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/app/theme";
 import { WalletConnectionProvider } from "@igniter/ui/context/WalletConnection/index";
 import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
 import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
-import CurrentUser from "@/app/components/CurrentUser";
+import CurrentUser from "@/components/CurrentUser";
 
 export const metadata: Metadata = {
   title: "Igniter",

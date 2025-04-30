@@ -1,12 +1,13 @@
 'use client';
 
-import {Service} from "@/db/schema";
-import {DataTable} from "@/app/admin/setup/ConfigureServices/DataTable";
-import {columns} from "@/app/admin/setup/ConfigureServices/Columns";
-import {Button} from "@igniter/ui/components/button";
-import {AddServiceDialog} from "@/app/admin/setup/ConfigureServices/AddServiceDialog";
 import {useEffect, useState} from "react";
+import {Service} from "@/db/schema";
 import {DeleteService, ListServices} from "@/actions/Services";
+import {Button} from "@igniter/ui/components/button";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import {DataTable} from "./DataTable";
+import {columns} from "./Columns";
+import {AddOrUpdateServiceDialog} from "./AddOrUpdateServiceDialog";
 
 export interface ConfigureServicesProp {
   goNext: () => void;
@@ -16,7 +17,10 @@ export interface ConfigureServicesProp {
 export default function ConfigureServices({ goNext, goBack }: Readonly<ConfigureServicesProp>) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAddingService, setIsAddingService] = useState(false);
+  const [updateService, setUpdateService] = useState<Service | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+
 
   const content = services.length > 0
     ? (
@@ -30,15 +34,23 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
               Add service
             </Button>
           }
-          deleteServiceAction={(service) => (
-            <Button
-              disabled={isLoading}
-              variant="destructive"
-              onClick={() => deleteService(service) }
-            >
-              Delete
-            </Button>
-
+          serviceItemActions={(service) => (
+            <div className="flex gap-2">
+              <Button
+                disabled={isLoading}
+                variant="secondary"
+                onClick={() => setUpdateService(service)}
+              >
+                Update
+              </Button>
+              <Button
+                disabled={isLoading}
+                variant="destructive"
+                onClick={() => setServiceToDelete(service)}
+              >
+                Delete
+              </Button>
+            </div>
           )}
         />
       )
@@ -64,17 +76,20 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
     }
   };
 
-  const deleteService = async (service: Service) => {
+  const confirmDeleteService = async () => {
+    if (!serviceToDelete) return;
+
     try {
       setIsLoading(true);
-      await DeleteService(service.serviceId);
+      await DeleteService(serviceToDelete.serviceId);
       await fetchServices();
     } catch (error) {
       console.error("Failed to delete service:", error);
     } finally {
       setIsLoading(false);
+      setServiceToDelete(null);
     }
-  }
+  };
 
   useEffect(() => {
     fetchServices();
@@ -83,7 +98,7 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
   return (
     <div className='flex flex-col gap-4'>
       {isAddingService && (
-        <AddServiceDialog
+        <AddOrUpdateServiceDialog
           onClose={(shouldRefreshServices) => {
             setIsAddingService(false);
 
@@ -91,6 +106,19 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
               fetchServices();
             }
           }}
+        />
+      )}
+
+      {updateService && (
+        <AddOrUpdateServiceDialog
+          onClose={(shouldRefreshServices) => {
+            setUpdateService(null);
+
+            if (shouldRefreshServices) {
+              fetchServices();
+            }
+          }}
+          service={updateService}
         />
       )}
       <div className="py-2 max-h-[500px] overflow-y-scroll">
@@ -109,6 +137,35 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
           Next
         </Button>
       </div>
+      {serviceToDelete && (
+        <ConfirmationDialog
+          title="Delete Service"
+          open={!!serviceToDelete}
+          onClose={() => setServiceToDelete(null)}
+          footerActions={
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setServiceToDelete(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => confirmDeleteService()}
+                disabled={isLoading}
+              >
+                Delete
+              </Button>
+            </>
+          }
+        >
+          <p>
+            Are you sure you want to delete the service "{serviceToDelete.name}"?
+            This action cannot be undone.
+          </p>
+        </ConfirmationDialog>
+      )}
     </div>
   );
 }
