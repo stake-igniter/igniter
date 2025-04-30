@@ -32,7 +32,7 @@ export const formSchema = z.object({
   chainId: z.nativeEnum(ChainId),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
-  rpc: z.string().url("Please enter a valid URL").min(1, "URL is required"),
+  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
   providerFee: z.coerce
     .number()
     .min(1, "Provider fee must be greater than 0")
@@ -50,7 +50,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       chainId: defaultValues.chainId || ChainId.Pocket,
-      rpc: defaultValues.rpc || "",
+      rpcUrl: defaultValues.rpcUrl || "",
       name: defaultValues.name || "",
       supportEmail: defaultValues.supportEmail || "",
       providerFee: Number(defaultValues.providerFee) || 1,
@@ -141,7 +141,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
             />
 
             <FormField
-              name="rpc"
+              name="rpcUrl"
               control={form.control}
               render={({ field }) => (
                 <FormItem>

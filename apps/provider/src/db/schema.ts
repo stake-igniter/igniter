@@ -94,7 +94,7 @@ export const applicationSettingsTable = pgTable("application_settings", {
   chainId: chainIdEnum().notNull(),
   minimumStake: integer().notNull(),
   isBootstrapped: boolean().notNull(),
-  rpc: varchar().notNull(),
+  rpcUrl: varchar().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
