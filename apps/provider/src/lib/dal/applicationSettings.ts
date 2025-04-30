@@ -15,6 +15,7 @@ const defaultSettings: ApplicationSettings = {
   ownerEmail: "",
   providerFee: "0",
   delegatorRewardsAddress: "",
+  rpc: "",
   isBootstrapped: false,
   chainId: ChainId.Pocket,
   minimumStake: 15000,

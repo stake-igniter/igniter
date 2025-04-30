@@ -1,0 +1,410 @@
+"use client";
+
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
+import {z} from "zod";
+import {Button} from "@igniter/ui/components/button";
+import {getShortAddress} from "@igniter/ui/lib/utils";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@igniter/ui/components/form";
+import {Input} from "@igniter/ui/components/input";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@igniter/ui/components/select";
+import {Dialog, DialogContent, DialogFooter, DialogTitle,} from "@igniter/ui/components/dialog";
+import {RPCType} from "@/lib/models/supplier";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {LoaderIcon} from "@igniter/ui/assets";
+import {useApplicationSettings} from "@/app/context/ApplicationSettings";
+import urlJoin from "url-join";
+import {CreateService} from "@/actions/Services";
+
+interface ServiceOnChain {
+  serviceId: string;
+  name: string;
+  ownerAddress: string;
+  computeUnits: number;
+}
+
+const endpointSchema = z.object({
+  url: z.string().url("Please enter a valid URL").min(1, "URL is required"),
+  rpcType: z.nativeEnum(RPCType),
+});
+
+const CreateServiceFormSchema = z.object({
+  serviceId: z.string().min(1, "Service ID is required"),
+  revSharePercentage: z.coerce.number().min(0).max(100).nullable(),
+  endpoints: z.array(endpointSchema).min(1, "At least one endpoint is required"),
+});
+
+export interface AddServiceDialogProps {
+  onClose: (shouldRefreshServices: boolean) => void;
+}
+
+interface ServiceResponse {
+  service: {
+    id: string;
+    name: string;
+    compute_units_per_relay: string;
+    owner_address: string;
+  }
+}
+
+export function AddServiceDialog({
+                                             onClose,
+                                           }: Readonly<AddServiceDialogProps>) {
+  const [endpoints, setEndpoints] = useState<{ url: string; rpcType: RPCType }[]>([
+    { url: "", rpcType: RPCType.UNKNOWN_RPC }
+  ]);
+  const [serviceOnChain, setServiceOnChain] = useState<ServiceOnChain | null>(null);
+  const [isLoadingService, setIsLoadingService] = useState(false);
+  const serviceIdInputRef = useRef<HTMLInputElement>(null);
+  const [hasLoadServiceError, setHasLoadServiceError] = useState(false);
+  const [isCancelling, setIsCanceling] = useState(false);
+  const [isCreatingService, setIsCreatingService] = useState(false);
+  const settings = useApplicationSettings();
+
+  const SERVICE_BY_ID_URL = useMemo(() => {
+    if (settings?.rpc) {
+      return urlJoin(settings?.rpc, '/pokt-network/poktroll/service/service/{service-id}');
+    }
+
+    return '';
+  }, [settings?.rpc]);
+
+  const handleCancel = useCallback(() => {
+    if (serviceOnChain) {
+      setIsCanceling(true);
+    } else {
+      onClose(false);
+    }
+  }, [serviceOnChain, setIsCanceling, onClose]);
+
+  const form = useForm<z.infer<typeof CreateServiceFormSchema>>({
+    resolver: zodResolver(CreateServiceFormSchema),
+    defaultValues: {
+      serviceId: "",
+      revSharePercentage: null,
+      endpoints: []
+    },
+  });
+
+  const serviceId = form.watch('serviceId');
+
+
+  useEffect(() => {
+    // TODO: change to use react-query
+    const fetchServiceData = async () => {
+      if (SERVICE_BY_ID_URL && serviceId && serviceId.length > 0) {
+        setIsLoadingService(true);
+        try {
+          const url = SERVICE_BY_ID_URL.replace('{service-id}', serviceId.toLowerCase().trim());
+          const response = await fetch(url);
+
+          if (response.ok) {
+            const data = await response.json() as ServiceResponse;
+
+            setServiceOnChain({
+              serviceId: data.service.id,
+              name: data.service.name,
+              ownerAddress: data.service.owner_address,
+              computeUnits: parseInt(data.service.compute_units_per_relay, 10)
+            });
+            setHasLoadServiceError(false);
+          } else {
+            setServiceOnChain(null);
+            setHasLoadServiceError(false);
+          }
+        } catch (error) {
+          console.error('Error fetching service:', error);
+          setServiceOnChain(null);
+          setHasLoadServiceError(true);
+        } finally {
+          setIsLoadingService(false);
+          focusServiceIdInput();
+        }
+      } else {
+        setServiceOnChain(null);
+      }
+    };
+
+    const focusServiceIdInput = () => {
+      requestAnimationFrame(() => {
+        serviceIdInputRef.current?.focus();
+      });
+    };
+
+
+    const debounceTimer = setTimeout(() => {
+      fetchServiceData();
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [serviceId, SERVICE_BY_ID_URL]);
+
+
+  const addEndpoint = () => {
+    setEndpoints([...endpoints, { url: "", rpcType: RPCType.UNKNOWN_RPC }]);
+    form.setValue("endpoints", [...endpoints, { url: "", rpcType: RPCType.UNKNOWN_RPC }]);
+  };
+
+  const removeEndpoint = (index: number) => {
+    if (endpoints.length > 1) {
+      const newEndpoints = [...endpoints];
+      newEndpoints.splice(index, 1);
+      setEndpoints(newEndpoints);
+      form.setValue("endpoints", newEndpoints);
+    }
+  };
+
+  const handleSubmit = async (values: z.infer<typeof CreateServiceFormSchema>) => {
+    console.log(values);
+
+    setIsCreatingService(true);
+    try {
+      await CreateService({
+        serviceId: values.serviceId,
+        name: serviceOnChain?.name ?? 'Unknown Service',
+        ownerAddress: serviceOnChain?.ownerAddress ?? '',
+        computeUnits: serviceOnChain?.computeUnits ?? 1,
+        revSharePercentage: values.revSharePercentage,
+        endpoints: values.endpoints.slice(),
+      });
+      onClose(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsCreatingService(false);
+    }
+  };
+
+  return (
+    <Dialog
+      open={true}
+    >
+      <DialogContent
+        onInteractOutside={(event) => event.preventDefault()}
+        className={`gap-0 p-0 rounded-lg bg-[var(--color-slate-2)] ${serviceOnChain ? '!w-[900px]' : '!w-[350px]'} !min-w-none !max-w-none h-[550px]`}
+        hideClose
+      >
+        <DialogTitle asChild>
+          <div className="flex flex-row justify-between items-center py-4 px-4">
+            <span className="text-[14px]">
+              Add New Service
+            </span>
+          </div>
+        </DialogTitle>
+        <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
+
+        <div className="px-4 py-3 min-h-[384px]">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="grid gap-4">
+
+              <div className="grid grid-cols-24 gap-1">
+                <div className={`${serviceOnChain ? 'col-span-10' : 'col-span-24'} flex flex-col gap-4 px-2`}>
+                  <FormField
+                    name="serviceId"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel>Service ID</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={isLoadingService}
+                            {...field}
+                            ref={(e) => {
+                              field.ref(e);
+                              serviceIdInputRef.current = e;
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {!serviceOnChain && !hasLoadServiceError && (
+                    <div className="flex justify-center items-center bg-[var(--color-slate-3)] p-3 rounded-md">
+                      Specify the service on-chain ID before you can continue
+                    </div>
+                  )}
+
+                  {!serviceOnChain && hasLoadServiceError && (
+                    <div className="flex justify-center items-center bg-[var(--color-slate-3)] p-3 rounded-md">
+                      There was an error loading the service. Does it exist?
+                    </div>
+                  )}
+
+                  {serviceOnChain && (
+                    <>
+                      <div className="bg-[var(--color-slate-3)] p-3 rounded-md">
+                        <div className="flex flex-col gap-2">
+                          <div>
+                            <span className="text-[var(--color-slate-9)]">Name:</span>{" "}
+                            <span>{serviceOnChain.name}</span>
+                          </div>
+                          <div>
+                            <span className="text-[var(--color-slate-9)]">Owner:</span>{" "}
+                            <span>{getShortAddress(serviceOnChain.ownerAddress)}</span>
+                          </div>
+                          <div>
+                            <span className="text-[var(--color-slate-9)]">Compute Units:</span>{" "}
+                            <span>{serviceOnChain.computeUnits}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <FormField
+                        name="revSharePercentage"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col gap-2">
+                            <FormLabel>Revenue Share Percentage</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                placeholder={settings?.providerFee ?? ''}
+                                min={0}
+                                max={100}
+                                {...field}
+                                value={field.value === null ? "" : field.value}
+                                onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                            <FormDescription>
+                              The RevShare exclusively charged for this service. Defaults to the service fee.
+                            </FormDescription>
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
+                </div>
+
+                {serviceOnChain && (
+                  <div className="col-span-14 flex flex-col gap-4 px-2 max-h-[384px] overflow-y-auto">
+                      <>
+                        <div className="flex flex-col gap-4">
+                          <div className="flex justify-end items-center px-1">
+                            <FormLabel
+                              className="text-[var(--color-slate-9)] cursor-pointer hover:underline"
+                              onClick={addEndpoint}
+                            >
+                              Add Protocol
+                            </FormLabel>
+                          </div>
+
+                          {endpoints.map((_, index) => (
+                            <div key={index} className="grid gap-2 p-3 border border-[var(--slate-dividers)] rounded-md">
+                              <div className="flex justify-end px-1">
+                                <FormLabel
+                                  className={`text-[var(--color-slate-9)] ${endpoints.length > 1 && 'hover:underline cursor-pointer'} ${endpoints.length === 1 && 'opacity-50'}`}
+                                  onClick={() => removeEndpoint(index)}
+                                >
+                                  Remove
+                                </FormLabel>
+                              </div>
+
+                              <FormField
+                                name={`endpoints.${index}.rpcType`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select RPC Type" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {Object.values(RPCType).map((type) => (
+                                          <SelectItem key={type} value={type}>
+                                            {type}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                name={`endpoints.${index}.url`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <Input
+                                        placeholder="URL"
+                                        {...field}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                  </div>
+                )}
+              </div>
+            </form>
+          </Form>
+        </div>
+
+        <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
+        <DialogFooter className="p-2 flex flex-row ">
+          <Button
+            variant="secondary"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={form.handleSubmit(handleSubmit)}
+            disabled={isCreatingService || !serviceOnChain}
+          >
+            Save Service
+          </Button>
+        </DialogFooter>
+        {isCancelling && (
+          <div
+            className="absolute inset-0 bg-background flex flex-col items-center justify-center p-6 animate-in fade-in"
+          >
+            <h3 className="text-lg font-semibold mb-4">
+              Are you sure you want to cancel?
+            </h3>
+            <p className="mb-6 text-muted-foreground text-center">
+              Your changes for this service will be discarded.
+            </p>
+            <div className="flex gap-4">
+              <Button variant="destructive" onClick={() => onClose(false)}>
+                Discard
+              </Button>
+              <Button variant="outline" onClick={() => setIsCanceling(false)}>
+                Continue Editing
+              </Button>
+            </div>
+          </div>
+        )}
+        {isCreatingService && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background animate-fade-in z-10">
+            <LoaderIcon className="h-8 w-8 animate-spin" />
+            <p className="mt-4">Adding &#34;{serviceOnChain?.name}&#34;</p>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}

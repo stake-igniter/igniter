@@ -1,5 +1,5 @@
 {
-  "id": "bf2cfee7-718d-4658-afa0-314a3a95f3fd",
+  "id": "ef451b96-a24e-452b-9687-d68b0202c427",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -352,6 +352,12 @@
         "isBootstrapped": {
           "name": "isBootstrapped",
           "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rpc": {
+          "name": "rpc",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },

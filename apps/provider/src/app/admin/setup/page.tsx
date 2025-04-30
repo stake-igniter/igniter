@@ -21,8 +21,8 @@ export default async function Page() {
   // }
 
   return (
-    <>
+    <div className="p-6">
       <Stepper settings={settings} />
-    </>
+    </div>
   );
 }

@@ -25,7 +25,7 @@ export const getRandomInt = (min: number, max: number) => {
 
 export function getShortAddress(address: string, length = 8) {
   return address && address.length
-    ? address.slice(0, length) + "..." + address.slice(-length)
+    ? address.slice(4, length) + "..." + address.slice(-length)
     : "";
 }
 

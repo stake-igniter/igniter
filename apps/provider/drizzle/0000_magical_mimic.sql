@@ -46,6 +46,7 @@ CREATE TABLE "application_settings" (
 	"chainId" "chain_ids" NOT NULL,
 	"minimumStake" integer NOT NULL,
 	"isBootstrapped" boolean NOT NULL,
+	"rpc" varchar NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now()
 );

@@ -94,21 +94,12 @@ export const applicationSettingsTable = pgTable("application_settings", {
   chainId: chainIdEnum().notNull(),
   minimumStake: integer().notNull(),
   isBootstrapped: boolean().notNull(),
+  rpc: varchar().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
 
 export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
-
-export const chainsTable = pgTable("chains", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }),
-  chainId: varchar({ length: 255 }).notNull(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
-});
-
-export type Chain = typeof chainsTable.$inferSelect;
 
 export const addressesTable = pgTable("addresses", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

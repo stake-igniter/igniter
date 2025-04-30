@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 interface FormProps {
+  goBack: () => void;
   goNext: () => void;
 }
 
@@ -28,7 +29,7 @@ export const formSchema = z.object({
   pattern: z.string().min(1, "Pattern is required"),
 });
 
-const FormComponent: React.FC<FormProps> = ({ goNext }) => {
+const FormComponent: React.FC<FormProps> = ({ goNext, goBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -106,7 +107,12 @@ const FormComponent: React.FC<FormProps> = ({ goNext }) => {
         </div>
 
         <div className="flex justify-end gap-4">
-          <Button>Back</Button>
+          <Button
+            type="button"
+            onClick={goBack}
+          >
+            Back
+          </Button>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? "Saving..." : "Next"}
           </Button>
