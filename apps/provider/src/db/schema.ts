@@ -130,8 +130,7 @@ export type CreateAddress = typeof addressesTable.$inferInsert;
 
 export const addressGroupTable = pgTable("address_groups", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  mnemonic: encryptedText("mnemonic").notNull(),
-  identity: varchar({ length: 255 }).notNull().unique(),
+  name: varchar({ length: 255 }).notNull().unique(),
   region: varchar({ length: 255 }).notNull(),
   clients: varchar().array().default([]),
   createdAt: timestamp().defaultNow(),
@@ -166,10 +165,7 @@ export const addressGroupServiceRelations = relations(addressGroupServiceTable, 
 }));
 
 
-export type AddressGroup = typeof addressGroupTable.$inferSelect & {
-  addresses: Address[];
-  services: Service[];
-};
+export type AddressGroup = typeof addressGroupTable.$inferSelect;
 
 export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
 

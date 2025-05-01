@@ -19,16 +19,16 @@ import {ReactNode} from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  addServiceAction?: ReactNode;
-  serviceItemActions?: (row: TData) => ReactNode;
+  addItemAction?: ReactNode;
+  itemActions?: (row: TData) => ReactNode;
   data: TData[];
 }
 
 export function DataTable<TData, TValue>({
                                            columns,
                                            data,
-                                           addServiceAction,
-                                           serviceItemActions,
+                                           addItemAction,
+                                           itemActions,
                                          }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -57,14 +57,14 @@ export function DataTable<TData, TValue>({
                   </TableHead>
                 )
               })}
-              {serviceItemActions && (
+              {itemActions && (
                 <TableHead />
               )}
-              {addServiceAction && (
+              {addItemAction && (
                 <TableHead
                   className="flex flex-row-reverse px-0"
                   >
-                  {addServiceAction}
+                  {addItemAction}
                 </TableHead>
               )}
             </TableRow>
@@ -86,10 +86,10 @@ export function DataTable<TData, TValue>({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
-                {addServiceAction && <TableCell />}
-                {serviceItemActions && (
+                {addItemAction && <TableCell />}
+                {itemActions && (
                   <TableCell className="flex flex-row-reverse px-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {serviceItemActions(row.original)}
+                    {itemActions(row.original)}
                   </TableCell>
                 )}
               </TableRow>
@@ -97,9 +97,9 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell
-                colSpan={addServiceAction && serviceItemActions
+                colSpan={addItemAction && itemActions
                   ? columns.length + 2
-                  : addServiceAction || serviceItemActions
+                  : addItemAction || itemActions
                     ? columns.length + 1
                     : columns.length}
                 className="h-24 text-center"

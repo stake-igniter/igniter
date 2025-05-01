@@ -4,8 +4,8 @@ import {useEffect, useState} from "react";
 import {Service} from "@/db/schema";
 import {DeleteService, ListServices} from "@/actions/Services";
 import {Button} from "@igniter/ui/components/button";
+import {DataTable} from "@/components/DataTable";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import {DataTable} from "./DataTable";
 import {columns} from "./Columns";
 import {AddOrUpdateServiceDialog} from "./AddOrUpdateServiceDialog";
 import {LoaderIcon} from "@igniter/ui/assets";
@@ -28,14 +28,14 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
         <DataTable
           columns={columns}
           data={services}
-          addServiceAction={
+          addItemAction={
             <Button
               onClick={() => setIsAddingService(true) }
             >
               Add service
             </Button>
           }
-          serviceItemActions={(service) => (
+          itemActions={(service) => (
             <div className="flex gap-2">
               <Button
                 disabled={isLoading}
