@@ -6,7 +6,7 @@ import { cn } from "@igniter/ui/lib/utils";
 import { ApplicationSettings } from "@/db/schema";
 import { completeSetup } from "@/actions/ApplicationSettings";
 import ConfigureAppSettings from "./ConfigureAppSettings";
-import ConfigureAddressGroup from "./ConfigureAddressGroup";
+import ConfigureAddressGroup from "./ConfigureAddressGroups";
 import ConfigureServices from "@/app/admin/setup/ConfigureServices";
 
 interface StepperProps {

@@ -20,10 +20,10 @@ import {Dialog, DialogContent, DialogFooter, DialogTitle,} from "@igniter/ui/com
 import {RPCType} from "@/lib/models/supplier";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {LoaderIcon} from "@igniter/ui/assets";
-import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import urlJoin from "url-join";
 import {CreateService, UpdateService} from "@/actions/Services";
-import {Service} from "@/db/schema";
+import {ApplicationSettings, Service} from "@/db/schema";
+import {getApplicationSettings} from "@/actions/ApplicationSettings";
 
 interface ServiceOnChain {
   serviceId: string;
@@ -72,7 +72,14 @@ export function AddOrUpdateServiceDialog({
   const [isCancelling, setIsCanceling] = useState(false);
   const [isCreatingService, setIsCreatingService] = useState(false);
   const [isUpdatingService, setIsUpdatingService] = useState(false);
-  const settings = useApplicationSettings();
+  const [settings, setSettings] = useState<ApplicationSettings>();
+
+  useEffect(() => {
+    (async () => {
+      const settings = await getApplicationSettings();
+      setSettings(settings);
+    })();
+  }, []);
 
   const SERVICE_BY_ID_URL = useMemo(() => {
     if (settings?.rpcUrl) {
@@ -305,74 +312,72 @@ export function AddOrUpdateServiceDialog({
 
                 {serviceOnChain && (
                   <div className="col-span-14 flex flex-col gap-4 px-2 max-h-[384px] overflow-y-auto">
-                      <>
-                        <div className="flex flex-col gap-4">
-                          <div className="flex justify-end items-center px-1">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex justify-end items-center px-1">
+                        <FormLabel
+                          className="text-[var(--color-slate-9)] cursor-pointer hover:underline"
+                          onClick={addEndpoint}
+                        >
+                          Add Protocol
+                        </FormLabel>
+                      </div>
+
+                      {endpoints.map((_, index) => (
+                        <div key={index} className="grid gap-2 p-3 border border-[var(--slate-dividers)] rounded-md">
+                          <div className="flex justify-end px-1">
                             <FormLabel
-                              className="text-[var(--color-slate-9)] cursor-pointer hover:underline"
-                              onClick={addEndpoint}
+                              className={`text-[var(--color-slate-9)] ${endpoints.length > 1 && 'hover:underline cursor-pointer'} ${endpoints.length === 1 && 'opacity-50'}`}
+                              onClick={() => removeEndpoint(index)}
                             >
-                              Add Protocol
+                              Remove
                             </FormLabel>
                           </div>
 
-                          {endpoints.map((_, index) => (
-                            <div key={index} className="grid gap-2 p-3 border border-[var(--slate-dividers)] rounded-md">
-                              <div className="flex justify-end px-1">
-                                <FormLabel
-                                  className={`text-[var(--color-slate-9)] ${endpoints.length > 1 && 'hover:underline cursor-pointer'} ${endpoints.length === 1 && 'opacity-50'}`}
-                                  onClick={() => removeEndpoint(index)}
+                          <FormField
+                            name={`endpoints.${index}.rpcType`}
+                            control={form.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
                                 >
-                                  Remove
-                                </FormLabel>
-                              </div>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select RPC Type" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {Object.values(RPCType).map((type) => (
+                                      <SelectItem key={type} value={type}>
+                                        {type}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
 
-                              <FormField
-                                name={`endpoints.${index}.rpcType`}
-                                control={form.control}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select RPC Type" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {Object.values(RPCType).map((type) => (
-                                          <SelectItem key={type} value={type}>
-                                            {type}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-
-                              <FormField
-                                name={`endpoints.${index}.url`}
-                                control={form.control}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="URL"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                          ))}
+                          <FormField
+                            name={`endpoints.${index}.url`}
+                            control={form.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    placeholder="URL"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                         </div>
-                      </>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

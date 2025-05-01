@@ -12,13 +12,12 @@ CREATE TABLE "address_group_services" (
 --> statement-breakpoint
 CREATE TABLE "address_groups" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "address_groups_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"mnemonic" text NOT NULL,
-	"identity" varchar(255) NOT NULL,
+	"name" varchar(255) NOT NULL,
 	"region" varchar(255) NOT NULL,
 	"clients" varchar[] DEFAULT '{}',
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now(),
-	CONSTRAINT "address_groups_identity_unique" UNIQUE("identity")
+	CONSTRAINT "address_groups_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
 CREATE TABLE "addresses" (

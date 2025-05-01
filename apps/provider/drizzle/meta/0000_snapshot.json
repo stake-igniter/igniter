@@ -1,5 +1,5 @@
 {
-  "id": "9af1635b-c732-4fc4-8e6b-835026d14818",
+  "id": "ca22ed24-eea7-419d-a96d-7cf79ad93b34",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -101,14 +101,8 @@
             "cycle": false
           }
         },
-        "mnemonic": {
-          "name": "mnemonic",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "identity": {
-          "name": "identity",
+        "name": {
+          "name": "name",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
@@ -145,11 +139,11 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "address_groups_identity_unique": {
-          "name": "address_groups_identity_unique",
+        "address_groups_name_unique": {
+          "name": "address_groups_name_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "identity"
+            "name"
           ]
         }
       },
