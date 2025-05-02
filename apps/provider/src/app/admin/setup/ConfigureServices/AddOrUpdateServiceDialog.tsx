@@ -17,13 +17,19 @@ import {
 import {Input} from "@igniter/ui/components/input";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@igniter/ui/components/select";
 import {Dialog, DialogContent, DialogFooter, DialogTitle,} from "@igniter/ui/components/dialog";
-import {RPCType} from "@/lib/models/supplier";
+import {
+  getDefaultUrlWithSchemeByRpcType,
+  getEndpointInterpolatedUrl, getUrlTokenFromRpcType,
+  PROTOCOL_DEFAULT_TYPE,
+  RPCType
+} from "@/lib/models/supplier";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {LoaderIcon} from "@igniter/ui/assets";
+import {InfoIcon, LoaderIcon} from "@igniter/ui/assets";
 import urlJoin from "url-join";
 import {CreateService, UpdateService} from "@/actions/Services";
 import {ApplicationSettings, Service} from "@/db/schema";
 import {getApplicationSettings} from "@/actions/ApplicationSettings";
+import {Region} from "@/lib/models/commons";
 
 interface ServiceOnChain {
   serviceId: string;
@@ -33,13 +39,17 @@ interface ServiceOnChain {
 }
 
 const endpointSchema = z.object({
-  url: z.string().url("Please enter a valid URL").min(1, "URL is required"),
-  rpcType: z.nativeEnum(RPCType),
-});
+  url: z.string(),
+  rpcType: z.nativeEnum(RPCType).default(PROTOCOL_DEFAULT_TYPE),
+}).transform(data => ({
+  ...data,
+  url: data.url || getDefaultUrlWithSchemeByRpcType(data.rpcType)
+}));
 
 const CreateServiceFormSchema = z.object({
   serviceId: z.string().min(1, "Service ID is required"),
   revSharePercentage: z.coerce.number().min(0).max(100).nullable(),
+  // TODO: refine to prevent duplicate rpc types
   endpoints: z.array(endpointSchema).min(1, "At least one endpoint is required"),
 });
 
@@ -62,7 +72,7 @@ export function AddOrUpdateServiceDialog({
                                              service,
                                            }: Readonly<AddServiceDialogProps>) {
   const [endpoints, setEndpoints] = useState<{ url: string; rpcType: RPCType }[]>(
-    service?.endpoints ?? [{ url: "", rpcType: RPCType.UNKNOWN_RPC }]
+    service?.endpoints ?? [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]
   );
 
   const [serviceOnChain, setServiceOnChain] = useState<ServiceOnChain | null>(null);
@@ -70,6 +80,7 @@ export function AddOrUpdateServiceDialog({
   const serviceIdInputRef = useRef<HTMLInputElement>(null);
   const [hasLoadServiceError, setHasLoadServiceError] = useState(false);
   const [isCancelling, setIsCanceling] = useState(false);
+  const [patternHelp, setPatternHelp] = useState<{ input: string; result: string, ag: string, region: Region } | undefined>();
   const [isCreatingService, setIsCreatingService] = useState(false);
   const [isUpdatingService, setIsUpdatingService] = useState(false);
   const [settings, setSettings] = useState<ApplicationSettings>();
@@ -102,7 +113,7 @@ export function AddOrUpdateServiceDialog({
     defaultValues: {
       serviceId: service?.serviceId || "",
       revSharePercentage: service?.revSharePercentage || null,
-      endpoints: service?.endpoints ?? [{ url: "", rpcType: RPCType.UNKNOWN_RPC }],
+      endpoints: service?.endpoints ?? [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }],
     },
   });
 
@@ -158,17 +169,20 @@ export function AddOrUpdateServiceDialog({
     return () => clearTimeout(debounceTimer);
   }, [serviceId, SERVICE_BY_ID_URL]);
 
+  const endpointsOnForm = form.watch('endpoints');
+
+  useEffect(() => {
+    setEndpoints([...endpointsOnForm]);
+  }, [JSON.stringify(endpointsOnForm)]);
 
   const addEndpoint = () => {
-    setEndpoints([...endpoints, { url: "", rpcType: RPCType.UNKNOWN_RPC }]);
-    form.setValue("endpoints", [...endpoints, { url: "", rpcType: RPCType.UNKNOWN_RPC }]);
+    form.setValue("endpoints", [...endpoints, { url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]);
   };
 
   const removeEndpoint = (index: number) => {
     if (endpoints.length > 1) {
       const newEndpoints = [...endpoints];
       newEndpoints.splice(index, 1);
-      setEndpoints(newEndpoints);
       form.setValue("endpoints", newEndpoints);
     }
   };
@@ -291,7 +305,7 @@ export function AddOrUpdateServiceDialog({
                             <FormControl>
                               <Input
                                 type="number"
-                                placeholder={settings?.providerFee ?? ''}
+                                placeholder={settings?.fee ?? ''}
                                 min={0}
                                 max={100}
                                 {...field}
@@ -360,21 +374,44 @@ export function AddOrUpdateServiceDialog({
                             )}
                           />
 
-                          <FormField
-                            name={`endpoints.${index}.url`}
-                            control={form.control}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Input
-                                    placeholder="URL"
-                                    {...field}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          <div className="flex gap-2 items-center">
+                            <FormField
+                              name={`endpoints.${index}.url`}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem
+                                  className="flex-grow"
+                                  >
+                                  <FormControl>
+                                    <Input
+                                      placeholder={getDefaultUrlWithSchemeByRpcType(form.getValues(`endpoints.${index}.rpcType`))}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <InfoIcon
+                              className="cursor-pointer"
+                              onClick={() => {
+                                if (endpoints[index]) {
+                                  setPatternHelp({
+                                    input: endpoints[index].url || getDefaultUrlWithSchemeByRpcType(endpoints[index].rpcType),
+                                    ag: 'rm-01', // Hard coded address group for help
+                                    region: Region.AFRICA_SOUTH, // Hard coded region for help
+                                    result: getEndpointInterpolatedUrl(endpoints[index], {
+                                      ag: 'rm-01', // Hard coded address group for help
+                                      region: Region.AFRICA_SOUTH, // Hard coded region for help
+                                      sid: serviceId,
+                                      protocol: getUrlTokenFromRpcType(endpoints[index].rpcType),
+                                      domain: settings?.domain ?? 'example.com',
+                                    })
+                                  })
+                                }
+                              }}
+                              />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -416,6 +453,57 @@ export function AddOrUpdateServiceDialog({
               </Button>
               <Button variant="outline" onClick={() => setIsCanceling(false)}>
                 Continue Editing
+              </Button>
+            </div>
+          </div>
+        )}
+        {patternHelp && (
+          <div
+            className="absolute inset-0 bg-background flex flex-col gap-6 p-6 animate-in fade-in"
+          >
+            <h3 className="text-lg font-medium">URL Pattern Variables</h3>
+
+            <p className="text-sm text-muted-foreground">
+              When new staking nodes are requested, we automatically build the URLs you’ll use to configure each service. The placeholders you can include in those URLs are:
+            </p>
+
+            <div className="grid grid-cols-[80px_1fr] gap-2 items-start">
+              <div className="font-medium">{`{ag}`}</div>
+              <div className="text-sm">The name of the address group for which nodes are being requested</div>
+            </div>
+
+            <div className="grid grid-cols-[80px_1fr] gap-2 items-start">
+              <div className="font-medium">{`{region}`}</div>
+              <div className="text-sm">The region assigned to the address group</div>
+            </div>
+
+            <div className="grid grid-cols-[80px_1fr] gap-2 items-start">
+              <div className="font-medium">{`{sid}`}</div>
+              <div className="text-sm">The on-chain ID of this service instance</div>
+            </div>
+
+            <div className="grid grid-cols-[80px_1fr] gap-2 items-start">
+              <div className="font-medium">{`{type}`}</div>
+              <div className="text-sm">A URL-friendly label for the chosen RPC protocol</div>
+            </div>
+
+            <div className="grid grid-cols-[80px_1fr] gap-2 items-start">
+              <div className="font-medium">{`{domain}`}</div>
+              <div className="text-sm">The domain configured at the application level or the address group level</div>
+            </div>
+
+            <div className="flex flex-col gap-2 text-sm bg-muted/50 p-2 rounded">
+              <div className="flex items-center gap-2">
+                <InfoIcon />
+                <span>Assuming an Address Group named "{patternHelp.ag}" configured on the "{patternHelp.region}" region</span>
+              </div>
+              <span className="px-5.5">For Url: {patternHelp.input}</span>
+              <span className="px-5.5">We'll produce: {patternHelp.result}</span>
+            </div>
+
+            <div className="flex flex-row-reverse w-full gap-4">
+              <Button variant="secondary" onClick={() => setPatternHelp(undefined)}>
+                Close
               </Button>
             </div>
           </div>
