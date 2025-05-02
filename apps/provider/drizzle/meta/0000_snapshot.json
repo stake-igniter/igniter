@@ -1,5 +1,5 @@
 {
-  "id": "ca22ed24-eea7-419d-a96d-7cf79ad93b34",
+  "id": "4995fb31-0f91-40bb-8deb-838938b674da",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -112,6 +112,12 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "domain": {
+          "name": "domain",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         },
         "clients": {
           "name": "clients",
@@ -318,9 +324,15 @@
           "primaryKey": false,
           "notNull": false
         },
-        "providerFee": {
-          "name": "providerFee",
+        "fee": {
+          "name": "fee",
           "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "domain": {
+          "name": "domain",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },

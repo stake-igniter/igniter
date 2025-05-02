@@ -34,7 +34,12 @@ const CreateOrUpdateAddressGroupSchema = z.object({
       .regex(/^pokt[a-zA-Z0-9]{39,42}$/, "Must be a valid Cosmos address with 'pokt' prefix")
   ).default([]),
 
-  services: z.string().array().min(1, "At least one service is required"),
+
+  domain: z.string()
+    .regex(
+      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+.*)$/,
+      "Invalid domain format. Ensure it's a valid domain name."
+    ).optional().default(''),
 });
 
 export interface AddOrUpdateAddressGroupProps {
@@ -60,6 +65,7 @@ export function AddOrUpdateAddressGroupDialog({
     defaultValues: {
       name: addressGroup?.name ?? '',
       region: addressGroup?.region ?? '',
+      domain: addressGroup?.domain ?? '',
       clients: addressGroup?.clients ?? [],
     },
   });
@@ -188,6 +194,22 @@ export function AddOrUpdateAddressGroupDialog({
                               <SelectItem value="australia">Australia</SelectItem>
                             </SelectContent>
                           </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    name="domain"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

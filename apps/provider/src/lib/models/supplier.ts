@@ -7,8 +7,6 @@ export enum ConfigOptions {
 }
 
 export enum RPCType {
-  /** UNKNOWN_RPC - Undefined RPC type */
-  UNKNOWN_RPC = 'UNKNOWN_RPC',
   /** GRPC - gRPC */
   GRPC = 'GRPC',
   /** WEBSOCKET - WebSocket */
@@ -17,7 +15,6 @@ export enum RPCType {
   JSON_RPC = 'JSON_RPC',
   /** REST - REST */
   REST = 'REST',
-  UNRECOGNIZED = 'UNRECOGNIZED',
 }
 
 export interface SupplierEndpointConfig {
@@ -28,7 +25,7 @@ export interface SupplierEndpointConfig {
 export interface SupplierEndpoint {
   url: string;
   rpcType: RPCType;
-  configs: SupplierEndpointConfig[];
+  configs?: SupplierEndpointConfig[];
 }
 
 export interface SupplierServiceConfig {
@@ -42,3 +39,51 @@ export interface Supplier {
   services: SupplierServiceConfig[];
 }
 
+export interface SupplierEndpointInterpolationParams {
+  [key: string]: string;
+  sid: string;
+  ag: string;
+  region: string;
+  protocol: string;
+  domain: string;
+}
+
+export function getSchemeForRpcType(rpcType: RPCType) {
+  switch (rpcType) {
+    case RPCType.JSON_RPC:
+    case RPCType.REST:
+      return 'https';
+    case RPCType.GRPC:
+      return 'grpcs';
+    case RPCType.WEBSOCKET:
+      return 'wss';
+  }
+}
+
+export function getUrlTokenFromRpcType(rpcType: RPCType) {
+  switch (rpcType) {
+    case RPCType.JSON_RPC:
+      return 'json';
+    case RPCType.REST:
+      return 'rest';
+    case RPCType.GRPC:
+      return 'grpc';
+    case RPCType.WEBSOCKET:
+      return 'ws';
+  }
+}
+
+const PROTOCOL_DEFAULT_URL = '{scheme}://{region}-{ag}-{sid}-{protocol}.{domain}';
+export const PROTOCOL_DEFAULT_TYPE = RPCType.JSON_RPC;
+
+export function getDefaultUrlWithSchemeByRpcType(rpcType: RPCType) {
+  return PROTOCOL_DEFAULT_URL.replace('{scheme}', getSchemeForRpcType(rpcType));
+}
+
+export function getEndpointInterpolatedUrl(endpoint: SupplierEndpoint, params: SupplierEndpointInterpolationParams) {
+  const url = endpoint.url || getDefaultUrlWithSchemeByRpcType(endpoint.rpcType);
+  return url.replace(/{(\w+)}/g, (match, key) => {
+    return params[key] || '';
+  });
+
+}

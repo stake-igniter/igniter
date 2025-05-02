@@ -33,7 +33,12 @@ export const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
-  providerFee: z.coerce
+  domain: z.string()
+    .regex(
+      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+.*)$/,
+      "Invalid domain format. Ensure it's a valid domain name."
+    ).min(1, "Domain is required"),
+  fee: z.coerce
     .number()
     .min(1, "Provider fee must be greater than 0")
     .max(100),
@@ -53,7 +58,8 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       rpcUrl: defaultValues.rpcUrl || "",
       name: defaultValues.name || "",
       supportEmail: defaultValues.supportEmail || "",
-      providerFee: Number(defaultValues.providerFee) || 1,
+      fee: Number(defaultValues.fee) || 1,
+      domain: defaultValues.domain || "",
       delegatorRewardsAddress: defaultValues.delegatorRewardsAddress || "",
       minimumStake: defaultValues.minimumStake,
     },
@@ -204,7 +210,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <FormField
-              name="providerFee"
+              name="fee"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -212,7 +218,22 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                   <FormControl>
                     <div className="flex items-center">
                       <Input {...field} type="number" className="flex-grow" />
-                      <span className="ml-2">%</span>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="domain"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Domain</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Input {...field} className="flex-grow" />
                     </div>
                   </FormControl>
                   <FormMessage />
