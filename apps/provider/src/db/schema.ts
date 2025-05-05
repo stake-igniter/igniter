@@ -135,41 +135,26 @@ export const addressGroupTable = pgTable("address_groups", {
   region: varchar({ length: 255 }).notNull(),
   domain: varchar({ length: 255 }),
   clients: varchar().array().default([]),
+  services: varchar().array().default([]),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
-
-export const addressGroupServiceTable = pgTable("address_group_services", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  addressGroupId: integer().notNull().references(() => addressGroupTable.id),
-  serviceId: varchar().notNull().references(() => servicesTable.serviceId),
-  createdAt: timestamp().defaultNow(),
-});
-
 
 export const addressGroupRelations = relations(
   addressGroupTable,
   ({ many }) => ({
     addresses: many(addressesTable),
-    services: many(addressGroupServiceTable),
   })
 );
-
-export const addressGroupServiceRelations = relations(addressGroupServiceTable, ({ one }) => ({
-  addressGroup: one(addressGroupTable, {
-    fields: [addressGroupServiceTable.addressGroupId],
-    references: [addressGroupTable.id],
-  }),
-  service: one(servicesTable, {
-    fields: [addressGroupServiceTable.serviceId],
-    references: [servicesTable.serviceId],
-  }),
-}));
-
 
 export type AddressGroup = typeof addressGroupTable.$inferSelect;
 
 export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
+
+export type AddressGroupWithDetails = AddressGroup & {
+  addressCount: number;
+}
+
 
 export const keyManagementStrategyColumns = {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -222,10 +207,6 @@ export const servicesTable = pgTable("services",
     ];
   }
 );
-
-export const serviceRelations = relations(servicesTable, ({ many }) => ({
-  addressGroups: many(addressGroupServiceTable),
-}));
 
 
 export type Service = typeof servicesTable.$inferSelect;

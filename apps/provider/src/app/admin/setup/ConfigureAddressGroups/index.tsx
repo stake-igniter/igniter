@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {AddressGroup, Service} from "@/db/schema";
 import {DeleteAddressGroup, ListAddressGroups} from "@/actions/AddressGroups";
 import {Button} from "@igniter/ui/components/button";
@@ -17,12 +17,20 @@ export interface ConfigureAddressGroupsProp {
 }
 
 export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<ConfigureAddressGroupsProp>) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingAddressGroups, setIsLoadingAddressGroups] = useState(false);
+  const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [isAddingAddressGroup, setIsAddingAddressGroup] = useState(false);
+  const [isDeletingAddressGroup, setIsDeletingAddressGroup] = useState(false);
   const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroup | null>(null);
   const [addressGroups, setAddressGroups] = useState<AddressGroup[]>([]);
   const [addressGroupToDelete, setAddressGroupToDelete] = useState<AddressGroup | null>(null);
   const [services, setServices] = useState<Service[]>([]);
+
+  const isLoading = useMemo(() => {
+    return isLoadingAddressGroups ||
+      isLoadingServices ||
+      isDeletingAddressGroup;
+    }, [isLoadingAddressGroups, isLoadingServices, isDeletingAddressGroup]);
 
   const content = addressGroups.length > 0
     ? (
@@ -73,13 +81,13 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
 
   const fetchAddressGroups = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingAddressGroups(true);
       const addressGroupsList = await ListAddressGroups();
       setAddressGroups(addressGroupsList);
     } catch (error) {
       console.error("Failed to fetch addressGroups:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingAddressGroups(false);
     }
   };
 
@@ -87,26 +95,26 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
     if (!addressGroupToDelete) return;
 
     try {
-      setIsLoading(true);
+      setIsDeletingAddressGroup(true);
       await DeleteAddressGroup(addressGroupToDelete.id);
       await fetchAddressGroups();
     } catch (error) {
       console.error("Failed to delete addressGroup:", error);
     } finally {
-      setIsLoading(false);
+      setIsDeletingAddressGroup(false);
       setAddressGroupToDelete(null);
     }
   };
 
   const fetchServices = async () => {
     try {
-      setIsLoading(true);
+      setIsLoadingServices(true);
       const servicesList = await ListServices();
       setServices(servicesList);
     } catch (error) {
       console.error("Failed to fetch services:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingServices(false);
     }
   };
 
@@ -119,6 +127,7 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
     <div className='flex flex-col gap-4'>
       {isAddingAddressGroup && (
         <AddOrUpdateAddressGroupDialog
+          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setIsAddingAddressGroup(false);
 
@@ -131,6 +140,7 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
 
       {updateAddressGroup && (
         <AddOrUpdateAddressGroupDialog
+          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setUpdateAddressGroup(null);
 

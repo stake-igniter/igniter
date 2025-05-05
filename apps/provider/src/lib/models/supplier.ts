@@ -44,7 +44,6 @@ export interface SupplierEndpointInterpolationParams {
   sid: string;
   ag: string;
   region: string;
-  protocol: string;
   domain: string;
 }
 
@@ -81,9 +80,16 @@ export function getDefaultUrlWithSchemeByRpcType(rpcType: RPCType) {
 }
 
 export function getEndpointInterpolatedUrl(endpoint: SupplierEndpoint, params: SupplierEndpointInterpolationParams) {
+  const protocol = getUrlTokenFromRpcType(endpoint.rpcType);
   const url = endpoint.url || getDefaultUrlWithSchemeByRpcType(endpoint.rpcType);
+
+  const data: Record<string, string> = {
+    ...params,
+    protocol,
+  };
+
   return url.replace(/{(\w+)}/g, (match, key) => {
-    return params[key] || '';
+    return data[key] || '';
   });
 
 }

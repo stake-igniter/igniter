@@ -1,13 +1,15 @@
 import { db } from "@/db";
-import {AddressGroup, addressGroupTable, CreateAddressGroup} from "@/db/schema";
+import {
+  addressesTable,
+  AddressGroup,
+  addressGroupTable,
+  AddressGroupWithDetails,
+  CreateAddressGroup
+} from "@/db/schema";
 import {eq, sql} from "drizzle-orm";
 
 export async function getAddressGroups(): Promise<AddressGroup[]> {
-  return db.query.addressGroupTable.findMany({
-    with: {
-      services: true,
-    }
-  });
+  return db.query.addressGroupTable.findMany();
 }
 
 export async function getAddressGroupsByIdentity(identity: string) {
@@ -45,16 +47,26 @@ export async function insert(
   return insertedGroup;
 }
 
-export async function list(groupIds: string[] = []): Promise<AddressGroup[]> {
-  if (groupIds.length > 0) {
-    return db
-      .select()
-      .from(addressGroupTable)
-      .where(sql`${addressGroupTable.id} IN ${groupIds}`)
-      .orderBy(addressGroupTable.name);
-  }
+export async function list(groupIds: string[] = []): Promise<AddressGroupWithDetails[]> {
+  const query = db
+    .select({
+      id: addressGroupTable.id,
+      name: addressGroupTable.name,
+      region: addressGroupTable.region,
+      domain: addressGroupTable.domain,
+      clients: addressGroupTable.clients,
+      services: addressGroupTable.services,
+      createdAt: addressGroupTable.createdAt,
+      updatedAt: addressGroupTable.updatedAt,
+      addressCount: sql<number>`COUNT(DISTINCT ${addressesTable.id})::int`.as('address_count')
+    })
+    .from(addressGroupTable)
+    .leftJoin(addressesTable, eq(addressGroupTable.id, addressesTable.addressGroupId))
+    .groupBy(addressGroupTable.id);
 
-  return db.select().from(addressGroupTable).orderBy(addressGroupTable.name);
+  return groupIds.length > 0
+    ? await query.where(sql`${addressGroupTable.id} = ANY(${groupIds})`)
+    : await query.orderBy(addressGroupTable.name);
 }
 
 export async function remove(id: number): Promise<AddressGroup> {
