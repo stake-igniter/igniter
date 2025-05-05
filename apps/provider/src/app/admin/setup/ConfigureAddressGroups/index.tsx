@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useMemo, useState} from "react";
-import {AddressGroup, Service} from "@/db/schema";
+import {AddressGroup, AddressGroupWithDetails, Service} from "@/db/schema";
 import {DeleteAddressGroup, ListAddressGroups} from "@/actions/AddressGroups";
 import {Button} from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -22,7 +22,7 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
   const [isAddingAddressGroup, setIsAddingAddressGroup] = useState(false);
   const [isDeletingAddressGroup, setIsDeletingAddressGroup] = useState(false);
   const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroup | null>(null);
-  const [addressGroups, setAddressGroups] = useState<AddressGroup[]>([]);
+  const [addressGroups, setAddressGroups] = useState<AddressGroupWithDetails[]>([]);
   const [addressGroupToDelete, setAddressGroupToDelete] = useState<AddressGroup | null>(null);
   const [services, setServices] = useState<Service[]>([]);
 
