@@ -14,11 +14,13 @@ import {
 } from "@igniter/ui/components/form";
 import {Input} from "@igniter/ui/components/input";
 import {Dialog, DialogContent, DialogFooter, DialogTitle,} from "@igniter/ui/components/dialog";
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {LoaderIcon} from "@igniter/ui/assets";
 import {CreateAddressGroup, UpdateAddressGroup} from "@/actions/AddressGroups";
 import {AddressGroup, Service} from "@/db/schema";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@igniter/ui/components/select";
+import {Combobox} from "@/app/admin/setup/ConfigureAddressGroups/Combobox";
+import {getEndpointInterpolatedUrl} from "@/lib/models/supplier";
 
 const CreateOrUpdateAddressGroupSchema = z.object({
   name: z.string()
@@ -40,6 +42,10 @@ const CreateOrUpdateAddressGroupSchema = z.object({
       /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+.*)$/,
       "Invalid domain format. Ensure it's a valid domain name."
     ).optional().default(''),
+
+  services: z.array(
+    z.string()
+  ).min(1, "You need to assign at least one service").max(8, "You can only assign up to 8 services"),
 });
 
 export interface AddOrUpdateAddressGroupProps {
@@ -47,6 +53,32 @@ export interface AddOrUpdateAddressGroupProps {
   addressGroup?: AddressGroup;
   services: Service[];
 }
+
+const ServiceItem = ({ service, onRemove, ag, region, domain }: { service: Service, onRemove: () => void, ag: string, region: string, domain: string }) => {
+  return (
+    <div key={service.serviceId} className="grid gap-2 p-3 border border-[var(--slate-dividers)] rounded-md">
+      <div className="flex justify-between px-1">
+        <span className="text-sm font-medium">{service.name} ({service.serviceId})</span>
+        <FormLabel
+          className={`text-[var(--color-slate-9)] hover:underline cursor-pointer`}
+          onClick={onRemove}
+        >
+          Remove
+        </FormLabel>
+      </div>
+      {service.endpoints && service.endpoints.length > 0 && (
+        <div className="space-y-2 mt-2">
+          {service.endpoints.map((endpoint, index) => (
+            <div key={index} className="text-sm pl-2">
+              {getEndpointInterpolatedUrl(endpoint, { sid: service.serviceId, ag, region, domain })}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 export function AddOrUpdateAddressGroupDialog({
                                              onClose,
@@ -56,9 +88,7 @@ export function AddOrUpdateAddressGroupDialog({
   const [isCancelling, setIsCanceling] = useState(false);
   const [isCreatingAddressGroup, setIsCreatingAddressGroup] = useState(false);
   const [isUpdatingAddressGroup, setIsUpdatingAddressGroup] = useState(false);
-  const [clients, setClients] = useState<string[]>(
-    addressGroup?.clients ?? []
-  );
+  const [assignedServices, setAssignedServices] = useState<string[]>([]);
 
   const form = useForm<z.infer<typeof CreateOrUpdateAddressGroupSchema>>({
     resolver: zodResolver(CreateOrUpdateAddressGroupSchema),
@@ -67,6 +97,7 @@ export function AddOrUpdateAddressGroupDialog({
       region: addressGroup?.region ?? '',
       domain: addressGroup?.domain ?? '',
       clients: addressGroup?.clients ?? [],
+      services: addressGroup?.services ?? [],
     },
   });
 
@@ -83,24 +114,35 @@ export function AddOrUpdateAddressGroupDialog({
     }
   }, [setIsCanceling, onClose, form]);
 
-  const addClient = useCallback(() => {
-    setClients([...clients, ""]);
-    form.setValue('clients', clients);
-  }, [clients]);
+  const handleAddService = useCallback((serviceId: string) => {
+    const currentServices = form.getValues('services');
+    if (!currentServices.includes(serviceId)) {
+      form.setValue('services', [...currentServices, serviceId]);
+    }
+  }, [form]);
 
-  const removeClient = useCallback((index: number) => {
-    setClients(clients.filter((_, i) => i !== index));
-    form.setValue('clients', clients);
-  }, [clients]);
+  const handleRemoveService = useCallback((serviceId: string) => {
+    const currentServices = form.getValues('services');
+    if (currentServices.includes(serviceId)) {
+      form.setValue('services', currentServices.filter((sid) => sid !== serviceId));
+    }
+  }, [form]);
 
-  const updateClient = useCallback((index: number, value: string) => {
-    const newClients = [...clients];
-    newClients[index] = value;
-    setClients(newClients);
-    form.setValue('clients', newClients.filter(client => client.trim() !== ""));
-  }, [clients, form]);
+  const servicesOnForm = form.watch('services');
+
+  useEffect(() => {
+    setAssignedServices(servicesOnForm);
+  }, [JSON.stringify(servicesOnForm)]);
+
+  const selectableServices = useMemo(() => {
+    return services
+        .filter(service => !servicesOnForm.includes(service.serviceId))
+        .map((s) => ({ value: s.serviceId, label: s.name }))
+  }, [assignedServices]);
 
   const name = form.watch('name');
+  const region = form.watch('region');
+  const domain = form.watch('domain');
 
   async function onSubmit(values: z.infer<typeof CreateOrUpdateAddressGroupSchema>) {
     if (addressGroup) {
@@ -148,7 +190,7 @@ export function AddOrUpdateAddressGroupDialog({
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <div className="grid grid-cols-24 gap-1">
-                <div className={`col-span-12 flex flex-col gap-4 px-2`}>
+                <div className={`col-span-10 flex flex-col gap-4 px-2`}>
                   <FormField
                     name="name"
                     control={form.control}
@@ -205,7 +247,7 @@ export function AddOrUpdateAddressGroupDialog({
                     control={form.control}
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>Domain</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -215,54 +257,48 @@ export function AddOrUpdateAddressGroupDialog({
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    name="services"
+                    control={form.control}
+                    render={() => (
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel>Assign services</FormLabel>
+                        <FormControl>
+                          <Combobox
+                            items={selectableServices}
+                            placeholder="Select service"
+                            searchPlaceholder="Search services"
+                            emptyMessage="No services found"
+                            onSelect={handleAddService}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <div className="col-span-12 flex flex-col gap-4 px-2 !max-h-[350px] overflow-y-auto">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex justify-end items-center px-1">
-                      <FormLabel
-                        className="text-[var(--color-slate-9)] cursor-pointer hover:underline"
-                        onClick={addClient}
-                      >
-                        Add Client Address
-                      </FormLabel>
+                <div className="col-span-14 flex flex-col gap-4 px-2 !max-h-[350px] overflow-y-auto">
+                  {servicesOnForm.length > 0 ? (
+                    <div className="space-y-4">
+                      {servicesOnForm.map((serviceId) => {
+                        const service = services.find(s => s.serviceId === serviceId);
+                        if (!service) return null;
+                        return (
+                          <ServiceItem
+                            key={serviceId}
+                            service={service}
+                            ag={name}
+                            region={region}
+                            domain={domain}
+                            onRemove={() => handleRemoveService(serviceId)}
+                          />
+                        );
+                      })}
                     </div>
-                  </div>
-                  <div className="flex justify-center items-center bg-[var(--color-slate-3)] p-3 rounded-md">
-                    Clients requesting new nodes using these addresses will be served from this address group.
-                  </div>
-                  {(clients.length > 0) && clients.map((client, index) => (
-                    <div key={index} className="grid grid-cols-24 gap-2">
-                      <div className="col-span-21">
-                        <FormField
-                          name={`clients.${index}`}
-                          control={form.control}
-                          render={() => (
-                            <FormItem>
-                              <FormControl>
-                                <Input
-                                  placeholder="pokt address (pokt1...)"
-                                  value={client}
-                                  onChange={(e) => updateClient(index, e.target.value)}
-                                  className="flex-1"
-                                />
-                              </FormControl>
-                              <FormMessage className="px-2" />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="col-span-3">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => removeClient(index)}
-                        >
-                          x
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                  ) : (
+                    <div className="text-muted-foreground text-sm text-center">No services assigned</div>
+                  )}
                 </div>
               </div>
             </form>

@@ -404,7 +404,6 @@ export function AddOrUpdateServiceDialog({
                                       ag: 'rm-01', // Hard coded address group for help
                                       region: Region.AFRICA_SOUTH, // Hard coded region for help
                                       sid: serviceId,
-                                      protocol: getUrlTokenFromRpcType(endpoints[index].rpcType),
                                       domain: settings?.domain ?? 'example.com',
                                     })
                                   })
