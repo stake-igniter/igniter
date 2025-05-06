@@ -30,7 +30,10 @@ export default async function TakeOverLayout({
         disableTransitionOnChange
       >
         <ApplicationSettingsProvider>
-          <WalletConnectionProvider expectedIdentity={session?.user?.identity}>
+          <WalletConnectionProvider
+            protocol={'shannon'}
+            expectedIdentity={session?.user?.identity}
+          >
             <AppTopBar>
               <PriceWidget />
               <CurrentUser />
