@@ -59,6 +59,7 @@ export default async function RootLayout({
           >
             <ApplicationSettingsProvider>
               <WalletConnectionProvider
+                protocol={'shannon'}
                 expectedIdentity={session?.user?.identity}
               >
                 <CurrencyContextProvider>

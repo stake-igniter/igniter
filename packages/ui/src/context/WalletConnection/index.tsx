@@ -2,6 +2,7 @@
 
 import {createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {PocketWalletConnection} from "./PocketWalletConnection";
+import { PocketMorseWalletConnection } from './PocketMorseWalletConnection'
 
 // TODO: Unify this with apps/middleman/src/lib/models/Transactions.ts:4
 export interface ServiceProviderKey {
@@ -107,11 +108,11 @@ export const WalletConnectionContext = createContext<WalletConnection>({
  * @param reconnect
  * @constructor
  */
-export const WalletConnectionProvider = ({ children, expectedIdentity }: { expectedIdentity?: string, children: ReactNode }) => {
+export const WalletConnectionProvider = ({  protocol, children, expectedIdentity }: { protocol: 'shannon' | 'morse', expectedIdentity?: string, children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectedIdentity, setConnectedIdentity] = useState<string | undefined>(undefined);
 
-  const pocketConnection  = useMemo(() => new PocketWalletConnection(), []);
+  const pocketConnection  = useMemo(() => protocol === 'shannon' ? new PocketWalletConnection() : new PocketMorseWalletConnection(), [protocol]);
 
   const connect = useCallback(async (provider?: Provider) => {
     try {

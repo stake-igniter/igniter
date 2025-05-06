@@ -13,9 +13,11 @@ import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
 export interface AbortConfirmationDialogProps {
     isOpen: boolean;
     onResponse: (abort: boolean) => void;
+    type?: 'stake' | 'migration';
 }
 
-export function AbortConfirmationDialog({ isOpen, onResponse }: Readonly<AbortConfirmationDialogProps>) {
+export function AbortConfirmationDialog({ isOpen, onResponse, type = 'stake' }: Readonly<AbortConfirmationDialogProps>) {
+    const typeLabel = type!.slice(0, 1).toUpperCase() + type!.slice(1)
     return (
         <Dialog open={isOpen}>
             <DialogContent
@@ -26,13 +28,13 @@ export function AbortConfirmationDialog({ isOpen, onResponse }: Readonly<AbortCo
             >
                 <DialogTitle asChild>
                     <div className="flex flex-row justify-between items-center py-3 px-4">
-                        <span className="text-[14px]">Abort Stake</span>
+                        <span className="text-[14px]">Abort {typeLabel}</span>
                     </div>
                 </DialogTitle>
                 <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
                 <div className="flex flex-row justify-between items-center py-3 px-4">
                     <span className="text-[14px] text-[var(--color-white-3)]">
-                        Are you sure you want to abort this stake? Be certain you can restart the stake process anytime.
+                        Are you sure you want to abort this {type}? Be certain you can restart the {type} process anytime.
                     </span>
                 </div>
                 <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
@@ -41,13 +43,13 @@ export function AbortConfirmationDialog({ isOpen, onResponse }: Readonly<AbortCo
                         variant={'secondaryStretch'}
                         onClick={() => onResponse(true)}
                     >
-                        Abort Stake
+                        Abort {typeLabel}
                     </Button>
                     <Button
                         variant={'secondaryStretch'}
                         onClick={() => onResponse(false)}
                     >
-                        Continue Stake
+                        Continue {typeLabel}
                     </Button>
                 </DialogFooter>
             </DialogContent>
