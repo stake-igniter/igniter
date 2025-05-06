@@ -30,8 +30,8 @@ const mainRoutes = [
     icon: OverviewDark,
   },
   {
-    title: "Activity",
-    url: "/app/activity",
+    title: "Transactions",
+    url: "/app/transactions",
     icon: ActivityDark,
   },
   {

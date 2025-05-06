@@ -112,7 +112,7 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, onClose}: 
                 onClick={() => onAmountSelected(selectedAmount)}
             >
                 Continue
-            </Button>
+          </Button>
         </div>
     );
 }

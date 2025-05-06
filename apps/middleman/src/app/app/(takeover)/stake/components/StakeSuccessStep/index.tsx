@@ -5,20 +5,22 @@ import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
 import {toCompactFormat, toCurrencyFormat, toDateFormat} from "@igniter/ui/lib/utils";
-import {Activity, Transaction, TransactionStatus, TransactionType} from "@/db/schema";
+import {Transaction} from "@/db/schema";
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
 import {CaretSmallIcon, CornerIcon, LoaderIcon} from "@igniter/ui/assets";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
+import { Operation, SendOperation, StakeOperation } from '@/app/detail/Detail'
+import { MessageType } from "@/lib/constants";
 
 export interface StakeSuccessProps {
     amount: number;
     selectedOffer: StakeDistributionOffer;
-    activity: Activity;
+    transaction: Transaction;
     onClose: () => void;
 }
 
-export function StakeSuccessStep({amount, selectedOffer, activity, onClose}: Readonly<StakeSuccessProps>) {
+export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: Readonly<StakeSuccessProps>) {
     const [isShowingTransactionDetails, setIsShowingTransactionDetails] = useState<boolean>(false);
     const applicationSettings = useApplicationSettings();
     const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
@@ -28,30 +30,23 @@ export function StakeSuccessStep({amount, selectedOffer, activity, onClose}: Rea
             applicationSettings;
     }, [amount, applicationSettings]);
 
-    const activityTransactions = useMemo(() => {
-        return activity.transactions;
-    }, [activity]);
+    const totalNetworkFee = (transaction.consumedFee || transaction.estimatedFee) / 1e6;
 
-    const totalNetworkFee = useMemo(() => {
-        return activityTransactions.length * 0.01;
-    }, [activityTransactions]);
+    const operations = JSON.parse(transaction.unsignedPayload).body.messages as Array<Operation>
+    let operationalFunds = 0
+    const stakeOperations: Array<StakeOperation> = []
+    const sendOperations: Array<SendOperation> = []
 
-    const activityTransactionsMap: Map<Transaction, Transaction[]> = useMemo(() => {
-        const map = new Map<Transaction, Transaction[]>();
+    for (const operation of operations) {
+      if (operation.typeUrl === MessageType.Stake) {
+        stakeOperations.push(operation)
+      } else if (operation.typeUrl === MessageType.Send) {
+        sendOperations.push(operation)
+        operationalFunds += Number(operation.value.amount.at(0)?.amount || 0)
+      }
+    }
 
-        const rootTransactions = activityTransactions.filter(tx => tx.dependsOn === null);
-
-        rootTransactions.forEach(rootTx => {
-            const dependentTransactions = activityTransactions.filter(tx => tx.dependsOn === rootTx.id);
-            map.set(rootTx, dependentTransactions);
-        });
-
-        return map;
-    }, [activityTransactions]);
-    
-    const executedTransactions = useMemo(() => {
-        return activityTransactions.filter(tx => tx.status !== TransactionStatus.Pending);
-    }, [activityTransactions]);
+    operationalFunds = operationalFunds / 1e6
 
     return (
         <div
@@ -147,7 +142,7 @@ export function StakeSuccessStep({amount, selectedOffer, activity, onClose}: Rea
                         </span>
                         <span className="flex flex-row gap-2">
                             <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                                {toCurrencyFormat(activityTransactions.length * selectedOffer.operationalFundsAmount, 2, 2)}
+                                {toCurrencyFormat(operationalFunds)}
                             </span>
                             <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                                 $POKT
@@ -188,7 +183,7 @@ export function StakeSuccessStep({amount, selectedOffer, activity, onClose}: Rea
                                 Timestamp
                             </span>
                             <span className="text-[14px] text-[var(--color-white-1)]">
-                                {toDateFormat(activity.createdAt)}
+                                {toDateFormat(transaction.createdAt)}
                             </span>
                         </span>
                         <span
@@ -197,7 +192,7 @@ export function StakeSuccessStep({amount, selectedOffer, activity, onClose}: Rea
                                 Status
                             </span>
                             <span className="text-[14px] text-[var(--color-white-1)]">
-                                {`${activity.status} (${executedTransactions.length}/${activityTransactions.length})`}
+                                {transaction.status}
                             </span>
                         </span>
                         <span
@@ -211,44 +206,47 @@ export function StakeSuccessStep({amount, selectedOffer, activity, onClose}: Rea
                             <CaretSmallIcon/>
                         )}
                         <span className="text-[14px] text-[var(--color-white-3)]">
-                            {`Transactions (${activityTransactions.length})`}
+                            {`Operations (${operations.length})`}
                         </span>
                     </span>
                 </span>
-
-                        {isShowingTransactionDetails && Array.from(activityTransactionsMap.keys()).map((tx, index) => (
-                            <>
-                                <span key={`stake-${index}`}
-                                      className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
-                                    <span className="text-[14px] text-[var(--color-white-3)]">
-                                        {tx.type === TransactionType.Stake && `Stake (${toCompactFormat(tx.amount)})`}
-                                        {tx.type ===  TransactionType.Unstake && `Unstake (${toCompactFormat(tx.amount)})`}
-                                    </span>
-                                    <span className="flex flex-row gap-2">
-                                        <span className="text-[14px] text-[var(--color-white-1)]">
-                                            {tx.status}
-                                        </span>
-                                    </span>
-                                </span>
-                                {activityTransactionsMap.get(tx)?.map((tx, index) => (
-                                    <span key={`dependant-tx-${index}`}
-                                          className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
-                                    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
-                                        <CornerIcon/>
-                                        <span>
-                                            {tx.type ===  TransactionType.Send && 'Operational Funds'}
-                                        </span>
-                                        </span>
-                                        <span className="flex flex-row gap-2">
-                                            <span className="text-[14px] text-[var(--color-white-1)]">
-                                                {tx.status}
-                                            </span>
-                                        </span>
-                                    </span>
-                                ))}
-                            </>
-                        ))}
-                    </div>
+                      {isShowingTransactionDetails && stakeOperations.map((operation, index) => {
+                        const operationalFund = sendOperations.find(op => op.value.toAddress === operation.value.operatorAddress)
+                        return (
+                          <>
+                              <span key={`stake-${index}`}
+                                    className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
+                                  <span className="text-[14px] text-[var(--color-white-3)]">
+                                      Stake {toCompactFormat((operation.value.stake.amount))}
+                                  </span>
+                                  <span className="flex flex-row gap-2">
+                                      <span className="text-[14px] text-[var(--color-white-1)]">
+                                          {transaction.status}
+                                      </span>
+                                  </span>
+                              </span>
+                            {operationalFund && (
+                              <span
+                                key={`dependant-tx-${index}`}
+                                className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]"
+                              >
+                                  <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
+                                      <CornerIcon/>
+                                      <span>
+                                          Operational Funds
+                                      </span>
+                                  </span>
+                                  <span className="flex flex-row gap-2">
+                                      <span className="text-[14px] text-[var(--color-white-1)]">
+                                          {transaction.status}
+                                      </span>
+                                  </span>
+                              </span>
+                            )}
+                          </>
+                        )
+                      })}
+                  </div>
                 </>
             )}
 

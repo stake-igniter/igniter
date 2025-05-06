@@ -11,7 +11,7 @@ import {DialogClose} from "@igniter/ui/components/dialog";
 import {useEffect, useMemo, useState} from "react";
 import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import { Activity } from "@/db/schema";
+import { Transaction } from "@/db/schema";
 import {requestKeys} from "@/lib/services/provider";
 import {
     createOperationalFundsTransaction,
@@ -36,7 +36,7 @@ export interface StakingProcessStatus {
 
 export interface StakingProcessProps {
     offer: StakeDistributionOffer;
-    onStakeCompleted: (result: StakingProcessStatus, activity?: Activity) => void;
+    onStakeCompleted: (result: StakingProcessStatus, transaction?: Transaction) => void;
 }
 
 enum StakingProcessStep {
@@ -65,7 +65,7 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
     const [stakeTransactions, setStakeTransactions] = useState<SignedStakeTransaction[]>([]);
     const [unsignedOperationalFundsTransactions, setUnsignedOperationalFundsTransactions] = useState<OperationalFundsTransactionSignatureRequest[]>([])
     const [operationalFundsTransactions, setOperationalFundsTransactions] = useState<SignedOperationalFundsTransaction[]>([])
-    const [activity, setActivity] = useState<Activity>();
+    const [transaction, setTransaction] = useState<Transaction>();
 
     const stakeTransactionsCount = useMemo(() => {
         return offer.stakeDistribution.reduce((count, stakeDistribution) => {
@@ -168,13 +168,13 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
             }
 
             try {
-                const activity = await CreateStakeActivity({
+                const transaction = await CreateStakeActivity({
                     offer,
                     stakeTransactions,
                     operationalFundsTransactions,
                 });
 
-                setActivity(activity);
+                setTransaction(transaction);
 
                 setStakingStatus((prev) => ({
                     ...prev,
@@ -194,7 +194,7 @@ export function StakingProcess({ offer, onStakeCompleted }: Readonly<StakingProc
             setTimeout(() => {
                 onStakeCompleted({
                     ...stakingStatus,
-                }, activity);
+                }, transaction);
                 setOpen(false);
             }, 1000);
         }

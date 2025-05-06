@@ -33,6 +33,10 @@ export default function CurrentUser() {
 
   const authenticateUser = async (address: string) => {
     try {
+      if (status === 'loading') {
+        return;
+      }
+
       const chainOnWallet = await getChain();
 
       if (chainOnWallet !== settingsChainId) {
@@ -73,7 +77,7 @@ export default function CurrentUser() {
         await authenticateUser(connectedIdentity);
       }
     })();
-  }, [isConnected, connectedIdentity, applicationSettings]);
+  }, [isConnected, connectedIdentity, applicationSettings, status]);
 
   const isLanding = currentPath === Routes.root;
   const isAdmin = currentPath.startsWith(Routes.adminRoot);
@@ -81,13 +85,11 @@ export default function CurrentUser() {
 
   if (status === "loading") {
     return (
-      <Button
-        className="flex items-center justify-center w-[150px]"
-        variant={"secondary"}
-        disabled={true}
+      <div
+        className="flex items-center justify-center w-[150px] h-9 bg-[color:var(--secondary)] rounded-md opacity-50"
       >
         <LoaderIcon className="animate-spin" />
-      </Button>
+      </div>
     );
   }
 
