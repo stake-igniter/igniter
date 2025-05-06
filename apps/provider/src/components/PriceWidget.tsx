@@ -1,5 +1,5 @@
 import React from "react";
-import getPrice from "../../lib/price";
+import getPrice from "../lib/price";
 import Price from "@igniter/ui/components/Price";
 
 export default async function PriceWidget() {

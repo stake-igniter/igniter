@@ -89,26 +89,18 @@ export const applicationSettingsTable = pgTable("application_settings", {
   supportEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),
   ownerEmail: varchar({ length: 255 }),
-  providerFee: decimal({ precision: 5, scale: 2 }).notNull(),
+  fee: decimal({ precision: 5, scale: 2 }).notNull(),
+  domain: varchar({length: 255}).notNull(),
   delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
   chainId: chainIdEnum().notNull(),
   minimumStake: integer().notNull(),
   isBootstrapped: boolean().notNull(),
+  rpcUrl: varchar().notNull(),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
 
 export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
-
-export const chainsTable = pgTable("chains", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }),
-  chainId: varchar({ length: 255 }).notNull(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
-});
-
-export type Chain = typeof chainsTable.$inferSelect;
 
 export const addressesTable = pgTable("addresses", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -139,48 +131,30 @@ export type CreateAddress = typeof addressesTable.$inferInsert;
 
 export const addressGroupTable = pgTable("address_groups", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  mnemonic: encryptedText("mnemonic").notNull(),
-  identity: varchar({ length: 255 }).notNull().unique(),
+  name: varchar({ length: 255 }).notNull().unique(),
   region: varchar({ length: 255 }).notNull(),
+  domain: varchar({ length: 255 }),
   clients: varchar().array().default([]),
+  services: varchar().array().default([]),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
 });
-
-export const addressGroupServiceTable = pgTable("address_group_services", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  addressGroupId: integer().notNull().references(() => addressGroupTable.id),
-  serviceId: varchar().notNull().references(() => servicesTable.serviceId),
-  createdAt: timestamp().defaultNow(),
-});
-
 
 export const addressGroupRelations = relations(
   addressGroupTable,
   ({ many }) => ({
     addresses: many(addressesTable),
-    services: many(addressGroupServiceTable),
   })
 );
 
-export const addressGroupServiceRelations = relations(addressGroupServiceTable, ({ one }) => ({
-  addressGroup: one(addressGroupTable, {
-    fields: [addressGroupServiceTable.addressGroupId],
-    references: [addressGroupTable.id],
-  }),
-  service: one(servicesTable, {
-    fields: [addressGroupServiceTable.serviceId],
-    references: [servicesTable.serviceId],
-  }),
-}));
-
-
-export type AddressGroup = typeof addressGroupTable.$inferSelect & {
-  addresses: Address[];
-  services: Service[];
-};
+export type AddressGroup = typeof addressGroupTable.$inferSelect;
 
 export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
+
+export type AddressGroupWithDetails = AddressGroup & {
+  addressCount: number;
+}
+
 
 export const keyManagementStrategyColumns = {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -228,15 +202,11 @@ export const servicesTable = pgTable("services",
     return [
      check(
         "check_endpoints_not_empty",
-        sql`jsonb_array_length(endpoints) > 0`
+        sql`json_array_length(endpoints) > 0`
       ),
     ];
   }
 );
-
-export const serviceRelations = relations(servicesTable, ({ many }) => ({
-  addressGroups: many(addressGroupServiceTable),
-}));
 
 
 export type Service = typeof servicesTable.$inferSelect;

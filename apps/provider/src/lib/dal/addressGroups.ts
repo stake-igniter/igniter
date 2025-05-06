@@ -1,28 +1,20 @@
 import { db } from "@/db";
-import { AddressGroup, addressGroupTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
-
-export async function createAddressGroup(addressGroup: AddressGroup) {
-  const insertedGroup = await db
-    .insert(addressGroupTable)
-    .values(addressGroup)
-    .returning()
-    .then((res) => res[0]);
-
-  return insertedGroup;
-}
+import {
+  addressesTable,
+  AddressGroup,
+  addressGroupTable,
+  AddressGroupWithDetails,
+  CreateAddressGroup
+} from "@/db/schema";
+import {eq, sql} from "drizzle-orm";
 
 export async function getAddressGroups(): Promise<AddressGroup[]> {
-  return db.query.addressGroupTable.findMany({
-    with: {
-      services: true,
-    }
-  });
+  return db.query.addressGroupTable.findMany();
 }
 
 export async function getAddressGroupsByIdentity(identity: string) {
   const addressGroup = await db.query.addressGroupTable.findFirst({
-    where: eq(addressGroupTable.identity, identity),
+    where: eq(addressGroupTable.name, identity),
   });
 
   if (!addressGroup) {
@@ -38,4 +30,71 @@ export async function getAddressGroupsWithAddresses() {
       addresses: true,
     },
   });
+}
+
+export async function insert(
+  addressGroup: CreateAddressGroup
+): Promise<AddressGroup> {
+  const [insertedGroup] = await db
+    .insert(addressGroupTable)
+    .values(addressGroup)
+    .returning();
+
+  if (!insertedGroup) {
+    throw new Error("Failed to insert address group");
+  }
+
+  return insertedGroup;
+}
+
+export async function list(groupIds: string[] = []): Promise<AddressGroupWithDetails[]> {
+  const query = db
+    .select({
+      id: addressGroupTable.id,
+      name: addressGroupTable.name,
+      region: addressGroupTable.region,
+      domain: addressGroupTable.domain,
+      clients: addressGroupTable.clients,
+      services: addressGroupTable.services,
+      createdAt: addressGroupTable.createdAt,
+      updatedAt: addressGroupTable.updatedAt,
+      addressCount: sql<number>`COUNT(DISTINCT ${addressesTable.id})::int`.as('address_count')
+    })
+    .from(addressGroupTable)
+    .leftJoin(addressesTable, eq(addressGroupTable.id, addressesTable.addressGroupId))
+    .groupBy(addressGroupTable.id);
+
+  return groupIds.length > 0
+    ? await query.where(sql`${addressGroupTable.id} = ANY(${groupIds})`)
+    : await query.orderBy(addressGroupTable.name);
+}
+
+export async function remove(id: number): Promise<AddressGroup> {
+  const [deletedGroup] = await db
+    .delete(addressGroupTable)
+    .where(sql`${addressGroupTable.id} = ${id}`)
+    .returning();
+
+  if (!deletedGroup) {
+    throw new Error("Failed to delete address group");
+  }
+
+  return deletedGroup;
+}
+
+export async function update(
+  id: number,
+  addressGroupUpdates: Partial<AddressGroup>,
+): Promise<AddressGroup> {
+  const [updatedGroup] = await db
+    .update(addressGroupTable)
+    .set(addressGroupUpdates)
+    .where(sql`${addressGroupTable.id} = ${id}`)
+    .returning();
+
+  if (!updatedGroup) {
+    throw new Error("Failed to update the address group");
+  }
+
+  return updatedGroup;
 }

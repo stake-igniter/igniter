@@ -14,7 +14,12 @@ const updateSettingsSchema = z.object({
   chainId: z.nativeEnum(ChainId),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
-  providerFee: z.coerce
+  domain: z.string()
+    .regex(
+      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+.*)$/,
+      "Invalid domain format. Ensure it's a valid domain name."
+    ).min(1, "Domain is required"),
+  fee: z.coerce
     .number()
     .min(1, "Provider fee must be greater than 0")
     .max(100),

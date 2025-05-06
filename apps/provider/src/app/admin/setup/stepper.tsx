@@ -5,69 +5,45 @@ import React from "react";
 import { cn } from "@igniter/ui/lib/utils";
 import { ApplicationSettings } from "@/db/schema";
 import { completeSetup } from "@/actions/ApplicationSettings";
-import ApplicationSettingsForm from "./settingsForm";
-import StakeSettingsForm from "./stakeForm";
-import { ChainMap } from "@/lib/supportedChains";
+import ConfigureAppSettings from "./ConfigureAppSettings";
+import ConfigureAddressGroup from "./ConfigureAddressGroups";
+import ConfigureServices from "@/app/admin/setup/ConfigureServices";
 
 interface StepperProps {
   settings: Partial<ApplicationSettings>;
-  chainMap: ChainMap;
 }
 
 const { useStepper, steps, utils } = defineStepper(
   {
     id: "application-settings",
-    title: "Application Settings",
+    title: "General Settings",
   },
   {
-    id: "configure-stake",
-    title: "Configure Stake Settings",
+    id: "services",
+    title: "Select Provided Services"
+  },
+  {
+    id: "address-groups",
+    title: "Address Groups",
   },
   {
     id: "complete-bootstrap",
-    title: "Complete",
+    title: "Finish",
   }
 );
-
-const ApplicationSettingsComponent: React.FC<{
-  settings: Partial<ApplicationSettings>;
-  goNext: () => void;
-}> = ({ settings, goNext }) => {
-  return (
-    <div className="grid gap-4">
-      <div className="grid gap-2">
-        <h4>Fill out your system settings:</h4>
-        <ApplicationSettingsForm defaultValues={settings} goNext={goNext} />
-      </div>
-    </div>
-  );
-};
-
-const StakeSettingsComponent: React.FC<{
-  goNext: () => void;
-  chainMap: ChainMap;
-}> = ({ goNext, chainMap }) => {
-  return (
-    <div className="grid gap-4">
-      <div className="grid gap-2">
-        <StakeSettingsForm goNext={goNext} chainMap={chainMap} />
-      </div>
-    </div>
-  );
-};
 
 const BootstrapCompleteComponent = () => {
   return <h3 className="text-lg py-4">System Bootstrap complete!</h3>;
 };
 
-export const Stepper: React.FC<StepperProps> = ({ settings, chainMap }) => {
+export const Stepper: React.FC<StepperProps> = ({ settings }) => {
   const stepper = useStepper();
 
   const currentIndex = utils.getIndex(stepper.current.id);
 
   return (
     <>
-      <div className="space-y-6 p-6 border rounded-lg min-h-[400] flex flex-col justify-between">
+      <div className="space-y-6 p-6 min-h-[400] flex flex-col justify-between">
         <div className="flex flex-col gap-5">
           <div className="flex justify-between">
             <h2 className="text-lg font-medium">System Bootstrap</h2>
@@ -117,15 +93,18 @@ export const Stepper: React.FC<StepperProps> = ({ settings, chainMap }) => {
         <div className="space-y-5">
           {stepper.switch({
             "application-settings": () => (
-              <ApplicationSettingsComponent
-                settings={settings}
+              <ConfigureAppSettings defaultValues={settings} goNext={stepper.next} />
+            ),
+            "services": () => (
+              <ConfigureServices
                 goNext={stepper.next}
+                goBack={stepper.prev}
               />
             ),
-            "configure-stake": () => (
-              <StakeSettingsComponent
+            "address-groups": () => (
+              <ConfigureAddressGroup
                 goNext={stepper.next}
-                chainMap={chainMap}
+                goBack={stepper.prev}
               />
             ),
             "complete-bootstrap": () => <BootstrapCompleteComponent />,
