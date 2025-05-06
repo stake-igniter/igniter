@@ -1,6 +1,6 @@
 "use client";
 
-import { NodeStatus, Provider } from "@/db/schema";
+import { NodeStatus, Provider, Transaction } from '@/db/schema'
 import {
   CopyIcon,
   RewardsDisabledIcon,
@@ -20,6 +20,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { useCallback } from "react";
 import { toast } from "sonner";
+import { useAddItemToDetail } from '@/app/detail/Detail'
 
 export type Node = {
   id: number;
@@ -32,6 +33,7 @@ export type Node = {
   balance: number;
   provider?: Provider;
   createdAt: Date;
+  transactions: Array<Transaction>;
 };
 
 export const columns: ColumnDef<Node>[] = [
@@ -136,10 +138,39 @@ export const columns: ColumnDef<Node>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      const addItem = useAddItemToDetail()
       const node = row.original;
       return (
         <div className="flex items-center justify-end">
-          <Button variant="ghost" size="sm" className="border-0">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="border-0"
+            onClick={() => {
+              addItem({
+                type: 'node',
+                body: {
+                  address: node.address,
+                  status: node.status,
+                  stakeAmount: node.stakeAmount,
+                  operationalFundsAmount: node.balance,
+                  transactions: node.transactions.map(t => ({
+                    id: t.id,
+                    type: t.type,
+                    status: t.status,
+                    createdAt: t.createdAt!,
+                    operations: [],
+                    hash: t.hash || '',
+                    estimatedFee: t.estimatedFee,
+                    consumedFee: t.consumedFee,
+                    provider: node.provider?.name || '',
+                    providerFee: t.providerFee,
+                    typeProviderFee: t.typeProviderFee,
+                  })),
+                }
+              })
+            }}
+          >
             <RightArrowIcon style={{ width: "18px", height: "18px" }} />
           </Button>
         </div>

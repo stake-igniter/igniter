@@ -6,9 +6,9 @@ import {PickOfferStep} from "@/app/app/(takeover)/stake/components/PickOfferStep
 import {ReviewStep} from "@/app/app/(takeover)/stake/components/ReviewStep";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {StakeSuccessStep} from "@/app/app/(takeover)/stake/components/StakeSuccessStep";
-import {Activity} from "@/db/schema";
 import {redirect} from "next/navigation";
 import {AbortConfirmationDialog} from '@/app/app/(takeover)/stake/components/AbortConfirmationDialog'
+import { Transaction } from '@/db/schema'
 
 enum StakeActivitySteps {
     PickStakeAmount = 'PickStakeAmount',
@@ -21,7 +21,7 @@ export default function StakePage() {
     const [step, setStep] = useState<StakeActivitySteps>(StakeActivitySteps.PickStakeAmount);
     const [stakeAmount, setStakeAmount] = useState<number>(0);
     const [selectedOffer, setSelectedOffer] = useState<StakeDistributionOffer | undefined>();
-    const [activity, setActivity] = useState<Activity | undefined>(undefined);
+    const [transaction, setTransaction] = useState<Transaction | undefined>(undefined);
     const [isAbortDialogOpen, setAbortDialogOpen] = useState(false);
 
     const handleStakeAmountChange = (amount: number) => {
@@ -67,7 +67,7 @@ export default function StakePage() {
                                 result.schedulingTransactionsDone
                             ) {
                                 setStep(StakeActivitySteps.Success);
-                                setActivity(activity)
+                                setTransaction(activity)
                             }
                         }}
                         onBack={() => {
@@ -79,7 +79,7 @@ export default function StakePage() {
 
                 {step === StakeActivitySteps.Success && (
                     <StakeSuccessStep
-                        activity={activity!}
+                        transaction={transaction!}
                         amount={stakeAmount}
                         selectedOffer={selectedOffer!}
                         onClose={() => {

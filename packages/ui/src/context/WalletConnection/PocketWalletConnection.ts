@@ -103,7 +103,6 @@ export class PocketWalletConnection implements WalletConnection {
   }
 
   switchChain = async (chainId: string): Promise<void> => {
-    console.log('debug: switching chain to', chainId);
     try {
       await this.provider.send(
         PocketMethod.SWITCH_CHAIN,

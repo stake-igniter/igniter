@@ -1,19 +1,36 @@
 import Link from 'next/link';
 import { Button } from "@igniter/ui/components/button";
-import ChangeIndicator from "@igniter/ui/components/ChangeIndicator";
 import BinCardList from "./components/BinCardList";
+import { getNodesByUser } from '@/lib/dal/nodes'
 
 export const dynamic = "force-dynamic";
 
-const binCards = [
-  { value: "15K", label: "Nodes", count: 8 },
-  { value: "30K", label: "Nodes", count: 2 },
-  { value: "45K", label: "Nodes", count: 6 },
-  { value: "60K", label: "Nodes", count: 9 },
-  { value: "VAL", label: "Nodes", count: 3 },
-];
-
 export default async function Page() {
+  const nodes = await getNodesByUser();
+
+  let nodesWith15k = 0, nodesWith30k = 0, nodesWith45k = 0, nodesWith60k = 0, totalStaked = 0;
+
+  for (const node of nodes) {
+    totalStaked += Number(node.stakeAmount);
+
+    if (node.stakeAmount < 30000) {
+      nodesWith15k++;
+    } else if (node.stakeAmount < 45000) {
+      nodesWith30k++;
+    } else if (node.stakeAmount < 60000) {
+      nodesWith45k++;
+    } else {
+      nodesWith60k++;
+    }
+  }
+
+  const binCards = [
+    { value: "15K", label: "Nodes", count: nodesWith15k },
+    { value: "30K", label: "Nodes", count: nodesWith30k },
+    { value: "45K", label: "Nodes", count: nodesWith45k },
+    { value: "60K", label: "Nodes", count: nodesWith60k },
+  ];
+
   return (
     <>
       <div className="border-b-1">
@@ -30,6 +47,9 @@ export default async function Page() {
                 <Link href="/app/stake">
                   <Button>Stake</Button>
                 </Link>
+                <Link href="/app/migrate">
+                  <Button>Migrate</Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -40,12 +60,12 @@ export default async function Page() {
           <div className="flex flex-col gap-3">
             <h3 className="text-(--slightly-muted-foreground)">Stake</h3>
             <h1 className="font-mono">
-              990,000 <span className="text-muted-foreground">$POKT</span>
+              {totalStaked.toLocaleString()} <span className="text-muted-foreground">$POKT</span>
             </h1>
-            <p className="flex flex-row gap-2">
-              <ChangeIndicator change={120000} isPercentage={false} />
-              <span className="text-muted-foreground">vs. Previous Month</span>
-            </p>
+            {/*<p className="flex flex-row gap-2">*/}
+            {/*  <ChangeIndicator change={120000} isPercentage={false} />*/}
+            {/*  <span className="text-muted-foreground">vs. Previous Month</span>*/}
+            {/*</p>*/}
           </div>
           <div className="flex flex-col gap-3">
             <BinCardList bins={binCards} />

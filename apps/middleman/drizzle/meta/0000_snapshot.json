@@ -1,100 +1,9 @@
 {
-  "id": "c5043459-54ef-4ca8-9071-4f175de1692f",
+  "id": "f9064947-eff1-420f-832d-d475d032e01d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.activity": {
-      "name": "activity",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "activity_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "type": {
-          "name": "type",
-          "type": "activity_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "activity_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pending'"
-        },
-        "seenOn": {
-          "name": "seenOn",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "totalValue": {
-          "name": "totalValue",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "userId": {
-          "name": "userId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "activity_userId_users_id_fk": {
-          "name": "activity_userId_users_id_fk",
-          "tableFrom": "activity",
-          "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.application_settings": {
       "name": "application_settings",
       "schema": "",
@@ -530,12 +439,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "activityId": {
-          "name": "activityId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
@@ -552,6 +455,43 @@
         },
         "userId": {
           "name": "userId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unsignedPayload": {
+          "name": "unsignedPayload",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estimatedFee": {
+          "name": "estimatedFee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consumedFee": {
+          "name": "consumedFee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerFee": {
+          "name": "providerFee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "typeProviderFee": {
+          "name": "typeProviderFee",
+          "type": "provider_fee",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "providerId": {
+          "name": "providerId",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
@@ -572,19 +512,6 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "transactions_activityId_activity_id_fk": {
-          "name": "transactions_activityId_activity_id_fk",
-          "tableFrom": "transactions",
-          "tableTo": "activity",
-          "columnsFrom": [
-            "activityId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "transactions_userId_users_id_fk": {
           "name": "transactions_userId_users_id_fk",
           "tableFrom": "transactions",
@@ -597,9 +524,82 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "transactions_providerId_providers_id_fk": {
+          "name": "transactions_providerId_providers_id_fk",
+          "tableFrom": "transactions",
+          "tableTo": "providers",
+          "columnsFrom": [
+            "providerId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.transactions_to_nodes": {
+      "name": "transactions_to_nodes",
+      "schema": "",
+      "columns": {
+        "transactionId": {
+          "name": "transactionId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nodeId": {
+          "name": "nodeId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "transactions_to_nodes_transactionId_transactions_id_fk": {
+          "name": "transactions_to_nodes_transactionId_transactions_id_fk",
+          "tableFrom": "transactions_to_nodes",
+          "tableTo": "transactions",
+          "columnsFrom": [
+            "transactionId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "transactions_to_nodes_nodeId_nodes_id_fk": {
+          "name": "transactions_to_nodes_nodeId_nodes_id_fk",
+          "tableFrom": "transactions_to_nodes",
+          "tableTo": "nodes",
+          "columnsFrom": [
+            "nodeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "transactions_to_nodes_transactionId_nodeId_pk": {
+          "name": "transactions_to_nodes_transactionId_nodeId_pk",
+          "columns": [
+            "transactionId",
+            "nodeId"
+          ]
+        }
+      },
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
@@ -670,26 +670,6 @@
     }
   },
   "enums": {
-    "public.activity_status": {
-      "name": "activity_status",
-      "schema": "public",
-      "values": [
-        "pending",
-        "success",
-        "failure",
-        "in_progress"
-      ]
-    },
-    "public.activity_type": {
-      "name": "activity_type",
-      "schema": "public",
-      "values": [
-        "Stake",
-        "Unstake",
-        "Upstake",
-        "Operational Funds"
-      ]
-    },
     "public.chain_ids": {
       "name": "chain_ids",
       "schema": "public",
@@ -707,6 +687,14 @@
         "staking",
         "unstaked",
         "unstaking"
+      ]
+    },
+    "public.provider_fee": {
+      "name": "provider_fee",
+      "schema": "public",
+      "values": [
+        "up_to",
+        "fixed"
       ]
     },
     "public.provider_status": {

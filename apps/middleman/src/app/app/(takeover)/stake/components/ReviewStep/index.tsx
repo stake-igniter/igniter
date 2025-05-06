@@ -9,12 +9,12 @@ import {CaretSmallIcon, CornerIcon} from "@igniter/ui/assets";
 import {useMemo, useState} from "react"
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
-import {Activity} from "@/db/schema";
+import {Transaction} from "@/db/schema";
 
 export interface ReviewStepProps {
     amount: number;
     selectedOffer: StakeDistributionOffer;
-    onStakeCompleted: (status: StakingProcessStatus, activity?: Activity) => void;
+    onStakeCompleted: (status: StakingProcessStatus, transaction?: Transaction) => void;
     onBack: () => void;
     onClose: () => void;
 }
@@ -29,6 +29,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onC
         }, []);
     }, [selectedOffer]);
 
+    // TODO: Add way to get fee before signing transaction
     const totalNetworkFee = useMemo(() => {
         return prospectTransactions.length * 0.01;
     }, [prospectTransactions]);
