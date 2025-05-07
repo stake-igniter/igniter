@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@igniter/ui/components/button";
-import { Checkbox } from "@igniter/ui/components/checkbox";
+import { Progress } from "@igniter/ui/components/progress";
+import { CheckIcon } from "@igniter/ui/assets";
 import { defineStepper } from "@stepperize/react";
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
@@ -85,12 +86,6 @@ export const Stepper: React.FC<StepperProps> = ({ settings, providers }) => {
         <div className="flex flex-col gap-5">
           <div className="flex justify-between">
             <h2 className="text-lg font-medium">System Bootstrap</h2>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                Step {currentIndex + 1} of {steps.length}
-              </span>
-              <div />
-            </div>
           </div>
           <nav aria-label="Bootstrap Steps" className="group my-4">
             <ol
@@ -99,29 +94,69 @@ export const Stepper: React.FC<StepperProps> = ({ settings, providers }) => {
             >
               {stepper.all.map((step, index) => (
                 <React.Fragment key={step.id}>
-                  <li className="flex items-center gap-4 flex-shrink-0">
+                  <li className="flex flex-col items-center gap-4 flex-shrink-0">
                     <Button
                       type="button"
                       role="tab"
-                      variant={index <= currentIndex ? "default" : "secondary"}
                       aria-current={
                         stepper.current.id === step.id ? "step" : undefined
                       }
                       aria-posinset={index + 1}
                       aria-setsize={steps.length}
                       aria-selected={stepper.current.id === step.id}
-                      className="flex size-10 items-center justify-center rounded-full border border-primary-foreground"
+                      className={cn(
+                        "flex size-11 items-center justify-center rounded-full border pointer-events-none",
+                        {
+                          "bg-blue-1/70 ring-2 ring-blue-1/70 ring-offset-3 ring-offset-background":
+                            stepper.current.id === step.id,
+                          "bg-success/70": index < currentIndex,
+                          "bg-primary": index > currentIndex,
+                        }
+                      )}
                     >
-                      {index < currentIndex ? "✓" : index + 1}
+                      {index < currentIndex ? <CheckIcon /> : null}
                     </Button>
-                    <span
-                      className={cn("text-sm text-secondary-foreground", {
-                        "font-medium": index <= currentIndex,
-                      })}
-                    >
-                      {step.title}
-                    </span>
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-sm text-muted-foreground tracking-wider uppercase">
+                        Step {index + 1}
+                      </span>
+                      <span className="text-md text-secondary-foreground font-medium">
+                        {step.title}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-sm",
+                          index < currentIndex
+                            ? "text-success"
+                            : index === currentIndex
+                              ? "text-blue-1"
+                              : "text-muted-foreground"
+                        )}
+                      >
+                        {index < currentIndex
+                          ? "Completed"
+                          : index === currentIndex
+                            ? "In Progress"
+                            : "Pending"}
+                      </span>
+                    </div>
                   </li>
+                  {index < stepper.all.length - 1 && (
+                    <li className="flex-grow">
+                      <Progress
+                        value={
+                          index < currentIndex
+                            ? 100
+                            : index === currentIndex
+                              ? 50
+                              : 0
+                        }
+                        className={cn("w-[80%] m-auto", {
+                          "[&>*]:bg-success/70": index < currentIndex,
+                        })}
+                      />
+                    </li>
+                  )}
                 </React.Fragment>
               ))}
             </ol>
