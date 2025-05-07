@@ -1,40 +1,18 @@
 import { heartbeat, sleep } from "@temporalio/activity";
 import { RawTxRequest } from "@pokt-foundation/pocketjs-types";
 import { BlockchainProvider } from "@/lib/blockchain";
-import * as activityDAL from "../lib/dal/activity";
 import * as transactionDAL from "../lib/dal/transaction";
 import * as providerDAL from "../lib/dal/provider";
-import * as nodeDAL from "../lib/dal/node";
 import {
-  Activity,
-  NewNode,
   Provider,
   ProviderStatus,
   Transaction,
 } from "../lib/db/schema";
-import { addressFromPublicKey } from "./utils";
 import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "../lib/constants";
 import {signPayload} from "../lib/crypto"
 import {getApplicationSettingsFromDatabase} from "../lib/dal/applicationSettings";
 
 export const createActivities = (blockchainProvider: BlockchainProvider) => ({
-  async getActivity(activityId: number) {
-    const activity = await activityDAL.getActivity(activityId);
-    if (!activity) {
-      throw new Error("Activity not found");
-    }
-    return activity;
-  },
-  async listActivities() {
-    return await activityDAL.listActivities();
-  },
-  async updateActivity(activityId: number, payload: Partial<Activity>) {
-    const activity = await activityDAL.getActivity(activityId);
-    if (!activity) {
-      throw new Error("Activity not found");
-    }
-    return await activityDAL.updateActivity(activityId, payload);
-  },
   async getTransaction(transactionId: number) {
     const transaction = await transactionDAL.getTransaction(transactionId);
     if (!transaction) {
@@ -152,15 +130,15 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     }
     return [tx.tx_result, tx.stdTx.msg] as const;
   },
-  async parseNodesPublicKey(
-    nodes: (Omit<NewNode, "address"> & { publicKey: string })[]
-  ) {
-    return nodes.map(({ publicKey, ...rest }) => ({
-      ...rest,
-      address: addressFromPublicKey(Buffer.from(publicKey, "hex")),
-    }));
-  },
-  async insertNodes(nodes: NewNode[]) {
-    return await nodeDAL.insertNodes(nodes);
-  },
+  // async parseNodesPublicKey(
+  //   nodes: (Omit<NewNode, "address"> & { publicKey: string })[]
+  // ) {
+  //   return nodes.map(({ publicKey, ...rest }) => ({
+  //     ...rest,
+  //     address: addressFromPublicKey(Buffer.from(publicKey, "hex")),
+  //   }));
+  // },
+  // async insertNodes(nodes: NewNode[]) {
+  //   return await nodeDAL.insertNodes(nodes);
+  // },
 });
