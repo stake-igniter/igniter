@@ -10,8 +10,8 @@ import {
   timestamp,
   varchar,
   bigint,
-  uuid,
-} from "drizzle-orm/pg-core";
+  uuid, primaryKey,
+} from 'drizzle-orm/pg-core'
 
 export function enumToPgEnum<T extends Record<string, any>>(
   myEnum: T
@@ -31,25 +31,11 @@ export enum ChainId {
   PocketAlpha = "pocket-alpha",
 }
 
-export enum ActivityType {
-  Stake = "Stake",
-  Unstake = "Unstake",
-  Upstake = "Upstake",
-  OperationalFunds = "Operational Funds",
-}
-
 export enum TransactionType {
   Stake = "Stake",
   Unstake = "Unstake",
   Upstake = "Upstake",
   OperationalFunds = "Operational Funds",
-}
-
-export enum ActivityStatus {
-  Pending = "pending",
-  Success = "success",
-  Failure = "failure",
-  InProgress = "in_progress",
 }
 
 export enum TransactionStatus {
@@ -64,7 +50,6 @@ export enum ProviderStatus {
   Unhealthy = "unhealthy",
   Unknown = "unknown",
   Unreachable = "unreachable",
-  ProcessingSignatureError = "processing_signature_error",
 }
 
 export enum NodeStatus {
@@ -74,15 +59,10 @@ export enum NodeStatus {
   Unstaking = "unstaking",
 }
 
-export const activityTypeEnum = pgEnum(
-  "activity_type",
-  enumToPgEnum(ActivityType)
-);
-
-export const activityStatusEnum = pgEnum(
-  "activity_status",
-  enumToPgEnum(ActivityStatus)
-);
+export enum ProviderFee {
+  UpTo = "up_to",
+  Fixed = "fixed",
+}
 
 export const transactionTypeEnum = pgEnum(
   "tx_type",
@@ -97,6 +77,11 @@ export const transactionStatusEnum = pgEnum(
 export const providerStatusEnum = pgEnum(
   "provider_status",
   enumToPgEnum(ProviderStatus)
+);
+
+export const providerFeeEnum = pgEnum(
+  "provider_fee",
+  enumToPgEnum(ProviderFee)
 );
 
 export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
@@ -135,6 +120,7 @@ export const providersTable = pgTable("providers", {
 
 export const providersRelations = relations(providersTable, ({ many }) => ({
   nodes: many(nodesTable),
+  transactions: many(transactionsTable),
 }));
 
 export type Provider = typeof providersTable.$inferSelect;
@@ -158,30 +144,6 @@ export const applicationSettingsTable = pgTable("application_settings", {
 
 export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
 
-export const activityTable = pgTable("activity", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  type: activityTypeEnum().notNull(),
-  status: activityStatusEnum().notNull().default(ActivityStatus.Pending),
-  seenOn: timestamp(),
-  totalValue: integer().notNull(),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp().defaultNow(),
-  userId: integer().references(() => usersTable.id),
-});
-
-export const activityTransactionRelation = relations(
-  activityTable,
-  ({ many, one }) => ({
-    transactions: many(transactionsTable),
-    createdBy: one(usersTable, {
-      fields: [activityTable.userId],
-      references: [usersTable.id],
-    }),
-  })
-);
-
-export type BaseActivity = typeof activityTable.$inferSelect;
-
 export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   hash: varchar({ length: 255 }),
@@ -197,19 +159,21 @@ export const transactionsTable = pgTable("transactions", {
 
   signedPayload: varchar().notNull(),
   fromAddress: varchar({ length: 255 }).notNull(),
-  activityId: integer().references(() => activityTable.id),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow(),
   userId: integer().references(() => usersTable.id),
+
+  unsignedPayload: varchar().notNull(),
+  estimatedFee: integer().notNull(),
+  consumedFee: integer().notNull(),
+  providerFee: integer(),
+  typeProviderFee: providerFeeEnum(),
+  providerId: integer().references(() => providersTable.id),
 });
 
 export const transactionsRelations = relations(
   transactionsTable,
-  ({ one }) => ({
-    activity: one(activityTable, {
-      fields: [transactionsTable.activityId],
-      references: [activityTable.id],
-    }),
+  ({ one, many }) => ({
     dependsOn: one(transactionsTable, {
       fields: [transactionsTable.dependsOn],
       references: [transactionsTable.id],
@@ -218,6 +182,11 @@ export const transactionsRelations = relations(
       fields: [transactionsTable.userId],
       references: [usersTable.id],
     }),
+    provider: one(providersTable, {
+      fields: [transactionsTable.providerId],
+      references: [providersTable.id],
+    }),
+    transactionsToNodes: many(transactionsToNodesTable),
   })
 );
 
@@ -238,7 +207,7 @@ export const nodesTable = pgTable("nodes", {
   userId: integer().references(() => usersTable.id),
 });
 
-export const nodesRelations = relations(nodesTable, ({ one }) => ({
+export const nodesRelations = relations(nodesTable, ({ one, many }) => ({
   provider: one(providersTable, {
     fields: [nodesTable.providerId],
     references: [providersTable.id],
@@ -247,10 +216,27 @@ export const nodesRelations = relations(nodesTable, ({ one }) => ({
     fields: [nodesTable.userId],
     references: [usersTable.id],
   }),
+  transactionsToNodes: many(transactionsToNodesTable),
+}));
+
+export const transactionsToNodesTable = pgTable("transactions_to_nodes", {
+    transactionId: integer().notNull().references(() => transactionsTable.id),
+    nodeId: integer().notNull().references(() => nodesTable.id),
+  },
+  (t) => [
+    primaryKey({ columns: [t.transactionId, t.nodeId] })
+  ]
+)
+
+export const transactionsToNodesRelations = relations(transactionsToNodesTable, ({ one }) => ({
+  transaction: one(transactionsTable, {
+    fields: [transactionsToNodesTable.transactionId],
+    references: [transactionsTable.id],
+  }),
+  node: one(nodesTable, {
+    fields: [transactionsToNodesTable.nodeId],
+    references: [nodesTable.id],
+  }),
 }));
 
 export type Node = typeof nodesTable.$inferSelect;
-export type NewNode = typeof nodesTable.$inferInsert;
-export type Activity = typeof activityTable.$inferSelect & {
-  transactions: Transaction[];
-};
