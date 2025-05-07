@@ -183,6 +183,9 @@ export const delegatorsTable = pgTable("delegators", {
   updatedAt: timestamp().defaultNow(),
 });
 
+export type Delegator = typeof delegatorsTable.$inferSelect;
+export type CreateDelegator = typeof delegatorsTable.$inferInsert;
+
 export const servicesTable = pgTable("services",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),

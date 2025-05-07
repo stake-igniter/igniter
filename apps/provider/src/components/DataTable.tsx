@@ -14,30 +14,69 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
+  getFilteredRowModel,
 } from "@igniter/ui/components/table"
-import {ReactNode} from "react";
+import { Input } from "@igniter/ui/components/input"
+import { ReactNode, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
-  addItemAction?: ReactNode;
+  actions?: ReactNode;
   itemActions?: (row: TData) => ReactNode;
   data: TData[];
+  isDisabled?: boolean;
+  searchableFields?: string[];
 }
 
 export function DataTable<TData, TValue>({
                                            columns,
                                            data,
-                                           addItemAction,
+                                           actions,
                                            itemActions,
+                                           isDisabled = false,
+                                           searchableFields = [], // Default to empty array if not provided
                                          }: DataTableProps<TData, TValue>) {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      globalFilter: searchTerm,
+    },
+    onGlobalFilterChange: setSearchTerm,
+    globalFilterFn: (row, columnId, filterValue) => {
+      if (searchableFields.length === 0) {
+        const value = String(row.getValue(columnId) || "").toLowerCase();
+        return value.includes(filterValue.toLowerCase());
+      }
+
+      return searchableFields.some(field => {
+        const value = String(row.getValue(field) || "").toLowerCase();
+        return value.includes(filterValue.toLowerCase());
+      });
+    },
+  });
 
   return (
-    <div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        {searchableFields.length > 0 && (
+          <Input
+            placeholder={`Search by ${searchableFields.join(", ")}...`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+        )}
+        {searchableFields.length === 0 && (<span></span>)}
+        <div>
+          {actions}
+        </div>
+      </div>
+
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -60,13 +99,6 @@ export function DataTable<TData, TValue>({
               {itemActions && (
                 <TableHead />
               )}
-              {addItemAction && (
-                <TableHead
-                  className="flex flex-row-reverse px-0"
-                  >
-                  {addItemAction}
-                </TableHead>
-              )}
             </TableRow>
           ))}
         </TableHeader>
@@ -76,7 +108,7 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className="bg-[--var(bg-black)] r group"
+                className={`bg-[--var(bg-black)] r group ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
@@ -86,7 +118,7 @@ export function DataTable<TData, TValue>({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
-                {addItemAction && <TableCell />}
+                {actions && <TableCell />}
                 {itemActions && (
                   <TableCell className="flex flex-row-reverse px-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     {itemActions(row.original)}
@@ -97,9 +129,9 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell
-                colSpan={addItemAction && itemActions
+                colSpan={actions && itemActions
                   ? columns.length + 2
-                  : addItemAction || itemActions
+                  : actions || itemActions
                     ? columns.length + 1
                     : columns.length}
                 className="h-24 text-center"
@@ -107,7 +139,6 @@ export function DataTable<TData, TValue>({
                 No results.
               </TableCell>
             </TableRow>
-
           )}
         </TableBody>
       </Table>
