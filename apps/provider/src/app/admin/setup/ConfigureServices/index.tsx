@@ -28,7 +28,8 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
         <DataTable
           columns={columns}
           data={services}
-          addItemAction={
+          searchableFields={["name", "serviceId"]}
+          actions={
             <Button
               onClick={() => setIsAddingService(true) }
             >
@@ -56,7 +57,7 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
         />
       )
     : (
-        <div className="flex justify-center items-center w-full h-full">
+        <div className="flex justify-center items-center w-full h-[300px]">
           {!isLoading && (
             <Button
               onClick={() => setIsAddingService(true) }

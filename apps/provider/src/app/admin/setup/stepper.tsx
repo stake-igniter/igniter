@@ -8,6 +8,7 @@ import { completeSetup } from "@/actions/ApplicationSettings";
 import ConfigureAppSettings from "./ConfigureAppSettings";
 import ConfigureAddressGroup from "./ConfigureAddressGroups";
 import ConfigureServices from "@/app/admin/setup/ConfigureServices";
+import ConfigureDelegators from "@/app/admin/setup/ConfigureDelegators";
 
 interface StepperProps {
   settings: Partial<ApplicationSettings>;
@@ -25,6 +26,10 @@ const { useStepper, steps, utils } = defineStepper(
   {
     id: "address-groups",
     title: "Address Groups",
+  },
+  {
+    id: "delegators",
+    title: "Delegators",
   },
   {
     id: "complete-bootstrap",
@@ -103,6 +108,12 @@ export const Stepper: React.FC<StepperProps> = ({ settings }) => {
             ),
             "address-groups": () => (
               <ConfigureAddressGroup
+                goNext={stepper.next}
+                goBack={stepper.prev}
+              />
+            ),
+            'delegators': () => (
+              <ConfigureDelegators
                 goNext={stepper.next}
                 goBack={stepper.prev}
               />

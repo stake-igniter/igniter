@@ -37,11 +37,12 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
         <DataTable
           columns={columns}
           data={addressGroups}
-          addItemAction={
+          searchableFields={["name", "region", "domain"]}
+          actions={
             <Button
               onClick={() => setIsAddingAddressGroup(true) }
             >
-              Add addressGroup
+              Add address Group
             </Button>
           }
           itemActions={(addressGroup) => (
@@ -65,7 +66,7 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
         />
       )
     : (
-        <div className="flex justify-center items-center w-full h-full">
+        <div className="flex justify-center items-center w-full h-[300px]">
           {!isLoading && (
             <Button
               onClick={() => setIsAddingAddressGroup(true) }
