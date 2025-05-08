@@ -1,11 +1,8 @@
 import {NextResponse} from "next/server";
-import {
-  getSupplierStakeConfigurations,
-  NodeStakeDistributionItem,
-} from "@/lib/dal/addresses";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {Supplier} from "@/lib/models/supplier";
 import {APIResponse} from "@/lib/models/response";
+import {getSupplierStakeConfigurations} from "@/lib/services/suppliers";
 
 export async function OPTIONS() {
   return NextResponse.json({}, {
@@ -26,7 +23,7 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
       return isBootstrappedResponse;
     }
 
-    const signatureValidationResponse = await validateRequestSignature<NodeStakeDistributionItem[]>(request);
+    const signatureValidationResponse = await validateRequestSignature<SupplierStakeRequest>(request);
 
     if (signatureValidationResponse instanceof NextResponse) {
       return signatureValidationResponse;
@@ -34,8 +31,8 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
 
     const {data} = signatureValidationResponse;
 
-    if (!data || !data.length) {
-      return NextResponse.json({error: "Invalid request. Empty node stake distribution."}, {status: 400});
+    if (!data || !data.items.length) {
+      return NextResponse.json({error: "Invalid request. Empty stake distribution."}, {status: 400});
     }
 
     const response = await getSupplierStakeConfigurations(data);
