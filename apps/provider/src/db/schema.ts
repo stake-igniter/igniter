@@ -139,7 +139,7 @@ export type AddressGroup = typeof addressGroupTable.$inferSelect;
 export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
 
 export type AddressGroupWithDetails = AddressGroup & {
-  addressCount: number;
+  keysCount: number;
 }
 
 export const delegatorsTable = pgTable("delegators", {
