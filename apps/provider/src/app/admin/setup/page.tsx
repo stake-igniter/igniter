@@ -12,13 +12,13 @@ export default async function Page() {
 
   const session = await auth();
 
-  // if (!session || session.user.role !== UserRole.Owner) {
-  //   return redirect("/");
-  // }
-  //
-  // if (settings.isBootstrapped) {
-  //   return redirect("/admin");
-  // }
+  if (!session || session.user.role !== UserRole.Owner) {
+    return redirect("/");
+  }
+
+  if (settings.isBootstrapped) {
+    return redirect("/admin");
+  }
 
   return (
     <div className="p-6">

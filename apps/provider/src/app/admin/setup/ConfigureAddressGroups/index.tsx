@@ -152,7 +152,7 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
           addressGroup={updateAddressGroup}
         />
       )}
-      <div className="py-2 max-h-[500px] min-h-[300px] overflow-y-scroll">
+      <div className="py-2 max-h-[500px] min-h-[300px] overflow-y-scroll scrollbar-hidden">
         {content}
       </div>
       <div className="flex justify-end gap-4">

@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
     const response: StatusResponse = {
       minimumStake: minimumStake,
-      providerFee: applicationSettings.providerFee,
+      providerFee: applicationSettings.fee,
       regions: getUniqueRegions(addressGroups),
       domains: [], // TODO: extract unique domains from the services endpoints.
       delegatorRewardsAddress: applicationSettings.delegatorRewardsAddress,

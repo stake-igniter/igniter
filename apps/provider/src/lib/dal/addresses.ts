@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import {addressesTable, AddressGroup, CreateAddress} from "@/db/schema";
-import { sha256 } from "js-sha256";
 import { getActiveKeyManagementStrategy } from "./keyManagementStrategies";
 import { getAddressGroupsByIdentity } from "./addressGroups";
 import { KeyManagementStrategyFactory } from "../keyStrategies";
