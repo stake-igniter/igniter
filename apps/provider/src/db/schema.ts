@@ -32,12 +32,7 @@ export enum ChainId {
   PocketAlpha = "pocket-alpha",
 }
 
-export enum KeyManagementStrategyType {
-  Dynamic = "dynamic",
-  Manual = "manual",
-}
-
-export enum AddressState {
+export enum KeyState {
   Available = 'available',
   Delivered = 'delivered',
   Staking = 'staking',
@@ -63,14 +58,7 @@ export const roleEnum = pgEnum("role", enumToPgEnum(UserRole));
 
 export const chainIdEnum = pgEnum("chain_ids", enumToPgEnum(ChainId));
 
-export const keyManagementStrategyTypeEnum = pgEnum(
-  "key_management_strategy_types",
-  enumToPgEnum(KeyManagementStrategyType)
-);
-
-export const rpcTypeEnum = pgEnum("rpc_types", enumToPgEnum(RPCType));
-
-export const addressStateEnum = pgEnum("address_states", enumToPgEnum(AddressState));
+export const addressStateEnum = pgEnum("address_states", enumToPgEnum(KeyState));
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -102,13 +90,12 @@ export const applicationSettingsTable = pgTable("application_settings", {
 
 export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
 
-export const addressesTable = pgTable("addresses", {
+export const keysTable = pgTable("keys", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   address: varchar({ length: 255 }).notNull(),
   publicKey: varchar({ length: 66 }).notNull(),
   privateKey: encryptedText("privateKey").notNull(),
-  origin: keyManagementStrategyTypeEnum().notNull(),
-  state: addressStateEnum().notNull().default(AddressState.Available),
+  state: addressStateEnum().notNull().default(KeyState.Available),
   deliveredAt: timestamp(),
   deliveredTo: varchar("delegator_identity").references(() => delegatorsTable.identity),
   addressGroupId: integer("address_group_id").references(
@@ -118,16 +105,16 @@ export const addressesTable = pgTable("addresses", {
   updatedAt: timestamp().defaultNow(),
 });
 
-export const addressRelations = relations(addressesTable, ({ one }) => ({
+export const keysRelations = relations(keysTable, ({ one }) => ({
   addressGroup: one(addressGroupTable, {
-    fields: [addressesTable.addressGroupId],
+    fields: [keysTable.addressGroupId],
     references: [addressGroupTable.id],
   }),
 }));
 
-export type Address = typeof addressesTable.$inferSelect;
+export type Key = typeof keysTable.$inferSelect;
 
-export type CreateAddress = typeof addressesTable.$inferInsert;
+export type CreateKey = typeof keysTable.$inferInsert;
 
 export const addressGroupTable = pgTable("address_groups", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -143,7 +130,7 @@ export const addressGroupTable = pgTable("address_groups", {
 export const addressGroupRelations = relations(
   addressGroupTable,
   ({ many }) => ({
-    addresses: many(addressesTable),
+    addresses: many(keysTable),
   })
 );
 
@@ -154,24 +141,6 @@ export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
 export type AddressGroupWithDetails = AddressGroup & {
   addressCount: number;
 }
-
-
-export const keyManagementStrategyColumns = {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  weight: integer().notNull().unique(),
-  addressGroupAssignment: varchar({ length: 255 }).notNull(),
-  type: keyManagementStrategyTypeEnum().notNull(),
-  disabled: boolean().notNull(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
-};
-
-export const keyManagementStrategyTable = pgTable("key_management_strategies", {
-  ...keyManagementStrategyColumns,
-});
-
-export type KeyManagementStrategy =
-  typeof keyManagementStrategyTable.$inferSelect;
 
 export const delegatorsTable = pgTable("delegators", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

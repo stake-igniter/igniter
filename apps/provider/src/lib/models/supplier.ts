@@ -91,5 +91,16 @@ export function getEndpointInterpolatedUrl(endpoint: SupplierEndpoint, params: S
   return url.replace(/{(\w+)}/g, (match, key) => {
     return data[key] || '';
   });
-
 }
+
+export interface SupplierStakeRequest {
+  region?: string;
+  items: StakeDistributionItem[];
+}
+
+export interface StakeDistributionItem {
+  revShare: number;
+  amount: number;
+  qty: number;
+}
+

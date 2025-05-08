@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import {
-  addressesTable,
+  keysTable,
   AddressGroup,
   addressGroupTable,
   AddressGroupWithDetails,
@@ -58,10 +58,10 @@ export async function list(groupIds: string[] = []): Promise<AddressGroupWithDet
       services: addressGroupTable.services,
       createdAt: addressGroupTable.createdAt,
       updatedAt: addressGroupTable.updatedAt,
-      addressCount: sql<number>`COUNT(DISTINCT ${addressesTable.id})::int`.as('address_count')
+      addressCount: sql<number>`COUNT(DISTINCT ${keysTable.id})::int`.as('address_count')
     })
     .from(addressGroupTable)
-    .leftJoin(addressesTable, eq(addressGroupTable.id, addressesTable.addressGroupId))
+    .leftJoin(keysTable, eq(addressGroupTable.id, keysTable.addressGroupId))
     .groupBy(addressGroupTable.id);
 
   return groupIds.length > 0

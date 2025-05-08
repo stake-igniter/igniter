@@ -7,10 +7,11 @@ export interface StakeDistributionOffer {
     regions: string[];
     operationalFundsAmount: number;
     delegatorRewardsAddress: string;
-    stakeDistribution: NodeStakeDistributionItem[];
+    stakeDistribution: StakeDistributionItem[];
 }
 
-export interface NodeStakeDistributionItem {
+export interface StakeDistributionItem {
+    revShare: string;
     amount: number;
     qty: number;
 }
