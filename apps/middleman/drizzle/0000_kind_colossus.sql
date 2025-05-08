@@ -8,7 +8,7 @@ CREATE TYPE "public"."tx_type" AS ENUM('Stake', 'Unstake', 'Upstake', 'Operation
 CREATE TABLE "application_settings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "application_settings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255),
-	"appIdentity" uuid DEFAULT gen_random_uuid() NOT NULL,
+	"appIdentity" uuid NOT NULL,
 	"supportEmail" varchar(255),
 	"ownerEmail" varchar(255),
 	"ownerIdentity" varchar(255) NOT NULL,
@@ -17,6 +17,7 @@ CREATE TABLE "application_settings" (
 	"isBootstrapped" boolean NOT NULL,
 	"chainId" "chain_ids" NOT NULL,
 	"delegatorRewardsAddress" varchar(255) NOT NULL,
+	"rpcUrl" varchar NOT NULL,
 	"privacyPolicy" text,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now()
@@ -46,6 +47,7 @@ CREATE TABLE "providers" (
 	"visible" boolean DEFAULT true NOT NULL,
 	"fee" numeric DEFAULT '1.00' NOT NULL,
 	"domains" text[] DEFAULT '{}',
+	"regions" text[] DEFAULT '{}',
 	"status" "provider_status" DEFAULT 'unknown' NOT NULL,
 	"delegatorRewardsAddress" varchar(255) DEFAULT '',
 	"minimumStake" integer DEFAULT 0 NOT NULL,

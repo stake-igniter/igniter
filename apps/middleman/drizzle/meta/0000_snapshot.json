@@ -1,5 +1,5 @@
 {
-  "id": "f9064947-eff1-420f-832d-d475d032e01d",
+  "id": "40fd6a32-9f46-4037-af22-2635f45612eb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -35,8 +35,7 @@
           "name": "appIdentity",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "supportEmail": {
           "name": "supportEmail",
@@ -85,6 +84,12 @@
         "delegatorRewardsAddress": {
           "name": "delegatorRewardsAddress",
           "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rpcUrl": {
+          "name": "rpcUrl",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -291,6 +296,13 @@
         },
         "domains": {
           "name": "domains",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'"
+        },
+        "regions": {
+          "name": "regions",
           "type": "text[]",
           "primaryKey": false,
           "notNull": false,
