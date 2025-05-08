@@ -1,5 +1,5 @@
 {
-  "id": "bcc3fc3c-2392-4306-a434-702b77dc4cb1",
+  "id": "baa61563-6212-48a7-a388-9cafcc1ee133",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -84,128 +84,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.addresses": {
-      "name": "addresses",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "addresses_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "address": {
-          "name": "address",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "publicKey": {
-          "name": "publicKey",
-          "type": "varchar(66)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "privateKey": {
-          "name": "privateKey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "origin": {
-          "name": "origin",
-          "type": "key_management_strategy_types",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "state": {
-          "name": "state",
-          "type": "address_states",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'available'"
-        },
-        "deliveredAt": {
-          "name": "deliveredAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "delegator_identity": {
-          "name": "delegator_identity",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "address_group_id": {
-          "name": "address_group_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "addresses_delegator_identity_delegators_identity_fk": {
-          "name": "addresses_delegator_identity_delegators_identity_fk",
-          "tableFrom": "addresses",
-          "tableTo": "delegators",
-          "columnsFrom": [
-            "delegator_identity"
-          ],
-          "columnsTo": [
-            "identity"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "addresses_address_group_id_address_groups_id_fk": {
-          "name": "addresses_address_group_id_address_groups_id_fk",
-          "tableFrom": "addresses",
-          "tableTo": "address_groups",
-          "columnsFrom": [
-            "address_group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -404,8 +282,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.key_management_strategies": {
-      "name": "key_management_strategies",
+    "public.keys": {
+      "name": "keys",
       "schema": "",
       "columns": {
         "id": {
@@ -415,7 +293,7 @@
           "notNull": true,
           "identity": {
             "type": "always",
-            "name": "key_management_strategies_id_seq",
+            "name": "keys_id_seq",
             "schema": "public",
             "increment": "1",
             "startWith": "1",
@@ -425,30 +303,49 @@
             "cycle": false
           }
         },
-        "weight": {
-          "name": "weight",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "addressGroupAssignment": {
-          "name": "addressGroupAssignment",
+        "address": {
+          "name": "address",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
-        "type": {
-          "name": "type",
-          "type": "key_management_strategy_types",
-          "typeSchema": "public",
+        "publicKey": {
+          "name": "publicKey",
+          "type": "varchar(66)",
           "primaryKey": false,
           "notNull": true
         },
-        "disabled": {
-          "name": "disabled",
-          "type": "boolean",
+        "privateKey": {
+          "name": "privateKey",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "state": {
+          "name": "state",
+          "type": "address_states",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'available'"
+        },
+        "deliveredAt": {
+          "name": "deliveredAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delegator_identity": {
+          "name": "delegator_identity",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "address_group_id": {
+          "name": "address_group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -466,17 +363,36 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "key_management_strategies_weight_unique": {
-          "name": "key_management_strategies_weight_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "weight"
-          ]
+      "foreignKeys": {
+        "keys_delegator_identity_delegators_identity_fk": {
+          "name": "keys_delegator_identity_delegators_identity_fk",
+          "tableFrom": "keys",
+          "tableTo": "delegators",
+          "columnsFrom": [
+            "delegator_identity"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "keys_address_group_id_address_groups_id_fk": {
+          "name": "keys_address_group_id_address_groups_id_fk",
+          "tableFrom": "keys",
+          "tableTo": "address_groups",
+          "columnsFrom": [
+            "address_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -661,14 +577,6 @@
         "pocket-alpha"
       ]
     },
-    "public.key_management_strategy_types": {
-      "name": "key_management_strategy_types",
-      "schema": "public",
-      "values": [
-        "dynamic",
-        "manual"
-      ]
-    },
     "public.role": {
       "name": "role",
       "schema": "public",
@@ -676,16 +584,6 @@
         "admin",
         "user",
         "owner"
-      ]
-    },
-    "public.rpc_types": {
-      "name": "rpc_types",
-      "schema": "public",
-      "values": [
-        "GRPC",
-        "WEBSOCKET",
-        "JSON_RPC",
-        "REST"
       ]
     }
   },
