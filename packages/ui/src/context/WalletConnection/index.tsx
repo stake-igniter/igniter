@@ -108,7 +108,7 @@ export const WalletConnectionContext = createContext<WalletConnection>({
  * @param reconnect
  * @constructor
  */
-export const WalletConnectionProvider = ({  protocol, children, expectedIdentity }: { protocol: 'shannon' | 'morse', expectedIdentity?: string, children: ReactNode }) => {
+export const WalletConnectionProvider = ({  protocol = 'shannon', children, expectedIdentity }: { protocol?: 'shannon' | 'morse', expectedIdentity?: string, children: ReactNode }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectedIdentity, setConnectedIdentity] = useState<string | undefined>(undefined);
 
