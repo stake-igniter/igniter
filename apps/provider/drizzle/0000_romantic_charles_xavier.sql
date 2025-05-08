@@ -1,8 +1,6 @@
 CREATE TYPE "public"."address_states" AS ENUM('available', 'delivered', 'staking', 'staked', 'stake_failed', 'unstaking', 'unstaked');--> statement-breakpoint
 CREATE TYPE "public"."chain_ids" AS ENUM('pocket', 'pocket-beta', 'pocket-alpha');--> statement-breakpoint
-CREATE TYPE "public"."key_management_strategy_types" AS ENUM('dynamic', 'manual');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'user', 'owner');--> statement-breakpoint
-CREATE TYPE "public"."rpc_types" AS ENUM('GRPC', 'WEBSOCKET', 'JSON_RPC', 'REST');--> statement-breakpoint
 CREATE TABLE "address_groups" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "address_groups_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255) NOT NULL,
@@ -13,20 +11,6 @@ CREATE TABLE "address_groups" (
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now(),
 	CONSTRAINT "address_groups_name_unique" UNIQUE("name")
-);
---> statement-breakpoint
-CREATE TABLE "addresses" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "addresses_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"address" varchar(255) NOT NULL,
-	"publicKey" varchar(66) NOT NULL,
-	"privateKey" text NOT NULL,
-	"origin" "key_management_strategy_types" NOT NULL,
-	"state" "address_states" DEFAULT 'available' NOT NULL,
-	"deliveredAt" timestamp,
-	"delegator_identity" varchar,
-	"address_group_id" integer,
-	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "application_settings" (
@@ -58,15 +42,17 @@ CREATE TABLE "delegators" (
 	CONSTRAINT "delegators_publicKey_unique" UNIQUE("publicKey")
 );
 --> statement-breakpoint
-CREATE TABLE "key_management_strategies" (
-	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "key_management_strategies_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
-	"weight" integer NOT NULL,
-	"addressGroupAssignment" varchar(255) NOT NULL,
-	"type" "key_management_strategy_types" NOT NULL,
-	"disabled" boolean NOT NULL,
+CREATE TABLE "keys" (
+	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "keys_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
+	"address" varchar(255) NOT NULL,
+	"publicKey" varchar(66) NOT NULL,
+	"privateKey" text NOT NULL,
+	"state" "address_states" DEFAULT 'available' NOT NULL,
+	"deliveredAt" timestamp,
+	"delegator_identity" varchar,
+	"address_group_id" integer,
 	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now(),
-	CONSTRAINT "key_management_strategies_weight_unique" UNIQUE("weight")
+	"updatedAt" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "services" (
@@ -92,5 +78,5 @@ CREATE TABLE "users" (
 	"updatedAt" timestamp DEFAULT now()
 );
 --> statement-breakpoint
-ALTER TABLE "addresses" ADD CONSTRAINT "addresses_delegator_identity_delegators_identity_fk" FOREIGN KEY ("delegator_identity") REFERENCES "public"."delegators"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "addresses" ADD CONSTRAINT "addresses_address_group_id_address_groups_id_fk" FOREIGN KEY ("address_group_id") REFERENCES "public"."address_groups"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "keys" ADD CONSTRAINT "keys_delegator_identity_delegators_identity_fk" FOREIGN KEY ("delegator_identity") REFERENCES "public"."delegators"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "keys" ADD CONSTRAINT "keys_address_group_id_address_groups_id_fk" FOREIGN KEY ("address_group_id") REFERENCES "public"."address_groups"("id") ON DELETE no action ON UPDATE no action;
