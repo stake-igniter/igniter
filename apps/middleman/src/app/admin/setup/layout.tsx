@@ -32,7 +32,7 @@ export default function AdminSetupLayout({
               <CurrentUser />
             </AppTopBar>
             <div className="flex flex-1">
-              <div className={"w-full h-full flex overflow-x-hidden"}>
+              <div className={"w-full flex h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden"}>
                 <div className="flex flex-col w-full gap-6">
                   {children}
                 </div>

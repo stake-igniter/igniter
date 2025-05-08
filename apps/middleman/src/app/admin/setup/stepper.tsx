@@ -50,10 +50,7 @@ const ApplicationSettingsComponent: React.FC<{
 }> = ({ settings, goNext }) => {
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2">
-        <h4>Fill out your system settings:</h4>
-        <ApplicationSettingsForm defaultValues={settings} goNext={goNext} />
-      </div>
+      <ApplicationSettingsForm defaultValues={settings} goNext={goNext} />
     </div>
   );
 };
@@ -81,11 +78,10 @@ export const Stepper: React.FC<StepperProps> = ({ settings, providers }) => {
   const currentIndex = utils.getIndex(stepper.current.id);
 
   return (
-    <>
-      <div className="space-y-6 p-6 border rounded-lg min-h-[400] flex flex-col justify-between">
+    <div className="space-y-6 p-6 border rounded-lg min-h-[400px] flex flex-col justify-between">
         <div className="flex flex-col gap-5">
           <div className="flex justify-between">
-            <h2 className="text-lg font-medium">System Bootstrap</h2>
+            <h2 className="text-lg font-medium">System Setup</h2>
           </div>
           <nav aria-label="Bootstrap Steps" className="group my-4">
             <ol
@@ -188,6 +184,5 @@ export const Stepper: React.FC<StepperProps> = ({ settings, providers }) => {
           </div>
         )}
       </div>
-    </>
   );
 };

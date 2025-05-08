@@ -9,6 +9,13 @@ function getUniqueRegions(addressGroups: AddressGroup[]) {
   return Array.from(new Set(addressGroups.map((group) => group.region)).values());
 }
 
+function getUniqueDomains(addressGroups: AddressGroup[]) {
+  return Array.from(new Set(addressGroups
+    .filter((group) => group.domain)
+    .map((group) => group.domain!)
+  ).values());
+}
+
 export async function POST(request: Request) {
   try {
     const isBootstrappedResponse = await ensureApplicationIsBootstrapped();
@@ -32,7 +39,7 @@ export async function POST(request: Request) {
       minimumStake: minimumStake,
       providerFee: applicationSettings.fee,
       regions: getUniqueRegions(addressGroups),
-      domains: [], // TODO: extract unique domains from the services endpoints.
+      domains: getUniqueDomains(addressGroups),
       delegatorRewardsAddress: applicationSettings.delegatorRewardsAddress,
       healthy: true,
     };
