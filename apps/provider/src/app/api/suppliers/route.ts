@@ -1,8 +1,9 @@
 import {NextResponse} from "next/server";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
-import {Supplier} from "@/lib/models/supplier";
+import {Supplier, SupplierStakeRequest} from "@/lib/models/supplier";
 import {APIResponse} from "@/lib/models/response";
 import {getSupplierStakeConfigurations} from "@/lib/services/suppliers";
+import {REQUEST_IDENTITY_HEADER} from "@/lib/constants";
 
 export async function OPTIONS() {
   return NextResponse.json({}, {
@@ -23,6 +24,12 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
       return isBootstrappedResponse;
     }
 
+    const delegatorIdentity = request.headers.get(REQUEST_IDENTITY_HEADER);
+
+    if (!delegatorIdentity) {
+      return NextResponse.json({error: `Invalid request. Delegator identity was not provided. REQUEST_IDENTITY_HEADER: ${REQUEST_IDENTITY_HEADER} is required.`}, {status: 400});
+    }
+
     const signatureValidationResponse = await validateRequestSignature<SupplierStakeRequest>(request);
 
     if (signatureValidationResponse instanceof NextResponse) {
@@ -35,7 +42,7 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
       return NextResponse.json({error: "Invalid request. Empty stake distribution."}, {status: 400});
     }
 
-    const response = await getSupplierStakeConfigurations(data);
+    const response = await getSupplierStakeConfigurations(data, delegatorIdentity);
 
     if (!response || response.length === 0) {
       return NextResponse.json(

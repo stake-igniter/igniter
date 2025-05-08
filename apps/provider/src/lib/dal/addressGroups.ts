@@ -47,26 +47,36 @@ export async function insert(
   return insertedGroup;
 }
 
-export async function list(groupIds: string[] = []): Promise<AddressGroupWithDetails[]> {
-  const query = db
-    .select({
-      id: addressGroupTable.id,
-      name: addressGroupTable.name,
-      region: addressGroupTable.region,
-      domain: addressGroupTable.domain,
-      clients: addressGroupTable.clients,
-      services: addressGroupTable.services,
-      createdAt: addressGroupTable.createdAt,
-      updatedAt: addressGroupTable.updatedAt,
-      addressCount: sql<number>`COUNT(DISTINCT ${keysTable.id})::int`.as('address_count')
-    })
-    .from(addressGroupTable)
-    .leftJoin(keysTable, eq(addressGroupTable.id, keysTable.addressGroupId))
-    .groupBy(addressGroupTable.id);
+/**
+ * Lists address groups with their associated address counts
+ * @param region Optional region to filter address groups
+ * @returns Promise containing array of address groups with details
+ */
+export async function list(region: string = ''): Promise<AddressGroupWithDetails[]> {
+  try {
+    const query = db
+      .select({
+        id: addressGroupTable.id,
+        name: addressGroupTable.name,
+        region: addressGroupTable.region,
+        domain: addressGroupTable.domain,
+        clients: addressGroupTable.clients,
+        services: addressGroupTable.services,
+        createdAt: addressGroupTable.createdAt,
+        updatedAt: addressGroupTable.updatedAt,
+        keysCount: sql<number>`COUNT(DISTINCT ${keysTable.id})::int`.as('keys_count')
+      })
+      .from(addressGroupTable)
+      .leftJoin(keysTable, eq(addressGroupTable.id, keysTable.addressGroupId))
+      .groupBy(addressGroupTable.id);
 
-  return groupIds.length > 0
-    ? await query.where(sql`${addressGroupTable.id} = ANY(${groupIds})`)
-    : await query.orderBy(addressGroupTable.name);
+    return region
+      ? await query.where(sql`${addressGroupTable.region} = ${region}`).orderBy(addressGroupTable.name)
+      : await query.orderBy(addressGroupTable.name);
+  } catch (error) {
+    console.error("Error listing address groups:", error);
+    throw new Error("Failed to retrieve address groups");
+  }
 }
 
 export async function remove(id: number): Promise<AddressGroup> {
