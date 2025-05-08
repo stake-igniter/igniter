@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Button } from "@igniter/ui/components/button";
 import {
   Form,
-  FormControl,
+  FormControl, FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -33,6 +33,7 @@ export const formSchema = z.object({
   chainId: z.nativeEnum(ChainId),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
+  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
   ownerEmail: z.string().email(),
   fee: z.coerce
     .number()
@@ -43,6 +44,11 @@ export const formSchema = z.object({
     (val) => ({ message: `${val} is not a valid address` })
   ),
   minimumStake: z.coerce.number().default(15000),
+  appIdentity: z.string().min(1, "App Identity is Required").refine(
+    (value) =>
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-9][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value),
+    {message: "App Identity must be a valid UUID"}
+  ),
   privacyPolicy: z.string().optional(),
 });
 
@@ -54,11 +60,13 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       chainId: defaultValues.chainId || ChainId.Pocket,
       name: defaultValues.name || "",
       supportEmail: defaultValues.supportEmail || "",
+      rpcUrl: defaultValues.rpcUrl || "",
       ownerEmail: defaultValues.ownerEmail || "",
       fee: Number(defaultValues.fee) || 1,
       minimumStake: defaultValues.minimumStake,
       privacyPolicy: defaultValues.privacyPolicy || "",
       delegatorRewardsAddress: defaultValues.delegatorRewardsAddress || "",
+      appIdentity: defaultValues.appIdentity || "",
     },
   });
 
@@ -80,7 +88,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
         })}
         className="grid gap-4"
       >
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             name="name"
             control={form.control}
@@ -94,29 +102,20 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
               </FormItem>
             )}
           />
+
           <FormField
-            name="ownerEmail"
+            name="appIdentity"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Owner Email</FormLabel>
+                <FormLabel>App Identity</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="supportEmail"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Support Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
+                <FormDescription>
+                  UUID that uniquely identifies you as a delegator. This ID needs to match the one registered with Stake Igniter governance.
+                </FormDescription>
               </FormItem>
             )}
           />
@@ -148,9 +147,25 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
               </FormItem>
             )}
           />
+
+          <FormField
+            name="rpcUrl"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>RPC Url</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             name="fee"
             control={form.control}
@@ -169,36 +184,40 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           />
 
           <FormField
-            name="minimumStake"
-            control={form.control}
-            disabled={true}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Minimum Stake</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value.toString()}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Minimum Stake Increment" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15000">15000</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
             name="delegatorRewardsAddress"
             control={form.control}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Delegator rewards address</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            name="ownerEmail"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Owner Email</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="supportEmail"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Support Email</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>

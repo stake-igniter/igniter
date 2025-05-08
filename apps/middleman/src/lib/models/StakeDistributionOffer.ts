@@ -4,6 +4,7 @@ export interface StakeDistributionOffer {
     name: string;
     fee: string;
     rewards: string;
+    regions: string[];
     operationalFundsAmount: number;
     delegatorRewardsAddress: string;
     stakeDistribution: NodeStakeDistributionItem[];

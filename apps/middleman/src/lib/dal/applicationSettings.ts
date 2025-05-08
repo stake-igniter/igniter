@@ -11,6 +11,7 @@ const defaultSettings: ApplicationSettings = {
   id: 0,
   name: "",
   supportEmail: "",
+  rpcUrl: "",
   appIdentity: "",
   ownerEmail: "",
   ownerIdentity: "",
