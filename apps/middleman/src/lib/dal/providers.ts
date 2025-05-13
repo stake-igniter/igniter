@@ -34,8 +34,13 @@ export async function list() : Promise<Provider[]> {
 
 export async function getByPublicKey(publicKey: string) {
   return db.query.providersTable.findFirst({
-    where: (providers, {eq}) => {
-      return eq(providers.publicKey, publicKey) && eq(providers.enabled, true) && eq(providers.visible, true);
+    where: (providers, {eq, and}) => {
+      return and(
+        eq(providers.publicKey, publicKey),
+        eq(providers.enabled, true),
+        eq(providers.visible, true)
+      );
     },
   });
 }
+

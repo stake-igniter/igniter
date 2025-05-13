@@ -73,6 +73,7 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
             typeUrl: '/pocket.supplier.MsgStakeSupplier',
             body: {
               ...supplier,
+              stakeAmount: (Number(supplier.stakeAmount) * 1e6).toString(),
               ownerAddress: connectedIdentity!,
               signer: connectedIdentity!,
             },
@@ -84,7 +85,7 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
             typeUrl: '/cosmos.bank.v1beta1.MsgSend',
             body: {
               toAddress: supplier.operatorAddress,
-              amount: offer.operationalFundsAmount.toString(),
+              amount: (offer.operationalFundsAmount * 1e6).toString(),
             },
           };
         });

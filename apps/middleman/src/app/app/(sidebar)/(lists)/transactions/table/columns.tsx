@@ -4,9 +4,10 @@ import { ProviderFee, TransactionStatus, TransactionType } from '@/db/schema'
 import { ActivitySuccessIcon, ActivityWarningIcon, RightArrowIcon, WarningIcon } from '@igniter/ui/assets'
 import { Button } from '@igniter/ui/components/button'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
-import { roundAndSeparate } from '@igniter/ui/lib/utils'
+import { amountToPokt } from '@igniter/ui/lib/utils'
 import { ColumnDef } from '@tanstack/react-table'
 import { Operation, useAddItemToDetail } from '@/app/detail/Detail'
+import Amount from '@igniter/ui/components/Amount'
 
 export type Transaction = {
   id: number;
@@ -84,9 +85,7 @@ export const columns: ColumnDef<Transaction>[] = [
       const totalValue = row.getValue("totalValue") as number;
       return (
         <div className="flex items-baseline gap-3 font-mono justify-end">
-          {/* Is this currency field  ? */}
-          <span>{roundAndSeparate(totalValue, 2)}</span>
-          <span className="text-muted-foreground">$POKT</span>
+          <Amount value={amountToPokt(totalValue)} />
         </div>
       );
     },
@@ -109,7 +108,7 @@ export const columns: ColumnDef<Transaction>[] = [
                   type: row.original.type,
                   status: row.original.status,
                   createdAt: row.original.createdAt,
-                  operations: [],
+                  operations: row.original.operations,
                   hash: row.original.hash,
                   estimatedFee: row.original.estimatedFee,
                   consumedFee: row.original.consumedFee,

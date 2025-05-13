@@ -4,13 +4,14 @@ import {useMemo, useState} from "react";
 import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
-import {toCompactFormat, toCurrencyFormat, toDateFormat} from "@igniter/ui/lib/utils";
+import { amountToPokt, toCompactFormat, toDateFormat } from '@igniter/ui/lib/utils'
 import {Transaction} from "@/db/schema";
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
 import {CaretSmallIcon, CornerIcon, LoaderIcon} from "@igniter/ui/assets";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import { Operation, SendOperation, StakeOperation } from '@/app/detail/Detail'
+import Amount from '@igniter/ui/components/Amount'
 import { MessageType } from "@/lib/constants";
 
 export interface StakeSuccessProps {
@@ -30,7 +31,7 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
             applicationSettings;
     }, [amount, applicationSettings]);
 
-    const totalNetworkFee = (transaction?.consumedFee || transaction?.estimatedFee) / 1e6;
+    const totalNetworkFee = amountToPokt(transaction?.consumedFee || transaction?.estimatedFee);
 
     const operations = JSON.parse(transaction.unsignedPayload).body.messages as Array<Operation>
     let operationalFunds = 0
@@ -52,7 +53,7 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
         <div
             className="flex flex-col w-[480px] border-x border-b border-[--black-dividers] bg-[--black-1] p-[33px] rounded-b-[12px] gap-8">
             <ActivityHeader
-                title="Success!"
+                title="Scheduled!"
                 subtitle="Below are the details of your stake operation."
                 onClose={onClose}
             />
@@ -71,10 +72,7 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
                         </span>
                             <span className="flex flex-row items-center gap-2">
                             <span className="font-mono text-[20px] text-[var(--color-white-1)]">
-                                {toCurrencyFormat(amount)}
-                            </span>
-                            <span className="font-mono text-[20px] text-[var(--color-white-3)]">
-                                $POKT
+                              <Amount value={amount} />
                             </span>
                         </span>
                         </div>
@@ -121,10 +119,7 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
                         </span>
                         <span className="flex flex-row gap-2">
                             <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                                {totalNetworkFee}
-                            </span>
-                            <span className="font-mono text-[14px] text-[var(--color-white-3)]">
-                                $POKT
+                              <Amount value={totalNetworkFee} />
                             </span>
                             </span>
                         </span>
@@ -142,10 +137,7 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
                         </span>
                         <span className="flex flex-row gap-2">
                             <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                                {toCurrencyFormat(operationalFunds)}
-                            </span>
-                            <span className="font-mono text-[14px] text-[var(--color-white-3)]">
-                                $POKT
+                              <Amount value={operationalFunds} />
                             </span>
                         </span>
                     </span>
@@ -217,11 +209,11 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
                               <span key={`stake-${index}`}
                                     className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                                   <span className="text-[14px] text-[var(--color-white-3)]">
-                                      Stake {toCompactFormat((operation.value.stake.amount))}
+                                      Stake {toCompactFormat(amountToPokt(operation.value.stake.amount))}
                                   </span>
                                   <span className="flex flex-row gap-2">
-                                      <span className="text-[14px] text-[var(--color-white-1)]">
-                                          {transaction.status}
+                                      <span className="font-mono text-[14px] text-[var(--color-white-1)]">
+                                        <Amount value={amountToPokt(operation.value.stake.amount || 0)} />
                                       </span>
                                   </span>
                               </span>
@@ -237,8 +229,8 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
                                       </span>
                                   </span>
                                   <span className="flex flex-row gap-2">
-                                      <span className="text-[14px] text-[var(--color-white-1)]">
-                                          {transaction.status}
+                                      <span className="font-mono text-[14px] text-[var(--color-white-1)]">
+                                        <Amount value={amountToPokt(operationalFund.value.amount.at(0)!.amount)} />
                                       </span>
                                   </span>
                               </span>
