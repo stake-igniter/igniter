@@ -1,9 +1,8 @@
-import urlJoin from "url-join";
 import { StakeDistributionOffer } from "@/lib/models/StakeDistributionOffer";
 import {SupplierStake} from "@/lib/models/Transactions";
 import {ApplicationSettings} from "@/db/schema";
 
-export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, region: string = ''): Promise<SupplierStake[]> {
+export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, ownerAddress: string, region: string = ''): Promise<SupplierStake[]> {
     try {
         const response = await fetch("/api/provider-rpc", {
             method: "POST",
@@ -18,6 +17,7 @@ export async function requestSuppliers(stakeOffer: StakeDistributionOffer, setti
                     delegatorAddress: settings.delegatorRewardsAddress,
                     revSharePercentage: Number(settings.fee),
                     items: stakeOffer.stakeDistribution,
+                    ownerAddress,
                 },
             }),
         });

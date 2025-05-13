@@ -1,24 +1,23 @@
-  import { heartbeat, sleep } from "@temporalio/activity";
-import { RawTxRequest } from "@pokt-foundation/pocketjs-types";
-import { BlockchainProvider } from "@/lib/blockchain";
+import {heartbeat, sleep} from "@temporalio/activity";
+import {IBlockchain} from "@/lib/blockchain";
 import * as transactionDAL from "../lib/dal/transaction";
 import * as providerDAL from "../lib/dal/provider";
-import {
-  Provider,
-  ProviderStatus,
-  Transaction,
-} from "../lib/db/schema";
+import {Provider, ProviderStatus, Transaction, TransactionStatus,} from "../lib/db/schema";
 import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "../lib/constants";
 import {signPayload} from "../lib/crypto"
 import {getApplicationSettingsFromDatabase} from "../lib/dal/applicationSettings";
 
-export const createActivities = (blockchainProvider: BlockchainProvider) => ({
+export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
   async getTransaction(transactionId: number) {
     const transaction = await transactionDAL.getTransaction(transactionId);
     if (!transaction) {
-      throw new Error("Transaction not found");
+      throw new Error("Transaction not found on the database");
     }
     return transaction;
+  },
+  async listTransactions() {
+      const txs = await transactionDAL.listByStatus(TransactionStatus.Pending);
+      return txs.map(({ id }) => id);
   },
   async listProviders() {
     return providerDAL.list();
@@ -93,9 +92,6 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
   async updateProviders(providers: Provider[]) {
     await providerDAL.updateProviders(providers);
   },
-  async getDependantTransactions(transactionId: number) {
-    return await transactionDAL.getDependantTransactions(transactionId);
-  },
   async updateTransaction(
     transactionId: number,
     payload: Partial<Transaction>
@@ -106,20 +102,18 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     }
     return await transactionDAL.updateTransaction(transactionId, payload);
   },
-  async executeTransaction(address: string, signedPayload: string) {
-    const request = new RawTxRequest(address, signedPayload);
-    const txResponse = await blockchainProvider.sendTransaction(request);
-    return txResponse.txHash;
+  async executeTransaction(signedPayload: string) {
+    return blockchainProvider.sendTransaction(signedPayload);
   },
   async getBlockHeight() {
-    return await blockchainProvider.getBlockNumber();
+    return await blockchainProvider.getHeight();
   },
   async waitForNextBlock(txHeight: number): Promise<boolean> {
-    let currentHeight = await blockchainProvider.getBlockNumber();
+    let currentHeight = await blockchainProvider.getHeight();
     while (currentHeight < txHeight + 2) {
       await sleep(5 * 60 * 1000);
       heartbeat();
-      currentHeight = await blockchainProvider.getBlockNumber();
+      currentHeight = await blockchainProvider.getHeight();
     }
     return true;
   },
@@ -128,7 +122,7 @@ export const createActivities = (blockchainProvider: BlockchainProvider) => ({
     if (!tx) {
       throw new Error("Transaction data is incomplete or not found");
     }
-    return [tx.tx_result, tx.stdTx.msg] as const;
+    return [tx.success, tx.code] as const;
   },
   // async parseNodesPublicKey(
   //   nodes: (Omit<NewNode, "address"> & { publicKey: string })[]

@@ -64,6 +64,8 @@ CREATE TABLE "transactions" (
 	"hash" varchar(255),
 	"type" "tx_type" NOT NULL,
 	"status" "tx_status" NOT NULL,
+	"code" integer,
+	"log" text,
 	"executionHeight" integer,
 	"executionTimestamp" timestamp,
 	"verificationHeight" integer,

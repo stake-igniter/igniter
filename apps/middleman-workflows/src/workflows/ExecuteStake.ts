@@ -5,7 +5,7 @@ import {
   startChild,
 } from "@temporalio/workflow";
 import { ExecuteTransaction } from "./ExecuteTransaction";
-import { createActivities } from "../activities";
+import { delegatorActivities } from "../activities";
 import {
   NodeStatus,
 } from "../lib/db/schema";
@@ -20,7 +20,7 @@ export async function ExecuteStake(args: StakeArgs) {
   const { activityId } = args;
 
   // const { getActivity, updateActivity, insertNodes, parseNodesPublicKey } =
-  //   proxyActivities<ReturnType<typeof createActivities>>({
+  //   proxyActivities<ReturnType<typeof delegatorActivities>>({
   //     startToCloseTimeout: "30s",
   //     retry: {
   //       maximumAttempts: 3,

@@ -153,6 +153,8 @@ export const transactionsTable = pgTable("transactions", {
   hash: varchar({ length: 255 }),
   type: transactionTypeEnum().notNull(),
   status: transactionStatusEnum().notNull(),
+  code: integer(),
+  log: text(),
   executionHeight: integer(),
   executionTimestamp: timestamp(),
   verificationHeight: integer(),

@@ -9,25 +9,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@igniter/ui/components/dialog";
-import {useEffect, useMemo, useState} from "react";
-import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
+import {useEffect, useState} from "react";
+import {CheckSuccess, LoaderIcon, XIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {ProviderFee, Transaction as DbTransaction} from "@/db/schema";
+import {Transaction as DbTransaction} from "@/db/schema";
 import {requestSuppliers} from "@/lib/services/provider";
 import {SignedTransaction, TransactionMessage,} from "@/lib/models/Transactions";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {CreateStakeTransaction} from "@/actions/Stake";
+import {StageStatus} from "@/app/app/(takeover)/stake/types";
+import {stageFailed, stageSucceeded} from "@/app/app/(takeover)/stake/utils";
 
 export interface StakingProcessStatus {
-  requestSuppliersDone: boolean;
-  transactionSignatureDone: boolean;
-  schedulingTransactionDone: boolean;
-  isCancellable: boolean;
+  requestSuppliersStatus: StageStatus;
+  transactionSignatureStatus: StageStatus;
+  schedulingTransactionStatus: StageStatus;
 }
 
 export interface StakingProcessProps {
   offer: StakeDistributionOffer;
+  ownerAddress: string;
   region?: string;
   onStakeCompleted: (result: StakingProcessStatus, transaction?: DbTransaction) => void;
 }
@@ -39,13 +41,13 @@ enum StakingProcessStep {
   Completed
 }
 
-export function StakingProcess({offer, onStakeCompleted, region}: Readonly<StakingProcessProps>) {
+export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: Readonly<StakingProcessProps>) {
   const [open, setOpen] = useState(false);
+  const [isCancellable, setIsCancellable] = useState<boolean>(true);
   const [stakingStatus, setStakingStatus] = useState<StakingProcessStatus>({
-    requestSuppliersDone: false,
-    transactionSignatureDone: false,
-    schedulingTransactionDone: false,
-    isCancellable: true,
+    requestSuppliersStatus: 'pending',
+    transactionSignatureStatus: 'pending',
+    schedulingTransactionStatus: 'pending',
   });
   const [currentStep, setCurrentStep] = useState<StakingProcessStep>(StakingProcessStep.requestSuppliers);
   const settings = useApplicationSettings();
@@ -54,19 +56,13 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
   const [transactionMessages, setTransactionMessages] = useState<TransactionMessage[]>([]);
   const [signedTransaction, setSignedTransaction] = useState<SignedTransaction | null>(null);
 
-  const stakeTransactionsCount = useMemo(() => {
-    return offer.stakeDistribution.reduce((count, stakeDistribution) => {
-      return count + stakeDistribution.qty;
-    }, 0);
-  }, [offer]);
-
   useEffect(() => {
     (async () => {
       if (!open || currentStep !== StakingProcessStep.requestSuppliers) {
         return;
       }
       try {
-        const suppliers = await requestSuppliers(offer, settings!, region);
+        const suppliers = await requestSuppliers(offer, settings!, ownerAddress, region);
 
         const stakeTransactions: TransactionMessage[] = suppliers.map((supplier) => {
           return {
@@ -94,13 +90,14 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
 
         setStakingStatus((prev) => ({
           ...prev,
-          requestSuppliersDone: true,
+          requestSuppliersStatus: 'success',
         }));
 
         setCurrentStep(StakingProcessStep.transactionSignature);
       } catch (err) {
-        console.log('An error occurred while retrieving the keys from the service provider.');
-        console.error(err);
+        const { message } = err as Error;
+        console.log('An error occurred while retrieving the supplier stake info. Error:', message);
+        handleFailedStage('requestSuppliersStatus');
       }
     })();
   }, [open, currentStep]);
@@ -118,13 +115,16 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
 
         setStakingStatus((prev) => ({
           ...prev,
-          transactionSignatureDone: true,
+          transactionSignatureStatus: 'success',
         }));
+
+        setIsCancellable(false);
 
         setCurrentStep(StakingProcessStep.SchedulingTransaction);
       } catch (err) {
-        console.log('An error occurred while collecting the stake info from the service provider.');
-        console.error(err);
+        const { message } = err as Error;
+        console.log('An error occurred while collecting the signature.Error:', message);
+        handleFailedStage('transactionSignatureStatus');
       }
     })();
   }, [open, currentStep]);
@@ -145,13 +145,14 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
 
         setStakingStatus((prev) => ({
           ...prev,
-          schedulingTransactionDone: true,
+          schedulingTransactionStatus: 'success',
         }));
 
         setCurrentStep(StakingProcessStep.Completed);
       } catch (err) {
-        console.log('An error occurred while collecting the stake info from the service provider.');
-        console.error(err);
+        const { message } = err as Error;
+        console.log('An error occurred while scheduling the signed transactions. Error:', message);
+        handleFailedStage('schedulingTransactionStatus');
       }
     })();
   }, [open, currentStep]);
@@ -173,12 +174,28 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
     if (!open) {
       setCurrentStep(StakingProcessStep.requestSuppliers);
       setStakingStatus({
-        requestSuppliersDone: false,
-        transactionSignatureDone: false,
-        schedulingTransactionDone: false,
-        isCancellable: true,
+        requestSuppliersStatus: 'pending',
+        transactionSignatureStatus: 'pending',
+        schedulingTransactionStatus: 'pending',
       });
+      setIsCancellable(false);
     }
+  }
+
+  function handleFailedStage(stageName: keyof StakingProcessStatus) {
+    setStakingStatus((prev) => ({
+      ...prev,
+      [stageName]: 'error',
+    }));
+
+    setTimeout(() => {
+      setStakingStatus(currentStatus => {
+        onStakeCompleted(currentStatus);
+        handleOpenChanged(false);
+        return currentStatus;
+      });
+    }, 1000);
+
   }
 
   return (
@@ -201,23 +218,26 @@ export function StakingProcess({offer, onStakeCompleted, region}: Readonly<Staki
         <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
         <div className="flex flex-row justify-between items-center py-3 px-4">
           <span className="text-[14px]">Requesting Keys</span>
-          {stakingStatus.requestSuppliersDone && <CheckSuccess/>}
+          {stageSucceeded(stakingStatus.requestSuppliersStatus) && <CheckSuccess/>}
+          {stageFailed(stakingStatus.requestSuppliersStatus) && <XIcon className={`fill-current text-[var(--color-destructive)]`}/>}
         </div>
         <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
         <div className="flex flex-row justify-between items-center py-3 px-4">
           <span className="text-[14px]">Transactions Signature</span>
-          {stakingStatus.transactionSignatureDone && <CheckSuccess/>}
+          {stageSucceeded(stakingStatus.transactionSignatureStatus) && <CheckSuccess/>}
+          {stageFailed(stakingStatus.transactionSignatureStatus) && <XIcon className={`fill-current text-[var(--color-destructive)]`}/>}
         </div>
         <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
         <div className="flex flex-row justify-between items-center py-3 px-4 font-size[14px]">
           <span className="text-[14px]">Scheduling Transactions</span>
-          {stakingStatus.schedulingTransactionDone && <CheckSuccess/>}
+          {stageSucceeded(stakingStatus.schedulingTransactionStatus) && <CheckSuccess/>}
+          {stageFailed(stakingStatus.schedulingTransactionStatus) && <XIcon className={`fill-current text-[var(--color-destructive)]`}/>}
         </div>
         <div className="h-[1px] bg-[var(--slate-dividers)]"></div>
         <DialogFooter className="p-2">
           <DialogClose className="w-full" asChild>
             <Button
-              disabled={!stakingStatus.isCancellable}
+              disabled={!isCancellable}
               variant={'secondaryBorder'}
               type="submit">
               Cancel

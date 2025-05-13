@@ -1,5 +1,5 @@
 {
-  "id": "7ce7530f-1956-4cb2-bd7e-032b42c9e8a1",
+  "id": "b218d334-c150-42d5-853d-98e1e10c21fe",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -420,6 +420,18 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "log": {
+          "name": "log",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "executionHeight": {
           "name": "executionHeight",

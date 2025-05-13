@@ -12,7 +12,6 @@ import {insert} from "@/lib/dal/transaction";
 export interface CreateStakeTransactionRequest {
   offer: StakeDistributionOffer;
   transaction: SignedTransaction;
-  userId: string;
 }
 
 export async function CalculateStakeDistribution(stakeAmount: number): Promise<StakeDistributionOffer[]> {

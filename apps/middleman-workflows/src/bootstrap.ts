@@ -4,6 +4,7 @@ import Long from "long";
 
 enum ScheduledWorkflowType {
   ProviderStatus = "ProviderStatus",
+  ExecutePendingTransaction = "ExecutePendingTransactions",
 }
 
 const ScheduledWorkflowConfig: Record<
@@ -11,6 +12,7 @@ const ScheduledWorkflowConfig: Record<
   { interval: string }
 > = {
   [ScheduledWorkflowType.ProviderStatus]: { interval: "10m" },
+  [ScheduledWorkflowType.ExecutePendingTransaction]: { interval: "2m" },
 };
 
 async function bootstrapNamespace() {
