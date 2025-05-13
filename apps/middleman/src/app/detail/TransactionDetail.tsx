@@ -1,7 +1,7 @@
 import { ProviderFee, TransactionStatus, TransactionType } from '@/db/schema'
 import { clsx } from 'clsx'
 import { DrawerDescription, DrawerHeader, DrawerTitle } from '@igniter/ui/components/drawer'
-import { toCompactFormat, toDateFormat } from '@igniter/ui/lib/utils'
+import { amountToPokt, toCompactFormat, toDateFormat } from '@igniter/ui/lib/utils'
 import { Button } from '@igniter/ui/components/button'
 import Summary, { SummaryRow } from '@/app/components/Summary'
 import { useApplicationSettings } from '@/app/context/ApplicationSettings'
@@ -21,6 +21,14 @@ function ActionButton({children}: React.PropsWithChildren) {
     >
       {children}
     </Button>
+  )
+}
+
+function SmallAmount({value}: {value: number}) {
+  return (
+    <p className={'text-sm'}>
+      <Amount value={value} />
+    </p>
   )
 }
 
@@ -50,7 +58,7 @@ function getOperationRows(operations: Array<Operation>, transactionType: Transac
                 <p>Operational Funds</p>
               </div>
             ),
-            value: <Amount value={Number(sendOperation.value.amount.at(0)?.amount || 0) / 1e6} />,
+            value: <SmallAmount value={amountToPokt(sendOperation.value.amount.at(0)?.amount || 0)} />,
           })
         }
       }
@@ -80,7 +88,7 @@ function getOperationRows(operations: Array<Operation>, transactionType: Transac
                 <p>Operational Funds</p>
               </div>
             ),
-            value: <Amount value={Number(operation.value.amount.at(0)?.amount || 0) / 1e6} />,
+            value: <SmallAmount value={Number(operation.value.amount.at(0)?.amount || 0) / 1e6} />,
           })
         }
       }
@@ -112,7 +120,7 @@ function UnstakeSummary({networkFee}: UnstakeSummaryProps) {
       rows={[
         {
           label: 'Network Fee',
-          value: <Amount value={networkFee} />,
+          value: <SmallAmount value={networkFee} />,
         },
       ]}
     />
@@ -136,7 +144,7 @@ function UpstakeSummary({networkFee}: UpstakeSummaryProps) {
         },
         {
           label: 'Network Fee',
-          value: <Amount value={networkFee} />,
+          value: <SmallAmount value={networkFee} />,
         },
       ]}
     />
@@ -182,11 +190,11 @@ function StakeSummary({operations, status, networkFee}: StakeSummaryProps) {
           },
           {
             label: 'Network Fee',
-            value: <Amount value={networkFee} />,
+            value: <SmallAmount value={networkFee} />,
           },
           {
             label: 'Operational Funds',
-            value: <Amount value={operationalFunds} />,
+            value: <SmallAmount value={operationalFunds} />,
           },
         ]}
       />
@@ -236,7 +244,7 @@ export default function TransactionDetail({
     },
     {
       label: 'Transaction',
-      value: <TransactionHash hash={hash} />,
+      value: hash ? <TransactionHash hash={hash} /> : '',
     },
     {
       label: (
@@ -280,7 +288,7 @@ export default function TransactionDetail({
   if (type === TransactionType.OperationalFunds) {
     summaryRows.unshift({
       label: 'Network Fee',
-      value: <Amount value={fee} />,
+      value: <SmallAmount value={fee} />,
     })
   }
 
@@ -337,7 +345,7 @@ export default function TransactionDetail({
           </span>
           <div className="flex flex-row items-center gap-2">
             <p className="font-mono !text-[20px]">
-              <Amount value={totalValue} />
+              <Amount value={totalValue} maxFractionDigits={0} minimumFractionDigits={0} />
             </p>
           </div>
         </div>

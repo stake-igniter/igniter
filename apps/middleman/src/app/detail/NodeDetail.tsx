@@ -42,7 +42,11 @@ export default function NodeDetail({
     },
     {
       label: 'Operational Funds',
-      value: <Amount value={operationalFundsAmount} />,
+      value: (
+        <p className={'text-sm'}>
+          <Amount value={operationalFundsAmount} />
+        </p>
+      )
     }
   ]
 

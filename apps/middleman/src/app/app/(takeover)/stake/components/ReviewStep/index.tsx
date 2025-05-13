@@ -10,6 +10,7 @@ import {useMemo, useState} from "react"
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
 import {Transaction} from "@/db/schema";
+import React from "react";
 
 export interface ReviewStepProps {
     amount: number;
@@ -167,12 +168,12 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onC
                             <CaretSmallIcon />
                         )}
                         <span className="text-[14px] text-[var(--color-white-3)]">
-                            {`Transactions to Sign (${totalTransactionsToSign})`}
+                            {`Operations (${totalTransactionsToSign})`}
                         </span>
                     </span>
                 </span>
                 {isShowingTransactionDetails && prospectTransactions.map((tx, index) => (
-                    <>
+                    <React.Fragment key={index}>
                         <span key={`stake-${index}`} className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                             <span className="text-[14px] text-[var(--color-white-3)]">
                                 {`Stake (${toCompactFormat(tx)})`}
@@ -202,7 +203,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onC
                                 </span>
                             </span>
                         </span>
-                    </>
+                    </React.Fragment>
                 ))}
             </div>
 
