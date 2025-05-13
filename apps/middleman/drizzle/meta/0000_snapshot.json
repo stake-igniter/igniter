@@ -1,5 +1,5 @@
 {
-  "id": "40dc1b5e-6237-4604-b1b6-114dc16bb8dd",
+  "id": "7ce7530f-1956-4cb2-bd7e-032b42c9e8a1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -262,6 +262,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "identity": {
+          "name": "identity",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "publicKey": {
           "name": "publicKey",
           "type": "varchar(255)",
@@ -291,8 +297,14 @@
           "name": "fee",
           "type": "numeric",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'1.00'"
+          "notNull": false
+        },
+        "feeType": {
+          "name": "feeType",
+          "type": "provider_fee",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
         },
         "domains": {
           "name": "domains",
