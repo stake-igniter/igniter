@@ -1,5 +1,5 @@
 {
-  "id": "baa61563-6212-48a7-a388-9cafcc1ee133",
+  "id": "4918e4ca-e11b-4ce4-9e50-de976113b241",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -114,6 +114,12 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
+        },
+        "appIdentity": {
+          "name": "appIdentity",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         },
         "supportEmail": {
           "name": "supportEmail",
@@ -575,6 +581,14 @@
         "pocket",
         "pocket-beta",
         "pocket-alpha"
+      ]
+    },
+    "public.provider_fee": {
+      "name": "provider_fee",
+      "schema": "public",
+      "values": [
+        "up_to",
+        "fixed"
       ]
     },
     "public.role": {

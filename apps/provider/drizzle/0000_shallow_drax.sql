@@ -1,5 +1,6 @@
 CREATE TYPE "public"."address_states" AS ENUM('available', 'delivered', 'staking', 'staked', 'stake_failed', 'unstaking', 'unstaked');--> statement-breakpoint
 CREATE TYPE "public"."chain_ids" AS ENUM('pocket', 'pocket-beta', 'pocket-alpha');--> statement-breakpoint
+CREATE TYPE "public"."provider_fee" AS ENUM('up_to', 'fixed');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'user', 'owner');--> statement-breakpoint
 CREATE TABLE "address_groups" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "address_groups_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
@@ -16,6 +17,7 @@ CREATE TABLE "address_groups" (
 CREATE TABLE "application_settings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "application_settings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255),
+	"appIdentity" uuid NOT NULL,
 	"supportEmail" varchar(255),
 	"ownerIdentity" varchar(255) NOT NULL,
 	"ownerEmail" varchar(255),
