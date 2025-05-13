@@ -14,11 +14,12 @@ import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon"
 export interface PickStakeAmountStepProps {
     defaultAmount: number;
     onAmountSelected: (amount: number) => void;
+    onOwnerAddressSelected: (address: string) => void;
     onClose: () => void;
 }
 
 
-export function PickStakeAmountStep({onAmountSelected, defaultAmount, onClose}: Readonly<PickStakeAmountStepProps>) {
+export function PickStakeAmountStep({onAmountSelected, defaultAmount, onOwnerAddressSelected, onClose}: Readonly<PickStakeAmountStepProps>) {
     const [selectedAmount, setSelectedAmount] = useState<number>(defaultAmount);
     const [balance, setBalance] = useState<number>(-1);
     const { getBalance, connectedIdentity } = useWalletConnection();
@@ -33,6 +34,8 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, onClose}: 
       if (connectedIdentity) {
         (async () => {
           try {
+            // TODO: Make this selectable instead of assuming the current user.
+            onOwnerAddressSelected(connectedIdentity);
             const balance = await getBalance(connectedIdentity);
             setBalance(balance / 1e6);
           } catch {

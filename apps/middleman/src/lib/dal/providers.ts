@@ -4,7 +4,7 @@ import { Provider, providersTable } from "@/db/schema";
 import { sql } from "drizzle-orm";
 
 export async function upsertProviders(
-  providers: Pick<Provider, "name" | "url" | "publicKey" | "enabled" | "visible">[]
+  providers: Pick<Provider, "name" | "identity" | "url" | "publicKey" | "enabled" | "visible">[]
 ) {
   return db
     .insert(providersTable)

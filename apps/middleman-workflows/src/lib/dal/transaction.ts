@@ -1,20 +1,18 @@
 import { db } from "../db";
-import { Transaction, transactionsTable } from "../db/schema";
+import {Transaction, transactionsTable, TransactionStatus} from "../db/schema";
 import { eq } from "drizzle-orm";
 
 export async function getTransaction(transactionId: number) {
-  return await db.query.transactionsTable.findFirst({
+  return db.query.transactionsTable.findFirst({
     where: eq(transactionsTable.id, transactionId),
-    with: { dependsOn: true },
   });
 }
 
-export async function getDependantTransactions(transactionId: number) {
-  return await db.query.transactionsTable.findMany({
-    where: eq(transactionsTable.dependsOn, transactionId),
+export async function listByStatus(status: TransactionStatus) {
+  return db.query.transactionsTable.findMany({
+    where: eq(transactionsTable.status, status)
   });
 }
-
 
 export async function updateTransaction(
   transactionId: number,

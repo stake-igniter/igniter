@@ -9,6 +9,9 @@ import {StakeSuccessStep} from "@/app/app/(takeover)/stake/components/StakeSucce
 import {redirect} from "next/navigation";
 import {AbortConfirmationDialog} from '@/app/app/(takeover)/stake/components/AbortConfirmationDialog'
 import { Transaction } from '@/db/schema'
+import {allStagesSucceeded, getFailedStage} from "@/app/app/(takeover)/stake/utils";
+import {StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
+import {StageStatus} from "@/app/app/(takeover)/stake/types";
 
 enum StakeActivitySteps {
     PickStakeAmount = 'PickStakeAmount',
@@ -23,6 +26,14 @@ export default function StakePage() {
     const [selectedOffer, setSelectedOffer] = useState<StakeDistributionOffer | undefined>();
     const [transaction, setTransaction] = useState<Transaction | undefined>(undefined);
     const [isAbortDialogOpen, setAbortDialogOpen] = useState(false);
+    const [ownerAddress, setOwnerAddress] = useState<string>('');
+    const [stakingErrorMessage, setStakingErrorMessage] = useState<string | undefined>(undefined);
+
+    const errorsMap: Record<keyof StakingProcessStatus, string> = {
+      requestSuppliersStatus: 'The staking process failed while requesting suppliers. Please try again later or contact support if the issue persists.',
+      transactionSignatureStatus: 'Transaction signature failed. If you rejected the signature request, please note that your signature is required to complete the staking process. Otherwise, check your wallet connection and try again.',
+      schedulingTransactionStatus: 'The transaction was signed but could not be scheduled. Please try again or contact support if the issue persists.'
+    };
 
     const handleStakeAmountChange = (amount: number) => {
         setStakeAmount(amount);
@@ -36,6 +47,7 @@ export default function StakePage() {
                     <PickStakeAmountStep
                         defaultAmount={stakeAmount}
                         onAmountSelected={handleStakeAmountChange}
+                        onOwnerAddressSelected={setOwnerAddress}
                         onClose={() => setAbortDialogOpen(true)}
                     />
                 )}
@@ -58,15 +70,17 @@ export default function StakePage() {
                 {step === StakeActivitySteps.Review && (
                     <ReviewStep
                         amount={stakeAmount}
+                        errorMessage={stakingErrorMessage}
                         selectedOffer={selectedOffer!}
+                        ownerAddress={ownerAddress}
                         onStakeCompleted={(result, transaction) => {
-                            if (
-                                result.schedulingTransactionDone &&
-                                result.requestSuppliersDone &&
-                                result.transactionSignatureDone
-                            ) {
+                            if (allStagesSucceeded(result)) {
                                 setStep(StakeActivitySteps.Success);
                                 setTransaction(transaction)
+                            } else {
+                              const failedStage = getFailedStage(result);
+                              debugger;
+                              setStakingErrorMessage(errorsMap[failedStage]);
                             }
                         }}
                         onBack={() => {

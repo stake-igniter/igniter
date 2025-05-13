@@ -4,9 +4,9 @@ import {
   proxyActivities,
   startChild,
 } from "@temporalio/workflow";
-import { createActivities } from "../activities";
-import { TransactionStatus, TransactionType } from "../lib/db/schema";
-import { StakeTransactionMsg } from "../lib/types";
+import { delegatorActivities } from "../activities";
+import { TransactionStatus } from "../lib/db/schema";
+
 
 interface TransactionArgs {
   transactionId: number;
@@ -21,8 +21,7 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     executeTransaction,
     getBlockHeight,
     verifyTransaction,
-    getDependantTransactions,
-  } = proxyActivities<ReturnType<typeof createActivities>>({
+  } = proxyActivities<ReturnType<typeof delegatorActivities>>({
     startToCloseTimeout: "30s",
     retry: {
       maximumAttempts: 3,
@@ -31,27 +30,42 @@ export async function ExecuteTransaction(args: TransactionArgs) {
 
   const transaction = await getTransaction(transactionId);
 
-  if (!transaction || !transaction.signedPayload) {
-    throw new Error("Transaction not found");
+  if (transaction.status !== TransactionStatus.Pending) {
+    throw new Error("Transaction is not pending");
+  }
+
+  if (!transaction.signedPayload) {
+    throw new Error("Transaction has no signed payload");
   }
 
   const txHeight = await getBlockHeight();
 
-  const hash = await executeTransaction(
-    transaction.fromAddress,
+  const result = await executeTransaction(
     transaction.signedPayload
   );
 
-  if (!hash) {
-    throw new Error("Transaction failed");
+  if (!result.transactionHash) {
+    await updateTransaction(transactionId, {
+      status: TransactionStatus.Failure,
+      code: result.code,
+      log: result.message || 'unknown error',
+    });
+
+    return {
+      ...transaction,
+      status: TransactionStatus.Failure,
+      code: result.code,
+      log: result.message || 'unknown error',
+    }
   }
 
   await updateTransaction(transactionId, {
     executionHeight: txHeight,
+    hash: result.transactionHash,
   });
 
   const { waitForNextBlock } = proxyActivities<
-    ReturnType<typeof createActivities>
+    ReturnType<typeof delegatorActivities>
   >({
     startToCloseTimeout: "45m",
     heartbeatTimeout: "6m",
@@ -62,49 +76,28 @@ export async function ExecuteTransaction(args: TransactionArgs) {
 
   await waitForNextBlock(txHeight);
 
-  const [status, msg] = await verifyTransaction(hash);
+  const [success, code] = await verifyTransaction(result.transactionHash);
 
-  const txStatus = status.code
-    ? TransactionStatus.Failure
-    : TransactionStatus.Success;
+  const txStatus = success ? TransactionStatus.Success : TransactionStatus.Failure;
+
+  const verificationHeight = await getBlockHeight();
 
   await updateTransaction(transactionId, {
     status: txStatus,
-    hash,
-    verificationHeight: txHeight + 2,
+    verificationHeight,
   });
 
   if (txStatus === TransactionStatus.Failure) {
     throw new ApplicationFailure(
-      `Transaction ${transaction.id} failed with code: ${status.code}`
-    );
-  }
-
-  const dependantTransactions = await getDependantTransactions(transactionId);
-
-  for (const transaction of dependantTransactions) {
-    await startChild(ExecuteTransaction, {
-      args: [
-        {
-          transactionId: transaction.id,
-        },
-      ],
-      workflowTaskTimeout: "1m",
-      workflowId: `ExecuteTransaction-${transaction.id}`,
-    });
-  }
-
-  if (dependantTransactions.length > 0) {
-    log.info(
-      `Triggered ${dependantTransactions.length} transactions as child workflows.`
+      `Transaction ${transaction.id} failed with code: ${code}`
     );
   }
 
   return {
     ...transaction,
     status: txStatus,
-    hash,
+    hash: result.transactionHash,
     txHeight,
-    txMsg: msg,
+    code,
   };
 }

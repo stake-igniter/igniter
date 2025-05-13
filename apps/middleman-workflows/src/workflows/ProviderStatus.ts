@@ -1,11 +1,11 @@
 import { proxyActivities } from "@temporalio/workflow";
-import { createActivities } from "../activities";
+import { delegatorActivities } from "../activities";
 
 export interface ProviderStatusArgs {}
 
 export async function ProviderStatus(args: ProviderStatusArgs) {
   const { listProviders, fetchProviderStatus, updateProviders } =
-    proxyActivities<ReturnType<typeof createActivities>>({
+    proxyActivities<ReturnType<typeof delegatorActivities>>({
       startToCloseTimeout: "30s",
       retry: {
         maximumAttempts: 3,

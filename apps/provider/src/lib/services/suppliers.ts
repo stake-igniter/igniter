@@ -1,6 +1,6 @@
 import {getEndpointInterpolatedUrl, Supplier, SupplierStakeRequest} from "@/lib/models/supplier";
-import { list } from "@/lib/dal/addressGroups";
-import { list as listServices } from '@/lib/dal/services'
+import {list} from "@/lib/dal/addressGroups";
+import {list as listServices} from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
 import {ApplicationSettings, CreateKey} from "@/db/schema";
 import {insertMany} from "@/lib/dal/keys";
@@ -22,8 +22,8 @@ function calculateDistribution(
   const totalNewItems = newItems.length;
   const groupCount = groups.length;
   const newItemsPerGroup: KeyDistributionItem[] = Array.from(
-    { length: groupCount },
-    () => ({ numberOfKeys: [] })
+    {length: groupCount},
+    () => ({numberOfKeys: []})
   );
 
 
@@ -32,7 +32,7 @@ function calculateDistribution(
   }
 
   if (groupCount === 1) {
-    newItemsPerGroup[0] = { numberOfKeys: newItems };
+    newItemsPerGroup[0] = {numberOfKeys: newItems};
     return newItemsPerGroup;
   }
 
@@ -72,7 +72,7 @@ export async function getSupplierStakeConfigurations(
 
   const totalNewSuppliers = stakeDistribution.items
     .reduce((allSuppliers, item) => {
-      const newSuppliers = Array.from({ length: item.qty }, () => item.amount);
+      const newSuppliers = Array.from({length: item.qty}, () => item.amount);
       return allSuppliers.concat(newSuppliers);
     }, [] as number[]);
 
@@ -103,7 +103,7 @@ export async function getSupplierStakeConfigurations(
       stakeAmount: item.amounts[index]!.toString(),
       services: item.addressGroup.services?.map(serviceId => {
         const serviceItem = services.find(s => s.serviceId === serviceId);
-        return  {
+        return {
           serviceId,
           revShare: [
             // Provider's fee for this service or the default
@@ -115,6 +115,11 @@ export async function getSupplierStakeConfigurations(
             {
               address: stakeDistribution.delegatorAddress,
               revSharePercentage: stakeDistribution.revSharePercentage,
+            },
+            // Owner's share - Takes the rest
+            {
+              address: stakeDistribution.ownerAddress,
+              revSharePercentage: 100 - stakeDistribution.revSharePercentage - (serviceItem?.revSharePercentage ?? Number(settings.fee)),
             }
           ],
           endpoints: serviceItem?.endpoints.map(endpoint => ({
@@ -137,6 +142,6 @@ export async function getSupplierStakeConfigurations(
   await insertMany(newKeys);
 
   return newCompleteSuppliersDistribution.reduce((suppliers, distribution) => {
-      return suppliers.concat(distribution.suppliers);
+    return suppliers.concat(distribution.suppliers);
   }, [] as Supplier[]);
 }

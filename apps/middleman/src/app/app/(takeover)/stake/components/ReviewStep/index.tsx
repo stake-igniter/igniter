@@ -15,12 +15,14 @@ import React from "react";
 export interface ReviewStepProps {
     amount: number;
     selectedOffer: StakeDistributionOffer;
+    errorMessage?: string;
+    ownerAddress: string;
     onStakeCompleted: (status: StakingProcessStatus, transaction?: Transaction) => void;
     onBack: () => void;
     onClose: () => void;
 }
 
-export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onClose}: Readonly<ReviewStepProps>) {
+export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddress, errorMessage, onBack, onClose}: Readonly<ReviewStepProps>) {
     const [isShowingTransactionDetails, setIsShowingTransactionDetails] = useState<boolean>(false);
     const applicationSettings = useApplicationSettings();
 
@@ -66,9 +68,16 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onC
             </div>
 
             <div className="flex flex-col bg-[var(--color-slate-2)] p-0 rounded-[8px]">
-                <span className="text-[14px] text-[var(--color-white-3)] p-[11px_16px]">
+                {!errorMessage && (
+                  <span className="text-[14px] text-[var(--color-white-3)] p-[11px_16px]">
                     Upon clicking Stake, you will be prompted to sign transactions with your wallet to finalize the stake operation.
-                </span>
+                  </span>
+                )}
+                {errorMessage && (
+                  <span className="text-[14px] text-[var(--color-white-3)] p-[11px_16px]">
+                    {errorMessage}
+                  </span>
+                )}
                 <div className="h-[1px] bg-[var(--slate-dividers)]" />
                 <div className="p-2">
                     <Button variant="secondaryBorder" className="w-full">
@@ -207,7 +216,11 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onC
                 ))}
             </div>
 
-            <StakingProcess offer={selectedOffer} onStakeCompleted={onStakeCompleted} />
+            <StakingProcess
+              ownerAddress={ownerAddress}
+              offer={selectedOffer}
+              onStakeCompleted={onStakeCompleted}
+            />
         </div>
     );
 }
