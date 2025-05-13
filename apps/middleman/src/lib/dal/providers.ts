@@ -21,7 +21,7 @@ export async function upsertProviders(
 export async function list() : Promise<Provider[]> {
   const providers = await db.query.providersTable.findMany({
     where: (providers, {eq}) => {
-      return eq(providers.enabled, true) && eq(providers.visible, true);
+      return eq(providers.visible, true);
     }
   })
 

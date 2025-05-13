@@ -9,7 +9,7 @@ import {
   pgTable,
   timestamp,
   varchar,
-  json,
+  json, uuid,
 } from "drizzle-orm/pg-core";
 import {RPCType} from "@/lib/models/supplier";
 import {check} from "drizzle-orm/pg-core/checks";
@@ -42,6 +42,11 @@ export enum KeyState {
   Unstaked = 'unstaked',
 }
 
+export enum ProviderFee {
+  UpTo = "up_to",
+  Fixed = "fixed",
+}
+
 const encryptedText = customType<{ data: string }>({
   dataType() {
     return "text";
@@ -60,6 +65,11 @@ export const chainIdEnum = pgEnum("chain_ids", enumToPgEnum(ChainId));
 
 export const addressStateEnum = pgEnum("address_states", enumToPgEnum(KeyState));
 
+export const providerFeeEnum = pgEnum(
+  "provider_fee",
+  enumToPgEnum(ProviderFee)
+);
+
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   identity: varchar({ length: 255 }).notNull(),
@@ -74,6 +84,7 @@ export type User = typeof usersTable.$inferSelect;
 export const applicationSettingsTable = pgTable("application_settings", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }),
+  appIdentity: uuid().notNull(),
   supportEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),
   ownerEmail: varchar({ length: 255 }),

@@ -92,26 +92,26 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, onBack, onC
                         {applicationSettings?.fee}%
                     </span>
                 </span>
-                <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
-                    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
-                        <span>
-                            Network Fee
-                        </span>
-                        <QuickInfoPopOverIcon
-                            title="Network Fee"
-                            description="The amount of $POKT that will be charged as a network fee per transaction."
-                            url={''}
-                        />
-                    </span>
-                    <span className="flex flex-row gap-2">
-                        <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                            {totalNetworkFee}
-                        </span>
-                        <span className="font-mono text-[14px] text-[var(--color-white-3)]">
-                            $POKT
-                        </span>
-                    </span>
-                </span>
+                {/*<span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">*/}
+                {/*    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">*/}
+                {/*        <span>*/}
+                {/*            Network Fee*/}
+                {/*        </span>*/}
+                {/*        <QuickInfoPopOverIcon*/}
+                {/*            title="Network Fee"*/}
+                {/*            description="The amount of $POKT that will be charged as a network fee per transaction."*/}
+                {/*            url={''}*/}
+                {/*        />*/}
+                {/*    </span>*/}
+                {/*    <span className="flex flex-row gap-2">*/}
+                {/*        <span className="font-mono text-[14px] text-[var(--color-white-1)]">*/}
+                {/*            {totalNetworkFee}*/}
+                {/*        </span>*/}
+                {/*        <span className="font-mono text-[14px] text-[var(--color-white-3)]">*/}
+                {/*            $POKT*/}
+                {/*        </span>*/}
+                {/*    </span>*/}
+                {/*</span>*/}
                 <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                     <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
                         <span>

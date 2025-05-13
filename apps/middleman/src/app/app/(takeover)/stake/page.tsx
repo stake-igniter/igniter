@@ -59,15 +59,14 @@ export default function StakePage() {
                     <ReviewStep
                         amount={stakeAmount}
                         selectedOffer={selectedOffer!}
-                        onStakeCompleted={(result, activity) => {
+                        onStakeCompleted={(result, transaction) => {
                             if (
-                                result.requestStakeKeysDone &&
-                                result.stakeSignatureDone &&
-                                result.operationalFundsSignatureDone &&
-                                result.schedulingTransactionsDone
+                                result.schedulingTransactionDone &&
+                                result.requestSuppliersDone &&
+                                result.transactionSignatureDone
                             ) {
                                 setStep(StakeActivitySteps.Success);
-                                setTransaction(activity)
+                                setTransaction(transaction)
                             }
                         }}
                         onBack={() => {

@@ -30,7 +30,7 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
             applicationSettings;
     }, [amount, applicationSettings]);
 
-    const totalNetworkFee = (transaction.consumedFee || transaction.estimatedFee) / 1e6;
+    const totalNetworkFee = (transaction?.consumedFee || transaction?.estimatedFee) / 1e6;
 
     const operations = JSON.parse(transaction.unsignedPayload).body.messages as Array<Operation>
     let operationalFunds = 0

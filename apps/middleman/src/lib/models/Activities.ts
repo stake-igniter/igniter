@@ -1,8 +1,7 @@
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {SignedOperationalFundsTransaction, SignedStakeTransaction} from "@/lib/models/Transactions";
+import {SignedTransaction} from "@/lib/models/Transactions";
 
 export interface CreateStakeActivityRequest {
   offer: StakeDistributionOffer;
-  stakeTransactions: SignedStakeTransaction[];
-  operationalFundsTransactions: SignedOperationalFundsTransaction[];
+  transaction: SignedTransaction;
 }

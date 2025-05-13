@@ -4,6 +4,7 @@ import {Supplier, SupplierStakeRequest} from "@/lib/models/supplier";
 import {APIResponse} from "@/lib/models/response";
 import {getSupplierStakeConfigurations} from "@/lib/services/suppliers";
 import {REQUEST_IDENTITY_HEADER} from "@/lib/constants";
+import {getApplicationSettings} from "@/lib/dal/applicationSettings";
 
 export async function OPTIONS() {
   return NextResponse.json({}, {
@@ -19,6 +20,7 @@ export async function OPTIONS() {
 export async function POST(request: Request): Promise<NextResponse<APIResponse<Supplier[] | null>>> {
   try {
     const isBootstrappedResponse = await ensureApplicationIsBootstrapped();
+    const settings = await getApplicationSettings();
 
     if (isBootstrappedResponse instanceof NextResponse) {
       return isBootstrappedResponse;
@@ -42,7 +44,7 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
       return NextResponse.json({error: "Invalid request. Empty stake distribution."}, {status: 400});
     }
 
-    const response = await getSupplierStakeConfigurations(data, delegatorIdentity);
+    const response = await getSupplierStakeConfigurations(data, delegatorIdentity, settings);
 
     if (!response || response.length === 0) {
       return NextResponse.json(

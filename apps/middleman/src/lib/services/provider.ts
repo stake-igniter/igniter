@@ -1,8 +1,9 @@
 import urlJoin from "url-join";
 import { StakeDistributionOffer } from "@/lib/models/StakeDistributionOffer";
-import {ServiceProviderKey} from "@/lib/models/Transactions";
+import {SupplierStake} from "@/lib/models/Transactions";
+import {ApplicationSettings} from "@/db/schema";
 
-export async function requestKeys(stakeOffer: StakeDistributionOffer): Promise<ServiceProviderKey[]> {
+export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, region: string = ''): Promise<SupplierStake[]> {
     try {
         const response = await fetch("/api/provider-rpc", {
             method: "POST",
@@ -11,8 +12,13 @@ export async function requestKeys(stakeOffer: StakeDistributionOffer): Promise<S
             },
             body: JSON.stringify({
                 provider: stakeOffer.publicKey,
-                path: "/api/keys",
-                data: stakeOffer.stakeDistribution,
+                path: "/api/suppliers",
+                data: {
+                    region,
+                    delegatorAddress: settings.delegatorRewardsAddress,
+                    revSharePercentage: Number(settings.fee),
+                    items: stakeOffer.stakeDistribution,
+                },
             }),
         });
 
@@ -21,7 +27,8 @@ export async function requestKeys(stakeOffer: StakeDistributionOffer): Promise<S
             throw new Error(errorBody?.error || "Failed to request keys");
         }
 
-        return await response.json();
+        const { data } = await response.json();
+        return data;
     } catch (error) {
         console.error("Failed to request keys:", error);
         throw error;
