@@ -1,17 +1,13 @@
 import {ProviderInfo, WalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {
-  Provider,
-  StakeTransactionSignatureRequest,
-  OperationalFundsTransactionSignatureRequest,
-  SignedOperationalFundsTransaction,
-  SignedStakeTransaction,
+  Provider, SignedTransaction, TransactionMessage,
 } from "./";
 
 export enum PocketMethod {
   REQUEST_ACCOUNTS = "pokt_requestAccounts",
   PUBLIC_KEY = "pokt_publicKey",
   SIGN_MESSAGE = "pokt_signMessage",
-  SIGN_BULK_TRANSACTION = "pokt_bulkSignTransaction",
+  SIGN_TRANSACTION = "pokt_signTransaction",
   BALANCE = "pokt_balance",
   CHAIN = "pokt_chain",
   SWITCH_CHAIN = "wallet_switchPocketChain",
@@ -149,68 +145,25 @@ export class PocketWalletConnection implements WalletConnection {
     });
   };
 
-  signStakeTransactions = async (txs: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]> => {
-    const transactions = txs.map((tx, id) => ({
-      id,
-      type: PocketNetworkTransactionTypes.NodeStake,
-      transaction: {
-        amount: (tx.amount * 1e6).toString(),
-        serviceURL: tx.serviceUrl,
-        chains: tx.chains,
-        // TODO: change when we add separate identity and managed addresses.
-        address: this.connectedIdentity,
-        outputAddress: this.connectedIdentity,
-        operatorPublicKey: tx.publicKey,
-        rewardDelegators: Object.entries(tx.delegatorRewards).reduce((delegatorRewards, [key, value]) => ({
-          ...delegatorRewards,
-          [key]: Number(value),
-        }), {}),
-        // TODO: Add configurable memo
-      },
-    }));
+  signTransaction = async (messages: TransactionMessage[]): Promise<SignedTransaction> => {
+    const transaction = {
+      address: this.connectedIdentity ?? "",
+      messages,
+    };
 
-    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMethod.SIGN_BULK_TRANSACTION, transactions);
-
-    return txs.map((tx, id) => {
-      const signature = signatures.find((s) => s.id.toString() === id.toString());
-
-      if (!signature) {
-        throw new Error('Signature for transaction was not found.');
-      }
-
+    try {
+      const { signature, transactionHex, rawTx, fee  } = await this.provider.send(PocketMethod.SIGN_TRANSACTION, [transaction]);
       return {
-        ...tx,
-        signedPayload: signature.transactionHex,
+        address: this.connectedIdentity ?? "",
+        signedPayload: transactionHex,
+        unsignedPayload: rawTx,
+        signature,
+        estimatedFee: fee,
       };
-    });
-  }
-
-  signOperationalFundsTransactions = async (txs: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]> => {
-    const transactions = txs.map((tx, id) => ({
-      id,
-      type: PocketNetworkTransactionTypes.Send,
-      transaction: {
-        from: tx.fromAddress,
-        to: tx.toAddress,
-        amount: (tx.amount * 1e6).toString(),
-        // TODO: Add configurable memo
-      },
-    }));
-
-    const {signatures}: {signatures: { id: string; signature: string; transactionHex: string; }[]} = await this.provider.send(PocketMethod.SIGN_BULK_TRANSACTION, transactions);
-
-    return txs.map((tx, id) => {
-      const signature = signatures.find((s) => s.id.toString() === id.toString());
-
-      if (!signature) {
-        throw new Error('Signature for transaction was not found.');
-      }
-
-      return {
-        ...tx,
-        signedPayload: signature.transactionHex,
-      };
-    });
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }
 
   get provider() {

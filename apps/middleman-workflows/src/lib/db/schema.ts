@@ -104,11 +104,13 @@ export type User = typeof usersTable.$inferSelect;
 export const providersTable = pgTable("providers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
+  identity: uuid().notNull(),
   publicKey: varchar({ length: 255 }).notNull().unique(),
   url: varchar({ length: 255 }).notNull(),
   enabled: boolean().notNull(),
   visible: boolean().notNull().default(true),
-  fee: decimal().notNull().default("1.00"),
+  fee: decimal(),
+  feeType: providerFeeEnum(),
   domains: text().array().default([]),
   regions: text().array().default([]),
   status: providerStatusEnum().notNull().default(ProviderStatus.Unknown),
@@ -193,6 +195,7 @@ export const transactionsRelations = relations(
 );
 
 export type Transaction = typeof transactionsTable.$inferSelect;
+export type CreateTransaction = typeof transactionsTable.$inferInsert;
 
 export const nodesTable = pgTable("nodes", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),

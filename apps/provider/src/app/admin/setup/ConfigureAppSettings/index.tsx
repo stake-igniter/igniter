@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Button } from "@igniter/ui/components/button";
 import {
   Form,
-  FormControl,
+  FormControl, FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -46,6 +46,11 @@ export const formSchema = z.object({
     (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
     (val) => ({ message: `${val} is not a valid address` })
   ),
+  appIdentity: z.string().min(1, "App Identity is Required").refine(
+    (value) =>
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-9][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value),
+    {message: "App Identity must be a valid UUID"}
+  ),
   minimumStake: z.coerce.number().min(15000, "Minimum stake is required").default(15000),
 });
 
@@ -62,6 +67,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       domain: defaultValues.domain || "",
       delegatorRewardsAddress: defaultValues.delegatorRewardsAddress || "",
       minimumStake: defaultValues.minimumStake,
+      appIdentity: defaultValues.appIdentity || "",
     },
   });
 
@@ -104,16 +110,20 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                 </FormItem>
               )}
             />
+
             <FormField
-              name="supportEmail"
+              name="appIdentity"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Support Email</FormLabel>
+                  <FormLabel>App Identity</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>
+                    UUID that uniquely identifies you as a service provider. This ID needs to match the one registered with Stake Igniter governance.
+                  </FormDescription>
                 </FormItem>
               )}
             />
@@ -165,28 +175,15 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <FormField
-              name="minimumStake"
+              name="fee"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Select your minimum supported stake:</FormLabel>
+                  <FormLabel>Service Fee</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(Number(value));
-                      }}
-                      value={String(field.value)}
-                      disabled={true}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select minimum stake" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem key={15000} value={String(15000)}>
-                          15000
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center">
+                      <Input {...field} type="number" className="flex-grow" />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -210,15 +207,13 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
           <div className="grid grid-cols-2 gap-4">
             <FormField
-              name="fee"
+              name="supportEmail"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Service Fee</FormLabel>
+                  <FormLabel>Support Email</FormLabel>
                   <FormControl>
-                    <div className="flex items-center">
-                      <Input {...field} type="number" className="flex-grow" />
-                    </div>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

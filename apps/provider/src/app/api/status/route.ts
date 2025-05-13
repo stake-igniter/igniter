@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
-import { getApplicationSettings } from "@/lib/dal/applicationSettings";
-import { getAddressGroups } from "@/lib/dal/addressGroups";
+import {NextResponse} from "next/server";
+import {getApplicationSettings} from "@/lib/dal/applicationSettings";
+import {getAddressGroups} from "@/lib/dal/addressGroups";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
-import {AddressGroup} from "@/db/schema";
+import {AddressGroup, ProviderFee} from "@/db/schema";
+import {list as listServices} from "@/lib/dal/services";
 
 function getUniqueRegions(addressGroups: AddressGroup[]) {
   return Array.from(new Set(addressGroups.map((group) => group.region)).values());
@@ -32,12 +33,16 @@ export async function POST(request: Request) {
 
     const applicationSettings = await getApplicationSettings();
     const addressGroups = await getAddressGroups();
+    const services = await listServices();
 
     const minimumStake = applicationSettings.minimumStake;
 
+    const fees = services.map((service) => service.revSharePercentage || Number(applicationSettings.fee));
+
     const response: StatusResponse = {
       minimumStake: minimumStake,
-      providerFee: applicationSettings.fee,
+      fee: Math.max(...fees).toString(),
+      feeType: Array.from(new Set(fees)).length === 1 ? ProviderFee.Fixed : ProviderFee.UpTo,
       regions: getUniqueRegions(addressGroups),
       domains: getUniqueDomains(addressGroups),
       delegatorRewardsAddress: applicationSettings.delegatorRewardsAddress,

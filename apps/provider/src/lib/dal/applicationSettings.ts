@@ -10,6 +10,7 @@ import { eq } from "drizzle-orm";
 const defaultSettings: ApplicationSettings = {
   id: 0,
   name: "",
+  appIdentity: "",
   supportEmail: "",
   ownerIdentity: "",
   ownerEmail: "",

@@ -28,14 +28,20 @@ export interface SupplierEndpoint {
   configs?: SupplierEndpointConfig[];
 }
 
+export interface ServiceRevShareConfig {
+  address: string;
+  revSharePercentage: number;
+}
+
 export interface SupplierServiceConfig {
   serviceId: string;
   endpoints: SupplierEndpoint[];
+  revShare: ServiceRevShareConfig[];
 }
 
 export interface Supplier {
   operatorAddress: string;
-  stake: string;
+  stakeAmount: string;
   services: SupplierServiceConfig[];
 }
 
@@ -95,11 +101,12 @@ export function getEndpointInterpolatedUrl(endpoint: SupplierEndpoint, params: S
 
 export interface SupplierStakeRequest {
   region?: string;
+  revSharePercentage: number;
+  delegatorAddress: string;
   items: StakeDistributionItem[];
 }
 
 export interface StakeDistributionItem {
-  revShare: number;
   amount: number;
   qty: number;
 }

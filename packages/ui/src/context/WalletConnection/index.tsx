@@ -5,33 +5,53 @@ import {PocketWalletConnection} from "./PocketWalletConnection";
 import { PocketMorseWalletConnection } from './PocketMorseWalletConnection'
 
 // TODO: Unify this with apps/middleman/src/lib/models/Transactions.ts:4
-export interface ServiceProviderKey {
-  address: string;
-  amount: number;
-  serviceUrl: string;
-  chains: string[];
-  publicKey: string;
+export interface SupplierStake {
+  operatorAddress: string;
+  stakeAmount: string;
+  services: {
+    serviceId: string;
+    revShare: {
+      address: string;
+      revSharePercentage: number;
+    }[];
+    endpoints: {
+      url: string;
+      rpcType: string;
+      configs: { }
+    }[];
+  }[];
+}
+
+export interface StakeTransactionSignaturePayload extends SupplierStake {
+  ownerAddress: string;
+  signer: string;
+}
+
+export interface OperationalFundsTransactionSignaturePayload {
+  toAddress: string;
+  amount: string;
+}
+
+export type TransactionMessage = StakeMessage | FundsMessage;
+
+export interface StakeMessage {
+  typeUrl: '/pocket.supplier.MsgStakeSupplier';
+  body: StakeTransactionSignaturePayload;
+}
+
+export interface FundsMessage {
+  typeUrl: '/cosmos.bank.v1beta1.MsgSend';
+  body: OperationalFundsTransactionSignaturePayload;
 }
 
 export interface SignedTransaction {
+  address: string;
   signedPayload: string;
+  unsignedPayload: string;
+  estimatedFee: number,
+  signature: string;
 }
 
-export interface StakeTransactionSignatureRequest extends ServiceProviderKey {
-  outputAddress: string;
-  delegatorRewards: Record<string, string>;
-}
-
-export type SignedStakeTransaction = SignedTransaction & StakeTransactionSignatureRequest;
-
-export interface OperationalFundsTransactionSignatureRequest {
-  fromAddress: string;
-  toAddress: string;
-  amount: number;
-  dependsOn: string;
-}
-
-export type SignedOperationalFundsTransaction = SignedTransaction & OperationalFundsTransactionSignatureRequest;
 
 export interface Provider {
   send: (method: string, params?: any[]) => Promise<any>;
@@ -55,8 +75,7 @@ export interface WalletConnection {
   switchChain(chain: string): Promise<void>;
   signMessage(message: string, address: string): Promise<string>;
   getAvailableProviders(): Promise<ProviderInfo[]>;
-  signStakeTransactions(transactions: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]>;
-  signOperationalFundsTransactions(transactions: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]>;
+  signTransaction(messages: TransactionMessage[]): Promise<SignedTransaction>;
   reconnect(address: string): Promise<boolean>;
 }
 
@@ -92,13 +111,15 @@ export const WalletConnectionContext = createContext<WalletConnection>({
     console.warn('Method not implemented: reconnect. Something is wrong with the wallet connection provider.');
     return false;
   },
-  async signStakeTransactions(transactions: StakeTransactionSignatureRequest[]): Promise<SignedStakeTransaction[]> {
-    console.warn('Method not implemented: signStakeTransactions. Something is wrong with the wallet connection provider.');
-    return [];
-  },
-  async signOperationalFundsTransactions(transactions: OperationalFundsTransactionSignatureRequest[]): Promise<SignedOperationalFundsTransaction[]> {
-    console.warn('Method not implemented: signOperationalFundsTransactions. Something is wrong with the wallet connection provider.');
-    return [];
+  signTransaction: async (messages: TransactionMessage[]) : Promise<SignedTransaction> => {
+    console.warn('Method not implemented: signTransaction. Something is wrong with the wallet connection provider.');
+    return {
+      address: '',
+      signedPayload: '',
+      unsignedPayload: '',
+      signature: '',
+      estimatedFee: 0,
+    };
   },
 });
 
@@ -160,8 +181,7 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
         switchChain: pocketConnection.switchChain,
         signMessage: pocketConnection.signMessage,
         getAvailableProviders: pocketConnection.getAvailableProviders,
-        signStakeTransactions: pocketConnection.signStakeTransactions,
-        signOperationalFundsTransactions: pocketConnection.signOperationalFundsTransactions,
+        signTransaction: pocketConnection.signTransaction,
       }
     }>
       {children}

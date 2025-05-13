@@ -1,4 +1,4 @@
-import { heartbeat, sleep } from "@temporalio/activity";
+  import { heartbeat, sleep } from "@temporalio/activity";
 import { RawTxRequest } from "@pokt-foundation/pocketjs-types";
 import { BlockchainProvider } from "@/lib/blockchain";
 import * as transactionDAL from "../lib/dal/transaction";

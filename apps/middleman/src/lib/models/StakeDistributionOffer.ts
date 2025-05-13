@@ -1,8 +1,11 @@
+import {ProviderFee} from "@/db/schema";
+
 export interface StakeDistributionOffer {
     id: number;
     publicKey: string;
-    name: string;
     fee: string;
+    feeType: ProviderFee;
+    name: string;
     rewards: string;
     regions: string[];
     operationalFundsAmount: number;
@@ -11,7 +14,6 @@ export interface StakeDistributionOffer {
 }
 
 export interface StakeDistributionItem {
-    revShare: string;
     amount: number;
     qty: number;
 }

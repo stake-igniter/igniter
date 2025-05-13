@@ -2,7 +2,7 @@ import {getEndpointInterpolatedUrl, Supplier, SupplierStakeRequest} from "@/lib/
 import { list } from "@/lib/dal/addressGroups";
 import { list as listServices } from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
-import {CreateKey} from "@/db/schema";
+import {ApplicationSettings, CreateKey} from "@/db/schema";
 import {insertMany} from "@/lib/dal/keys";
 
 type KeyDistributionItem = { numberOfKeys: number[] };
@@ -65,6 +65,7 @@ function calculateDistribution(
 export async function getSupplierStakeConfigurations(
   stakeDistribution: SupplierStakeRequest,
   requestingDelegator: string,
+  settings: ApplicationSettings,
 ): Promise<Supplier[]> {
   const addressGroups = await list(stakeDistribution.region);
   const services = await listServices();
@@ -99,11 +100,23 @@ export async function getSupplierStakeConfigurations(
     ...item,
     suppliers: item.keys.map((key, index) => ({
       operatorAddress: key.address,
-      stake: item.amounts[index]!.toString(),
+      stakeAmount: item.amounts[index]!.toString(),
       services: item.addressGroup.services?.map(serviceId => {
         const serviceItem = services.find(s => s.serviceId === serviceId);
         return  {
           serviceId,
+          revShare: [
+            // Provider's fee for this service or the default
+            {
+              address: settings.delegatorRewardsAddress,
+              revSharePercentage: serviceItem?.revSharePercentage ?? Number(settings.fee),
+            },
+            // Delegator Fee
+            {
+              address: stakeDistribution.delegatorAddress,
+              revSharePercentage: stakeDistribution.revSharePercentage,
+            }
+          ],
           endpoints: serviceItem?.endpoints.map(endpoint => ({
             url: getEndpointInterpolatedUrl(endpoint, {
               sid: serviceId,
@@ -112,6 +125,7 @@ export async function getSupplierStakeConfigurations(
               domain: item.addressGroup.domain!,
             }),
             rpcType: endpoint.rpcType,
+            configs: [],
           })) || [],
         }
       }) || [],
