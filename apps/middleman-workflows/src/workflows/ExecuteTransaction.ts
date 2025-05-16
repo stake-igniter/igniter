@@ -1,11 +1,9 @@
 import {
-  ApplicationFailure,
-  log,
   proxyActivities,
-  startChild,
 } from "@temporalio/workflow";
 import { delegatorActivities } from "../activities";
-import { TransactionStatus } from "../lib/db/schema";
+import {TransactionStatus} from "../lib/db/schema";
+import {SendTransactionResult} from "@/lib/blockchain";
 
 
 interface TransactionArgs {
@@ -21,6 +19,7 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     executeTransaction,
     getBlockHeight,
     verifyTransaction,
+    createNewNodesFromTransaction,
   } = proxyActivities<ReturnType<typeof delegatorActivities>>({
     startToCloseTimeout: "30s",
     retry: {
@@ -40,29 +39,33 @@ export async function ExecuteTransaction(args: TransactionArgs) {
 
   const txHeight = await getBlockHeight();
 
-  const result = await executeTransaction(
-    transaction.signedPayload
-  );
+  let result: SendTransactionResult | null = null;
 
-  if (!result.transactionHash) {
-    await updateTransaction(transactionId, {
-      status: TransactionStatus.Failure,
-      code: result.code,
-      log: result.message || 'unknown error',
-    });
+  if (!transaction.hash) {
+    result = await executeTransaction(
+      transaction.signedPayload
+    );
 
-    return {
-      ...transaction,
-      status: TransactionStatus.Failure,
-      code: result.code,
-      log: result.message || 'unknown error',
+    if (!result.transactionHash) {
+      await updateTransaction(transactionId, {
+        status: TransactionStatus.Failure,
+        code: result.code,
+        log: result.message || 'unknown error',
+      });
+
+      return {
+        ...transaction,
+        status: TransactionStatus.Failure,
+        code: result.code,
+        log: result.message || 'unknown error',
+      }
     }
-  }
 
-  await updateTransaction(transactionId, {
-    executionHeight: txHeight,
-    hash: result.transactionHash,
-  });
+    await updateTransaction(transactionId, {
+      executionHeight: txHeight,
+      hash: result.transactionHash,
+    });
+  }
 
   const { waitForNextBlock } = proxyActivities<
     ReturnType<typeof delegatorActivities>
@@ -70,13 +73,14 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     startToCloseTimeout: "45m",
     heartbeatTimeout: "6m",
     retry: {
-      maximumAttempts: 3,
+      maximumAttempts: 200,
     },
   });
 
+
   await waitForNextBlock(txHeight);
 
-  const [success, code] = await verifyTransaction(result.transactionHash);
+  const [success, code, gasUsed] = await verifyTransaction(result?.transactionHash || transaction.hash!);
 
   const txStatus = success ? TransactionStatus.Success : TransactionStatus.Failure;
 
@@ -85,19 +89,28 @@ export async function ExecuteTransaction(args: TransactionArgs) {
   await updateTransaction(transactionId, {
     status: txStatus,
     verificationHeight,
+    consumedFee: Number(gasUsed || 0),
   });
 
-  if (txStatus === TransactionStatus.Failure) {
-    throw new ApplicationFailure(
-      `Transaction ${transaction.id} failed with code: ${code}`
-    );
+  if (success) {
+    const newNodes = await createNewNodesFromTransaction(transaction);
+
+    return {
+      ...transaction,
+      status: txStatus,
+      hash: result?.transactionHash || transaction.hash,
+      txHeight,
+      newNodes: newNodes || [],
+      code,
+    };
   }
 
   return {
     ...transaction,
     status: txStatus,
-    hash: result.transactionHash,
+    hash: result?.transactionHash || transaction.hash,
     txHeight,
+    newNodes: [],
     code,
   };
 }

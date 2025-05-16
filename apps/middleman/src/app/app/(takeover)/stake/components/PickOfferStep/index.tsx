@@ -55,6 +55,10 @@ export function PickOfferStep({onOfferSelected, amount, onBack, defaultOffer, on
             try {
                 const calculatedOffers = await CalculateStakeDistribution(amount);
                 setOffers(calculatedOffers);
+                if (selectedOffer) {
+                    const updatedSelectedOffer = calculatedOffers.find((offer) => offer.id === selectedOffer.id && offer.stakeDistribution.length > 0);;
+                    setSelectedOffer(updatedSelectedOffer);
+                }
             } catch (error) {
                 console.warn('An error occurred while calculating the stake distribution!');
                 console.error(error);

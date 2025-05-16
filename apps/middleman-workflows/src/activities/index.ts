@@ -2,10 +2,20 @@ import {heartbeat, sleep} from "@temporalio/activity";
 import {IBlockchain} from "@/lib/blockchain";
 import * as transactionDAL from "../lib/dal/transaction";
 import * as providerDAL from "../lib/dal/provider";
-import {Provider, ProviderStatus, Transaction, TransactionStatus,} from "../lib/db/schema";
+import * as nodesDAL from '../lib/dal/nodes';
+import {
+  CreateNode,
+  Node,
+  NodeStatus,
+  Provider,
+  ProviderStatus,
+  Transaction,
+  TransactionStatus,
+} from "../lib/db/schema";
 import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "../lib/constants";
 import {signPayload} from "../lib/crypto"
 import {getApplicationSettingsFromDatabase} from "../lib/dal/applicationSettings";
+import {extractStakedNodes} from "@/workflows/utils";
 
 export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
   async getTransaction(transactionId: number) {
@@ -110,8 +120,8 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
   },
   async waitForNextBlock(txHeight: number): Promise<boolean> {
     let currentHeight = await blockchainProvider.getHeight();
-    while (currentHeight < txHeight + 2) {
-      await sleep(5 * 60 * 1000);
+    while (currentHeight < txHeight + 1) {
+      await sleep(30 * 1000);
       heartbeat();
       currentHeight = await blockchainProvider.getHeight();
     }
@@ -122,17 +132,25 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
     if (!tx) {
       throw new Error("Transaction data is incomplete or not found");
     }
-    return [tx.success, tx.code] as const;
+    return [tx.success, tx.code, tx.gasUsed?.toString() || "0"] as const;
   },
-  // async parseNodesPublicKey(
-  //   nodes: (Omit<NewNode, "address"> & { publicKey: string })[]
-  // ) {
-  //   return nodes.map(({ publicKey, ...rest }) => ({
-  //     ...rest,
-  //     address: addressFromPublicKey(Buffer.from(publicKey, "hex")),
-  //   }));
-  // },
-  // async insertNodes(nodes: NewNode[]) {
-  //   return await nodeDAL.insertNodes(nodes);
-  // },
+  async createNewNodesFromTransaction(transaction: Transaction) : Promise<Pick<Node, 'id'>[]> {
+    try {
+      const newlyStakedNodes = extractStakedNodes(transaction);
+
+      const newNodes: CreateNode[] = newlyStakedNodes.map(({ address, stakeAmount, balance }) => ({
+        status: NodeStatus.Staked,
+        stakeAmount,
+        balance,
+        address,
+        providerId: transaction.providerId,
+      }));
+
+      return nodesDAL.insert(newNodes, transaction.id);
+    } catch (error) {
+      console.log('Something went wrong while parsing the transaction to extract the staked nodes information.');
+      console.error(error);
+      return [];
+    }
+  },
 });

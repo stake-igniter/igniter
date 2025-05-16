@@ -77,25 +77,6 @@ export const columns: ColumnDef<Node>[] = [
     },
   },
   {
-    accessorKey: "rewards",
-    header: "Rewards",
-    cell: ({ row }) => {
-      const rewards = row.getValue("rewards") as number;
-
-      const PositiveRewards = <RewardsIcon />;
-      const NoRewards = <RewardsDisabledIcon />;
-
-      return (
-        <div className="flex justify-start items-baseline gap-2">
-          {rewards > 0 ? PositiveRewards : NoRewards}
-          <span className="font-mono">
-            {roundAndSeparate(amountToPokt(rewards), 2, 0)}
-          </span>
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
@@ -111,7 +92,8 @@ export const columns: ColumnDef<Node>[] = [
     accessorKey: "stakeAmount",
     header: "Stake Amount",
     cell: ({ row }) => {
-      const stakeAmount = row.getValue("stakeAmount") as number;
+      const stakeAmount = amountToPokt(row.getValue("stakeAmount")) as number;
+
       return (
         <div className="flex items-baseline gap-3 font-mono justify-end">
           {/* Is this currency field  ? */}

@@ -13,7 +13,7 @@ export default function About() {
                 </div>
                 <div>
                     <span className="font-[var(--font-sans)] text-[27px] leading-[1.63] text-[var(--color-white-3)]">
-                        Igniter is being developed by Soothe. We use Poktscan’s blockchain explorer to pull data, and The Pocket Network Foundation is backing the development of Igniter.
+                        Igniter is being developed by Soothe.
                     </span>
                 </div>
             </div>

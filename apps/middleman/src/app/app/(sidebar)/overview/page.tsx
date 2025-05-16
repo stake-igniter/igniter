@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Button } from "@igniter/ui/components/button";
 import BinCardList from "./components/BinCardList";
 import { getNodesByUser } from '@/lib/dal/nodes'
+import {amountToPokt} from "@igniter/ui/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +12,14 @@ export default async function Page() {
   let nodesWith15k = 0, nodesWith30k = 0, nodesWith45k = 0, nodesWith60k = 0, totalStaked = 0;
 
   for (const node of nodes) {
-    totalStaked += Number(node.stakeAmount);
+    const stakedAmount = amountToPokt(node.stakeAmount);
+    totalStaked += stakedAmount;
 
-    if (node.stakeAmount < 30000) {
+    if (stakedAmount < 30000) {
       nodesWith15k++;
-    } else if (node.stakeAmount < 45000) {
+    } else if (stakedAmount < 45000) {
       nodesWith30k++;
-    } else if (node.stakeAmount < 60000) {
+    } else if (stakedAmount < 60000) {
       nodesWith45k++;
     } else {
       nodesWith60k++;
@@ -25,10 +27,7 @@ export default async function Page() {
   }
 
   const binCards = [
-    { value: "15K", label: "Nodes", count: nodesWith15k },
-    { value: "30K", label: "Nodes", count: nodesWith30k },
-    { value: "45K", label: "Nodes", count: nodesWith45k },
-    { value: "60K", label: "Nodes", count: nodesWith60k },
+    { value: "Node", label: "", count: nodesWith15k },
   ];
 
   return (
@@ -47,9 +46,9 @@ export default async function Page() {
                 <Link href="/app/stake">
                   <Button>Stake</Button>
                 </Link>
-                <Link href="/app/migrate">
-                  <Button>Migrate</Button>
-                </Link>
+                {/*<Link href="/app/migrate">*/}
+                {/*  <Button>Migrate</Button>*/}
+                {/*</Link>*/}
               </div>
             </div>
           </div>

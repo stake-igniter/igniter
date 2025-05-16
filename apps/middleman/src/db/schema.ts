@@ -54,7 +54,6 @@ export enum ProviderStatus {
 
 export enum NodeStatus {
   Staked = "staked",
-  Staking = "staking",
   Unstaked = "unstaked",
   Unstaking = "unstaking",
 }
@@ -203,16 +202,16 @@ export const nodesTable = pgTable("nodes", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   address: varchar({ length: 255 }).notNull(),
   status: nodeStatusEnum().notNull(),
-  stakeAmount: integer().notNull(),
+  stakeAmount: varchar().notNull(),
   balance: bigint({ mode: "number" }).notNull(),
-  rewards: bigint({ mode: "number" }).notNull(),
-  serviceUrl: varchar({ length: 255 }),
-  chains: varchar({ length: 255 }).array(),
   providerId: integer(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow(),
   userId: integer().references(() => usersTable.id),
 });
+
+export type Node = typeof nodesTable.$inferSelect;
+export type CreateNode = typeof nodesTable.$inferInsert;
 
 export const nodesRelations = relations(nodesTable, ({ one, many }) => ({
   provider: one(providersTable, {
@@ -245,5 +244,3 @@ export const transactionsToNodesRelations = relations(transactionsToNodesTable, 
     references: [nodesTable.id],
   }),
 }));
-
-export type Node = typeof nodesTable.$inferSelect;
