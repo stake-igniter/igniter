@@ -1,5 +1,5 @@
 CREATE TYPE "public"."chain_ids" AS ENUM('pocket', 'pocket-beta', 'pocket-alpha');--> statement-breakpoint
-CREATE TYPE "public"."node_status" AS ENUM('staked', 'staking', 'unstaked', 'unstaking');--> statement-breakpoint
+CREATE TYPE "public"."node_status" AS ENUM('staked', 'unstaked', 'unstaking');--> statement-breakpoint
 CREATE TYPE "public"."provider_fee" AS ENUM('up_to', 'fixed');--> statement-breakpoint
 CREATE TYPE "public"."provider_status" AS ENUM('healthy', 'unhealthy', 'unknown', 'unreachable');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'user', 'owner');--> statement-breakpoint
@@ -27,11 +27,8 @@ CREATE TABLE "nodes" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "nodes_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"address" varchar(255) NOT NULL,
 	"status" "node_status" NOT NULL,
-	"stakeAmount" integer NOT NULL,
+	"stakeAmount" varchar NOT NULL,
 	"balance" bigint NOT NULL,
-	"rewards" bigint NOT NULL,
-	"serviceUrl" varchar(255),
-	"chains" varchar(255)[],
 	"providerId" integer,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),

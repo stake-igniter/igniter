@@ -29,7 +29,6 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, onOwnerAdd
       return balance >= 0 && minimumStake > 0;
     }, [balance, minimumStake])
 
-
     useEffect(() => {
       if (connectedIdentity) {
         (async () => {

@@ -5,7 +5,7 @@ import { clsx } from 'clsx'
 import { DrawerDescription, DrawerHeader, DrawerTitle } from '@igniter/ui/components/drawer'
 import { Button } from '@igniter/ui/components/button'
 import Summary, { SummaryRow } from '@/app/components/Summary'
-import { toCompactFormat } from '@igniter/ui/lib/utils'
+import {amountToPokt, toCompactFormat} from '@igniter/ui/lib/utils'
 import Address from '@igniter/ui/components/Address'
 import { CaretSmallIcon } from '@igniter/ui/assets'
 import { NodeDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
@@ -33,7 +33,7 @@ export default function NodeDetail({
 
   const summaryRows: Array<SummaryRow> = [
     {
-      label: `Node (${toCompactFormat(stakeAmount)})`,
+      label: `Node`,
       value: <Address address={address} />,
     },
     {
@@ -44,7 +44,7 @@ export default function NodeDetail({
       label: 'Operational Funds',
       value: (
         <p className={'text-sm'}>
-          <Amount value={operationalFundsAmount} />
+          <Amount value={amountToPokt(operationalFundsAmount)} />
         </p>
       )
     }
@@ -67,7 +67,7 @@ export default function NodeDetail({
                 marginBottom: '-6px'
               }}
             />
-            <span>Activity ({transactions.length})</span>
+            <span>Transactions ({transactions.length})</span>
           </Button>
         </div>
       ),
@@ -123,7 +123,7 @@ export default function NodeDetail({
         className={
           clsx(
             'relative flex h-[64px] mt-[-5px]',
-            (status === NodeStatus.Staking || (status === NodeStatus.Staked && operationalFundsAmount)) && 'gradient-border-slate',
+            (status === NodeStatus.Staked && operationalFundsAmount) && 'gradient-border-slate',
             status === NodeStatus.Unstaking && 'gradient-border-purple',
             ((status === NodeStatus.Staked && !operationalFundsAmount) || status === NodeStatus.Unstaked) && 'gradient-border-orange',
           )
@@ -135,7 +135,7 @@ export default function NodeDetail({
           </span>
           <div className="flex flex-row items-center gap-2">
             <p className="font-mono !text-[20px]">
-              <Amount value={stakeAmount} />
+              <Amount value={amountToPokt(stakeAmount)} />
             </p>
           </div>
         </div>

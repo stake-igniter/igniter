@@ -1,5 +1,5 @@
 {
-  "id": "b218d334-c150-42d5-853d-98e1e10c21fe",
+  "id": "68bfc6a6-a24b-41e7-8baa-3ba40aa70894",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -158,7 +158,7 @@
         },
         "stakeAmount": {
           "name": "stakeAmount",
-          "type": "integer",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -167,24 +167,6 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": true
-        },
-        "rewards": {
-          "name": "rewards",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "serviceUrl": {
-          "name": "serviceUrl",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "chains": {
-          "name": "chains",
-          "type": "varchar(255)[]",
-          "primaryKey": false,
-          "notNull": false
         },
         "providerId": {
           "name": "providerId",
@@ -720,7 +702,6 @@
       "schema": "public",
       "values": [
         "staked",
-        "staking",
         "unstaked",
         "unstaking"
       ]

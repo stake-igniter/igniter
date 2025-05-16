@@ -46,22 +46,22 @@ export default function AppSidebar({
             <SidebarMenu>{FooterRoutes}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <div className="border rounded-md flex flex-row justify-between items-center py-2 px-4">
-              <div className="flex flex-col">
-                <p className="font-medium">Soothe Wallet</p>
-                <p className="text-(--very-muted-foreground)">Get Extension</p>
-              </div>
-              <div>
-                <SootheLogo />
-              </div>
-            </div>
-            <div className="p-1 mt-4 text-(--very-muted-foreground)">
-              <p>Igniter © 2024 ToS</p>
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/*<SidebarGroup>*/}
+        {/*  <SidebarGroupContent>*/}
+        {/*    <div className="border rounded-md flex flex-row justify-between items-center py-2 px-4">*/}
+        {/*      <div className="flex flex-col">*/}
+        {/*        <p className="font-medium">Soothe Wallet</p>*/}
+        {/*        <p className="text-(--very-muted-foreground)">Get Extension</p>*/}
+        {/*      </div>*/}
+        {/*      <div>*/}
+        {/*        <SootheLogo />*/}
+        {/*      </div>*/}
+        {/*    </div>*/}
+        {/*    <div className="p-1 mt-4 text-(--very-muted-foreground)">*/}
+        {/*      <p>Igniter © 2024 ToS</p>*/}
+        {/*    </div>*/}
+        {/*  </SidebarGroupContent>*/}
+        {/*</SidebarGroup>*/}
       </SidebarFooter>
     </Sidebar>
   );
