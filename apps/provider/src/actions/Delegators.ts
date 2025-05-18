@@ -4,16 +4,22 @@ import {disableAll, enableAll, list, update} from "@/lib/dal/delegators";
 import {Delegator, delegatorsTable} from "@/db/schema";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
+import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 export async function ListDelegators() {
   return list();
 }
 
 export async function UpdateDelegator(identity: string, updateValues: Pick<Delegator, 'enabled'>) {
-  return update(identity, updateValues);
+  const userIdentity = await getCurrentUserIdentity();
+  return update(identity, {
+    ...updateValues,
+    updatedBy: userIdentity,
+  });
 }
 
 export async function UpdateDelegatorsFromSource() {
+  const userIdentity = await getCurrentUserIdentity();
   const delegatorsCdnUrl = process.env.DELEGATORS_CDN_URL;
 
   if (!delegatorsCdnUrl) {
@@ -55,6 +61,7 @@ export async function UpdateDelegatorsFromSource() {
           .set({
             name: cdnDelegator.name,
             publicKey: cdnDelegator.publicKey,
+            updatedBy: userIdentity,
           })
           .where(eq(delegatorsTable.identity, cdnDelegator.identity));
       } else {
@@ -63,6 +70,8 @@ export async function UpdateDelegatorsFromSource() {
             name: cdnDelegator.name,
             identity: cdnDelegator.identity,
             publicKey: cdnDelegator.publicKey,
+            createdBy: userIdentity,
+            updatedBy: userIdentity,
             enabled: false,
           });
       }
@@ -73,7 +82,8 @@ export async function UpdateDelegatorsFromSource() {
         await db.update(delegatorsTable)
           .set({
             enabled: false,
-            updatedAt: new Date()
+            updatedAt: new Date(),
+            updatedBy: userIdentity,
           })
           .where(eq(delegatorsTable.identity, delegator.identity));
       }
@@ -90,9 +100,11 @@ export async function UpdateDelegatorsFromSource() {
 }
 
 export async function DisableAllDelegators() {
-  return disableAll();
+  const userIdentity = await getCurrentUserIdentity();
+  return disableAll(userIdentity);
 }
 
 export async function EnableAllDelegators() {
-  return enableAll();
+  const userIdentity = await getCurrentUserIdentity();
+  return enableAll(userIdentity);
 }

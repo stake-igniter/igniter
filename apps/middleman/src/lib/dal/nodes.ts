@@ -1,9 +1,11 @@
 import "server-only";
 import { db } from "@/db";
-import { desc } from 'drizzle-orm'
+import {desc, eq} from 'drizzle-orm'
+import {nodesTable} from "@/db/schema";
 
-export async function getNodesByUser() {
-  return await db.query.nodesTable.findMany({
+export async function getNodesByUser(userIdentity: string) {
+  return db.query.nodesTable.findMany({
+    where: eq(nodesTable.createdBy, userIdentity),
     with: {
       provider: true,
       transactionsToNodes: {

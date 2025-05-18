@@ -3,11 +3,19 @@ import { columns, filters, sorts } from "./table/columns";
 import { getTransactionsByUser } from '@/lib/dal/transaction'
 import { Operation } from '@/app/detail/Detail'
 import { MessageType } from '@/lib/constants'
+import {auth} from "@/auth";
+import {redirect} from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const transactions = await getTransactionsByUser();
+  const session = await auth();
+
+  if (!session) {
+    return redirect('/');
+  }
+
+  const transactions = await getTransactionsByUser(session.user.identity);
 
   return (
     <>

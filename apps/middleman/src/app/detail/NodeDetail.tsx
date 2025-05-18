@@ -25,6 +25,7 @@ export default function NodeDetail({
    address,
    status,
    transactions,
+   provider,
    operationalFundsAmount,
    stakeAmount
 }: NodeDetailBody) {
@@ -38,7 +39,7 @@ export default function NodeDetail({
     },
     {
       label: 'Provider',
-      value: 'N/A',
+      value: provider?.name ?? 'N/A',
     },
     {
       label: 'Operational Funds',

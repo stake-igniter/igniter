@@ -3,10 +3,12 @@
 import {list, upsertProviders, getByPublicKey} from "@/lib/dal/providers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import {auth} from "@/auth";
 
 export interface Provider {
   id: number;
   name: string;
+  identity: string;
   publicKey: string;
   url: string;
 }
@@ -50,6 +52,12 @@ export async function submitProviders(
   values: SubmitProvidersValues,
   providers: Provider[]
 ): Promise<SubmitProvidersResult | void> {
+  const session = await auth();
+
+  if (!session) {
+    throw new Error("Not logged in");
+  }
+
   const validatedFields = updateProvidersSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -60,6 +68,8 @@ export async function submitProviders(
     ...provider,
     enabled: values.providers.includes(provider.publicKey),
     visible: values.providers.includes(provider.publicKey),
+    createdBy: session.user.identity,
+    updatedBy: session.user.identity,
   }));
 
   await upsertProviders(updatedProviders);

@@ -64,6 +64,8 @@ export async function list(region: string = ''): Promise<AddressGroupWithDetails
         services: addressGroupTable.services,
         createdAt: addressGroupTable.createdAt,
         updatedAt: addressGroupTable.updatedAt,
+        createdBy: addressGroupTable.createdBy,
+        updatedBy: addressGroupTable.updatedBy,
         keysCount: sql<number>`COUNT(DISTINCT ${keysTable.id})::int`.as('keys_count')
       })
       .from(addressGroupTable)

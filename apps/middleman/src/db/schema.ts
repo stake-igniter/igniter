@@ -91,11 +91,11 @@ export const nodeStatusEnum = pgEnum("node_status", enumToPgEnum(NodeStatus));
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  identity: varchar({ length: 255 }).notNull(),
+  identity: varchar({ length: 255 }).notNull().unique(),
   email: varchar({ length: 255 }),
   role: roleEnum().notNull(),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
 });
 
 export type User = typeof usersTable.$inferSelect;
@@ -103,7 +103,7 @@ export type User = typeof usersTable.$inferSelect;
 export const providersTable = pgTable("providers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  identity: uuid().notNull(),
+  identity: uuid().notNull().unique(),
   publicKey: varchar({ length: 255 }).notNull().unique(),
   url: varchar({ length: 255 }).notNull(),
   enabled: boolean().notNull(),
@@ -117,7 +117,9 @@ export const providersTable = pgTable("providers", {
   minimumStake: integer().notNull().default(0),
   operationalFunds: integer().notNull().default(5),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  createdBy: varchar().references(() => usersTable.identity).notNull(),
+  updatedBy: varchar().references(() => usersTable.identity).notNull(),
 });
 
 export const providersRelations = relations(providersTable, ({ many }) => ({
@@ -142,10 +144,13 @@ export const applicationSettingsTable = pgTable("application_settings", {
   rpcUrl: varchar().notNull(),
   privacyPolicy: text(),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  createdBy: varchar().references(() => usersTable.identity).notNull(),
+  updatedBy: varchar().references(() => usersTable.identity).notNull(),
 });
 
 export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
+export type CreateApplicationSettings = typeof applicationSettingsTable.$inferInsert;
 
 export const transactionsTable = pgTable("transactions", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -164,16 +169,15 @@ export const transactionsTable = pgTable("transactions", {
 
   signedPayload: varchar().notNull(),
   fromAddress: varchar({ length: 255 }).notNull(),
-  createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
-  userId: integer().references(() => usersTable.id),
-
   unsignedPayload: varchar().notNull(),
   estimatedFee: integer().notNull(),
   consumedFee: integer().notNull(),
   providerFee: integer(),
   typeProviderFee: providerFeeEnum(),
-  providerId: integer().references(() => providersTable.id),
+  providerId: uuid().references(() => providersTable.identity),
+  createdAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  createdBy: varchar().references(() => usersTable.identity).notNull(),
 });
 
 export const transactionsRelations = relations(
@@ -184,12 +188,12 @@ export const transactionsRelations = relations(
       references: [transactionsTable.id],
     }),
     createdBy: one(usersTable, {
-      fields: [transactionsTable.userId],
-      references: [usersTable.id],
+      fields: [transactionsTable.createdBy],
+      references: [usersTable.identity],
     }),
     provider: one(providersTable, {
       fields: [transactionsTable.providerId],
-      references: [providersTable.id],
+      references: [providersTable.identity],
     }),
     transactionsToNodes: many(transactionsToNodesTable),
   })
@@ -201,26 +205,33 @@ export type CreateTransaction = typeof transactionsTable.$inferInsert;
 export const nodesTable = pgTable("nodes", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   address: varchar({ length: 255 }).notNull(),
+  ownerAddress: varchar({ length: 255 }).notNull(),
   status: nodeStatusEnum().notNull(),
   stakeAmount: varchar().notNull(),
   balance: bigint({ mode: "number" }).notNull(),
-  providerId: integer(),
+  providerId: uuid().references(() => providersTable.identity),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow(),
-  userId: integer().references(() => usersTable.id),
+  createdBy: varchar().references(() => usersTable.identity).notNull(),
 });
 
 export type Node = typeof nodesTable.$inferSelect;
+
+export type NodeWithDetails = Node & {
+  provider: Provider | null;
+  transactionsToNodes: TransactionsToNodes[];
+};
+
 export type CreateNode = typeof nodesTable.$inferInsert;
 
 export const nodesRelations = relations(nodesTable, ({ one, many }) => ({
   provider: one(providersTable, {
     fields: [nodesTable.providerId],
-    references: [providersTable.id],
+    references: [providersTable.identity],
   }),
   createdBy: one(usersTable, {
-    fields: [nodesTable.userId],
-    references: [usersTable.id],
+    fields: [nodesTable.createdBy],
+    references: [usersTable.identity],
   }),
   transactionsToNodes: many(transactionsToNodesTable),
 }));
@@ -233,6 +244,10 @@ export const transactionsToNodesTable = pgTable("transactions_to_nodes", {
     primaryKey({ columns: [t.transactionId, t.nodeId] })
   ]
 )
+
+export type CreateTransactionsToNodesRelation = typeof transactionsToNodesTable.$inferInsert;
+
+export type TransactionsToNodes = typeof transactionsToNodesTable.$inferSelect;
 
 export const transactionsToNodesRelations = relations(transactionsToNodesTable, ({ one }) => ({
   transaction: one(transactionsTable, {

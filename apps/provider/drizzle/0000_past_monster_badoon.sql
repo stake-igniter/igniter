@@ -10,7 +10,9 @@ CREATE TABLE "address_groups" (
 	"clients" varchar[] DEFAULT '{}',
 	"services" varchar[] DEFAULT '{}',
 	"createdAt" timestamp DEFAULT now(),
+	"createdBy" varchar(255) NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),
+	"updatedBy" varchar(255) NOT NULL,
 	CONSTRAINT "address_groups_name_unique" UNIQUE("name")
 );
 --> statement-breakpoint
@@ -29,7 +31,9 @@ CREATE TABLE "application_settings" (
 	"isBootstrapped" boolean NOT NULL,
 	"rpcUrl" varchar NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now()
+	"createdBy" varchar(255) NOT NULL,
+	"updatedAt" timestamp DEFAULT now(),
+	"updatedBy" varchar(255) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "delegators" (
@@ -39,7 +43,9 @@ CREATE TABLE "delegators" (
 	"publicKey" varchar(255) NOT NULL,
 	"enabled" boolean NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
+	"createdBy" varchar(255) NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),
+	"updatedBy" varchar(255) NOT NULL,
 	CONSTRAINT "delegators_identity_unique" UNIQUE("identity"),
 	CONSTRAINT "delegators_publicKey_unique" UNIQUE("publicKey")
 );
@@ -66,7 +72,9 @@ CREATE TABLE "services" (
 	"revSharePercentage" integer,
 	"endpoints" json NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
+	"createdBy" varchar(255) NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),
+	"updatedBy" varchar(255) NOT NULL,
 	CONSTRAINT "services_serviceId_unique" UNIQUE("serviceId"),
 	CONSTRAINT "check_endpoints_not_empty" CHECK (json_array_length(endpoints) > 0)
 );
@@ -77,8 +85,17 @@ CREATE TABLE "users" (
 	"email" varchar(255),
 	"role" "role" NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now()
+	"updatedAt" timestamp DEFAULT now(),
+	CONSTRAINT "users_identity_unique" UNIQUE("identity")
 );
 --> statement-breakpoint
+ALTER TABLE "address_groups" ADD CONSTRAINT "address_groups_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "address_groups" ADD CONSTRAINT "address_groups_updatedBy_users_identity_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "application_settings" ADD CONSTRAINT "application_settings_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "application_settings" ADD CONSTRAINT "application_settings_updatedBy_users_identity_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "delegators" ADD CONSTRAINT "delegators_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "delegators" ADD CONSTRAINT "delegators_updatedBy_users_identity_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "keys" ADD CONSTRAINT "keys_delegator_identity_delegators_identity_fk" FOREIGN KEY ("delegator_identity") REFERENCES "public"."delegators"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "keys" ADD CONSTRAINT "keys_address_group_id_address_groups_id_fk" FOREIGN KEY ("address_group_id") REFERENCES "public"."address_groups"("id") ON DELETE no action ON UPDATE no action;
+ALTER TABLE "keys" ADD CONSTRAINT "keys_address_group_id_address_groups_id_fk" FOREIGN KEY ("address_group_id") REFERENCES "public"."address_groups"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "services" ADD CONSTRAINT "services_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "services" ADD CONSTRAINT "services_updatedBy_users_identity_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;

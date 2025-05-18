@@ -77,7 +77,6 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     },
   });
 
-
   await waitForNextBlock(txHeight);
 
   const [success, code, gasUsed] = await verifyTransaction(result?.transactionHash || transaction.hash!);

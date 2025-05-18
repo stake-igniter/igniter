@@ -4,13 +4,13 @@ import { Provider, providersTable } from "@/db/schema";
 import { sql } from "drizzle-orm";
 
 export async function upsertProviders(
-  providers: Pick<Provider, "name" | "identity" | "url" | "publicKey" | "enabled" | "visible">[]
+  providers: Pick<Provider, "name" | "identity" | "url" | "publicKey" | "enabled" | "visible" | "createdBy" | "updatedBy">[],
 ) {
   return db
     .insert(providersTable)
     .values(providers)
     .onConflictDoUpdate({
-      target: providersTable.publicKey,
+      target: providersTable.identity,
       set: {
         enabled: sql`excluded.enabled`,
       },
