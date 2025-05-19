@@ -36,7 +36,5 @@ RUN pnpm prune --prod --config.confirmModulesPurge=false
 
 USER app
 
-WORKDIR /app/apps/middleman-workflows
-
 # Start the server
-CMD ["node", "./dist/src/worker.js"]
+CMD ["node", "./apps/middleman-workflows/dist/src/worker.js"]

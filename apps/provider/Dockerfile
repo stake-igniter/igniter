@@ -50,5 +50,7 @@ COPY --from=base --chown=nextjs:nodejs /app/apps/provider/drizzle.config.ts ./ap
 COPY --from=base --chown=nextjs:nodejs /app/apps/provider/drizzle/ ./apps/provider/drizzle/
 COPY --from=base --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
+ENV PORT 3001
+
 # Start the server
-CMD ["node", "apps/provider/server.js", "--port", "3001"]
+CMD ["node", "apps/provider/server.js"]
