@@ -1,5 +1,5 @@
 load('ext://dotenv', 'dotenv')
-dotenv(fn=".env", verbose=True, showValues=True)
+dotenv(fn=".env", verbose=True, showValues=False)
 
 watch_file('.env')
 secret_settings(disable_scrub = True)

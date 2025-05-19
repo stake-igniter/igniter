@@ -13,12 +13,13 @@ export async function getDelegatorByIdentity(identity: string) {
 }
 
 
-export async function disableAll() {
+export async function disableAll(disabledBy: string) {
   return db.transaction(async (tx) => {
     const updatedDelegators = await tx
       .update(delegatorsTable)
       .set({
         enabled: false,
+        updatedBy: disabledBy,
       })
       .returning();
 
@@ -30,12 +31,13 @@ export async function disableAll() {
   });
 }
 
-export async function enableAll() {
+export async function enableAll(enabledBy: string) {
   return db.transaction(async (tx) => {
     const updatedDelegators = await tx
       .update(delegatorsTable)
       .set({
         enabled: true,
+        updatedBy: enabledBy,
       })
       .returning();
 

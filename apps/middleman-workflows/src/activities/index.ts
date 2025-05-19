@@ -138,12 +138,14 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
     try {
       const newlyStakedNodes = extractStakedNodes(transaction);
 
-      const newNodes: CreateNode[] = newlyStakedNodes.map(({ address, stakeAmount, balance }) => ({
+      const newNodes: CreateNode[] = newlyStakedNodes.map(({ address, stakeAmount, balance, ownerAddress }) => ({
         status: NodeStatus.Staked,
+        ownerAddress,
         stakeAmount,
         balance,
         address,
         providerId: transaction.providerId,
+        createdBy: transaction.createdBy,
       }));
 
       return nodesDAL.insert(newNodes, transaction.id);

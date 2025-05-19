@@ -3,18 +3,25 @@ import Amount from '@igniter/ui/components/Amount'
 import React, { useState } from 'react'
 import { clsx } from 'clsx'
 import { DrawerDescription, DrawerHeader, DrawerTitle } from '@igniter/ui/components/drawer'
-import { Button } from '@igniter/ui/components/button'
+import { Button, ButtonProps } from '@igniter/ui/components/button'
 import Summary, { SummaryRow } from '@/app/components/Summary'
 import {amountToPokt, toCompactFormat} from '@igniter/ui/lib/utils'
 import Address from '@igniter/ui/components/Address'
 import { CaretSmallIcon } from '@igniter/ui/assets'
 import { NodeDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
 import TransactionHash from '@igniter/ui/components/TransactionHash'
+import { QuickInfoPopOverIcon } from '@igniter/ui/components/QuickInfoPopOverIcon'
 
-function ActionButton({children}: React.PropsWithChildren) {
+function ActionButton({children, ...props}: React.PropsWithChildren & Omit<ButtonProps, 'children'>) {
   return (
     <Button
-      className={'w-full h-[30px] bg-[color:var(--secondary)] border border-[color:var(--button-2-border)] hover:bg-transparent'}
+      {...props}
+      className={
+        clsx(
+          'w-full h-[30px] bg-[color:var(--secondary)] border border-[color:var(--button-2-border)] hover:bg-transparent',
+          props.className,
+        )
+      }
     >
       {children}
     </Button>
@@ -25,6 +32,7 @@ export default function NodeDetail({
    address,
    status,
    transactions,
+   provider,
    operationalFundsAmount,
    stakeAmount
 }: NodeDetailBody) {
@@ -38,7 +46,7 @@ export default function NodeDetail({
     },
     {
       label: 'Provider',
-      value: 'N/A',
+      value: provider?.name ?? 'N/A',
     },
     {
       label: 'Operational Funds',
@@ -141,15 +149,6 @@ export default function NodeDetail({
         </div>
       </div>
 
-      <div className={'flex items-center bg-[color:var(--color-slate-2)] h-[46px] rounded-[8px] gap-2 p-2'}>
-        <ActionButton>
-          Add Funds
-        </ActionButton>
-        <ActionButton>
-          Upstake
-        </ActionButton>
-      </div>
-
       <Summary
         rows={summaryRows}
       />
@@ -160,10 +159,14 @@ export default function NodeDetail({
             Recoup your tokens by unstaking this node. Process can take up to 21 days. Tokens will be withdrawn to your wallet.
           </p>
           <hr className={'border-[color:var(--divider)]'} />
-          <div className={'flex items-center gap-2 p-2'}>
-            <ActionButton>
+          <div className={'flex flex-row items-center gap-2 p-2'}>
+            <ActionButton disabled={true}>
               Unstake
             </ActionButton>
+            <QuickInfoPopOverIcon
+              title={'Unstake'}
+              description={'This feature will be available soon.'}
+            />
           </div>
         </div>
       )}

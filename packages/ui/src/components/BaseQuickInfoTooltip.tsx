@@ -33,11 +33,11 @@ export function BaseQuickInfoTooltip({title, description, actionText, children} 
           </span>
         ) : description}
 
-        <hr className={'border-[color:var(--divider)]'} />
+        {/*<hr className={'border-[color:var(--divider)]'} />*/}
 
-        <Button variant="secondaryBorder" className="m-2 w-[calc(100%-16px)] h-[30px]">
-          {actionText ?? 'Learn More'}
-        </Button>
+        {/*<Button variant="secondaryBorder" className="m-2 w-[calc(100%-16px)] h-[30px]">*/}
+        {/*  {actionText ?? 'Learn More'}*/}
+        {/*</Button>*/}
       </PopoverContent>
     </Popover>
   );

@@ -1,8 +1,10 @@
 import { db } from '@/db'
 import {CreateTransaction, Transaction, transactionsTable} from "@/db/schema";
+import {eq} from "drizzle-orm";
 
-export async function getTransactionsByUser() {
+export async function getTransactionsByUser(userIdentity: string) {
   return db.query.transactionsTable.findMany({
+    where: eq(transactionsTable.createdBy, userIdentity),
     with: {
       provider: true,
     }

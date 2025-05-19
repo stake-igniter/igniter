@@ -3,11 +3,10 @@
 import {getApplicationSettings} from "@/actions/ApplicationSettings";
 import {listProviders} from "@/actions/Providers";
 import {StakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {CreateStakeActivityRequest} from "@/lib/models/Activities";
-import {createStakeActivity} from "@/lib/dal/activity";
 import {SignedTransaction} from "@/lib/models/Transactions";
 import {CreateTransaction, ProviderFee, TransactionStatus, TransactionType} from "@/db/schema";
 import {insert} from "@/lib/dal/transaction";
+import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 export interface CreateStakeTransactionRequest {
   offer: StakeDistributionOffer;
@@ -45,6 +44,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
 
     return {
       id: provider.id,
+      identity: provider.identity,
       name: provider.name,
       fee: provider.fee || '',
       feeType: provider.feeType || ProviderFee.Fixed,
@@ -58,11 +58,9 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
   });
 }
 
-export async function CreateStakeActivity(request: CreateStakeActivityRequest) {
-  return createStakeActivity(request);
-}
-
 export async function CreateStakeTransaction(request: CreateStakeTransactionRequest) {
+  const userIdentity = await getCurrentUserIdentity();
+
   const creatingTransaction: CreateTransaction = {
     type: TransactionType.Stake,
     status: TransactionStatus.Pending,
@@ -70,10 +68,11 @@ export async function CreateStakeTransaction(request: CreateStakeTransactionRequ
     fromAddress: request.transaction.address,
     unsignedPayload: request.transaction.unsignedPayload,
     providerFee: Number(request.offer.fee),
-    providerId: request.offer.id,
+    providerId: request.offer.identity,
     estimatedFee: request.transaction.estimatedFee,
     consumedFee: 0,
     typeProviderFee: request.offer.feeType,
+    createdBy: userIdentity,
   };
 
   return insert(creatingTransaction);

@@ -31,7 +31,7 @@ importers:
         version: link:../../packages/ui
       '@poktscan/vault-siwp':
         specifier: github:trustsoothe/vault-siwp#shannon
-        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76
+        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/6abbf451fd4a0b71dce77e09c05f5892fdad2f4b
       '@radix-ui/react-slot':
         specifier: 1.1.1
         version: 1.1.1(@types/react@19.0.8)(react@19.0.0)
@@ -41,6 +41,9 @@ importers:
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@5.7.3)
+      '@tanstack/react-query':
+        specifier: ^5.76.1
+        version: 5.76.1(react@19.0.0)
       '@tanstack/react-table':
         specifier: ^8.21.2
         version: 8.21.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -225,7 +228,7 @@ importers:
         version: link:../../packages/ui
       '@poktscan/vault-siwp':
         specifier: github:trustsoothe/vault-siwp#shannon
-        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76
+        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/6abbf451fd4a0b71dce77e09c05f5892fdad2f4b
       '@stepperize/react':
         specifier: 5.0.1
         version: 5.0.1(react@19.0.0)
@@ -2214,8 +2217,8 @@ packages:
     resolution: {integrity: sha512-fw/a/4RldtN11PaF2lcatFB7PrZd2MeYlPh/sCs97JaMkvhv56R79rei/UVgTiwWoPWKIWwdbAhLwhUKqGkeVg==}
     engines: {node: '>=10'}
 
-  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76':
-    resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76}
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/6abbf451fd4a0b71dce77e09c05f5892fdad2f4b':
+    resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/6abbf451fd4a0b71dce77e09c05f5892fdad2f4b}
     version: 0.0.1
 
   '@protobufjs/aspromise@1.1.2':
@@ -3083,6 +3086,14 @@ packages:
 
   '@tailwindcss/postcss@4.0.3':
     resolution: {integrity: sha512-qUyxuhuI2eTgRJ+qfCQRAr69Cw7BdSz+PoNFUNoRuhPjikNC8+sxK+Mi/chaXAXewjv/zbf6if6z6ItVLh+e9Q==}
+
+  '@tanstack/query-core@5.76.0':
+    resolution: {integrity: sha512-FN375hb8ctzfNAlex5gHI6+WDXTNpe0nbxp/d2YJtnP+IBM6OUm7zcaoCW6T63BawGOYZBbKC0iPvr41TteNVg==}
+
+  '@tanstack/react-query@5.76.1':
+    resolution: {integrity: sha512-YxdLZVGN4QkT5YT1HKZQWiIlcgauIXEIsMOTSjvyD5wLYK8YVvKZUPAysMqossFJJfDpJW3pFn7WNZuPOqq+fw==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tanstack/react-table@8.21.2':
     resolution: {integrity: sha512-11tNlEDTdIhMJba2RBH+ecJ9l1zgS2kjmexDPAraulc8jeNA4xocSNeyzextT0XJyASil4XsCYlJmf5jEWAtYg==}
@@ -10014,7 +10025,7 @@ snapshots:
       '@tendermint/belt': 0.2.1
       '@tendermint/types': 0.1.1
 
-  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/1b15236cf001ae3bd770db3d258bb5937060ea76':
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/6abbf451fd4a0b71dce77e09c05f5892fdad2f4b':
     dependencies:
       '@cosmjs/encoding': 0.33.1
       '@noble/curves': 1.8.1
@@ -11026,6 +11037,13 @@ snapshots:
       lightningcss: 1.29.1
       postcss: 8.4.47
       tailwindcss: 4.0.3
+
+  '@tanstack/query-core@5.76.0': {}
+
+  '@tanstack/react-query@5.76.1(react@19.0.0)':
+    dependencies:
+      '@tanstack/query-core': 5.76.0
+      react: 19.0.0
 
   '@tanstack/react-table@8.21.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:

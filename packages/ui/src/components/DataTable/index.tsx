@@ -55,7 +55,14 @@ export default function DataTable<TData, TValue>({
   filters,
   sorts,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const defaultSort = sorts.flat().find((sort) => sort.isDefault);
+
+  const [sorting, setSorting] = React.useState<SortingState>(
+    defaultSort ? [{
+      id: String(defaultSort.column),
+      desc: defaultSort.direction === "desc",
+    }] : []
+  );
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -81,7 +88,7 @@ export default function DataTable<TData, TValue>({
   const defaultFilters = filters.flatMap((filterGroup) =>
     filterGroup.items.flatMap((filter) => filter.find((f) => f.isDefault) || [])
   );
-  const defaultSort = sorts.flat().find((sort) => sort.isDefault);
+
 
   const selectedSort = sorts
     .flat()

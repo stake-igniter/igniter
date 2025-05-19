@@ -44,7 +44,7 @@ export async function remove(sId: string): Promise<Service> {
 
 export async function update(
   serviceId: string,
-  serviceUpdates: Pick<Service, 'revSharePercentage' | 'endpoints'>,
+  serviceUpdates: Pick<Service, 'revSharePercentage' | 'endpoints' | 'updatedBy'>,
 ): Promise<Service> {
 
   const [updatedService] = await db

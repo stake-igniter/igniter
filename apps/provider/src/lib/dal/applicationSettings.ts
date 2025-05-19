@@ -3,7 +3,7 @@ import { db } from "@/db";
 import {
   ApplicationSettings,
   applicationSettingsTable,
-  ChainId,
+  ChainId, CreateApplicationSettings,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -21,6 +21,8 @@ const defaultSettings: ApplicationSettings = {
   isBootstrapped: false,
   chainId: ChainId.Pocket,
   minimumStake: 15000,
+  createdBy: "",
+  updatedBy: "",
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -46,7 +48,7 @@ export async function getApplicationSettingsFromDatabase() {
 }
 
 export async function insertApplicationSettings(
-  settings: ApplicationSettings
+  settings: Omit<CreateApplicationSettings, 'ownerIdentity' | 'isBootstrapped'>
 ): Promise<ApplicationSettings> {
   const insertedSettings = await db
     .insert(applicationSettingsTable)
