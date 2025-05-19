@@ -1,16 +1,17 @@
 'use client'
 
 import React, { createContext, useContext, useState } from 'react'
-import { NodeStatus, ProviderFee, TransactionStatus, TransactionType } from '@/db/schema'
+import {NodeStatus, Provider, ProviderFee, TransactionStatus, TransactionType} from '@/db/schema'
 import DetailResolver from '@/app/detail/DetailResolver'
 import { MessageType } from '@/lib/constants'
 
 export interface NodeDetailBody {
-  address: string
-  status: NodeStatus
-  stakeAmount: number
-  operationalFundsAmount: number
-  transactions: Array<TransactionDetailBody>
+  address: string;
+  status: NodeStatus;
+  provider: Provider | null;
+  stakeAmount: number;
+  operationalFundsAmount: number;
+  transactions: Array<TransactionDetailBody>;
 }
 
 export interface NodeDetail {

@@ -1,5 +1,5 @@
 {
-  "id": "68bfc6a6-a24b-41e7-8baa-3ba40aa70894",
+  "id": "a2584d0c-22d4-4ad2-8ecf-5b26dc184595",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -112,10 +112,49 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "application_settings_createdBy_users_identity_fk": {
+          "name": "application_settings_createdBy_users_identity_fk",
+          "tableFrom": "application_settings",
+          "tableTo": "users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "application_settings_updatedBy_users_identity_fk": {
+          "name": "application_settings_updatedBy_users_identity_fk",
+          "tableFrom": "application_settings",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updatedBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -149,6 +188,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "ownerAddress": {
+          "name": "ownerAddress",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "status": {
           "name": "status",
           "type": "node_status",
@@ -170,7 +215,7 @@
         },
         "providerId": {
           "name": "providerId",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -188,24 +233,37 @@
           "notNull": false,
           "default": "now()"
         },
-        "userId": {
-          "name": "userId",
-          "type": "integer",
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "nodes_userId_users_id_fk": {
-          "name": "nodes_userId_users_id_fk",
+        "nodes_providerId_providers_identity_fk": {
+          "name": "nodes_providerId_providers_identity_fk",
+          "tableFrom": "nodes",
+          "tableTo": "providers",
+          "columnsFrom": [
+            "providerId"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "nodes_createdBy_users_identity_fk": {
+          "name": "nodes_createdBy_users_identity_fk",
           "tableFrom": "nodes",
           "tableTo": "users",
           "columnsFrom": [
-            "userId"
+            "createdBy"
           ],
           "columnsTo": [
-            "id"
+            "identity"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -344,12 +402,58 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "providers_createdBy_users_identity_fk": {
+          "name": "providers_createdBy_users_identity_fk",
+          "tableFrom": "providers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "providers_updatedBy_users_identity_fk": {
+          "name": "providers_updatedBy_users_identity_fk",
+          "tableFrom": "providers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updatedBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "providers_identity_unique": {
+          "name": "providers_identity_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "identity"
+          ]
+        },
         "providers_publicKey_unique": {
           "name": "providers_publicKey_unique",
           "nullsNotDistinct": false,
@@ -457,26 +561,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "userId": {
-          "name": "userId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
         "unsignedPayload": {
           "name": "unsignedPayload",
           "type": "varchar",
@@ -510,9 +594,29 @@
         },
         "providerId": {
           "name": "providerId",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -530,28 +634,28 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "transactions_userId_users_id_fk": {
-          "name": "transactions_userId_users_id_fk",
-          "tableFrom": "transactions",
-          "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "transactions_providerId_providers_id_fk": {
-          "name": "transactions_providerId_providers_id_fk",
+        "transactions_providerId_providers_identity_fk": {
+          "name": "transactions_providerId_providers_identity_fk",
           "tableFrom": "transactions",
           "tableTo": "providers",
           "columnsFrom": [
             "providerId"
           ],
           "columnsTo": [
-            "id"
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "transactions_createdBy_users_identity_fk": {
+          "name": "transactions_createdBy_users_identity_fk",
+          "tableFrom": "transactions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "identity"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -681,7 +785,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "users_identity_unique": {
+          "name": "users_identity_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "identity"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

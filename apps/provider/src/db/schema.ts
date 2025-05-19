@@ -72,11 +72,11 @@ export const providerFeeEnum = pgEnum(
 
 export const usersTable = pgTable("users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  identity: varchar({ length: 255 }).notNull(),
+  identity: varchar({ length: 255 }).notNull().unique(),
   email: varchar({ length: 255 }),
   role: roleEnum().notNull(),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date())
 });
 
 export type User = typeof usersTable.$inferSelect;
@@ -96,10 +96,13 @@ export const applicationSettingsTable = pgTable("application_settings", {
   isBootstrapped: boolean().notNull(),
   rpcUrl: varchar().notNull(),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
 });
 
 export type ApplicationSettings = typeof applicationSettingsTable.$inferSelect;
+export type CreateApplicationSettings = typeof applicationSettingsTable.$inferInsert;
 
 export const keysTable = pgTable("keys", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -113,7 +116,7 @@ export const keysTable = pgTable("keys", {
     () => addressGroupTable.id
   ),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
 });
 
 export const keysRelations = relations(keysTable, ({ one }) => ({
@@ -135,7 +138,9 @@ export const addressGroupTable = pgTable("address_groups", {
   clients: varchar().array().default([]),
   services: varchar().array().default([]),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
 });
 
 export const addressGroupRelations = relations(
@@ -160,7 +165,9 @@ export const delegatorsTable = pgTable("delegators", {
   publicKey: varchar({ length: 255 }).notNull().unique(),
   enabled: boolean().notNull(),
   createdAt: timestamp().defaultNow(),
-  updatedAt: timestamp().defaultNow(),
+  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
 });
 
 export type Delegator = typeof delegatorsTable.$inferSelect;
@@ -179,7 +186,9 @@ export const servicesTable = pgTable("services",
       rpcType: RPCType;
     }[]>().notNull(),
     createdAt: timestamp().defaultNow(),
-    updatedAt: timestamp().defaultNow(),
+    createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+    updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+    updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
   },
   () => {
     return [

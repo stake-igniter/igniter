@@ -161,7 +161,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>RPC Url</FormLabel>
+                  <FormLabel>Shannon API Url</FormLabel>
                   <FormControl>
                     <Input
                       {...field}

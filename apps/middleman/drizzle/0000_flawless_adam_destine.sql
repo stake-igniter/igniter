@@ -20,19 +20,22 @@ CREATE TABLE "application_settings" (
 	"rpcUrl" varchar NOT NULL,
 	"privacyPolicy" text,
 	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now()
+	"updatedAt" timestamp DEFAULT now(),
+	"createdBy" varchar NOT NULL,
+	"updatedBy" varchar NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "nodes" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "nodes_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"address" varchar(255) NOT NULL,
+	"ownerAddress" varchar(255) NOT NULL,
 	"status" "node_status" NOT NULL,
 	"stakeAmount" varchar NOT NULL,
 	"balance" bigint NOT NULL,
-	"providerId" integer,
+	"providerId" uuid,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),
-	"userId" integer
+	"createdBy" varchar NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "providers" (
@@ -53,6 +56,9 @@ CREATE TABLE "providers" (
 	"operationalFunds" integer DEFAULT 5 NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now(),
+	"createdBy" varchar NOT NULL,
+	"updatedBy" varchar NOT NULL,
+	CONSTRAINT "providers_identity_unique" UNIQUE("identity"),
 	CONSTRAINT "providers_publicKey_unique" UNIQUE("publicKey")
 );
 --> statement-breakpoint
@@ -70,15 +76,15 @@ CREATE TABLE "transactions" (
 	"dependsOn" integer,
 	"signedPayload" varchar NOT NULL,
 	"fromAddress" varchar(255) NOT NULL,
-	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now(),
-	"userId" integer,
 	"unsignedPayload" varchar NOT NULL,
 	"estimatedFee" integer NOT NULL,
 	"consumedFee" integer NOT NULL,
 	"providerFee" integer,
 	"typeProviderFee" "provider_fee",
-	"providerId" integer
+	"providerId" uuid,
+	"createdAt" timestamp DEFAULT now(),
+	"updatedAt" timestamp DEFAULT now(),
+	"createdBy" varchar NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "transactions_to_nodes" (
@@ -93,12 +99,18 @@ CREATE TABLE "users" (
 	"email" varchar(255),
 	"role" "role" NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
-	"updatedAt" timestamp DEFAULT now()
+	"updatedAt" timestamp DEFAULT now(),
+	CONSTRAINT "users_identity_unique" UNIQUE("identity")
 );
 --> statement-breakpoint
-ALTER TABLE "nodes" ADD CONSTRAINT "nodes_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "application_settings" ADD CONSTRAINT "application_settings_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "application_settings" ADD CONSTRAINT "application_settings_updatedBy_users_identity_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "nodes" ADD CONSTRAINT "nodes_providerId_providers_identity_fk" FOREIGN KEY ("providerId") REFERENCES "public"."providers"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "nodes" ADD CONSTRAINT "nodes_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "providers" ADD CONSTRAINT "providers_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "providers" ADD CONSTRAINT "providers_updatedBy_users_identity_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_dependsOn_transactions_id_fk" FOREIGN KEY ("dependsOn") REFERENCES "public"."transactions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_providerId_providers_id_fk" FOREIGN KEY ("providerId") REFERENCES "public"."providers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_providerId_providers_identity_fk" FOREIGN KEY ("providerId") REFERENCES "public"."providers"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transactions_to_nodes" ADD CONSTRAINT "transactions_to_nodes_transactionId_transactions_id_fk" FOREIGN KEY ("transactionId") REFERENCES "public"."transactions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "transactions_to_nodes" ADD CONSTRAINT "transactions_to_nodes_nodeId_nodes_id_fk" FOREIGN KEY ("nodeId") REFERENCES "public"."nodes"("id") ON DELETE no action ON UPDATE no action;

@@ -1,10 +1,8 @@
 "use client";
 
-import { NodeStatus, Provider, Transaction } from '@/db/schema'
+import {NodeWithDetails, NodeStatus, Provider, Transaction} from '@/db/schema'
 import {
   CopyIcon,
-  RewardsDisabledIcon,
-  RewardsIcon,
   RightArrowIcon,
 } from "@igniter/ui/assets";
 import { Button } from "@igniter/ui/components/button";
@@ -22,21 +20,11 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 import { useAddItemToDetail } from '@/app/detail/Detail'
 
-export type Node = {
-  id: number;
-  address: string;
-  rewards: number;
-  bin?: string;
-  txStatus?: string;
-  status: NodeStatus;
-  stakeAmount: number;
-  balance: number;
-  provider?: Provider;
-  createdAt: Date;
-  transactions: Array<Transaction>;
+export type NodeDetails = NodeWithDetails & {
+  transactions: Transaction[];
 };
 
-export const columns: ColumnDef<Node>[] = [
+export const columns: ColumnDef<NodeDetails>[] = [
   {
     accessorKey: "address",
     header: "Address",
@@ -134,8 +122,9 @@ export const columns: ColumnDef<Node>[] = [
                 body: {
                   address: node.address,
                   status: node.status,
-                  stakeAmount: node.stakeAmount,
+                  stakeAmount: Number(node.stakeAmount),
                   operationalFundsAmount: node.balance,
+                  provider: node.provider,
                   transactions: node.transactions.map(t => ({
                     id: t.id,
                     type: t.type,
@@ -161,7 +150,7 @@ export const columns: ColumnDef<Node>[] = [
   },
 ];
 
-export const filters: FilterGroup<Node>[] = [
+export const filters: FilterGroup<NodeDetails>[] = [
   {
     group: "bin/status",
     items: [
@@ -173,21 +162,6 @@ export const filters: FilterGroup<Node>[] = [
           isDefault: true,
         },
       ],
-      // [
-      //   { label: "15K", value: 15000, column: "bin" },
-      //   { label: "30K", value: 30000, column: "bin" },
-      //   { label: "45K", value: 45000, column: "bin" },
-      //   { label: "60K", value: 60000, column: "bin" },
-      // ],
-      // [
-      //   { label: "Staking", value: NodeStatus.Staking, column: "status" },
-      //   { label: "Staked", value: NodeStatus.Staked, column: "status" },
-      //   { label: "Unstaking", value: NodeStatus.Unstaking, column: "status" },
-      // ],
-      // [
-      //   { label: "Errors", value: "", column: "txStatus" },
-      //   { label: "Warning", value: "", column: "txStatus" },
-      // ],
     ],
   },
   {
@@ -205,7 +179,7 @@ export const filters: FilterGroup<Node>[] = [
   },
 ];
 
-export const sorts: SortOption<Node>[][] = [
+export const sorts: SortOption<NodeDetails>[][] = [
   [
     {
       label: "Most Recent",
@@ -214,12 +188,4 @@ export const sorts: SortOption<Node>[][] = [
       isDefault: true,
     },
   ],
-
-  // [
-  //   { label: "Provider", column: "provider", direction: "desc" },
-  //   { label: "Rewards", column: "rewards", direction: "asc" },
-  //   { label: "Status", column: "status", direction: "asc" },
-  //   { label: "Stake Amount", column: "stakeAmount", direction: "asc" },
-  //   { label: "Balance", column: "balance", direction: "asc" },
-  // ],
 ];

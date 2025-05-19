@@ -3,6 +3,7 @@ import {SEND_TYPE_URL, STAKE_TYPE_URL} from "@/lib/constants";
 
 export interface NewStake {
   address: string;
+  ownerAddress: string;
   stakeAmount: string;
   balance: number;
 }
@@ -52,9 +53,10 @@ export function extractStakedNodes(tx: Transaction) {
     const {body} = JSON.parse(tx.unsignedPayload);
     const nodes: Record<string, NewStake> = body.messages.reduce((nodes: Record<string, NewStake>, message: StakeOperation | SendOperation) => {
       if (message.typeUrl === STAKE_TYPE_URL) {
-        const {stake, operatorAddress} = message.value;
+        const {stake, operatorAddress, ownerAddress} = message.value;
         nodes[operatorAddress] = {
           address: operatorAddress,
+          ownerAddress,
           stakeAmount: stake.amount.toString(),
           balance: nodes[operatorAddress]?.balance || 0,
         };
@@ -64,6 +66,7 @@ export function extractStakedNodes(tx: Transaction) {
         const {toAddress, amount: [balance]} = message.value;
         nodes[toAddress] = {
           address: nodes[toAddress]?.address || '',
+          ownerAddress: nodes[toAddress]?.ownerAddress || '',
           stakeAmount: nodes[toAddress]?.stakeAmount || '0',
           balance: Number(balance!.amount),
         };

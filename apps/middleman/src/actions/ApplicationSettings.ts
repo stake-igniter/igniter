@@ -9,17 +9,20 @@ import {
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import {auth} from "@/auth";
 
 const updateSettingsSchema = z.object({
   chainId: z.nativeEnum(ChainId),
+  appIdentity: z.string().uuid().min(1, "App identity is required"),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email(),
-  fee: z.coerce
-    .number()
-    .min(1, "Middleman fee must be greater than 0")
-    .max(100),
+  fee: z.number()
+    .min(1, "Provider fee must be greater than 0")
+    .max(100).transform((value) => value.toString()),
   minimumStake: z.number(),
+  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
+  delegatorRewardsAddress: z.string().min(1, "Delegator rewards address is required"),
   privacyPolicy: z.string().optional(),
 });
 
@@ -31,6 +34,12 @@ export async function upsertSettings(
   values: Partial<ApplicationSettings>,
   isUpdate: boolean
 ) {
+  const session = await  auth();
+
+  if (!session) {
+    throw new Error("Not logged in");
+  }
+
   const validatedFields = updateSettingsSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -38,9 +47,16 @@ export async function upsertSettings(
   }
 
   if (isUpdate) {
-    await updateApplicationSettings(values);
+    await updateApplicationSettings({
+      ...validatedFields.data,
+      updatedBy: session.user.identity,
+    });
   } else {
-    await insertApplicationSettings(values as ApplicationSettings);
+    await insertApplicationSettings({
+      ...validatedFields.data,
+      createdBy: session.user.identity,
+      updatedBy: session.user.identity,
+    });
   }
 
   revalidatePath("/admin/setup");

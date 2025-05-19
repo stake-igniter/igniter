@@ -43,12 +43,12 @@ export const formSchema = z.object({
     (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
     (val) => ({ message: `${val} is not a valid address` })
   ),
-  minimumStake: z.coerce.number().default(15000),
   appIdentity: z.string().min(1, "App Identity is Required").refine(
     (value) =>
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-9][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value),
     {message: "App Identity must be a valid UUID"}
   ),
+  minimumStake: z.coerce.number().default(15000),
   privacyPolicy: z.string().optional(),
 });
 
