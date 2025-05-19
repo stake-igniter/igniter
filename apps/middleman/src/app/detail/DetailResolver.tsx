@@ -70,7 +70,6 @@ function PromiseItem({item}: {item: Promise<DetailItem>}) {
 function ResolvedItem({item}: {item: DetailItem}) {
   if (!item) return null
 
-  console.log('ResolvedItem', item.type, item.body);
 
   switch (item.type) {
     case 'node': {
