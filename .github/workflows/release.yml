@@ -44,8 +44,12 @@ jobs:
       - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
-          cache: 'pnpm'
-          node-version: '18.20.3'
+          cache: pnpm
+          node-version: 18.20.3
+
+      - name: Install dependencies
+        run: |
+          pnpm install --no-frozen-lockfile --prefer-offline
 
       - name: Set Application Name and Version
         id: set-vars
