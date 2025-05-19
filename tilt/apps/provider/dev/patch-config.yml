@@ -4,14 +4,13 @@ metadata:
   name: provider-config
 data:
   DELEGATORS_CDN_URL: "https://soothe-vault.nyc3.cdn.digitaloceanspaces.com/delegators.json"
-  CHAINS_CDN_URL: "https://soothe-vault.nyc3.cdn.digitaloceanspaces.com/pokt-chains-map.json"
   AUTH_TRUST_HOST: "http://localhost:3001"
   APP_URL: "http://localhost:3001"
   AUTH_URL: "http://localhost:3001"
   OWNER_IDENTITY: "CHANGE_THIS"
   CHAIN_ID: "pocket-beta"
   BLOCKCHAIN_PROTOCOL: "morse"
-  OWNER_EMAIL: "fake-support@igniter.com"
+  OWNER_EMAIL: "CHANGE_THIS"
   TEMPORAL_URL: "temporal-frontend.default.svc.cluster.local:7233"
   TEMPORAL_NAMESPACE: "provider"
   TEMPORAL_TASK_QUEUE: "provider-operations"

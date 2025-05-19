@@ -68,7 +68,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ env.APP_NAME }}
+          images: ghcr.io/stake-igniter/${{ env.APP_NAME }}
           tags: |
             type=match,pattern=v(.*),group=1,value=${{ env.VERSION }}
 
