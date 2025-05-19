@@ -11,7 +11,7 @@ data:
   OWNER_IDENTITY: "CHANGE_THIS"
   CHAIN_ID: "pocket-beta"
   BLOCKCHAIN_PROTOCOL: "morse"
-  OWNER_EMAIL: "fake-support@igniter.com"
+  OWNER_EMAIL: "CHANGE_THIS"
   TEMPORAL_URL: "temporal-frontend.default.svc.cluster.local:7233"
   TEMPORAL_NAMESPACE: "provider"
   TEMPORAL_TASK_QUEUE: "provider-operations"
