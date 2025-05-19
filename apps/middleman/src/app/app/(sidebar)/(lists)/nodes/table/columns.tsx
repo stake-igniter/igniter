@@ -25,7 +25,6 @@ import { useAddItemToDetail } from '@/app/detail/Detail'
 export type Node = {
   id: number;
   address: string;
-  rewards: number;
   bin?: string;
   txStatus?: string;
   status: NodeStatus;
@@ -141,7 +140,7 @@ export const columns: ColumnDef<Node>[] = [
                     type: t.type,
                     status: t.status,
                     createdAt: t.createdAt!,
-                    operations: [],
+                    operations: JSON.parse(t.unsignedPayload).body.messages,
                     hash: t.hash || '',
                     estimatedFee: t.estimatedFee,
                     consumedFee: t.consumedFee,
