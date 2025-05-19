@@ -36,5 +36,7 @@ RUN pnpm prune --prod --config.confirmModulesPurge=false
 
 USER app
 
+WORKDIR /app/apps/middleman-workflows
+
 # Start the server
-CMD ["pnpm", "run", "start", "--filter=@igniter/middleman-workflows"]
+CMD ["node", "./dist/src/worker.js"]

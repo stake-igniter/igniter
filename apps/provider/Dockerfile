@@ -51,4 +51,4 @@ COPY --from=base --chown=nextjs:nodejs /app/apps/provider/drizzle/ ./apps/provid
 COPY --from=base --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
 # Start the server
-CMD ["node", "apps/provider/server.js"]
+CMD ["node", "apps/provider/server.js", "--port", "3001"]
