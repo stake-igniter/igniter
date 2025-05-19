@@ -3,7 +3,7 @@ import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
-import { WalletConnectionProvider } from "@igniter/ui/context/WalletConnection/index";
+import { WalletConnectionProvider } from "@/app/context/WalletConnectionProvider";
 import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
 import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
 import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";

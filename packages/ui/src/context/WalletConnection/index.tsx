@@ -55,6 +55,8 @@ export interface SignedTransaction {
 
 export interface Provider {
   send: (method: string, params?: any[]) => Promise<any>;
+  addListener?: (type: 'accountsChanged', listener: (data: Array<string>) => void) => void;
+  removeListener?: (type: 'accountsChanged', listener: (data: Array<string>) => void) => void;
 }
 
 export interface ProviderInfo {
@@ -123,21 +125,31 @@ export const WalletConnectionContext = createContext<WalletConnection>({
   },
 });
 
+export interface WalletConnectionProviderProps {
+  protocol?: 'shannon' | 'morse',
+  expectedIdentity?: string,
+  children: ReactNode
+  onDisconnect?: () => void
+}
+
 /**
  * Wallet connection provider - Exposes an instance of WalletConnection to the app.
  * @param children
  * @param reconnect
  * @constructor
  */
-export const WalletConnectionProvider = ({  protocol = 'shannon', children, expectedIdentity }: { protocol?: 'shannon' | 'morse', expectedIdentity?: string, children: ReactNode }) => {
+export const WalletConnectionProvider = ({  protocol = 'shannon', children, expectedIdentity, onDisconnect }: WalletConnectionProviderProps) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectedIdentity, setConnectedIdentity] = useState<string | undefined>(undefined);
+  const [allConnectedIdentities, setAllConnectedIdentities] = useState<Array<string>>([]);
+  const [connectedProvider, setConnectedProvider] = useState<Provider | undefined>(undefined);
 
   const pocketConnection  = useMemo(() => protocol === 'shannon' ? new PocketWalletConnection() : new PocketMorseWalletConnection(), [protocol]);
 
   const connect = useCallback(async (provider?: Provider) => {
     try {
       await pocketConnection.connect(provider);
+      setConnectedProvider(provider)
       setIsConnected(pocketConnection.isConnected);
       setConnectedIdentity(pocketConnection.connectedIdentity);
     } catch (error) {
@@ -152,6 +164,7 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
 
     setIsConnected(pocketConnection.isConnected);
     setConnectedIdentity(pocketConnection.connectedIdentity);
+    setConnectedProvider(pocketConnection.provider);
 
     if (!reconnected) {
       throw new Error('Failed to reconnect');
@@ -167,6 +180,24 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
       })();
     }
   }, [expectedIdentity]);
+
+  useEffect(() => {
+    if (connectedProvider &&  connectedProvider.addListener) {
+      const listener = (addresses: Array<string>) => {
+        if (connectedIdentity && onDisconnect && !addresses.includes(connectedIdentity)) {
+          onDisconnect()
+        } else {
+          setAllConnectedIdentities(addresses)
+        }
+      }
+
+      connectedProvider.addListener('accountsChanged', listener);
+
+      return () => {
+        connectedProvider.removeListener!('accountsChanged', listener);
+      }
+    }
+  }, [connectedProvider, connectedIdentity, onDisconnect])
 
   return (
     <WalletConnectionContext.Provider value={

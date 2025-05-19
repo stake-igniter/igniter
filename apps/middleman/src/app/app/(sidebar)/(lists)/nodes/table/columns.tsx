@@ -130,7 +130,7 @@ export const columns: ColumnDef<NodeDetails>[] = [
                     type: t.type,
                     status: t.status,
                     createdAt: t.createdAt!,
-                    operations: [],
+                    operations: JSON.parse(t.unsignedPayload).body.messages,
                     hash: t.hash || '',
                     estimatedFee: t.estimatedFee,
                     consumedFee: t.consumedFee,
