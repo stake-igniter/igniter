@@ -1,19 +1,11 @@
 import React from 'react'
-import { getNodesByUser } from "@/lib/dal/nodes";
 import NodesTable from '@/app/app/(sidebar)/(lists)/nodes/table'
-import {auth} from "@/auth";
-import {redirect} from "next/navigation";
+import {GetUserNodes} from "@/actions/Nodes";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const session = await auth();
-
-  if (!session) {
-    return redirect('/');
-  }
-
-  const nodes = await getNodesByUser(session.user.identity);
+  const nodes = await GetUserNodes();
 
   return (
     <>

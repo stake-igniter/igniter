@@ -3,11 +3,10 @@
 import {getApplicationSettings} from "@/actions/ApplicationSettings";
 import {listProviders} from "@/actions/Providers";
 import {StakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {CreateStakeActivityRequest} from "@/lib/models/Activities";
 import {SignedTransaction} from "@/lib/models/Transactions";
 import {CreateTransaction, ProviderFee, TransactionStatus, TransactionType} from "@/db/schema";
 import {insert} from "@/lib/dal/transaction";
-import {auth} from "@/auth";
+import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 export interface CreateStakeTransactionRequest {
   offer: StakeDistributionOffer;
@@ -60,11 +59,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
 }
 
 export async function CreateStakeTransaction(request: CreateStakeTransactionRequest) {
-  const session = await  auth();
-
-  if (!session) {
-    throw new Error("Not logged in");
-  }
+  const userIdentity = await getCurrentUserIdentity();
 
   const creatingTransaction: CreateTransaction = {
     type: TransactionType.Stake,
@@ -77,7 +72,7 @@ export async function CreateStakeTransaction(request: CreateStakeTransactionRequ
     estimatedFee: request.transaction.estimatedFee,
     consumedFee: 0,
     typeProviderFee: request.offer.feeType,
-    createdBy: session.user.identity,
+    createdBy: userIdentity,
   };
 
   return insert(creatingTransaction);

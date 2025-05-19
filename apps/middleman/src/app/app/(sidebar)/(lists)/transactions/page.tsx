@@ -2,18 +2,12 @@ import { getTransactionsByUser } from '@/lib/dal/transaction'
 import TransactionsTable from '@/app/app/(sidebar)/(lists)/transactions/table'
 import {auth} from "@/auth";
 import {redirect} from "next/navigation";
+import {GetUserTransactions} from "@/actions/Transactions";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const session = await auth();
-
-  if (!session) {
-    return redirect('/');
-  }
-
-  const transactions = await getTransactionsByUser(session.user.identity);
-
+  const transactions = await GetUserTransactions();
   return (
     <>
       <h1>Transactions</h1>

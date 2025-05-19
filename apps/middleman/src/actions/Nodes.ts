@@ -1,7 +1,9 @@
 'use server'
 
 import { getNodesByUser } from '@/lib/dal/nodes'
+import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 export async function GetUserNodes() {
-  return getNodesByUser()
+  const userIdentity = await getCurrentUserIdentity();
+  return getNodesByUser(userIdentity)
 }
