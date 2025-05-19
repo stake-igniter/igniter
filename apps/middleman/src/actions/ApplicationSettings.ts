@@ -9,7 +9,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import {auth} from "@/auth";
+import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 const updateSettingsSchema = z.object({
   chainId: z.nativeEnum(ChainId),
@@ -34,11 +34,7 @@ export async function upsertSettings(
   values: Partial<ApplicationSettings>,
   isUpdate: boolean
 ) {
-  const session = await  auth();
-
-  if (!session) {
-    throw new Error("Not logged in");
-  }
+  const userIdentity = await getCurrentUserIdentity();
 
   const validatedFields = updateSettingsSchema.safeParse(values);
 
@@ -49,13 +45,13 @@ export async function upsertSettings(
   if (isUpdate) {
     await updateApplicationSettings({
       ...validatedFields.data,
-      updatedBy: session.user.identity,
+      updatedBy: userIdentity,
     });
   } else {
     await insertApplicationSettings({
       ...validatedFields.data,
-      createdBy: session.user.identity,
-      updatedBy: session.user.identity,
+      createdBy: userIdentity,
+      updatedBy: userIdentity,
     });
   }
 

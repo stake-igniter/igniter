@@ -160,7 +160,6 @@ export const sorts: SortOption<Transaction>[][] = [
 
   [
     { label: "Amount", column: "totalValue", direction: "desc" },
-    { label: "Date", column: "createdAt", direction: "desc" },
     { label: "Status", column: "status", direction: "asc" },
     { label: "Type", column: "type", direction: "asc" },
   ],

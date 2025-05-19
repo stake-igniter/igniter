@@ -3,7 +3,7 @@ import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
-import { WalletConnectionProvider } from "@igniter/ui/context/WalletConnection/index";
+import { WalletConnectionProvider } from "@/app/context/WalletConnectionProvider";
 import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
 import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
 import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
@@ -14,6 +14,7 @@ import { auth } from "@/auth";
 import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
 import QuickDetailProvider from '@/app/detail/Detail'
+import QueryClientProvider from '@/app/context/QueryClientProvider'
 
 export const metadata: Metadata = {
   title: "Middleman",
@@ -50,43 +51,45 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <SessionProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <ApplicationSettingsProvider>
-              <WalletConnectionProvider
-                protocol={'shannon'}
-                expectedIdentity={session?.user?.identity}
-              >
-                <CurrencyContextProvider>
-                  <SidebarProvider className="flex flex-col">
-                    <QuickDetailProvider>
-                      <AppTopBar>
-                        <PriceWidget />
-                        <CurrentUser />
-                      </AppTopBar>
-                      <div className="flex flex-1">
-                        <Sidebar />
-                        <SidebarInset>
-                          <div className={"w-full h-full flex overflow-x-hidden"}>
-                            <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
-                              {children}
-                              <Toaster />
+        <QueryClientProvider>
+          <SessionProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ApplicationSettingsProvider>
+                <WalletConnectionProvider
+                  protocol={'shannon'}
+                  expectedIdentity={session?.user?.identity}
+                >
+                  <CurrencyContextProvider>
+                    <SidebarProvider className="flex flex-col">
+                      <QuickDetailProvider>
+                        <AppTopBar>
+                          <PriceWidget />
+                          <CurrentUser />
+                        </AppTopBar>
+                        <div className="flex flex-1">
+                          <Sidebar />
+                          <SidebarInset>
+                            <div className={"w-full h-full flex overflow-x-hidden"}>
+                              <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
+                                {children}
+                                <Toaster />
+                              </div>
                             </div>
-                          </div>
-                        </SidebarInset>
-                      </div>
-                    </QuickDetailProvider>
-                  </SidebarProvider>
-                </CurrencyContextProvider>
-              </WalletConnectionProvider>
-            </ApplicationSettingsProvider>
-          </ThemeProvider>
-        </SessionProvider>
+                          </SidebarInset>
+                        </div>
+                      </QuickDetailProvider>
+                    </SidebarProvider>
+                  </CurrencyContextProvider>
+                </WalletConnectionProvider>
+              </ApplicationSettingsProvider>
+            </ThemeProvider>
+          </SessionProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );
