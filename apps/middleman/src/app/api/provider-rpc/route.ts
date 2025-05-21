@@ -7,6 +7,8 @@ import {getApplicationSettings} from "@/lib/dal/applicationSettings";
 import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "@/lib/constants";
 
 export async function POST(request: Request) {
+  console.log('Preparing a request to a provider');
+
   const schema = z.object({
     provider: z.string(),
     path: z.string(),
@@ -21,15 +23,20 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     validatedData = schema.parse(body);
+    console.log('Request payload validated:', JSON.stringify(validatedData, null, 2));
   } catch (error) {
+    console.error('Request payload validation failed:', error);
     return new Response("Invalid request payload", {status: 400});
   }
 
   try {
+    console.log('Loading the provider');
     provider = await getByIdentity(validatedData.provider);
     if (!provider) {
+      console.error('Provider not found');
       return new Response("Provider not found", {status: 404});
     }
+    console.log('Provider loaded:', JSON.stringify(provider, null, 2));
   } catch (error) {
     console.error(error);
     return new Response("Unable to load the provider", {status: 500});
@@ -52,7 +59,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    return await fetch(urlJoin(provider.url, validatedData.path), {
+    console.log('Executing the request');
+    const response = await fetch(urlJoin(provider.url, validatedData.path), {
       method: 'POST',
       body: JSON.stringify(validatedData.data),
       headers: {
@@ -61,6 +69,10 @@ export async function POST(request: Request) {
         [REQUEST_SIGNATURE_HEADER]: signature,
       }
     });
+
+    const responseBody = await response.json();
+
+    return new Response(JSON.stringify(responseBody), {status: 200});
   } catch (error) {
     console.error(error);
     return new Response("Unable to fetch the provider", {status: 500});
