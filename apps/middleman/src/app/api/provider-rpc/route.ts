@@ -60,7 +60,7 @@ export async function POST(request: Request) {
 
   try {
     console.log('Executing the request');
-    return await fetch(urlJoin(provider.url, validatedData.path), {
+    const response = await fetch(urlJoin(provider.url, validatedData.path), {
       method: 'POST',
       body: JSON.stringify(validatedData.data),
       headers: {
@@ -69,6 +69,10 @@ export async function POST(request: Request) {
         [REQUEST_SIGNATURE_HEADER]: signature,
       }
     });
+
+    const responseBody = await response.json();
+
+    return new Response(JSON.stringify(responseBody), {status: 200});
   } catch (error) {
     console.error(error);
     return new Response("Unable to fetch the provider", {status: 500});
