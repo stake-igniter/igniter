@@ -15,28 +15,26 @@ export default function Heading({ logoIcon: LogoIcon }: Readonly<HeaderProps>) {
     return (
         <div className="flex flex-row items-center px-[24px] justify-between w-full h-[80px] bg-[var(--color-black-1)] border-t border-[var(--black-dividers)]">
             <div className="flex flex-row gap-10">
-                <Link href="/">
-                    { LogoIcon ? <LogoIcon /> : <PlaceholderLogo /> }
-                </Link>
+                { LogoIcon ? <LogoIcon /> : <PlaceholderLogo /> }
                 <nav className="flex flex-row items-center gap-6">
-                    <Link href="/about">
-                        About
-                    </Link>
-                    <Link href="/providers">
-                        Providers
-                    </Link>
-                    <Link href="/documentation">
-                        Documentation
-                    </Link>
+                    {/*<Link href="/about">*/}
+                    {/*    About*/}
+                    {/*</Link>*/}
+                    {/*<Link href="/providers">*/}
+                    {/*    Providers*/}
+                    {/*</Link>*/}
+                    {/*<Link href="/documentation">*/}
+                    {/*    Documentation*/}
+                    {/*</Link>*/}
                 </nav>
             </div>
             <div className="flex flex-row items-center gap-10">
                 <div>
-                    <EngagementLinks links={[
-                        { name: "Github", Icon: GithubIcon, url: "#" },
-                        { name: "Discord", Icon: DiscordIcon, url: "#" },
-                        { name: "X", Icon: XIcon, url: "#" },
-                    ]} />
+                    {/*<EngagementLinks links={[*/}
+                    {/*    { name: "Github", Icon: GithubIcon, url: "#" },*/}
+                    {/*    { name: "Discord", Icon: DiscordIcon, url: "#" },*/}
+                    {/*    { name: "X", Icon: XIcon, url: "#" },*/}
+                    {/*]} />*/}
                 </div>
                 <CurrentUser />
             </div>

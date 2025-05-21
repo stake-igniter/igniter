@@ -39,11 +39,6 @@ const mainRoutes = [
     url: "/app/nodes",
     icon: NodesDark,
   },
-  {
-    title: "Settings",
-    url: "/app/settings",
-    icon: SettingsDark,
-  },
 ];
 
 const footerRoutes = [
@@ -82,25 +77,25 @@ export default function Sidebar({}: Readonly<AppSidebarProps>) {
     </SidebarMenuItem>
   ));
 
-  const FooterRoutesMenu = footerRoutes.map((route) => (
-    <SidebarMenuItem
-      key={route.title}
-      className={
-        pathname.includes(route.title.toLowerCase())
-          ? "bg-muted rounded-lg font-medium text-foreground"
-          : ""
-      }
-    >
-      <SidebarMenuButton asChild>
-        <Link href={route.url}>
-          <route.icon />
-          <span>{route.title}</span>
-        </Link>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  ));
+  // const FooterRoutesMenu = footerRoutes.map((route) => (
+  //   <SidebarMenuItem
+  //     key={route.title}
+  //     className={
+  //       pathname.includes(route.title.toLowerCase())
+  //         ? "bg-muted rounded-lg font-medium text-foreground"
+  //         : ""
+  //     }
+  //   >
+  //     <SidebarMenuButton asChild>
+  //       <Link href={route.url}>
+  //         <route.icon />
+  //         <span>{route.title}</span>
+  //       </Link>
+  //     </SidebarMenuButton>
+  //   </SidebarMenuItem>
+  // ));
 
   return (
-    <AppSidebar MainRoutes={MainRoutesMenu} FooterRoutes={FooterRoutesMenu} />
+    <AppSidebar MainRoutes={MainRoutesMenu} FooterRoutes={[]} />
   );
 }
