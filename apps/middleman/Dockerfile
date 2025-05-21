@@ -38,7 +38,10 @@ RUN pnpm add --global drizzle-kit@0.30.4 drizzle-orm@0.39.1 pg@^8.14.0 dotenv
 WORKDIR /app
 
 # Create non-root user and switch
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 --gid 1001 nextjs
+
+RUN mkdir -p /app/apps/middleman/.next/cache/fetch-cache && \
+    chown -R nextjs:nodejs /app/apps/middleman/.next/cache/fetch-cache
 
 USER nextjs
 
