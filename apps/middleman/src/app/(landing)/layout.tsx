@@ -51,7 +51,7 @@ export default function RootLayout({
         <ApplicationSettingsProvider>
           <WalletConnectionProvider>
             <div className="flex flex-row justify-center min-h-screen bg-(--black-1)">
-              <div className="w-[958px] border-x border-(--black-dividers)">
+              <div className="h-[100vh] w-[958px] border-x border-(--black-dividers) overflow-y-scroll scrollbar-hidden">
                 <Header />
                 {children}
                 <Footer />

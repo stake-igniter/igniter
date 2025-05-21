@@ -17,15 +17,13 @@ export default function Footer({ logoIcon: LogoIcon } : Readonly<FooterProps>) {
             <span className="inline-block font-sans text-sm font-normal text-[var(--color-white-4)]">
               © Soothe Inc.
             </span>
-            <Link href="/">
-                { LogoIcon ? <LogoIcon /> : <PlaceholderLogo /> }
-            </Link>
+            { LogoIcon ? <LogoIcon /> : <PlaceholderLogo /> }
             <div>
-                <EngagementLinks links={[
-                    { name: "Github", Icon: GithubIcon, url: "#" },
-                    { name: "Discord", Icon: DiscordIcon, url: "#" },
-                    { name: "X", Icon: XIcon, url: "#" },
-                ]} />
+                {/*<EngagementLinks links={[*/}
+                {/*    { name: "Github", Icon: GithubIcon, url: "#" },*/}
+                {/*    { name: "Discord", Icon: DiscordIcon, url: "#" },*/}
+                {/*    { name: "X", Icon: XIcon, url: "#" },*/}
+                {/*]} />*/}
             </div>
         </div>
     );

@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { Button } from "@igniter/ui/components/button";
 import BinCardList from "./components/BinCardList";
-import { getNodesByUser } from '@/lib/dal/nodes'
 import {amountToPokt} from "@igniter/ui/lib/utils";
+import {GetUserNodes} from "@/actions/Nodes";
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const nodes = await getNodesByUser();
+  const nodes = await GetUserNodes();
 
   let nodesWith15k = 0, nodesWith30k = 0, nodesWith45k = 0, nodesWith60k = 0, totalStaked = 0;
 
