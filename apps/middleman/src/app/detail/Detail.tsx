@@ -6,7 +6,9 @@ import DetailResolver from '@/app/detail/DetailResolver'
 import { MessageType } from '@/lib/constants'
 
 export interface NodeDetailBody {
+  id: number
   address: string;
+  ownerAddress: string;
   status: NodeStatus;
   provider: Provider | null;
   stakeAmount: number;
@@ -70,6 +72,7 @@ export interface UnstakeOperation {
 export type Operation = StakeOperation | UnstakeOperation | SendOperation
 
 export interface TransactionDetailBody {
+  id: number
   type: TransactionType
   hash: string
   status: TransactionStatus
@@ -91,10 +94,14 @@ export type DetailItem = NodeDetail | TransactionDetail
 
 interface DetailContextProps {
   addItem: (item: DetailItem | Promise<DetailItem>) => void
+  items: Array<DetailItem | Promise<DetailItem>>
+  updateItem: (item: DetailItem | Promise<DetailItem>, index: number) => void
 }
 
 const DetailContext = createContext<DetailContextProps>({
   addItem: () => {},
+  updateItem: () => {},
+  items: []
 })
 
 export default function QuickDetailProvider({children}: React.PropsWithChildren) {
@@ -104,10 +111,19 @@ export default function QuickDetailProvider({children}: React.PropsWithChildren)
     setItems(prev => [...prev, item])
   }
 
+  const updateItem = (item: DetailItem | Promise<DetailItem>, index: number) => {
+    setItems(prev => {
+      prev[index] = item
+      return [...prev]
+    })
+  }
+
   return (
     <DetailContext.Provider
       value={{
         addItem,
+        items,
+        updateItem,
       }}
     >
       <DetailResolver
@@ -128,4 +144,14 @@ export function useAddItemToDetail() {
   }
 
   return context.addItem
+}
+
+export function useDetailContext() {
+  const context = useContext(DetailContext)
+
+  if (!context) {
+    throw new Error('useDetailContext must be used within a QuickDetailProvider.')
+  }
+
+  return context
 }

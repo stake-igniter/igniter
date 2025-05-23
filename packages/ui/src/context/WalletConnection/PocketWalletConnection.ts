@@ -22,21 +22,24 @@ export enum PocketNetworkTransactionTypes {
 export class PocketWalletConnection implements WalletConnection {
   isConnected: boolean;
   connectedIdentity?: string | undefined;
+  connectedIdentities?: Array<string> | undefined;
   private _provider?: Provider;
 
   constructor() {
     this.isConnected = false;
   }
 
-  connect = async (provider?: Provider): Promise<void> => {
+  connect = async (provider?: Provider): Promise<Array<string>> => {
     this._provider = provider ?? window.pocketShannon;
     try {
-      const [connectedIdentity] = await this.provider.send(
+      const connectedIdentities: Array<string> = await this.provider.send(
         PocketMethod.REQUEST_ACCOUNTS
       );
 
       this.isConnected = true;
-      this.connectedIdentity = connectedIdentity;
+      this.connectedIdentities = connectedIdentities;
+
+      return connectedIdentities
     } catch (err) {
       console.error(err);
       throw err;
@@ -48,6 +51,7 @@ export class PocketWalletConnection implements WalletConnection {
       const accounts = await this.provider.send(PocketMethod.ACCOUNTS);
 
       if (accounts.includes(address)) {
+        this.connectedIdentities = accounts;
         this.connectedIdentity = address;
         this.isConnected = true;
         return true;
@@ -58,6 +62,18 @@ export class PocketWalletConnection implements WalletConnection {
       console.warn(`Something failed while interacting with the Pocket Network wallet provider. method: ${PocketMethod.ACCOUNTS}`);
       return false;
     }
+  }
+
+  connectIdentity(address: string) {
+    if (this.connectedIdentities?.includes(address)) {
+      this.connectedIdentity = address
+    } else {
+      throw new Error('Identity not connected')
+    }
+  }
+
+  clearConnectedIdentity() {
+    this.connectedIdentity = undefined
   }
 
   getChain = async (): Promise<string> => {
@@ -144,9 +160,13 @@ export class PocketWalletConnection implements WalletConnection {
     });
   };
 
-  signTransaction = async (messages: TransactionMessage[], memo?: SignedMemo): Promise<SignedTransaction> => {
+  signTransaction = async (messages: TransactionMessage[], signer?: string, memo?: SignedMemo): Promise<SignedTransaction> => {
+    if (signer && !this.connectedIdentities?.includes(signer)) {
+      throw new Error(`Signer ${signer} is not connected to the wallet`);
+    }
+
     const transaction = {
-      address: this.connectedIdentity ?? "",
+      address: signer || this.connectedIdentity || "",
       messages,
     };
 
@@ -159,7 +179,7 @@ export class PocketWalletConnection implements WalletConnection {
     try {
       const { signature, transactionHex, rawTx, fee  } = await this.provider.send(PocketMethod.SIGN_TRANSACTION, [transaction]);
       return {
-        address: this.connectedIdentity ?? "",
+        address: signer || this.connectedIdentity || "",
         signedPayload: transactionHex,
         unsignedPayload: rawTx,
         signature,

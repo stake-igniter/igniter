@@ -105,6 +105,7 @@ export const columns: ColumnDef<Transaction>[] = [
               addItem({
                 type: 'transaction',
                 body: {
+                  id: row.original.id,
                   type: row.original.type,
                   status: row.original.status,
                   createdAt: row.original.createdAt,

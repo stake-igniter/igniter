@@ -8,7 +8,7 @@ import { clsx } from 'clsx'
 
 interface AddressProps {
   address: string;
-  onClick?: () => void;
+  onClick?: (address: string) => void;
 }
 
 export default function Address({address, onClick}: AddressProps) {
@@ -31,6 +31,7 @@ export default function Address({address, onClick}: AddressProps) {
             !onClick && 'text-[color:var(--color-white-1)] font-thin hover:no-underline !cursor-default'
           )
         }
+        onClick={onClick ? () => onClick(address) : undefined}
       >
         {getShortAddress(address, 5)}
       </Button>
