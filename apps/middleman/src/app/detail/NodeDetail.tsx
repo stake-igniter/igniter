@@ -5,12 +5,13 @@ import { clsx } from 'clsx'
 import { DrawerDescription, DrawerHeader, DrawerTitle } from '@igniter/ui/components/drawer'
 import { Button, ButtonProps } from '@igniter/ui/components/button'
 import Summary, { SummaryRow } from '@/app/components/Summary'
-import {amountToPokt, toCompactFormat} from '@igniter/ui/lib/utils'
+import { amountToPokt, getShortAddress } from '@igniter/ui/lib/utils'
 import Address from '@igniter/ui/components/Address'
 import { CaretSmallIcon } from '@igniter/ui/assets'
 import { NodeDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
 import TransactionHash from '@igniter/ui/components/TransactionHash'
 import { QuickInfoPopOverIcon } from '@igniter/ui/components/QuickInfoPopOverIcon'
+import { UserAvatar } from '@igniter/ui/components/UserAvatar'
 
 function ActionButton({children, ...props}: React.PropsWithChildren & Omit<ButtonProps, 'children'>) {
   return (
@@ -30,6 +31,7 @@ function ActionButton({children, ...props}: React.PropsWithChildren & Omit<Butto
 
 export default function NodeDetail({
    address,
+  ownerAddress,
    status,
    transactions,
    provider,
@@ -43,6 +45,17 @@ export default function NodeDetail({
     {
       label: `Node`,
       value: <Address address={address} />,
+    },
+    {
+      label: 'Owner',
+      value: (
+        <div className={'flex items-center gap-2'}>
+          <UserAvatar address={ownerAddress} selectedAvatar={1} />
+          <span className={'font-mono text-sm'}>
+            {getShortAddress(ownerAddress, 5)}
+          </span>
+        </div>
+      )
     },
     {
       label: 'Provider',
@@ -96,14 +109,10 @@ export default function NodeDetail({
             <TransactionHash
               hash={transaction.hash}
               onClick={() => {
-                addItem(new Promise(resolve => {
-                  setTimeout(() => {
-                    resolve({
-                      type: 'transaction',
-                      body: transaction
-                    })
-                  }, 1000)
-                }))
+                addItem({
+                  type: 'transaction',
+                  body: transaction
+                })
               }}
             />
           )

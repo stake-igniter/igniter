@@ -11,8 +11,9 @@ import React, { useState } from 'react'
 import TransactionHash from '@igniter/ui/components/TransactionHash'
 import { BaseQuickInfoTooltip } from '@igniter/ui/components/BaseQuickInfoTooltip'
 import Address from '@igniter/ui/components/Address'
-import { Operation, SendOperation, TransactionDetailBody } from '@/app/detail/Detail'
+import { Operation, SendOperation, TransactionDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
 import { MessageType } from '@/lib/constants'
+import { GetNode } from '@/actions/Nodes'
 
 function ActionButton({children}: React.PropsWithChildren) {
   return (
@@ -39,7 +40,7 @@ const labelByStatus: Record<TransactionStatus, string> = {
   not_executed: 'Not Executed',
 }
 
-function getOperationRows(operations: Array<Operation>, transactionType: TransactionType): Array<SummaryRow> {
+function getOperationRows(operations: Array<Operation>, transactionType: TransactionType, onClickAddress?: (address: string) => void): Array<SummaryRow> {
   const rows: Array<SummaryRow> = []
 
   switch (transactionType) {
@@ -50,7 +51,10 @@ function getOperationRows(operations: Array<Operation>, transactionType: Transac
 
           rows.push({
             label: `Stake (${toCompactFormat(Number(operation.value.stake.amount) / 1e6)})`,
-            value: <Address address={operation.value.operatorAddress} />,
+            value: <Address
+              address={operation.value.operatorAddress}
+              onClick={onClickAddress}
+            />,
           }, {
             label: (
               <div className={'flex items-center gap-2'}>
@@ -69,7 +73,10 @@ function getOperationRows(operations: Array<Operation>, transactionType: Transac
         if (operation.typeUrl === MessageType.Unstake) {
           rows.push({
             label: 'Node',
-            value: <Address address={operation.value.operatorAddress} />,
+            value: <Address
+              address={operation.value.operatorAddress}
+              onClick={onClickAddress}
+            />,
           })
         }
       }
@@ -80,7 +87,10 @@ function getOperationRows(operations: Array<Operation>, transactionType: Transac
         if (operation.typeUrl === MessageType.Send) {
           rows.push({
             label: 'Node',
-            value: <Address address={operation.value.toAddress} />,
+            value: <Address
+              address={operation.value.toAddress}
+              onClick={onClickAddress}
+            />,
           }, {
             label: (
               <div className={'flex items-center gap-2'}>
@@ -99,7 +109,10 @@ function getOperationRows(operations: Array<Operation>, transactionType: Transac
         if (operation.typeUrl === MessageType.Stake) {
           rows.push({
             label: 'Node',
-            value: <Address address={operation.value.operatorAddress} />,
+            value: <Address
+              address={operation.value.operatorAddress}
+              onClick={onClickAddress}
+            />,
           })
         }
       }
@@ -214,7 +227,47 @@ export default function TransactionDetail({
   providerFee,
   typeProviderFee,
 }: TransactionDetailBody) {
+  const addItemToDetail = useAddItemToDetail()
   const [isShowingTransactionDetails, setIsShowingTransactionDetails] = useState(false);
+
+  let onClickAddress: ((address: string) => void) | undefined = undefined
+
+  if (status === TransactionStatus.Success) {
+    onClickAddress = (address) => {
+      addItemToDetail(
+        GetNode(address).then(node => {
+          return ({
+            type: 'node',
+            body: {
+              id: node.id,
+              address: node.address,
+              ownerAddress: node.ownerAddress,
+              status: node.status,
+              transactions: node.transactionsToNodes.map((transaction) => {
+                const tx = transaction.transaction
+
+                return {
+                  type: tx.type,
+                  hash: tx.hash || '',
+                  status: tx.status,
+                  createdAt: new Date(tx.createdAt!),
+                  consumedFee: tx.consumedFee || null,
+                  estimatedFee: tx.estimatedFee,
+                  provider: node.provider?.name || '',
+                  providerFee: tx.providerFee,
+                  typeProviderFee: tx.typeProviderFee,
+                  operations: JSON.parse(tx.unsignedPayload).body.messages,
+                }
+              }),
+              provider: node.provider || null,
+              stakeAmount: Number(node.stakeAmount),
+              operationalFundsAmount: node.balance,
+            },
+          })
+        })
+      )
+    }
+  }
 
   const summaryRows: Array<SummaryRow> = [
     {
@@ -293,7 +346,7 @@ export default function TransactionDetail({
   }
 
   if (isShowingTransactionDetails) {
-    summaryRows.push(...getOperationRows(operations, type))
+    summaryRows.push(...getOperationRows(operations, type, onClickAddress))
   }
 
   const totalValue = operations.reduce((acc, op) => {

@@ -51,7 +51,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
   });
   const [currentStep, setCurrentStep] = useState<StakingProcessStep>(StakingProcessStep.requestSuppliers);
   const settings = useApplicationSettings();
-  const {connectedIdentity, signTransaction} = useWalletConnection();
+  const {signTransaction} = useWalletConnection();
   const [transaction, setTransaction] = useState<DbTransaction | null>(null);
   const [transactionMessages, setTransactionMessages] = useState<TransactionMessage[]>([]);
   const [signedTransaction, setSignedTransaction] = useState<SignedTransaction | null>(null);
@@ -70,8 +70,8 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
             body: {
               ...supplier,
               stakeAmount: (Number(supplier.stakeAmount) * 1e6).toString(),
-              ownerAddress: connectedIdentity!,
-              signer: connectedIdentity!,
+              ownerAddress: ownerAddress,
+              signer: ownerAddress,
             },
           };
         });
@@ -109,7 +109,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
       }
 
       try {
-        const signedTx = await signTransaction(transactionMessages);
+        const signedTx = await signTransaction(transactionMessages, ownerAddress);
 
         setSignedTransaction(signedTx);
 

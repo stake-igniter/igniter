@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import { useEffect, useState } from 'react'
 import {PickStakeAmountStep} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep";
 import {PickOfferStep} from "@/app/app/(takeover)/stake/components/PickOfferStep";
 import {ReviewStep} from "@/app/app/(takeover)/stake/components/ReviewStep";
@@ -11,9 +11,12 @@ import {AbortConfirmationDialog} from '@/app/app/(takeover)/stake/components/Abo
 import { Transaction } from '@/db/schema'
 import {allStagesSucceeded, getFailedStage} from "@/app/app/(takeover)/stake/utils";
 import {StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
-import {StageStatus} from "@/app/app/(takeover)/stake/types";
+import { useWalletConnection } from '@igniter/ui/context/WalletConnection/index'
+import OwnerAddressStep from '@/app/app/(takeover)/stake/components/OwnerAddressStep'
+import Loading from '@/app/app/(takeover)/stake/components/Loading'
 
 enum StakeActivitySteps {
+    OwnerAddress = 'OwnerAddress',
     PickStakeAmount = 'PickStakeAmount',
     PickOffer = 'PickOffer',
     Review = 'Review',
@@ -21,12 +24,21 @@ enum StakeActivitySteps {
 }
 
 export default function StakePage() {
-    const [step, setStep] = useState<StakeActivitySteps>(StakeActivitySteps.PickStakeAmount);
+  const {connectedIdentity, connectedIdentities, isConnected} = useWalletConnection()
+    const [step, setStep] = useState<StakeActivitySteps>(
+      connectedIdentities && connectedIdentities.length > 1 ?
+        StakeActivitySteps.OwnerAddress :
+        StakeActivitySteps.PickStakeAmount
+    );
+
     const [stakeAmount, setStakeAmount] = useState<number>(0);
     const [selectedOffer, setSelectedOffer] = useState<StakeDistributionOffer | undefined>();
     const [transaction, setTransaction] = useState<Transaction | undefined>(undefined);
     const [isAbortDialogOpen, setAbortDialogOpen] = useState(false);
-    const [ownerAddress, setOwnerAddress] = useState<string>('');
+    const [ownerAddress, setOwnerAddress] = useState<string>(
+      connectedIdentities!.length > 1 ?
+      '' : connectedIdentity!
+    );
     const [stakingErrorMessage, setStakingErrorMessage] = useState<string | undefined>(undefined);
 
     const errorsMap: Record<keyof StakingProcessStatus, string> = {
@@ -35,20 +47,60 @@ export default function StakePage() {
       schedulingTransactionStatus: 'The transaction was signed but could not be scheduled. Please try again or contact support if the issue persists.'
     };
 
+  useEffect(() => {
+    if (isConnected) {
+      setOwnerAddress(
+        connectedIdentities!.length > 1 ?
+          '' : connectedIdentity!
+      )
+      setStep(
+        connectedIdentities!.length > 1 ?
+          StakeActivitySteps.OwnerAddress :
+          StakeActivitySteps.PickStakeAmount
+      );
+    }
+  }, [isConnected])
+
+    const handleOwnerAddressChange = (address: string) => {
+      setOwnerAddress(address);
+      setStep(StakeActivitySteps.PickStakeAmount);
+    }
+
     const handleStakeAmountChange = (amount: number) => {
         setStakeAmount(amount);
         setStep(StakeActivitySteps.PickOffer);
     };
 
+    if (!isConnected) {
+      return (
+        <div className="flex flex-row justify-center w-full">
+          <Loading />
+        </div>
+      );
+    }
+
     return (
         <>
             <div className="flex flex-row justify-center w-full">
+                {step === StakeActivitySteps.OwnerAddress && (
+                  <OwnerAddressStep
+                    onClose={() => setAbortDialogOpen(true)}
+                    onOwnerAddressSelected={handleOwnerAddressChange}
+                    selectedOwnerAddress={ownerAddress}
+                  />
+                )}
+
                 {step === StakeActivitySteps.PickStakeAmount && (
                     <PickStakeAmountStep
+                        ownerAddress={ownerAddress}
                         defaultAmount={stakeAmount}
                         onAmountSelected={handleStakeAmountChange}
-                        onOwnerAddressSelected={setOwnerAddress}
                         onClose={() => setAbortDialogOpen(true)}
+                        onBack={
+                          connectedIdentities!.length > 1 ?
+                            () => setStep(StakeActivitySteps.OwnerAddress) :
+                            undefined
+                        }
                     />
                 )}
 

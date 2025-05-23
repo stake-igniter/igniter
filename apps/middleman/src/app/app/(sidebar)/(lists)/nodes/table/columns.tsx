@@ -120,7 +120,9 @@ export const columns: ColumnDef<NodeDetails>[] = [
               addItem({
                 type: 'node',
                 body: {
+                  id: node.id,
                   address: node.address,
+                  ownerAddress: node.ownerAddress,
                   status: node.status,
                   stakeAmount: Number(node.stakeAmount),
                   operationalFundsAmount: node.balance,

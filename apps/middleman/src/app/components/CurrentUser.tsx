@@ -11,8 +11,8 @@ import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {DropdownMenuItem, DropdownMenuSeparator} from "@igniter/ui/components/dropdown-menu";
 import {Routes} from "@/lib/route-constants";
-import {Button} from "@igniter/ui/components/button";
 import {LoaderIcon} from "@igniter/ui/assets";
+import { getShortAddress } from '@igniter/ui/lib/utils'
 
 export default function CurrentUser() {
   const currentPath = usePathname();
@@ -26,7 +26,8 @@ export default function CurrentUser() {
     getChain,
     getPublicKey,
     switchChain,
-    signMessage
+    signMessage,
+    clearConnectedIdentity
   } = useWalletConnection();
 
   const settingsChainId = applicationSettings?.chainId!;
@@ -60,6 +61,9 @@ export default function CurrentUser() {
       const signature = await signMessage(message.prepareMessage(), address);
       const publicKey = await getPublicKey(address);
 
+      // TODO: save key in a constants file
+      localStorage.setItem('last-signed-in-identity', getShortAddress(address));
+
       await signIn("siwp", {
         message: JSON.stringify(message),
         signature,
@@ -67,7 +71,11 @@ export default function CurrentUser() {
         redirectTo: '/app',
       });
     } catch (error) {
-      console.error(error);
+      if ((error as {message: string})?.message === "The user rejected the request.") {
+        clearConnectedIdentity()
+      } else {
+        // TODO: show feedback that something went wrong
+      }
     }
   };
 

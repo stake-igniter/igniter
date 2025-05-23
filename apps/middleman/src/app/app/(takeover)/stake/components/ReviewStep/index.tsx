@@ -3,7 +3,7 @@
 import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {toCompactFormat, toCurrencyFormat} from "@igniter/ui/lib/utils";
+import { getShortAddress, toCurrencyFormat } from '@igniter/ui/lib/utils'
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
 import {CaretSmallIcon, CornerIcon} from "@igniter/ui/assets";
 import {useMemo, useState} from "react"
@@ -11,6 +11,7 @@ import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
 import {Transaction} from "@/db/schema";
 import React from "react";
+import { UserAvatar } from '@igniter/ui/components/UserAvatar'
 
 export interface ReviewStepProps {
     amount: number;
@@ -168,6 +169,18 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                         {selectedOffer.name}
                     </span>
                 </span>
+                {/*TODO: Only show this when there are more than one connected identity? or when the owner address is different than the connected identity signed in?*/}
+                <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
+                    <span className="text-[14px] text-[var(--color-white-3)]">
+                        Owner Address
+                    </span>
+                    <span className="flex flex-row items-center text-[14px] text-[var(--color-white-1)]">
+                        <UserAvatar address={ownerAddress} selectedAvatar={1} />
+                        <span className="ml-2 font-mono">
+                            {getShortAddress(ownerAddress, 5)}
+                        </span>
+                    </span>
+                </span>
                 <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                     <span className="flex flex-row items-center gap-2 hover:cursor-pointer" onClick={() => setIsShowingTransactionDetails(!isShowingTransactionDetails)}>
                         {isShowingTransactionDetails && (
@@ -185,7 +198,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                     <React.Fragment key={index}>
                         <span key={`stake-${index}`} className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                             <span className="text-[14px] text-[var(--color-white-3)]">
-                                {`Stake (${toCompactFormat(tx)})`}
+                                {`Stake`}
                             </span>
                             <span className="flex flex-row gap-2">
                                 <span className="font-mono text-[14px] text-[var(--color-white-1)]">

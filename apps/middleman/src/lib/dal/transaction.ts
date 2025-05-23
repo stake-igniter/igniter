@@ -11,6 +11,15 @@ export async function getTransactionsByUser(userIdentity: string) {
   });
 }
 
+export async function getTransactionByHash(hash: string) {
+  return db.query.transactionsTable.findFirst({
+    where: eq(transactionsTable.hash, hash),
+    with: {
+      provider: true,
+    }
+  });
+}
+
 export async function insert(transaction: CreateTransaction): Promise<Transaction> {
   const [createdTransaction] = await db.insert(transactionsTable).values(transaction).returning();
   if (!createdTransaction) {
