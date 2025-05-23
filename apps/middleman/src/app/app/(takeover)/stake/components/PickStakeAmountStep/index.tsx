@@ -14,15 +14,16 @@ import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon"
 export interface PickStakeAmountStepProps {
     defaultAmount: number;
     onAmountSelected: (amount: number) => void;
-    onOwnerAddressSelected: (address: string) => void;
     onClose: () => void;
+    onBack?: () => void;
+    ownerAddress: string
 }
 
 
-export function PickStakeAmountStep({onAmountSelected, defaultAmount, onOwnerAddressSelected, onClose}: Readonly<PickStakeAmountStepProps>) {
+export function PickStakeAmountStep({onAmountSelected, defaultAmount, ownerAddress, onClose, onBack}: Readonly<PickStakeAmountStepProps>) {
     const [selectedAmount, setSelectedAmount] = useState<number>(defaultAmount);
     const [balance, setBalance] = useState<number>(-1);
-    const { getBalance, connectedIdentity } = useWalletConnection();
+    const { getBalance } = useWalletConnection();
     const [minimumStake, setMinimumStake] = useState<number>(0);
     const applicationSettings = useApplicationSettings();
     const isViewReady = useMemo(() => {
@@ -30,19 +31,17 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, onOwnerAdd
     }, [balance, minimumStake])
 
     useEffect(() => {
-      if (connectedIdentity) {
-        (async () => {
-          try {
-            // TODO: Make this selectable instead of assuming the current user.
-            onOwnerAddressSelected(connectedIdentity);
-            const balance = await getBalance(connectedIdentity);
-            setBalance(balance / 1e6);
-          } catch {
-            console.log('An error occurred while getting the balance from your connected wallet.');
-          }
-        })();
-      }
-    }, [connectedIdentity]);
+      if (!ownerAddress) return
+
+      (async () => {
+        try {
+          const balance = await getBalance(ownerAddress);
+          setBalance(balance / 1e6);
+        } catch {
+          console.log('An error occurred while getting the balance from your connected wallet.');
+        }
+      })();
+    }, [ownerAddress]);
 
     useEffect(() => {
       if (applicationSettings) {
@@ -57,6 +56,7 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, onOwnerAdd
                 title="Stake"
                 subtitle="Use the slider below to pick an amount to stake."
                 onClose={onClose}
+                onBack={onBack}
             />
 
             {!isViewReady && (
