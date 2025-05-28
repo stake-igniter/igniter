@@ -31,10 +31,8 @@ COPY out/middleman-workflows/full .
 # Build the application
 RUN pnpm turbo run build --filter=@igniter/middleman-workflows
 
-# Prune dependencies to remove devDependencies without ask about it
-RUN pnpm prune --prod --config.confirmModulesPurge=false
-
+# Switch user
 USER app
 
 # Start the server
-CMD ["pnpm", "run", "start", "--filter=@igniter/middleman-workflows"]
+CMD ["node", "./apps/middleman-workflows/dist/src/worker.js"]
