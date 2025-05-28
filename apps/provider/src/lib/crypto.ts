@@ -1,4 +1,6 @@
 import crypto from "crypto";
+import {Secp256k1, Secp256k1Signature, sha256} from '@cosmjs/crypto';
+import {toUtf8} from "@cosmjs/encoding";
 
 const algorithm = "aes-256-cbc";
 
@@ -31,12 +33,12 @@ export function decrypt(text: string): string {
  * @param encoding      'hex' or 'base64' (default: 'base64')
  * @returns             true if the signature is valid, false otherwise
  */
-export function verifySignature(
+export async function verifySignature(
   payload: string,
   publicKeyStr: string,
   signatureStr: string,
   encoding: BufferEncoding = 'base64'
-): boolean {
+): Promise<boolean> {
   try {
     const publicKeyBytes = Buffer.from(publicKeyStr, encoding);
 
@@ -47,16 +49,9 @@ export function verifySignature(
       throw new Error('Public key must be 33 bytes in compressed secp256k1 format.');
     }
 
-    // Decode the DER signature
     const signature = Buffer.from(signatureStr, encoding);
 
-    const spkiDer = Buffer.concat([
-      Buffer.from([0x30, 0x36, 0x30, 0x10, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a, 0x03, 0x22, 0x00]),
-      publicKeyBytes
-    ]);
-
-    const publicKey = crypto.createPublicKey({ key: spkiDer, format: 'der', type: 'spki' });
-    return crypto.verify('sha256', Buffer.from(payload), publicKey, signature);
+    return await Secp256k1.verifySignature(Secp256k1Signature.fromFixedLength(signature.subarray(0, 64)), sha256(toUtf8(payload)), publicKeyBytes);
   } catch (e: unknown) {
     console.error('Signature verification failed:', (e as Error).message);
     return false;

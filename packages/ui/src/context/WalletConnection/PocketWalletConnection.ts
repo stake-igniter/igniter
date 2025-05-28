@@ -1,7 +1,6 @@
 import {ProviderInfo, WalletConnection} from "@igniter/ui/context/WalletConnection/index";
-import {
-  Provider, SignedTransaction, TransactionMessage,
-} from "./";
+import {Provider} from "./";
+import {SignedMemo, SignedTransaction, TransactionMessage} from "../../lib/models";
 
 export enum PocketMethod {
   REQUEST_ACCOUNTS = "pokt_requestAccounts",
@@ -145,11 +144,17 @@ export class PocketWalletConnection implements WalletConnection {
     });
   };
 
-  signTransaction = async (messages: TransactionMessage[]): Promise<SignedTransaction> => {
+  signTransaction = async (messages: TransactionMessage[], memo?: SignedMemo): Promise<SignedTransaction> => {
     const transaction = {
       address: this.connectedIdentity ?? "",
       messages,
     };
+
+    if (memo) {
+      Object.assign(transaction, {
+        memo: JSON.stringify(memo),
+      });
+    }
 
     try {
       const { signature, transactionHex, rawTx, fee  } = await this.provider.send(PocketMethod.SIGN_TRANSACTION, [transaction]);

@@ -11,6 +11,9 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@cosmjs/crypto": "^0.33.1",
+    "@cosmjs/encoding": "^0.33.1",
+    "@cosmjs/proto-signing": "^0.33.1",
     "@hookform/resolvers": "4.1.3",
     "@igniter/eslint-config": "workspace:*",
     "@igniter/ui": "workspace:*",

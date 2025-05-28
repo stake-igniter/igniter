@@ -76,7 +76,7 @@ export async function validateRequestSignature<TData>(request: Request): Promise
   const providedSignature = request.headers.get(REQUEST_SIGNATURE_HEADER) || "";
   const publicKeyBase64 = Buffer.from(delegator.publicKey, "hex").toString("base64");
 
-  const isValidSignature = verifySignature(rawData, publicKeyBase64, providedSignature);
+  const isValidSignature = await verifySignature(rawData, publicKeyBase64, providedSignature);
 
   if (!isValidSignature) {
     return NextResponse.json(

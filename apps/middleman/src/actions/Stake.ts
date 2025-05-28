@@ -3,14 +3,19 @@
 import {getApplicationSettings} from "@/actions/ApplicationSettings";
 import {listProviders} from "@/actions/Providers";
 import {StakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {SignedTransaction} from "@/lib/models/Transactions";
-import {CreateTransaction, ProviderFee, TransactionStatus, TransactionType} from "@/db/schema";
+import {SignedMemo, SignedMemoPayload, SignedTransaction} from '@igniter/ui/models';
+import {ApplicationSettings, CreateTransaction, ProviderFee, TransactionStatus, TransactionType} from "@/db/schema";
 import {insert} from "@/lib/dal/transaction";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
+import {getCompressedPublicKey, signPayload} from "@/lib/crypto";
 
 export interface CreateStakeTransactionRequest {
   offer: StakeDistributionOffer;
   transaction: SignedTransaction;
+}
+
+export interface CreateSignedMemoRequest {
+  settings: ApplicationSettings;
 }
 
 export async function CalculateStakeDistribution(stakeAmount: number): Promise<StakeDistributionOffer[]> {
@@ -78,3 +83,24 @@ export async function CreateStakeTransaction(request: CreateStakeTransactionRequ
   return insert(creatingTransaction);
 }
 
+export async function CreateSignedMemo(request: CreateSignedMemoRequest) : Promise<SignedMemo> {
+  const signedMemoPayload: SignedMemoPayload = {
+    t: new Date().toISOString(),
+    a: request.settings.delegatorRewardsAddress,
+    f: request.settings.fee,
+  };
+
+  const canonicalPayload = JSON.stringify(
+    Object.fromEntries(Object.entries(signedMemoPayload).sort())
+  );
+
+  const signature = await signPayload(JSON.stringify(canonicalPayload));
+
+  const publicKey = await getCompressedPublicKey();
+
+  return {
+    ...signedMemoPayload,
+    s: signature.toString('base64url'),
+    p: publicKey.toString('base64url'),
+  };
+}
