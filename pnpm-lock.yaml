@@ -20,6 +20,15 @@ importers:
 
   apps/middleman:
     dependencies:
+      '@cosmjs/crypto':
+        specifier: ^0.33.1
+        version: 0.33.1
+      '@cosmjs/encoding':
+        specifier: ^0.33.1
+        version: 0.33.1
+      '@cosmjs/proto-signing':
+        specifier: ^0.33.1
+        version: 0.33.1
       '@hookform/resolvers':
         specifier: 4.1.3
         version: 4.1.3(react-hook-form@7.54.2(react@19.0.0))

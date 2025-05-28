@@ -3,55 +3,7 @@
 import {createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {PocketWalletConnection} from "./PocketWalletConnection";
 import { PocketMorseWalletConnection } from './PocketMorseWalletConnection'
-
-// TODO: Unify this with apps/middleman/src/lib/models/Transactions.ts:4
-export interface SupplierStake {
-  operatorAddress: string;
-  stakeAmount: string;
-  services: {
-    serviceId: string;
-    revShare: {
-      address: string;
-      revSharePercentage: number;
-    }[];
-    endpoints: {
-      url: string;
-      rpcType: string;
-      configs: { }
-    }[];
-  }[];
-}
-
-export interface StakeTransactionSignaturePayload extends SupplierStake {
-  ownerAddress: string;
-  signer: string;
-}
-
-export interface OperationalFundsTransactionSignaturePayload {
-  toAddress: string;
-  amount: string;
-}
-
-export type TransactionMessage = StakeMessage | FundsMessage;
-
-export interface StakeMessage {
-  typeUrl: '/pocket.supplier.MsgStakeSupplier';
-  body: StakeTransactionSignaturePayload;
-}
-
-export interface FundsMessage {
-  typeUrl: '/cosmos.bank.v1beta1.MsgSend';
-  body: OperationalFundsTransactionSignaturePayload;
-}
-
-export interface SignedTransaction {
-  address: string;
-  signedPayload: string;
-  unsignedPayload: string;
-  estimatedFee: number,
-  signature: string;
-}
-
+import {SignedMemo, SignedTransaction, TransactionMessage} from "../../lib/models/Transactions";
 
 export interface Provider {
   send: (method: string, params?: any[]) => Promise<any>;
@@ -65,7 +17,7 @@ export interface ProviderInfo {
   icon?: string;
   rdns?: string;
   provider?: Provider;
-};
+}
 
 export interface WalletConnection {
   isConnected: boolean;
@@ -77,7 +29,7 @@ export interface WalletConnection {
   switchChain(chain: string): Promise<void>;
   signMessage(message: string, address: string): Promise<string>;
   getAvailableProviders(): Promise<ProviderInfo[]>;
-  signTransaction(messages: TransactionMessage[]): Promise<SignedTransaction>;
+  signTransaction(messages: TransactionMessage[], memo?: SignedMemo): Promise<SignedTransaction>;
   reconnect(address: string): Promise<boolean>;
 }
 

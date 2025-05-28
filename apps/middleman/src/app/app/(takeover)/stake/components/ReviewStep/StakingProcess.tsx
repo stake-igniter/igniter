@@ -17,7 +17,7 @@ import {requestSuppliers} from "@/lib/services/provider";
 import {SignedTransaction, TransactionMessage,} from "@/lib/models/Transactions";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
-import {CreateStakeTransaction} from "@/actions/Stake";
+import {CreateSignedMemo, CreateStakeTransaction} from "@/actions/Stake";
 import {StageStatus} from "@/app/app/(takeover)/stake/types";
 import {stageFailed, stageSucceeded} from "@/app/app/(takeover)/stake/utils";
 
@@ -109,7 +109,8 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
       }
 
       try {
-        const signedTx = await signTransaction(transactionMessages);
+        const signedMemo = await CreateSignedMemo({ settings: settings! });
+        const signedTx = await signTransaction(transactionMessages, signedMemo);
 
         setSignedTransaction(signedTx);
 
