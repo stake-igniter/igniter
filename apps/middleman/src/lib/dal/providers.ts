@@ -4,7 +4,7 @@ import { Provider, providersTable } from "@/db/schema";
 import { sql } from "drizzle-orm";
 
 export async function upsertProviders(
-  providers: Pick<Provider, "name" | "identity" | "url" | "publicKey" | "enabled" | "visible" | "createdBy" | "updatedBy">[],
+  providers: Pick<Provider, "name" | "identity" | "url" | "enabled" | "visible" | "createdBy" | "updatedBy">[],
 ) {
   return db
     .insert(providersTable)
@@ -32,11 +32,11 @@ export async function list() : Promise<Provider[]> {
   return providers;
 }
 
-export async function getByPublicKey(publicKey: string) {
+export async function getByIdentity(identity: string) {
   return db.query.providersTable.findFirst({
     where: (providers, {eq, and}) => {
       return and(
-        eq(providers.publicKey, publicKey),
+        eq(providers.identity, identity),
         eq(providers.enabled, true),
         eq(providers.visible, true)
       );

@@ -6,6 +6,7 @@ import {
   ChainId, CreateApplicationSettings,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import {getCompressedPublicKeyFromAppIdentity} from "@/lib/crypto";
 
 const defaultSettings: ApplicationSettings = {
   id: 0,
@@ -29,11 +30,13 @@ const defaultSettings: ApplicationSettings = {
 
 export async function getApplicationSettings(): Promise<ApplicationSettings> {
   const dbSettings = await getApplicationSettingsFromDatabase();
+  const appIdentity = await getCompressedPublicKeyFromAppIdentity();
 
   const envSettings = {
     chainId: process.env.CHAIN_ID as ChainId,
     ownerIdentity: process.env.OWNER_IDENTITY!,
     ownerEmail: process.env.OWNER_EMAIL!,
+    appIdentity: appIdentity.toString('hex'),
   };
 
   return {

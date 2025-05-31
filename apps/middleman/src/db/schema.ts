@@ -10,7 +10,7 @@ import {
   timestamp,
   varchar,
   bigint,
-  uuid, primaryKey,
+  primaryKey,
 } from 'drizzle-orm/pg-core'
 
 export function enumToPgEnum<T extends Record<string, any>>(
@@ -103,8 +103,7 @@ export type User = typeof usersTable.$inferSelect;
 export const providersTable = pgTable("providers", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  identity: uuid().notNull().unique(),
-  publicKey: varchar({ length: 255 }).notNull().unique(),
+  identity: varchar({ length: 255 }).notNull().unique(),
   url: varchar({ length: 255 }).notNull(),
   enabled: boolean().notNull(),
   visible: boolean().notNull().default(true),
@@ -132,7 +131,7 @@ export type Provider = typeof providersTable.$inferSelect;
 export const applicationSettingsTable = pgTable("application_settings", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }),
-  appIdentity: uuid().notNull(),
+  appIdentity: varchar().notNull(),
   supportEmail: varchar({ length: 255 }),
   ownerEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),
@@ -174,7 +173,7 @@ export const transactionsTable = pgTable("transactions", {
   consumedFee: integer().notNull(),
   providerFee: integer(),
   typeProviderFee: providerFeeEnum(),
-  providerId: uuid().references(() => providersTable.identity),
+  providerId: varchar().references(() => providersTable.identity),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
   createdBy: varchar().references(() => usersTable.identity).notNull(),
@@ -209,7 +208,7 @@ export const nodesTable = pgTable("nodes", {
   status: nodeStatusEnum().notNull(),
   stakeAmount: varchar().notNull(),
   balance: bigint({ mode: "number" }).notNull(),
-  providerId: uuid().references(() => providersTable.identity),
+  providerId: varchar().references(() => providersTable.identity),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow(),
   createdBy: varchar().references(() => usersTable.identity).notNull(),

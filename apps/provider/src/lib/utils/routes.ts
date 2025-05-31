@@ -43,28 +43,43 @@ export async function ensureApplicationIsBootstrapped(): Promise<void | NextResp
  * otherwise it returns the allowed delegator and the parsed JSON data.
  */
 export async function validateRequestSignature<TData>(request: Request): Promise<SignedRequestPayload<TData> | NextResponse<APIResponse>> {
+  console.log('Validating request signature...');
   const delegatorIdentity = request.headers.get(REQUEST_IDENTITY_HEADER);
+  console.log(`X-Middleman-Identity header: ${delegatorIdentity}`);
 
   if (!delegatorIdentity) {
+    console.log(`Invalid request. X-Middleman-Identity header was not provided.`);
     return NextResponse.json(
       { error: "Invalid request. X-Middleman-Identity header was not provided." },
       { status: 400 }
     );
   }
 
+  console.log('Authenticating delegator...');
+
   const delegator = await getDelegatorByIdentity(delegatorIdentity);
+
   if (!delegator) {
+    console.log('Delegator not found.');
     return NextResponse.json(
       { error: "Forbidden. The client is not allowed." },
       { status: 403 }
     );
   }
 
+  console.log(`Delegator authenticated. Name: "${delegator?.name}"`);
+
+
   let data: TData;
 
+  console.log('Authenticating request signature...');
+
   try {
+    console.log('Extracting payload from request...');
     data = await request.json();
+    console.log('Payload extracted successfully');
   } catch (err) {
+    console.error('Failed to extract payload from request.');
     console.error(err);
     return NextResponse.json(
       { error: "Invalid request. Is the request valid JSON?" },
@@ -72,18 +87,24 @@ export async function validateRequestSignature<TData>(request: Request): Promise
     );
   }
 
+  console.log('Parsing payload and verifying signature...');
   const rawData = JSON.stringify(data);
+  console.log('Payload parsed successfully.');
   const providedSignature = request.headers.get(REQUEST_SIGNATURE_HEADER) || "";
-  const publicKeyBase64 = Buffer.from(delegator.publicKey, "hex").toString("base64");
-
+  console.log(`X-Middleman-Signature header: ${providedSignature}`);
+  const publicKeyBase64 = Buffer.from(delegator.identity, "hex").toString("base64");
+  console.log(`Public key (base64): ${publicKeyBase64}`);
   const isValidSignature = await verifySignature(rawData, publicKeyBase64, providedSignature);
 
   if (!isValidSignature) {
+    console.log('Signature could not be verified with public key.');
     return NextResponse.json(
-      { error: `Invalid request. Signature could not be verified with public key: ${delegator.publicKey}` },
+      { error: `Invalid request. Signature could not be verified with public key: ${delegator.identity}` },
       { status: 400 }
     );
   }
+
+  console.log('Signature verified successfully.');
 
   return { delegator, data };
 }

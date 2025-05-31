@@ -7,7 +7,7 @@ import {SignedMemo, SignedMemoPayload, SignedTransaction} from '@igniter/ui/mode
 import {ApplicationSettings, CreateTransaction, ProviderFee, TransactionStatus, TransactionType} from "@/db/schema";
 import {insert} from "@/lib/dal/transaction";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
-import {getCompressedPublicKey, signPayload} from "@/lib/crypto";
+import {getCompressedPublicKeyFromAppIdentity, signPayload} from "@/lib/crypto";
 
 export interface CreateStakeTransactionRequest {
   offer: StakeDistributionOffer;
@@ -53,7 +53,6 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       name: provider.name,
       fee: provider.fee || '',
       feeType: provider.feeType || ProviderFee.Fixed,
-      publicKey: provider.publicKey,
       regions: provider.regions || [],
       rewards: 'N/A',
       delegatorRewardsAddress: provider.delegatorRewardsAddress || '',
@@ -96,7 +95,7 @@ export async function CreateSignedMemo(request: CreateSignedMemoRequest) : Promi
 
   const signature = await signPayload(JSON.stringify(canonicalPayload));
 
-  const publicKey = await getCompressedPublicKey();
+  const publicKey = await getCompressedPublicKeyFromAppIdentity();
 
   return {
     ...signedMemoPayload,

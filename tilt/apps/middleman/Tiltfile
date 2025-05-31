@@ -18,7 +18,7 @@ if OWNER_IDENTITY == '':
 APP_IDENTITY=os.getenv('MIDDLEMAN_APP_IDENTITY', '')
 
 if APP_IDENTITY == '':
-   fail('Missing APP_IDENTITY env variable')
+   fail('Missing MIDDLEMAN_APP_IDENTITY env variable')
 
 # read from kustomize build
 objects = decode_yaml_stream(kustomize("./dev"))

@@ -1,6 +1,6 @@
 "use server";
 
-import {list, upsertProviders, getByPublicKey} from "@/lib/dal/providers";
+import {list, upsertProviders, getByIdentity} from "@/lib/dal/providers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
@@ -9,7 +9,6 @@ export interface Provider {
   id: number;
   name: string;
   identity: string;
-  publicKey: string;
   url: string;
 }
 
@@ -62,8 +61,8 @@ export async function submitProviders(
 
   const updatedProviders = providers.map(({ id, ...provider }) => ({
     ...provider,
-    enabled: values.providers.includes(provider.publicKey),
-    visible: values.providers.includes(provider.publicKey),
+    enabled: values.providers.includes(provider.identity),
+    visible: values.providers.includes(provider.identity),
     createdBy: userIdentity,
     updatedBy: userIdentity,
   }));
@@ -77,6 +76,6 @@ export async function listProviders() {
   return list();
 }
 
-export async function getByIdentity(publicKey: string) {
-  return getByPublicKey(publicKey);
+export async function GetProviderByIdentity(identity: string) {
+  return getByIdentity(identity);
 }

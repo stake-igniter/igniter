@@ -1,6 +1,6 @@
 import {z} from "zod";
 import urlJoin from 'url-join';
-import {getByIdentity} from "@/actions/Providers";
+import {GetProviderByIdentity} from "@/actions/Providers";
 import {Provider} from "@/db/schema";
 import {signPayload} from "@/lib/crypto";
 import {getApplicationSettings} from "@/lib/dal/applicationSettings";
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
   try {
     console.log('Loading the provider');
-    provider = await getByIdentity(validatedData.provider);
+    provider = await GetProviderByIdentity(validatedData.provider);
     if (!provider) {
       console.error('Provider not found');
       return new Response("Provider not found", {status: 404});

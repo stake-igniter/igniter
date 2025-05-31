@@ -8,7 +8,7 @@ CREATE TYPE "public"."tx_type" AS ENUM('Stake', 'Unstake', 'Upstake', 'Operation
 CREATE TABLE "application_settings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "application_settings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255),
-	"appIdentity" uuid NOT NULL,
+	"appIdentity" varchar NOT NULL,
 	"supportEmail" varchar(255),
 	"ownerEmail" varchar(255),
 	"ownerIdentity" varchar(255) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE "nodes" (
 	"status" "node_status" NOT NULL,
 	"stakeAmount" varchar NOT NULL,
 	"balance" bigint NOT NULL,
-	"providerId" uuid,
+	"providerId" varchar,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),
 	"createdBy" varchar NOT NULL
@@ -41,8 +41,7 @@ CREATE TABLE "nodes" (
 CREATE TABLE "providers" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "providers_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255) NOT NULL,
-	"identity" uuid NOT NULL,
-	"publicKey" varchar(255) NOT NULL,
+	"identity" varchar(255) NOT NULL,
 	"url" varchar(255) NOT NULL,
 	"enabled" boolean NOT NULL,
 	"visible" boolean DEFAULT true NOT NULL,
@@ -58,8 +57,7 @@ CREATE TABLE "providers" (
 	"updatedAt" timestamp DEFAULT now(),
 	"createdBy" varchar NOT NULL,
 	"updatedBy" varchar NOT NULL,
-	CONSTRAINT "providers_identity_unique" UNIQUE("identity"),
-	CONSTRAINT "providers_publicKey_unique" UNIQUE("publicKey")
+	CONSTRAINT "providers_identity_unique" UNIQUE("identity")
 );
 --> statement-breakpoint
 CREATE TABLE "transactions" (
@@ -81,7 +79,7 @@ CREATE TABLE "transactions" (
 	"consumedFee" integer NOT NULL,
 	"providerFee" integer,
 	"typeProviderFee" "provider_fee",
-	"providerId" uuid,
+	"providerId" varchar,
 	"createdAt" timestamp DEFAULT now(),
 	"updatedAt" timestamp DEFAULT now(),
 	"createdBy" varchar NOT NULL
