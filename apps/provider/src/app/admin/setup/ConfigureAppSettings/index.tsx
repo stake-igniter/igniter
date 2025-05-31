@@ -46,11 +46,7 @@ export const formSchema = z.object({
     (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
     (val) => ({ message: `${val} is not a valid address` })
   ),
-  appIdentity: z.string().min(1, "App Identity is Required").refine(
-    (value) =>
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-9][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value),
-    {message: "App Identity must be a valid UUID"}
-  ),
+  appIdentity: z.string().min(1, "App Identity is Required"),
   minimumStake: z.coerce.number().min(15000, "Minimum stake is required").default(15000),
 });
 
@@ -118,11 +114,14 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                 <FormItem>
                   <FormLabel>App Identity</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      {...field}
+                      disabled={true}
+                    />
                   </FormControl>
                   <FormMessage />
                   <FormDescription>
-                    UUID that uniquely identifies you as a service provider. This ID needs to match the one registered with Stake Igniter governance.
+                    Your App Identity is the unique public identifier derived from your private key.
                   </FormDescription>
                 </FormItem>
               )}

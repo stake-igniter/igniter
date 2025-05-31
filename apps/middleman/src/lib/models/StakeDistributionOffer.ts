@@ -3,7 +3,6 @@ import {ProviderFee} from "@/db/schema";
 export interface StakeDistributionOffer {
     id: number;
     identity: string;
-    publicKey: string;
     fee: string;
     feeType: ProviderFee;
     name: string;

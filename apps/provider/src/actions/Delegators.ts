@@ -36,7 +36,6 @@ export async function UpdateDelegatorsFromSource() {
     const delegatorsFromCdn = await response.json() as Array<{
       name: string;
       identity: string;
-      publicKey: string;
     }>;
 
     const currentDelegators = await list();
@@ -53,14 +52,14 @@ export async function UpdateDelegatorsFromSource() {
       if (currentDelegatorsMap.has(cdnDelegator.identity)) {
         const currentDelegator = currentDelegatorsMap.get(cdnDelegator.identity)!;
 
-        if (currentDelegator.name === cdnDelegator.name && currentDelegator.publicKey === cdnDelegator.publicKey) {
+        if (currentDelegator.name === cdnDelegator.name && currentDelegator.identity === cdnDelegator.identity) {
           continue;
         }
 
         await db.update(delegatorsTable)
           .set({
             name: cdnDelegator.name,
-            publicKey: cdnDelegator.publicKey,
+            identity: cdnDelegator.identity,
             updatedBy: userIdentity,
           })
           .where(eq(delegatorsTable.identity, cdnDelegator.identity));
@@ -69,7 +68,6 @@ export async function UpdateDelegatorsFromSource() {
           .values({
             name: cdnDelegator.name,
             identity: cdnDelegator.identity,
-            publicKey: cdnDelegator.publicKey,
             createdBy: userIdentity,
             updatedBy: userIdentity,
             enabled: false,

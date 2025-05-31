@@ -13,7 +13,7 @@ import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 const updateSettingsSchema = z.object({
   chainId: z.nativeEnum(ChainId),
-  appIdentity: z.string().uuid().min(1, "App identity is required"),
+  appIdentity: z.string().min(1, "App identity is required"),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email(),

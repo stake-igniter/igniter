@@ -19,7 +19,7 @@ CREATE TABLE "address_groups" (
 CREATE TABLE "application_settings" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "application_settings_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255),
-	"appIdentity" uuid NOT NULL,
+	"appIdentity" varchar(66) NOT NULL,
 	"supportEmail" varchar(255),
 	"ownerIdentity" varchar(255) NOT NULL,
 	"ownerEmail" varchar(255),
@@ -39,15 +39,13 @@ CREATE TABLE "application_settings" (
 CREATE TABLE "delegators" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "delegators_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255) NOT NULL,
-	"identity" varchar(255) NOT NULL,
-	"publicKey" varchar(255) NOT NULL,
+	"identity" varchar(66) NOT NULL,
 	"enabled" boolean NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
 	"createdBy" varchar(255) NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),
 	"updatedBy" varchar(255) NOT NULL,
-	CONSTRAINT "delegators_identity_unique" UNIQUE("identity"),
-	CONSTRAINT "delegators_publicKey_unique" UNIQUE("publicKey")
+	CONSTRAINT "delegators_identity_unique" UNIQUE("identity")
 );
 --> statement-breakpoint
 CREATE TABLE "keys" (

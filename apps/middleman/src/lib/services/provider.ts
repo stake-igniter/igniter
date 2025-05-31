@@ -10,7 +10,7 @@ export async function requestSuppliers(stakeOffer: StakeDistributionOffer, setti
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                provider: stakeOffer.publicKey,
+                provider: stakeOffer.identity,
                 path: "/api/suppliers",
                 data: {
                     region,

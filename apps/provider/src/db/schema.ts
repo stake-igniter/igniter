@@ -9,7 +9,7 @@ import {
   pgTable,
   timestamp,
   varchar,
-  json, uuid,
+  json,
 } from "drizzle-orm/pg-core";
 import {RPCType} from "@/lib/models/supplier";
 import {check} from "drizzle-orm/pg-core/checks";
@@ -84,7 +84,7 @@ export type User = typeof usersTable.$inferSelect;
 export const applicationSettingsTable = pgTable("application_settings", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }),
-  appIdentity: uuid().notNull(),
+  appIdentity: varchar({ length: 66 }).notNull(),
   supportEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),
   ownerEmail: varchar({ length: 255 }),
@@ -161,8 +161,7 @@ export type AddressGroupWithDetails = AddressGroup & {
 export const delegatorsTable = pgTable("delegators", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  identity: varchar({ length: 255 }).notNull().unique(),
-  publicKey: varchar({ length: 255 }).notNull().unique(),
+  identity: varchar({ length: 66 }).notNull().unique(),
   enabled: boolean().notNull(),
   createdAt: timestamp().defaultNow(),
   createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),

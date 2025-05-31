@@ -36,7 +36,7 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      providers: providers.map((provider) => provider.publicKey),
+      providers: providers.map((provider) => provider.identity),
     },
   });
 
@@ -63,27 +63,27 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
             <FormItem>
               {providers.map((item) => (
                 <FormField
-                  key={item.publicKey}
+                  key={item.identity}
                   control={form.control}
                   name="providers"
                   render={({ field }) => {
                     return (
                       <FormItem
-                        key={item.publicKey}
+                        key={item.identity}
                         className="flex flex-row items-start space-x-3 space-y-0"
                       >
                         <FormControl>
                           <Checkbox
-                            checked={field.value?.includes(item.publicKey)}
+                            checked={field.value?.includes(item.identity)}
                             onCheckedChange={(checked) => {
                               return checked
                                 ? field.onChange([
                                     ...field.value,
-                                    item.publicKey,
+                                    item.identity,
                                   ])
                                 : field.onChange(
                                     field.value?.filter(
-                                      (value) => value !== item.publicKey
+                                      (value) => value !== item.identity
                                     )
                                   );
                             }}

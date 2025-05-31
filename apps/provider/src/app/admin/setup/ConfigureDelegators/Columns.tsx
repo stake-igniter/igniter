@@ -53,9 +53,5 @@ export const columns: ColumnDef<Delegator>[] = [
   {
     accessorKey: "identity",
     header: "Identity",
-  },
-  {
-    accessorKey: "publicKey",
-    header: "Public Key",
-  },
+  }
 ];

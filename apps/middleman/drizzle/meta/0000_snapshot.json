@@ -1,5 +1,5 @@
 {
-  "id": "a2584d0c-22d4-4ad2-8ecf-5b26dc184595",
+  "id": "e14dab67-cca4-4947-adda-3a0931f1fe8f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -33,7 +33,7 @@
         },
         "appIdentity": {
           "name": "appIdentity",
-          "type": "uuid",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
@@ -215,7 +215,7 @@
         },
         "providerId": {
           "name": "providerId",
-          "type": "uuid",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -304,12 +304,6 @@
         },
         "identity": {
           "name": "identity",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "publicKey": {
-          "name": "publicKey",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
@@ -453,13 +447,6 @@
           "columns": [
             "identity"
           ]
-        },
-        "providers_publicKey_unique": {
-          "name": "providers_publicKey_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "publicKey"
-          ]
         }
       },
       "policies": {},
@@ -594,7 +581,7 @@
         },
         "providerId": {
           "name": "providerId",
-          "type": "uuid",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
