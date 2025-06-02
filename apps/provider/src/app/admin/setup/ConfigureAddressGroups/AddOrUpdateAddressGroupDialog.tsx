@@ -21,6 +21,7 @@ import {AddressGroup, Service} from "@/db/schema";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@igniter/ui/components/select";
 import {Combobox} from "@/app/admin/setup/ConfigureAddressGroups/Combobox";
 import {getEndpointInterpolatedUrl} from "@/lib/models/supplier";
+import {Checkbox} from "@igniter/ui/components/checkbox";
 
 const CreateOrUpdateAddressGroupSchema = z.object({
   name: z.string()
@@ -36,6 +37,7 @@ const CreateOrUpdateAddressGroupSchema = z.object({
       .regex(/^pokt[a-zA-Z0-9]{39,42}$/, "Must be a valid Cosmos address with 'pokt' prefix")
   ).default([]),
 
+  private: z.boolean().default(false),
 
   domain: z.string()
     .regex(
@@ -98,6 +100,7 @@ export function AddOrUpdateAddressGroupDialog({
       domain: addressGroup?.domain ?? '',
       clients: addressGroup?.clients ?? [],
       services: addressGroup?.services ?? [],
+      private: addressGroup?.private ?? false,
     },
   });
 
@@ -274,6 +277,24 @@ export function AddOrUpdateAddressGroupDialog({
                           />
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="private"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4">
+                        <FormLabel>Mark for internal use</FormLabel>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="border-[var(--slate-dividers)]"
+
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />

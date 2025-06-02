@@ -8,6 +8,7 @@ CREATE TABLE "address_groups" (
 	"region" varchar(255) NOT NULL,
 	"domain" varchar(255),
 	"clients" varchar[] DEFAULT '{}',
+	"private" boolean DEFAULT false NOT NULL,
 	"services" varchar[] DEFAULT '{}',
 	"createdAt" timestamp DEFAULT now(),
 	"createdBy" varchar(255) NOT NULL,
