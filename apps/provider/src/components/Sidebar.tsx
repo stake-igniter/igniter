@@ -26,36 +26,13 @@ export interface AppSidebarProps {}
 const mainRoutes = [
   {
     title: "Overview",
-    url: "/app/overview",
+    url: "/admin/overview",
     icon: OverviewDark,
   },
   {
-    title: "Activity",
-    url: "/app/activity",
+    title: "Addresses",
+    url: "/admin/addresses",
     icon: ActivityDark,
-  },
-  {
-    title: "Nodes",
-    url: "/app/nodes",
-    icon: NodesDark,
-  },
-  {
-    title: "Settings",
-    url: "/app/settings",
-    icon: SettingsDark,
-  },
-];
-
-const footerRoutes = [
-  {
-    title: "Help",
-    url: "/help",
-    icon: HelpDark,
-  },
-  {
-    title: "Contact",
-    url: "/contact",
-    icon: ContactDark,
   },
 ];
 
@@ -82,25 +59,7 @@ export default function Sidebar({}: Readonly<AppSidebarProps>) {
     </SidebarMenuItem>
   ));
 
-  const FooterRoutesMenu = footerRoutes.map((route) => (
-    <SidebarMenuItem
-      key={route.title}
-      className={
-        pathname.includes(route.title.toLowerCase())
-          ? "bg-muted rounded-lg font-medium text-foreground"
-          : ""
-      }
-    >
-      <SidebarMenuButton asChild>
-        <Link href={route.url}>
-          <route.icon />
-          <span>{route.title}</span>
-        </Link>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
-  ));
-
   return (
-    <AppSidebar MainRoutes={MainRoutesMenu} FooterRoutes={FooterRoutesMenu} />
+    <AppSidebar MainRoutes={MainRoutesMenu} FooterRoutes={null} />
   );
 }

@@ -33,6 +33,8 @@ export enum ChainId {
 }
 
 export enum KeyState {
+  // I will probably add this state to later add a workflow to check if the imported keys are available, staked, etc.
+  // Imported = 'imported',
   Available = 'available',
   Delivered = 'delivered',
   Staking = 'staking',
@@ -106,6 +108,7 @@ export type CreateApplicationSettings = typeof applicationSettingsTable.$inferIn
 
 export const keysTable = pgTable("keys", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  // todo: this shouldn't be unique?
   address: varchar({ length: 255 }).notNull(),
   publicKey: varchar({ length: 66 }).notNull(),
   privateKey: encryptedText("privateKey").notNull(),
@@ -124,6 +127,10 @@ export const keysRelations = relations(keysTable, ({ one }) => ({
     fields: [keysTable.addressGroupId],
     references: [addressGroupTable.id],
   }),
+  delegator: one(delegatorsTable, {
+    fields: [keysTable.deliveredTo],
+    references: [delegatorsTable.identity],
+  })
 }));
 
 export type Key = typeof keysTable.$inferSelect;

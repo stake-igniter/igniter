@@ -7,7 +7,7 @@ import {ReviewStep} from "@/app/app/(takeover)/stake/components/ReviewStep";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {StakeSuccessStep} from "@/app/app/(takeover)/stake/components/StakeSuccessStep";
 import {redirect} from "next/navigation";
-import {AbortConfirmationDialog} from '@/app/app/(takeover)/stake/components/AbortConfirmationDialog'
+import {AbortConfirmationDialog} from '@igniter/ui/components/AbortConfirmationDialog'
 import { Transaction } from '@/db/schema'
 import {allStagesSucceeded, getFailedStage} from "@/app/app/(takeover)/stake/utils";
 import {StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";

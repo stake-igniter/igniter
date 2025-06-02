@@ -81,6 +81,10 @@ export async function list(region: string = ''): Promise<AddressGroupWithDetails
   }
 }
 
+export async function simpleList() {
+  return db.query.addressGroupTable.findMany()
+}
+
 export async function remove(id: number): Promise<AddressGroup> {
   const [deletedGroup] = await db
     .delete(addressGroupTable)

@@ -1,19 +1,18 @@
 "use client";
 
-import {Button} from "@igniter/ui/components/button";
+import {Button} from "./button";
 import {
     Dialog,
     DialogContent,
-    DialogFooter, DialogTitle,
-    DialogTrigger,
-} from "@igniter/ui/components/dialog";
-import {CheckSuccess, LoaderIcon} from "@igniter/ui/assets";
+    DialogFooter,
+    DialogTitle,
+} from "./dialog";
 
 
 export interface AbortConfirmationDialogProps {
     isOpen: boolean;
     onResponse: (abort: boolean) => void;
-    type?: 'stake' | 'migration';
+    type?: 'stake' | 'migration' | 'import';
 }
 
 export function AbortConfirmationDialog({ isOpen, onResponse, type = 'stake' }: Readonly<AbortConfirmationDialogProps>) {

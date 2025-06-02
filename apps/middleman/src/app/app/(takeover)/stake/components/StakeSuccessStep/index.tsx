@@ -2,7 +2,7 @@
 
 import {useMemo, useState} from "react";
 import {Button} from "@igniter/ui/components/button";
-import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
+import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
 import { amountToPokt, toCompactFormat, toDateFormat } from '@igniter/ui/lib/utils'
 import {Transaction} from "@/db/schema";
