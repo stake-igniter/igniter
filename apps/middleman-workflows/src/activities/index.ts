@@ -23,7 +23,11 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
     if (!transaction) {
       throw new Error("Transaction not found on the database");
     }
-    return transaction;
+    return {
+      id: transaction.id,
+      hash: transaction.hash,
+      status: transaction.status,
+    };
   },
   async listTransactions() {
       const txs = await transactionDAL.listByStatus(TransactionStatus.Pending);
@@ -112,8 +116,17 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
     }
     return await transactionDAL.updateTransaction(transactionId, payload);
   },
-  async executeTransaction(signedPayload: string) {
-    return blockchainProvider.sendTransaction(signedPayload);
+  async executeTransaction(transactionId: number) {
+    const transaction = await transactionDAL.getTransaction(transactionId);
+    if (!transaction) {
+      throw new Error("Transaction not found");
+    }
+
+    if (!transaction.signedPayload) {
+      throw new Error("Transaction is not signed");
+    }
+
+    return blockchainProvider.sendTransaction(transaction.signedPayload);
   },
   async getBlockHeight() {
     return await blockchainProvider.getHeight();
@@ -134,8 +147,14 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
     }
     return [tx.success, tx.code, tx.gasUsed?.toString() || "0"] as const;
   },
-  async createNewNodesFromTransaction(transaction: Transaction) : Promise<Pick<Node, 'id'>[]> {
+  async createNewNodesFromTransaction(transactionId: number) : Promise<Pick<Node, 'id'>[]> {
     try {
+      const transaction = await transactionDAL.getTransaction(transactionId);
+
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
       const newlyStakedNodes = extractStakedNodes(transaction);
 
       const newNodes: CreateNode[] = newlyStakedNodes.map(({ address, stakeAmount, balance, ownerAddress }) => ({

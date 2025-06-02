@@ -33,17 +33,13 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     throw new Error("Transaction is not pending");
   }
 
-  if (!transaction.signedPayload) {
-    throw new Error("Transaction has no signed payload");
-  }
-
   const txHeight = await getBlockHeight();
 
   let result: SendTransactionResult | null = null;
 
   if (!transaction.hash) {
     result = await executeTransaction(
-      transaction.signedPayload
+      transaction.id,
     );
 
     if (!result.transactionHash) {
@@ -92,7 +88,7 @@ export async function ExecuteTransaction(args: TransactionArgs) {
   });
 
   if (success) {
-    const newNodes = await createNewNodesFromTransaction(transaction);
+    const newNodes = await createNewNodesFromTransaction(transaction.id);
 
     return {
       ...transaction,
