@@ -4,7 +4,7 @@ import type {AddressGroup, CreateAddressGroup, CreateService, Service} from "@/d
 import { insert, list, remove, simpleList, update } from '@/lib/dal/addressGroups'
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
-export async function CreateAddressGroup(addressGroup: CreateAddressGroup) {
+  export async function CreateAddressGroup(addressGroup: Omit<CreateAddressGroup, 'createdBy' | 'updatedBy'>) {
   const identity = await getCurrentUserIdentity();
   return insert({
     ...addressGroup,

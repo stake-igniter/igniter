@@ -1,5 +1,5 @@
 {
-  "id": "7bf593de-a52b-49a7-97d1-136781c7b7c4",
+  "id": "c523cca8-ec56-451d-86f1-4c449a33d99c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -49,6 +49,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": "'{}'"
+        },
+        "private": {
+          "name": "private",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "services": {
           "name": "services",

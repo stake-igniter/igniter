@@ -143,6 +143,7 @@ export const addressGroupTable = pgTable("address_groups", {
   region: varchar({ length: 255 }).notNull(),
   domain: varchar({ length: 255 }),
   clients: varchar().array().default([]),
+  private: boolean().notNull().default(false),
   services: varchar().array().default([]),
   createdAt: timestamp().defaultNow(),
   createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),

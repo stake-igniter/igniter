@@ -153,9 +153,15 @@ importers:
 
   apps/middleman-workflows:
     dependencies:
+      '@cosmjs/crypto':
+        specifier: ^0.33.1
+        version: 0.33.1
+      '@cosmjs/encoding':
+        specifier: ^0.33.1
+        version: 0.33.1
       '@cosmjs/stargate':
-        specifier: 0.33.0
-        version: 0.33.0(bufferutil@4.0.9)
+        specifier: ^0.33.1
+        version: 0.33.1(bufferutil@4.0.9)
       '@pokt-foundation/pocketjs-provider':
         specifier: 2.2.1
         version: 2.2.1
@@ -1281,8 +1287,8 @@ packages:
   '@cosmjs/socket@0.33.1':
     resolution: {integrity: sha512-KzAeorten6Vn20sMiM6NNWfgc7jbyVo4Zmxev1FXa5EaoLCZy48cmT3hJxUJQvJP/lAy8wPGEjZ/u4rmF11x9A==}
 
-  '@cosmjs/stargate@0.33.0':
-    resolution: {integrity: sha512-Ti/2RRl+LKTNUrOqj6TpGnTRcbmQ5zD4Ujx/PDNPHEexyuwbz+tMcF8Y1kKPWQ1g4wWxLYO4tKY4Gm0J3c5hWA==}
+  '@cosmjs/stargate@0.33.1':
+    resolution: {integrity: sha512-CnJ1zpSiaZgkvhk+9aTp5IPmgWn2uo+cNEBN8VuD9sD6BA0V4DMjqe251cNFLiMhkGtiE5I/WXFERbLPww3k8g==}
 
   '@cosmjs/stream@0.33.1':
     resolution: {integrity: sha512-bMUvEENjeQPSTx+YRzVsWT1uFIdHRcf4brsc14SOoRQ/j5rOJM/aHfsf/BmdSAnYbdOQ3CMKj/8nGAQ7xUdn7w==}
@@ -9021,7 +9027,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@cosmjs/stargate@0.33.0(bufferutil@4.0.9)':
+  '@cosmjs/stargate@0.33.1(bufferutil@4.0.9)':
     dependencies:
       '@cosmjs/amino': 0.33.1
       '@cosmjs/encoding': 0.33.1

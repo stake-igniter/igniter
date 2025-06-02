@@ -6,7 +6,7 @@ import {
   AddressGroupWithDetails,
   CreateAddressGroup
 } from "@/db/schema";
-import {eq, sql} from "drizzle-orm";
+import {eq, sql, and} from "drizzle-orm";
 
 export async function getAddressGroups(): Promise<AddressGroup[]> {
   return db.query.addressGroupTable.findMany();
@@ -47,14 +47,9 @@ export async function insert(
   return insertedGroup;
 }
 
-/**
- * Lists address groups with their associated address counts
- * @param region Optional region to filter address groups
- * @returns Promise containing array of address groups with details
- */
-export async function list(region: string = ''): Promise<AddressGroupWithDetails[]> {
+export async function list(region: string = '', priv?: boolean): Promise<AddressGroupWithDetails[]> {
   try {
-    const query = db
+    let baseQuery = db
       .select({
         id: addressGroupTable.id,
         name: addressGroupTable.name,
@@ -62,6 +57,7 @@ export async function list(region: string = ''): Promise<AddressGroupWithDetails
         domain: addressGroupTable.domain,
         clients: addressGroupTable.clients,
         services: addressGroupTable.services,
+        private: addressGroupTable.private,
         createdAt: addressGroupTable.createdAt,
         updatedAt: addressGroupTable.updatedAt,
         createdBy: addressGroupTable.createdBy,
@@ -72,9 +68,21 @@ export async function list(region: string = ''): Promise<AddressGroupWithDetails
       .leftJoin(keysTable, eq(addressGroupTable.id, keysTable.addressGroupId))
       .groupBy(addressGroupTable.id);
 
-    return region
-      ? await query.where(sql`${addressGroupTable.region} = ${region}`).orderBy(addressGroupTable.name)
-      : await query.orderBy(addressGroupTable.name);
+    const conditions = [];
+
+    if (region) {
+      conditions.push(eq(addressGroupTable.region, region));
+    }
+
+    if (priv !== undefined) {
+      conditions.push(eq(addressGroupTable.private, priv));
+    }
+
+    const query = conditions.length > 0
+      ? baseQuery.where(and(...conditions))
+      : baseQuery;
+
+    return await query.orderBy(addressGroupTable.name);
   } catch (error) {
     console.error("Error listing address groups:", error);
     throw new Error("Failed to retrieve address groups");

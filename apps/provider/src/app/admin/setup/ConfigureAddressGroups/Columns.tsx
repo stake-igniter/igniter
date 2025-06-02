@@ -50,4 +50,8 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
       );
     },
   },
+  {
+    accessorKey: "private",
+    header: "Private",
+  },
 ];
