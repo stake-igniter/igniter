@@ -2,7 +2,7 @@
 
 import {useEffect, useMemo, useState} from "react";
 import {Button} from "@igniter/ui/components/button";
-import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
+import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {toCurrencyFormat} from "@igniter/ui/lib/utils";
 import {ProviderOfferItem} from "@/app/app/(takeover)/stake/components/PickOfferStep/ProviderOfferItem";

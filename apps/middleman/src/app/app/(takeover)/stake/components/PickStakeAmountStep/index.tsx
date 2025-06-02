@@ -4,7 +4,7 @@ import {useEffect, useMemo, useState} from "react";
 import {AmountPickerSlider} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep/AmountPickerSlider";
 import {AmountDisplay} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep/AmountDisplay";
 import {Button} from "@igniter/ui/components/button";
-import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
+import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";

@@ -1,7 +1,7 @@
 'use client';
 
 import {Button} from "@igniter/ui/components/button";
-import {ActivityHeader} from "@/app/app/(takeover)/stake/components/ActivityHeader";
+import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import { getShortAddress, toCurrencyFormat } from '@igniter/ui/lib/utils'
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";

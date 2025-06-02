@@ -1,7 +1,7 @@
 "use server";
 
 import type {AddressGroup, CreateAddressGroup, CreateService, Service} from "@/db/schema";
-import {insert, list, remove, update} from "@/lib/dal/addressGroups";
+import { insert, list, remove, simpleList, update } from '@/lib/dal/addressGroups'
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 export async function CreateAddressGroup(addressGroup: CreateAddressGroup) {
@@ -23,6 +23,10 @@ export async function UpdateAddressGroup(id: number, addressGroup: Pick<AddressG
 
 export async function ListAddressGroups() {
   return list();
+}
+
+export async function ListBasicAddressGroups() {
+  return simpleList()
 }
 
 export async function DeleteAddressGroup(id: number) {

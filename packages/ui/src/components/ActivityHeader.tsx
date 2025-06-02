@@ -1,4 +1,4 @@
-import { ArrowBackIcon, XIcon } from "@igniter/ui/assets";
+import { ArrowBackIcon, XIcon } from "../assets";
 
 export interface ActivityHeaderProps {
     onBack?: () => void;

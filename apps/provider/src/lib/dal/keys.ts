@@ -8,6 +8,14 @@ import { CreateKey, keysTable } from "@/db/schema";
  * @returns The inserted keys
  */
 export async function insertMany(keys: CreateKey[]): Promise<CreateKey[]> {
+  const existingKey = await db.query.keysTable.findFirst({
+    where: ((keysTable, {inArray}) => inArray(keysTable.address, keys.map(k => k.address)))
+  })
+
+  if (existingKey) {
+    throw new Error("There are keys that already exists")
+  }
+
   return db.transaction(async (tx) => {
     const insertedKeys = await tx
       .insert(keysTable)
