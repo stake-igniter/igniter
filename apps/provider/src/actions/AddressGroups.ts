@@ -1,24 +1,31 @@
 "use server";
 
-import type {AddressGroup, CreateAddressGroup, CreateService, Service} from "@/db/schema";
+import type {AddressGroup, CreateAddressGroup, AddressGroupService, CreateService, Service} from "@/db/schema";
 import { insert, list, remove, simpleList, update } from '@/lib/dal/addressGroups'
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
-  export async function CreateAddressGroup(addressGroup: Omit<CreateAddressGroup, 'createdBy' | 'updatedBy'>) {
+export async function CreateAddressGroup(addressGroup: Omit<CreateAddressGroup, 'createdBy' | 'updatedBy'>, services: Omit<AddressGroupService, 'addressGroupId'>[]) {
   const identity = await getCurrentUserIdentity();
-  return insert({
-    ...addressGroup,
-    createdBy: identity,
-    updatedBy: identity,
-  });
+  return insert(
+    {
+      ...addressGroup,
+      createdBy: identity,
+      updatedBy: identity,
+    },
+    services,
+  );
 }
 
-export async function UpdateAddressGroup(id: number, addressGroup: Pick<AddressGroup, 'name' | 'clients' | 'region'>) {
+export async function UpdateAddressGroup(id: number, addressGroup: Pick<AddressGroup, 'name' | 'clients' | 'region'>, services: Omit<AddressGroupService, 'addressGroupId'>[]) {
   const identity = await getCurrentUserIdentity();
-  return update(id, {
-    ...addressGroup,
-    updatedBy: identity,
-  });
+  return update(
+    id,
+    {
+      ...addressGroup,
+      updatedBy: identity,
+    },
+    services,
+  );
 }
 
 export async function ListAddressGroups() {

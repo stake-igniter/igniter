@@ -2,6 +2,15 @@ CREATE TYPE "public"."address_states" AS ENUM('available', 'delivered', 'staking
 CREATE TYPE "public"."chain_ids" AS ENUM('pocket', 'pocket-beta', 'pocket-alpha');--> statement-breakpoint
 CREATE TYPE "public"."provider_fee" AS ENUM('up_to', 'fixed');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('admin', 'user', 'owner');--> statement-breakpoint
+CREATE TABLE "address_group_services" (
+	"address_group_id" integer NOT NULL,
+	"service_id" varchar NOT NULL,
+	"addSupplierShare" boolean DEFAULT false NOT NULL,
+	"supplierShare" integer DEFAULT 0,
+	"revShare" json DEFAULT '[]'::json NOT NULL,
+	CONSTRAINT "address_group_services_address_group_id_service_id_pk" PRIMARY KEY("address_group_id","service_id")
+);
+--> statement-breakpoint
 CREATE TABLE "address_groups" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "address_groups_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"name" varchar(255) NOT NULL,
@@ -9,7 +18,6 @@ CREATE TABLE "address_groups" (
 	"domain" varchar(255),
 	"clients" varchar[] DEFAULT '{}',
 	"private" boolean DEFAULT false NOT NULL,
-	"services" varchar[] DEFAULT '{}',
 	"createdAt" timestamp DEFAULT now(),
 	"createdBy" varchar(255) NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),
@@ -88,6 +96,8 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_identity_unique" UNIQUE("identity")
 );
 --> statement-breakpoint
+ALTER TABLE "address_group_services" ADD CONSTRAINT "address_group_services_address_group_id_address_groups_id_fk" FOREIGN KEY ("address_group_id") REFERENCES "public"."address_groups"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "address_group_services" ADD CONSTRAINT "address_group_services_service_id_services_serviceId_fk" FOREIGN KEY ("service_id") REFERENCES "public"."services"("serviceId") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "address_groups" ADD CONSTRAINT "address_groups_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "address_groups" ADD CONSTRAINT "address_groups_updatedBy_users_identity_fk" FOREIGN KEY ("updatedBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "application_settings" ADD CONSTRAINT "application_settings_createdBy_users_identity_fk" FOREIGN KEY ("createdBy") REFERENCES "public"."users"("identity") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

@@ -1,6 +1,6 @@
 import {NextResponse} from "next/server";
 import {getApplicationSettings} from "@/lib/dal/applicationSettings";
-import {getAddressGroups} from "@/lib/dal/addressGroups";
+import {list} from "@/lib/dal/addressGroups";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
 import {AddressGroup, ProviderFee} from "@/db/schema";
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     const applicationSettings = await getApplicationSettings();
-    const addressGroups = await getAddressGroups();
+    const addressGroups = await list('', false);
     const services = await listServices();
 
     const minimumStake = applicationSettings.minimumStake;
