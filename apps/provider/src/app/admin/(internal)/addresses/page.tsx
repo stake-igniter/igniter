@@ -21,6 +21,11 @@ export default async function AddressesPage() {
               Import
             </Button>
           </Link>
+          <Link href={'/admin/addresses/export'}>
+            <Button className={'h-8 w-20'} variant={'outline'}>
+              Export
+            </Button>
+          </Link>
         </div>
         <div className="container mx-auto ">
           <KeysTable initialKeys={keys} initialAddressesGroup={addressesGroup} />

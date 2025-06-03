@@ -29,3 +29,24 @@ export async function insertMany(keys: CreateKey[]): Promise<CreateKey[]> {
     return insertedKeys;
   });
 }
+
+export async function listKeysWithPk() {
+  return db.query.keysTable.findMany({
+    columns: {
+      privateKey: false,
+    },
+    with: {
+      addressGroup: true,
+      delegator: true
+    }
+  })
+}
+
+export async function listPrivateKeysByAddressGroup(addressGroupId: number) {
+  return db.query.keysTable.findMany({
+    columns: {
+      privateKey: true
+    },
+    where: (keysTable, { eq }) => eq(keysTable.addressGroupId, addressGroupId),
+  })
+}

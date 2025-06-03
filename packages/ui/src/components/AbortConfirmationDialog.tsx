@@ -12,7 +12,7 @@ import {
 export interface AbortConfirmationDialogProps {
     isOpen: boolean;
     onResponse: (abort: boolean) => void;
-    type?: 'stake' | 'migration' | 'import';
+    type?: 'stake' | 'migration' | 'import' | 'export';
 }
 
 export function AbortConfirmationDialog({ isOpen, onResponse, type = 'stake' }: Readonly<AbortConfirmationDialogProps>) {
