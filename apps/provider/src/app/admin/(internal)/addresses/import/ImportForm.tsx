@@ -12,6 +12,7 @@ import ImportProcess, { ImportProcessStatus } from '@/app/admin/(internal)/addre
 import { Button } from '@igniter/ui/components/button'
 import { toCurrencyFormat } from '@igniter/ui/lib/utils'
 import { LoaderIcon } from '@igniter/ui/assets'
+import OverrideSidebar from '@igniter/ui/components/OverrideSidebar'
 
 const errorsMap: Record<keyof ImportProcessStatus, string> = {
   validateFile: 'There was an error trying to validate the file. Please try again.',
@@ -180,7 +181,7 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
 
   return (
     <>
-      <div className={'w-[100vw] bg-background absolute top-0 left-[-256px] min-h-[100vh] z-20'}>
+      <OverrideSidebar>
         <div className="flex flex-row justify-center w-full">
           <div
             className="flex flex-col w-[480px] border-x border-b border-[--balck-deviders] bg-[--black-1] p-[33px] rounded-b-[12px] gap-8"
@@ -195,7 +196,7 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
             {content}
           </div>
         </div>
-      </div>
+      </OverrideSidebar>
       <AbortConfirmationDialog
         type={'import'}
         isOpen={isAbortDialogOpen}
