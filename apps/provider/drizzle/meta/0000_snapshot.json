@@ -1,9 +1,90 @@
 {
-  "id": "c523cca8-ec56-451d-86f1-4c449a33d99c",
+  "id": "399e4e20-4d85-4285-b719-cb38786066ad",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.address_group_services": {
+      "name": "address_group_services",
+      "schema": "",
+      "columns": {
+        "address_group_id": {
+          "name": "address_group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "service_id": {
+          "name": "service_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "addSupplierShare": {
+          "name": "addSupplierShare",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "supplierShare": {
+          "name": "supplierShare",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "revShare": {
+          "name": "revShare",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::json"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "address_group_services_address_group_id_address_groups_id_fk": {
+          "name": "address_group_services_address_group_id_address_groups_id_fk",
+          "tableFrom": "address_group_services",
+          "tableTo": "address_groups",
+          "columnsFrom": [
+            "address_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "address_group_services_service_id_services_serviceId_fk": {
+          "name": "address_group_services_service_id_services_serviceId_fk",
+          "tableFrom": "address_group_services",
+          "tableTo": "services",
+          "columnsFrom": [
+            "service_id"
+          ],
+          "columnsTo": [
+            "serviceId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "address_group_services_address_group_id_service_id_pk": {
+          "name": "address_group_services_address_group_id_service_id_pk",
+          "columns": [
+            "address_group_id",
+            "service_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.address_groups": {
       "name": "address_groups",
       "schema": "",
@@ -56,13 +137,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
-        },
-        "services": {
-          "name": "services",
-          "type": "varchar[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{}'"
         },
         "createdAt": {
           "name": "createdAt",

@@ -21,7 +21,7 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
   const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [isAddingAddressGroup, setIsAddingAddressGroup] = useState(false);
   const [isDeletingAddressGroup, setIsDeletingAddressGroup] = useState(false);
-  const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroup | null>(null);
+  const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroupWithDetails | null>(null);
   const [addressGroups, setAddressGroups] = useState<AddressGroupWithDetails[]>([]);
   const [addressGroupToDelete, setAddressGroupToDelete] = useState<AddressGroup | null>(null);
   const [services, setServices] = useState<Service[]>([]);

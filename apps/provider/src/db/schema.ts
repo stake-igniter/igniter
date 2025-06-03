@@ -9,7 +9,7 @@ import {
   pgTable,
   timestamp,
   varchar,
-  json,
+  json, primaryKey, alias,
 } from "drizzle-orm/pg-core";
 import {RPCType} from "@/lib/models/supplier";
 import {check} from "drizzle-orm/pg-core/checks";
@@ -137,49 +137,6 @@ export type Key = typeof keysTable.$inferSelect;
 
 export type CreateKey = typeof keysTable.$inferInsert;
 
-export const addressGroupTable = pgTable("address_groups", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull().unique(),
-  region: varchar({ length: 255 }).notNull(),
-  domain: varchar({ length: 255 }),
-  clients: varchar().array().default([]),
-  private: boolean().notNull().default(false),
-  services: varchar().array().default([]),
-  createdAt: timestamp().defaultNow(),
-  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
-  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
-  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
-});
-
-export const addressGroupRelations = relations(
-  addressGroupTable,
-  ({ many }) => ({
-    addresses: many(keysTable),
-  })
-);
-
-export type AddressGroup = typeof addressGroupTable.$inferSelect;
-
-export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
-
-export type AddressGroupWithDetails = AddressGroup & {
-  keysCount: number;
-}
-
-export const delegatorsTable = pgTable("delegators", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull(),
-  identity: varchar({ length: 66 }).notNull().unique(),
-  enabled: boolean().notNull(),
-  createdAt: timestamp().defaultNow(),
-  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
-  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
-  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
-});
-
-export type Delegator = typeof delegatorsTable.$inferSelect;
-export type CreateDelegator = typeof delegatorsTable.$inferInsert;
-
 export const servicesTable = pgTable("services",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -199,7 +156,7 @@ export const servicesTable = pgTable("services",
   },
   () => {
     return [
-     check(
+      check(
         "check_endpoints_not_empty",
         sql`json_array_length(endpoints) > 0`
       ),
@@ -207,9 +164,99 @@ export const servicesTable = pgTable("services",
   }
 );
 
-
 export type Service = typeof servicesTable.$inferSelect;
 export type CreateService = typeof servicesTable.$inferInsert;
 
+export const servicesRelations = relations(
+  servicesTable,
+  ({ many }) => ({
+    addressGroups: many(addressGroupServicesTable),
+  })
+)
+
+export const addressGroupTable = pgTable("address_groups", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull().unique(),
+  region: varchar({ length: 255 }).notNull(),
+  domain: varchar({ length: 255 }),
+  clients: varchar().array().default([]),
+  private: boolean().notNull().default(false),
+  createdAt: timestamp().defaultNow(),
+  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+});
+
+export type AddressGroup = typeof addressGroupTable.$inferSelect;
+
+export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
+
+export type AddressGroupWithDetails = AddressGroup & {
+  addressGroupServices: AddressGroupService[];
+}
+
+export const addressGroupsRelations = relations(
+  addressGroupTable,
+  ({ many }) => ({
+    addresses: many(keysTable),
+    addressGroupServices: many(addressGroupServicesTable),
+  })
+);
+
+export const addressGroupServicesTable = pgTable(
+  "address_group_services",
+  {
+    addressGroupId: integer("address_group_id")
+      .notNull()
+      .references(() => addressGroupTable.id),
+
+    serviceId: varchar("service_id")
+      .notNull()
+      .references(() => servicesTable.serviceId),
+
+    addSupplierShare: boolean().notNull().default(false),
+
+    supplierShare: integer().default(0),
+
+    revShare: json("revShare")
+      .$type<{ address: string; share: number }[]>()
+      .notNull()
+      .default([]),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.addressGroupId, table.serviceId] }),
+  }),
+);
+
+export type AddressGroupService = typeof addressGroupServicesTable.$inferSelect;
+export type CreateAddressGroupService = typeof addressGroupServicesTable.$inferInsert;
+
+export  const addressGroupServicesRelations = relations(
+  addressGroupServicesTable,
+  ({ one }) => ({
+    addressGroup: one(addressGroupTable, {
+      fields: [addressGroupServicesTable.addressGroupId],
+      references: [addressGroupTable.id],
+    }),
+    service: one(servicesTable, {
+      fields: [addressGroupServicesTable.serviceId],
+      references: [servicesTable.serviceId],
+    })
+  }),
+);
+
+export const delegatorsTable = pgTable("delegators", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+  identity: varchar({ length: 66 }).notNull().unique(),
+  enabled: boolean().notNull(),
+  createdAt: timestamp().defaultNow(),
+  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+});
+
+export type Delegator = typeof delegatorsTable.$inferSelect;
+export type CreateDelegator = typeof delegatorsTable.$inferInsert;
 
 
