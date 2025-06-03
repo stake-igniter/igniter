@@ -15,7 +15,7 @@ export default async function AddressesPage() {
     <div className="flex flex-col gap-10">
       <div className="mx-30 py-10">
         <div className={'flex flex-row items-center gap-4'}>
-          <h1>Addresses</h1>
+          <h1>Keys</h1>
           <Link href={'/admin/addresses/import'}>
             <Button className={'h-8 w-20'} variant={'outline'}>
               Import

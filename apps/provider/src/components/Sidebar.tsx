@@ -30,7 +30,7 @@ const mainRoutes = [
     icon: OverviewDark,
   },
   {
-    title: "Addresses",
+    title: "Keys",
     url: "/admin/addresses",
     icon: ActivityDark,
   },
