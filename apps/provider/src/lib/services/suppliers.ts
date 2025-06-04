@@ -2,8 +2,9 @@ import {getEndpointInterpolatedUrl, Supplier, SupplierStakeRequest} from "@/lib/
 import {list} from "@/lib/dal/addressGroups";
 import {list as listServices} from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
-import {ApplicationSettings, CreateKey} from "@/db/schema";
+import {CreateKey} from "@/db/schema";
 import {insertMany} from "@/lib/dal/keys";
+import {getRevShare} from "@/lib/utils/services";
 
 type KeyDistributionItem = { numberOfKeys: number[] };
 
@@ -65,7 +66,6 @@ function calculateDistribution(
 export async function getSupplierStakeConfigurations(
   stakeDistribution: SupplierStakeRequest,
   requestingDelegator: string,
-  settings: ApplicationSettings,
 ): Promise<Supplier[]> {
   const addressGroups = await list(stakeDistribution.region, false);
   const services = await listServices();
@@ -101,30 +101,29 @@ export async function getSupplierStakeConfigurations(
     suppliers: item.keys.map((key, index) => ({
       operatorAddress: key.address,
       stakeAmount: item.amounts[index]!.toString(),
-      services: item.addressGroup.services?.map(serviceId => {
-        const serviceItem = services.find(s => s.serviceId === serviceId);
+      services: item.addressGroup.addressGroupServices?.map((svcConfigurations) => {
+        const serviceItem = services.find(service => service.serviceId === svcConfigurations.serviceId);
+        const revShare = getRevShare(svcConfigurations, key.address);
+
+        revShare.push({
+          address: stakeDistribution.delegatorAddress,
+          revSharePercentage: stakeDistribution.revSharePercentage,
+        });
+
+        const ownerShare = 100 - revShare.reduce((sum, share) => sum + share.revSharePercentage, 0);
+
         return {
-          serviceId,
+          serviceId: svcConfigurations.serviceId,
           revShare: [
-            // Provider's fee for this service or the default
-            {
-              address: settings.delegatorRewardsAddress,
-              revSharePercentage: serviceItem?.revSharePercentage ?? Number(settings.fee),
-            },
-            // Delegator Fee
-            {
-              address: stakeDistribution.delegatorAddress,
-              revSharePercentage: stakeDistribution.revSharePercentage,
-            },
-            // Owner's share - Takes the rest
+            ...revShare,
             {
               address: stakeDistribution.ownerAddress,
-              revSharePercentage: 100 - stakeDistribution.revSharePercentage - (serviceItem?.revSharePercentage ?? Number(settings.fee)),
+              revSharePercentage: ownerShare,
             }
           ],
           endpoints: serviceItem?.endpoints.map(endpoint => ({
             url: getEndpointInterpolatedUrl(endpoint, {
-              sid: serviceId,
+              sid: serviceItem.serviceId,
               ag: item.addressGroup.name,
               region: item.addressGroup.region,
               domain: item.addressGroup.domain!,
@@ -135,7 +134,7 @@ export async function getSupplierStakeConfigurations(
         }
       }) || [],
     })),
-  }))
+  }));
 
   const newKeys = newSuppliersDistributionWithKeys.reduce((keys, item) => keys.concat(item.keys), [] as CreateKey[]);
 

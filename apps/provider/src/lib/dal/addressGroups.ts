@@ -4,7 +4,7 @@ import {
   addressGroupTable,
   AddressGroupWithDetails,
   CreateAddressGroup,
-  AddressGroupService, addressGroupServicesTable
+  AddressGroupService, addressGroupServicesTable, keysTable
 } from "@/db/schema";
 import {eq, sql, and} from "drizzle-orm";
 
@@ -118,6 +118,17 @@ export async function list(
       updatedAt: true,
       createdBy: true,
       updatedBy: true,
+    },
+    extras: {
+      keysCount: sql<number>`
+          CAST(
+          (
+            SELECT COUNT(*)
+            FROM ${keysTable}
+            WHERE ${keysTable}."address_group_id" = ${addressGroupTable.id}
+          ) AS INTEGER
+          )
+      `.as("keys_count"),
     },
     with: {
       addressGroupServices: {
