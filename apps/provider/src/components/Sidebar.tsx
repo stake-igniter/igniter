@@ -11,8 +11,7 @@ import OverviewDark from "@/app/assets/icons/dark/overview.svg";
 import ActivityDark from "@/app/assets/icons/dark/activity.svg";
 import NodesDark from "@/app/assets/icons/dark/nodes.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";
-import HelpDark from "@/app/assets/icons/dark/help.svg";
-import ContactDark from "@/app/assets/icons/dark/contact.svg";
+import ProvidersDark from "@/app/assets/icons/dark/providers.svg";
 import AppSidebar from "@igniter/ui/components/AppSidebar";
 
 export interface AppSidebarRoute {
@@ -31,9 +30,30 @@ const mainRoutes = [
   },
   {
     title: "Keys",
-    url: "/admin/addresses",
+    url: "/admin/keys",
+    icon: NodesDark,
+  },
+  {
+    title: "Services",
+    url: "/admin/services",
+    icon: ProvidersDark,
+  },
+  {
+    id: "groups",
+    title: "Address Groups",
+    url: "/admin/groups",
     icon: ActivityDark,
   },
+  {
+    title: "Delegators",
+    url: "/admin/delegators",
+    icon: SettingsDark,
+  },
+  {
+    title: "Settings",
+    url: "/admin/settings",
+    icon: SettingsDark,
+  }
 ];
 
 export const dynamic = "force-dynamic";
@@ -45,7 +65,7 @@ export default function Sidebar({}: Readonly<AppSidebarProps>) {
     <SidebarMenuItem
       key={route.title}
       className={
-        pathname.includes(route.title.toLowerCase())
+        pathname.includes((route.id || route.title).toLowerCase())
           ? "bg-muted rounded-lg font-medium text-foreground"
           : ""
       }

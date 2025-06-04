@@ -1,5 +1,5 @@
 import { ListAddressGroups } from '@/actions/AddressGroups'
-import ExportForm from '@/app/admin/(internal)/addresses/export/ExportForm'
+import ExportForm from '@/app/admin/(internal)/keys/export/ExportForm'
 
 export default async function ExportPage() {
   const addressesGroup = await ListAddressGroups()

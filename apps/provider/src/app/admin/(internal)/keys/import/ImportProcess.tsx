@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
-import { isValidPrivateKey, readFile } from '@/app/admin/(internal)/addresses/import/utils'
+import { isValidPrivateKey, readFile } from '@/app/admin/(internal)/keys/import/utils'
 import { ImportKeys } from '@/actions/Keys'
 import {
   Dialog,

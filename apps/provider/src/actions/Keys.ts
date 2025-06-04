@@ -1,6 +1,6 @@
 'use server'
 import { z } from 'zod'
-import { isValidPrivateKey } from '@/app/admin/(internal)/addresses/import/utils'
+import { isValidPrivateKey } from '@/app/admin/(internal)/keys/import/utils'
 import { getCurrentUserIdentity } from '@/lib/utils/actions'
 import { CreateKey, KeyState } from '@/db/schema'
 import { DirectSecp256k1Wallet } from '@cosmjs/proto-signing'

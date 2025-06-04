@@ -133,7 +133,7 @@ export const CreateOrUpdateAddressGroupSchema = z.object({
 });
 
 export interface AddOrUpdateAddressGroupProps {
-  onClose: (shouldRefreshAddressGroups: boolean) => void;
+  onClose?: (shouldRefreshAddressGroups: boolean) => void;
   addressGroup?: AddressGroupWithDetails;
   services: Service[];
 }
@@ -336,7 +336,7 @@ export function AddOrUpdateAddressGroupDialog({
     if (isDirty) {
       setIsCanceling(true);
     } else {
-      onClose(false);
+      onClose?.(false);
     }
   }, [onClose, form]);
 
@@ -387,7 +387,7 @@ export function AddOrUpdateAddressGroupDialog({
       setIsUpdatingAddressGroup(true);
       try {
         await UpdateAddressGroup(addressGroup.id, values, services);
-        onClose(true);
+        onClose?.(true);
       } catch (e) {
         console.error("Failed to update addressGroup", e);
       } finally {
@@ -397,7 +397,7 @@ export function AddOrUpdateAddressGroupDialog({
       setIsCreatingAddressGroup(true);
       try {
         await CreateAddressGroup(values, services);
-        onClose(true);
+        onClose?.(true);
       } catch (e) {
         console.error("Failed to create addressGroup", e);
       } finally {
@@ -644,7 +644,7 @@ export function AddOrUpdateAddressGroupDialog({
               Your changes for this Address Group will be discarded.
             </p>
             <div className="flex gap-4">
-              <Button variant="destructive" onClick={() => onClose(false)}>
+              <Button variant="destructive" onClick={() => onClose?.(false)}>
                 Discard
               </Button>
               <Button variant="outline" onClick={() => setIsCanceling(false)}>

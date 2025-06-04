@@ -1,96 +1,82 @@
 'use client';
 
 import {useEffect, useMemo, useState} from "react";
-import {AddressGroup, AddressGroupWithDetails, Service} from "@/db/schema";
+import {AddressGroup, AddressGroupWithDetails} from "@/db/schema";
 import {DeleteAddressGroup, ListAddressGroups} from "@/actions/AddressGroups";
 import {Button} from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import {DataTable} from "@/components/DataTable";
-import {columns} from "./Columns";
+import DataTable from "@igniter/ui/components/DataTable/index";
+import {columns, sorts} from "./columns";
 import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
-import {LoaderIcon} from "@igniter/ui/assets";
 import {ListServices} from "@/actions/Services";
+import {useQuery} from "@tanstack/react-query";
 
-export interface ConfigureAddressGroupsProp {
-  goNext: () => void;
-  goBack: () => void;
-}
+export default function AddressGroupsTable() {
+  const {data: services, isLoading: isLoadingServices} = useQuery({
+    queryKey: ['services'],
+    queryFn: ListServices,
+    staleTime: Infinity,
+    refetchInterval: 60000,
+    initialData: []
+  });
 
-export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<ConfigureAddressGroupsProp>) {
-  const [isLoadingAddressGroups, setIsLoadingAddressGroups] = useState(false);
-  const [isLoadingServices, setIsLoadingServices] = useState(false);
+  const {data: addressGroups, refetch: fetchAddressGroups, isLoading: isLoadingAddressGroups} = useQuery({
+    queryKey: ['groups'],
+    queryFn: ListAddressGroups,
+    staleTime: Infinity,
+    refetchInterval: 60000,
+    initialData: []
+  });
+
   const [isAddingAddressGroup, setIsAddingAddressGroup] = useState(false);
   const [isDeletingAddressGroup, setIsDeletingAddressGroup] = useState(false);
   const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroupWithDetails | null>(null);
-  const [addressGroups, setAddressGroups] = useState<AddressGroupWithDetails[]>([]);
   const [addressGroupToDelete, setAddressGroupToDelete] = useState<AddressGroup | null>(null);
-  const [services, setServices] = useState<Service[]>([]);
 
   const isLoading = useMemo(() => {
     return isLoadingAddressGroups ||
       isLoadingServices ||
       isDeletingAddressGroup;
-    }, [isLoadingAddressGroups, isLoadingServices, isDeletingAddressGroup]);
+  }, [isLoadingAddressGroups, isLoadingServices, isDeletingAddressGroup]);
 
-  const content = addressGroups.length > 0
-    ? (
-        <DataTable
-          columns={columns}
-          data={addressGroups}
-          searchableFields={["name", "region", "domain"]}
-          actions={
-            <Button
-              onClick={() => setIsAddingAddressGroup(true) }
-            >
-              Add address Group
-            </Button>
-          }
-          itemActions={(addressGroup) => (
-            <div className="flex gap-2">
+  useEffect(() => {
+    fetchAddressGroups();
+  }, []);
+
+  const content = (
+    <DataTable
+      columns={[
+        ...columns,
+        {
+          id: 'actions',
+          header: '',
+          cell: ({ row }) => (
+            <div className="flex gap-2 justify-end">
               <Button
                 disabled={isLoading}
-                variant="secondary"
-                onClick={() => setUpdateAddressGroup(addressGroup)}
+                className="bg-slate-2 border-0"
+                variant={"outline"}
+                onClick={() => setUpdateAddressGroup(row.original)}
               >
                 Update
               </Button>
               <Button
                 disabled={isLoading}
-                variant="destructive"
-                onClick={() => setAddressGroupToDelete(addressGroup)}
+                className="bg-slate-2 border-0"
+                variant={"outline"}
+                onClick={() => setAddressGroupToDelete(row.original)}
               >
                 Delete
               </Button>
             </div>
-          )}
-        />
-      )
-    : (
-        <div className="flex justify-center items-center w-full h-[300px]">
-          {!isLoading && (
-            <Button
-              onClick={() => setIsAddingAddressGroup(true) }
-            >
-              Add your first Address Group
-            </Button>
-          )}
-          {isLoading && (
-            <LoaderIcon className="animate-spin" />
-          )}
-        </div>
-      );
-
-  const fetchAddressGroups = async () => {
-    try {
-      setIsLoadingAddressGroups(true);
-      const addressGroupsList = await ListAddressGroups();
-      setAddressGroups(addressGroupsList);
-    } catch (error) {
-      console.error("Failed to fetch addressGroups:", error);
-    } finally {
-      setIsLoadingAddressGroups(false);
-    }
-  };
+          )
+        }
+      ]}
+      data={addressGroups}
+      filters={[]}
+      sorts={sorts}
+    />
+  );
 
   const confirmDeleteAddressGroup = async () => {
     if (!addressGroupToDelete) return;
@@ -106,23 +92,6 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
       setAddressGroupToDelete(null);
     }
   };
-
-  const fetchServices = async () => {
-    try {
-      setIsLoadingServices(true);
-      const servicesList = await ListServices();
-      setServices(servicesList);
-    } catch (error) {
-      console.error("Failed to fetch services:", error);
-    } finally {
-      setIsLoadingServices(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAddressGroups();
-    fetchServices();
-  }, []);
 
   return (
     <div className='flex flex-col gap-4'>
@@ -154,19 +123,6 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
       )}
       <div className="py-2 max-h-[500px] min-h-[300px] overflow-y-scroll scrollbar-hidden">
         {content}
-      </div>
-      <div className="flex justify-end gap-4">
-        <Button
-          disabled={isLoading}
-          onClick={goBack}>
-          Back
-        </Button>
-        <Button
-          disabled={isLoading || (addressGroups.length === 0)}
-          onClick={goNext}
-          >
-          Next
-        </Button>
       </div>
       {addressGroupToDelete && (
         <ConfirmationDialog
