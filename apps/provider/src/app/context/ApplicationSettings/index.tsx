@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { getApplicationSettings } from "@/actions/ApplicationSettings";
+import { GetApplicationSettings } from "@/actions/ApplicationSettings";
 import {ApplicationSettings} from "@/db/schema";
 
 const ApplicationSettingsContext = createContext<ApplicationSettings | undefined>(undefined);
@@ -22,7 +22,7 @@ export const ApplicationSettingsProvider = ({
 
   useEffect(() => {
     (async () => {
-      const settings = await getApplicationSettings();
+      const settings = await GetApplicationSettings();
       setApplicationSettings(settings);
     })();
   }, []);

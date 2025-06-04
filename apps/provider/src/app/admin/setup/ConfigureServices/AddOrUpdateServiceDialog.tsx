@@ -28,7 +28,7 @@ import {InfoIcon, LoaderIcon} from "@igniter/ui/assets";
 import urlJoin from "url-join";
 import {CreateService, UpdateService} from "@/actions/Services";
 import {ApplicationSettings, Service} from "@/db/schema";
-import {getApplicationSettings} from "@/actions/ApplicationSettings";
+import {GetApplicationSettings} from "@/actions/ApplicationSettings";
 import {Region} from "@/lib/models/commons";
 
 interface ServiceOnChain {
@@ -87,7 +87,7 @@ export function AddOrUpdateServiceDialog({
 
   useEffect(() => {
     (async () => {
-      const settings = await getApplicationSettings();
+      const settings = await GetApplicationSettings();
       setSettings(settings);
     })();
   }, []);
@@ -296,30 +296,6 @@ export function AddOrUpdateServiceDialog({
                           </div>
                         </div>
                       </div>
-                      <FormField
-                        name="revSharePercentage"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col gap-2">
-                            <FormLabel>Revenue Share Percentage</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder={settings?.fee ?? ''}
-                                min={0}
-                                max={100}
-                                {...field}
-                                value={field.value === null ? "" : field.value}
-                                onChange={(e) => field.onChange(e.target.value === "" ? null : Number(e.target.value))}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                            <FormDescription>
-                              The RevShare exclusively charged for this service. Defaults to the service fee.
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
                     </>
                   )}
                 </div>
@@ -404,7 +380,7 @@ export function AddOrUpdateServiceDialog({
                                       ag: 'rm-01', // Hard coded address group for help
                                       region: Region.AFRICA_SOUTH, // Hard coded region for help
                                       sid: serviceId,
-                                      domain: settings?.domain ?? 'example.com',
+                                      domain: 'example.com',
                                     })
                                   })
                                 }

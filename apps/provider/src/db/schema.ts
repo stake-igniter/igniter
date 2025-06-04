@@ -3,13 +3,13 @@ import {relations, sql} from "drizzle-orm";
 import {
   boolean,
   customType,
-  decimal,
   integer,
   pgEnum,
   pgTable,
   timestamp,
   varchar,
-  json, primaryKey, alias,
+  json,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import {RPCType} from "@/lib/models/supplier";
 import {check} from "drizzle-orm/pg-core/checks";
@@ -90,9 +90,6 @@ export const applicationSettingsTable = pgTable("application_settings", {
   supportEmail: varchar({ length: 255 }),
   ownerIdentity: varchar({ length: 255 }).notNull(),
   ownerEmail: varchar({ length: 255 }),
-  fee: decimal({ precision: 5, scale: 2 }).notNull(),
-  domain: varchar({length: 255}).notNull(),
-  delegatorRewardsAddress: varchar({ length: 255 }).notNull(),
   chainId: chainIdEnum().notNull(),
   minimumStake: integer().notNull(),
   isBootstrapped: boolean().notNull(),

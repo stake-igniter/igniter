@@ -1,25 +1,26 @@
 "use client";
 import { Button } from "@igniter/ui/components/button";
 import { Progress } from "@igniter/ui/components/progress";
-import { CheckIcon } from "@igniter/ui/assets";
+import {CheckIcon, LoaderIcon} from "@igniter/ui/assets";
 import { defineStepper } from "@stepperize/react";
-import React from "react";
+import React, {useEffect} from "react";
 import { cn } from "@igniter/ui/lib/utils";
 import { ApplicationSettings } from "@/db/schema";
-import { completeSetup } from "@/actions/ApplicationSettings";
+import { completeSetup, GetApplicationSettings } from "@/actions/ApplicationSettings";
 import ConfigureAppSettings from "./ConfigureAppSettings";
 import ConfigureAddressGroup from "./ConfigureAddressGroups";
 import ConfigureServices from "@/app/admin/setup/ConfigureServices";
 import ConfigureDelegators from "@/app/admin/setup/ConfigureDelegators";
-
-interface StepperProps {
-  settings: Partial<ApplicationSettings>;
-}
+import ConfigureBlockChain from "@/app/admin/setup/ConfigureBlockChain";
 
 const { useStepper, steps, utils } = defineStepper(
   {
-    id: "application-settings",
-    title: "General Settings",
+    id: "blockchain",
+    title: "Blockchain Settings",
+  },
+  {
+    id: "identity-settings",
+    title: "Identity Settings",
   },
   {
     id: "services",
@@ -43,10 +44,33 @@ const BootstrapCompleteComponent = () => {
   return <h3 className="text-lg py-4">System Bootstrap complete!</h3>;
 };
 
-export const Stepper: React.FC<StepperProps> = ({ settings }) => {
+export const Stepper: React.FC = () => {
+  const [isLoadingSettings, setIsLoadingSettings] = React.useState(true);
+  const [hasError, setHasError] = React.useState(false);
+  const [settings, setSettings] = React.useState<ApplicationSettings>();
+
   const stepper = useStepper();
 
   const currentIndex = utils.getIndex(stepper.current.id);
+
+  const updateSettingsFromDb = async () => {
+    setHasError(false);
+    setSettings(undefined);
+    try {
+      setIsLoadingSettings(true);
+      const dbSettings = await GetApplicationSettings();
+      setSettings(dbSettings as ApplicationSettings);
+    } catch (error) {
+      console.error("Something went wrong while retrieving the current applications settings", error);
+      setHasError(true);
+    } finally {
+      setIsLoadingSettings(false);
+    }
+  };
+
+  useEffect(() => {
+    updateSettingsFromDb();
+  }, [currentIndex]);
 
   return (
     <>
@@ -132,11 +156,31 @@ export const Stepper: React.FC<StepperProps> = ({ settings }) => {
         </div>
 
         <div className="space-y-5">
-          {stepper.switch({
-            "application-settings": () => (
-              <ConfigureAppSettings
-                defaultValues={settings}
+          {isLoadingSettings && (
+            <div className="flex justify-center items-center h-fit">
+              <LoaderIcon className="animate-spin" />
+            </div>
+          )}
+          {hasError && (
+            <div className="flex justify-center items-center h-fit">
+              <p>Something went wrong while retrieving the current applications settings</p>
+              <Button>
+                Try again
+              </Button>
+            </div>
+          )}
+          {!isLoadingSettings && !hasError && stepper.switch({
+            blockchain: () => (
+              <ConfigureBlockChain
+                defaultValues={settings!}
                 goNext={stepper.next}
+              />
+            ),
+            "identity-settings": () => (
+              <ConfigureAppSettings
+                defaultValues={settings!}
+                goNext={stepper.next}
+                goBack={stepper.prev}
               />
             ),
             services: () => (
