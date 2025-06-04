@@ -1,5 +1,5 @@
 {
-  "id": "e14dab67-cca4-4947-adda-3a0931f1fe8f",
+  "id": "0d6e8ccc-7304-4345-88a2-9c41f954860a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -361,13 +361,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'unknown'"
-        },
-        "delegatorRewardsAddress": {
-          "name": "delegatorRewardsAddress",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "''"
         },
         "minimumStake": {
           "name": "minimumStake",
