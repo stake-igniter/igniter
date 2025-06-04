@@ -1,6 +1,6 @@
 'use client'
-import { ActivityHeader } from '@/app/app/(takeover)/stake/components/ActivityHeader'
-import { ActivityContentLoading } from '@/app/app/(takeover)/stake/components/ActivityContentLoading'
+import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
+import {ActivityContentLoading} from '@/app/app/(takeover)/stake/components/ActivityContentLoading'
 
 export default function Loading() {
   return (

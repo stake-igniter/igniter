@@ -167,7 +167,7 @@ export default function ImportProcess({file, addressGroupId, onImportCompleted}:
   return (
     <Dialog open={open} onOpenChange={handleOpenChanged}>
       <DialogTrigger asChild>
-        <Button>Stake Keys</Button>
+        <Button>Import Keys</Button>
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(event) => event.preventDefault()}
