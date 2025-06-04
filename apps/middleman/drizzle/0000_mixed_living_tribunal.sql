@@ -50,7 +50,6 @@ CREATE TABLE "providers" (
 	"domains" text[] DEFAULT '{}',
 	"regions" text[] DEFAULT '{}',
 	"status" "provider_status" DEFAULT 'unknown' NOT NULL,
-	"delegatorRewardsAddress" varchar(255) DEFAULT '',
 	"minimumStake" integer DEFAULT 0 NOT NULL,
 	"operationalFunds" integer DEFAULT 5 NOT NULL,
 	"createdAt" timestamp DEFAULT now(),
