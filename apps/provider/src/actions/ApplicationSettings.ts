@@ -6,49 +6,45 @@ import {
   insertApplicationSettings,
   updateApplicationSettings,
 } from "@/lib/dal/applicationSettings";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
-const updateSettingsSchema = z.object({
-  chainId: z.nativeEnum(ChainId),
-  name: z.string().min(1, "Name is required"),
-  appIdentity: z.string().min(1, "App identity is required"),
+const UpdateSettingsSchema = z.object({
+  name: z.string().optional(),
+  appIdentity: z.string().min(1, "App identity is required").optional(),
   supportEmail: z.string().email().optional(),
-  domain: z.string()
-    .regex(
-      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+.*)$/,
-      "Invalid domain format. Ensure it's a valid domain name."
-    ).min(1, "Domain is required"),
-  fee: z.number()
-    .min(1, "Provider fee must be greater than 0")
-    .max(100).transform((value) => value.toString()),
-  delegatorRewardsAddress: z.string().refine(
-    (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
-    (val) => ({ message: `${val} is not a valid address` })
-  ),
-  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
-  minimumStake: z.number().min(15000, "Minimum stake is required").default(15000),
+  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required").optional(),
+  minimumStake: z.number().optional(),
 });
 
-export async function getApplicationSettings() {
+const CreateSettingsSchema = z.object({
+  minimumStake: z.number().min(1),
+  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
+  appIdentity: z.string().min(1, "App identity is required"),
+  chainId: z.nativeEnum(ChainId),
+})
+
+export async function GetApplicationSettings() {
   return await fetchApplicationSettings();
 }
 
-export async function upsertSettings(
+function ValidateWithSchema(schema: z.ZodSchema<any>, data: Partial<ApplicationSettings>) {
+  const validation = schema.safeParse(data);
+
+  if (!validation.success) {
+    throw new Error(validation.error.message);
+  }
+
+  return validation;
+}
+
+export async function UpsertApplicationSettings(
   values: Partial<ApplicationSettings>,
   isUpdate: boolean
 ) {
   const userIdentity = await getCurrentUserIdentity();
-
-  const validatedFields = updateSettingsSchema.safeParse(values);
-
-  if (!validatedFields.success) {
-    console.error(validatedFields.error);
-    throw new Error("Invalid form data");
-  }
-
+  const validatedFields = ValidateWithSchema(isUpdate ? UpdateSettingsSchema : CreateSettingsSchema, values);
   if (isUpdate) {
     await updateApplicationSettings({
       ...validatedFields.data,
@@ -61,8 +57,6 @@ export async function upsertSettings(
       updatedBy: userIdentity,
     });
   }
-
-  await revalidatePath("/admin/setup");
 }
 
 export async function completeSetup() {

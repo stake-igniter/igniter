@@ -4,7 +4,7 @@ import type {CreateService, Service} from "@/db/schema";
 import {insert, list, remove, update} from "@/lib/dal/services";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
-export async function CreateService(service: CreateService) {
+export async function CreateService(service: Omit<CreateService, 'createdBy' | 'updatedBy'>) {
   const userIdentity = await getCurrentUserIdentity();
   return insert({
     ...service,

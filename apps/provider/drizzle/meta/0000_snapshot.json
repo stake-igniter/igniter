@@ -1,5 +1,5 @@
 {
-  "id": "399e4e20-4d85-4285-b719-cb38786066ad",
+  "id": "a7b97219-f79d-4fc4-9429-edeef9b4e45f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -258,24 +258,6 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
-        },
-        "fee": {
-          "name": "fee",
-          "type": "numeric(5, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "delegatorRewardsAddress": {
-          "name": "delegatorRewardsAddress",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
         },
         "chainId": {
           "name": "chainId",

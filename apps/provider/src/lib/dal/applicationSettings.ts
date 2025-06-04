@@ -8,27 +8,22 @@ import {
 import { eq } from "drizzle-orm";
 import {getCompressedPublicKeyFromAppIdentity} from "@/lib/crypto";
 
-const defaultSettings: ApplicationSettings = {
+const defaultSettings: Partial<ApplicationSettings> = {
   id: 0,
   name: "",
   appIdentity: "",
   supportEmail: "",
   ownerIdentity: "",
   ownerEmail: "",
-  fee: "0",
-  domain: "",
-  delegatorRewardsAddress: "",
   rpcUrl: "",
   isBootstrapped: false,
-  chainId: ChainId.Pocket,
-  minimumStake: 15000,
   createdBy: "",
   updatedBy: "",
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
-export async function getApplicationSettings(): Promise<ApplicationSettings> {
+export async function getApplicationSettings(): Promise<Partial<ApplicationSettings>> {
   const dbSettings = await getApplicationSettingsFromDatabase();
   const appIdentity = await getCompressedPublicKeyFromAppIdentity();
 
@@ -74,11 +69,9 @@ export async function updateApplicationSettings(
   settings: Partial<ApplicationSettings>
 ): Promise<ApplicationSettings> {
   const existingSettings = await getApplicationSettingsFromDatabase();
-
   if (!existingSettings?.id) {
     throw new Error("No existing settings found to update");
   }
-
   const updatedSettings = await db
     .update(applicationSettingsTable)
     .set(settings)
