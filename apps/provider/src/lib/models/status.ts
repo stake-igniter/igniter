@@ -10,6 +10,4 @@ export interface StatusResponse {
   domains: string[];
   regions: string[];
   healthy: boolean;
-  delegatorRewardsAddress: string;
-
 }

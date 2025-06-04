@@ -8,7 +8,7 @@ import {
 import { eq } from "drizzle-orm";
 import {getCompressedPublicKeyFromAppIdentity} from "@/lib/crypto";
 
-const defaultSettings: Partial<ApplicationSettings> = {
+const defaultSettings: ApplicationSettings = {
   id: 0,
   name: "",
   appIdentity: "",
@@ -16,6 +16,8 @@ const defaultSettings: Partial<ApplicationSettings> = {
   ownerIdentity: "",
   ownerEmail: "",
   rpcUrl: "",
+  chainId: ChainId.Pocket,
+  minimumStake: 0,
   isBootstrapped: false,
   createdBy: "",
   updatedBy: "",
@@ -23,7 +25,7 @@ const defaultSettings: Partial<ApplicationSettings> = {
   updatedAt: new Date(),
 };
 
-export async function getApplicationSettings(): Promise<Partial<ApplicationSettings>> {
+export async function getApplicationSettings(): Promise<ApplicationSettings> {
   const dbSettings = await getApplicationSettingsFromDatabase();
   const appIdentity = await getCompressedPublicKeyFromAppIdentity();
 

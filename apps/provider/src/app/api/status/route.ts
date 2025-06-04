@@ -5,6 +5,7 @@ import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/u
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
 import {AddressGroup, ProviderFee} from "@/db/schema";
 import {list as listServices} from "@/lib/dal/services";
+import {getRevShare} from "@/lib/utils/services";
 
 function getUniqueRegions(addressGroups: AddressGroup[]) {
   return Array.from(new Set(addressGroups.map((group) => group.region)).values());
@@ -33,19 +34,23 @@ export async function POST(request: Request) {
 
     const applicationSettings = await getApplicationSettings();
     const addressGroups = await list('', false);
-    const services = await listServices();
 
     const minimumStake = applicationSettings.minimumStake;
 
-    const fees = services.map((service) => service.revSharePercentage || Number(applicationSettings.fee));
-
+    const fees = addressGroups.reduce((allFees, group) => {
+      const groupFees =
+        group.addressGroupServices.map((service) =>
+          getRevShare(service, '').map((share) => share.revSharePercentage)
+        );
+      return [...allFees, ...groupFees.flat()];
+    }, [] as number[]);
+    
     const response: StatusResponse = {
       minimumStake: minimumStake,
       fee: Math.max(...fees).toString(),
       feeType: Array.from(new Set(fees)).length === 1 ? ProviderFee.Fixed : ProviderFee.UpTo,
       regions: getUniqueRegions(addressGroups),
       domains: getUniqueDomains(addressGroups),
-      delegatorRewardsAddress: applicationSettings.delegatorRewardsAddress,
       healthy: true,
     };
 

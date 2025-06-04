@@ -189,6 +189,7 @@ export type AddressGroup = typeof addressGroupTable.$inferSelect;
 export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
 
 export type AddressGroupWithDetails = AddressGroup & {
+  keysCount: number;
   addressGroupServices: AddressGroupService[];
 }
 

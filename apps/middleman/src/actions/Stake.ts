@@ -27,7 +27,7 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
   return providers.map(provider => {
     let distribution: StakeDistributionItem[] = [];
 
-    if (provider.enabled && provider.delegatorRewardsAddress && provider.operationalFunds && provider.minimumStake) {
+    if (provider.enabled && provider.operationalFunds && provider.minimumStake) {
       const allowedSizes = availableNodeSizes.filter(amount => amount >= provider.minimumStake);
 
       let remaining = stakeAmount;
