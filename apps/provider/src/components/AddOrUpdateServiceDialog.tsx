@@ -54,7 +54,7 @@ const CreateServiceFormSchema = z.object({
 });
 
 export interface AddServiceDialogProps {
-  onClose: (shouldRefreshServices: boolean) => void;
+  onClose?: (shouldRefreshServices: boolean) => void;
   service?: Pick<Service, 'serviceId' | 'name' | 'endpoints' | 'revSharePercentage'>;
 }
 
@@ -104,7 +104,7 @@ export function AddOrUpdateServiceDialog({
     if (serviceOnChain) {
       setIsCanceling(true);
     } else {
-      onClose(false);
+      onClose?.(false);
     }
   }, [serviceOnChain, setIsCanceling, onClose]);
 
@@ -195,7 +195,7 @@ export function AddOrUpdateServiceDialog({
           revSharePercentage: values.revSharePercentage,
           endpoints: values.endpoints.slice(),
         });
-        onClose(true);
+        onClose?.(true);
       } catch (e) {
         console.error("Failed to update service", e);
       } finally {
@@ -212,7 +212,7 @@ export function AddOrUpdateServiceDialog({
           revSharePercentage: values.revSharePercentage,
           endpoints: values.endpoints.slice(),
         });
-        onClose(true);
+        onClose?.(true);
       } catch (e) {
         console.error("Failed to create service", e);
       } finally {
@@ -423,7 +423,7 @@ export function AddOrUpdateServiceDialog({
               Your changes for this service will be discarded.
             </p>
             <div className="flex gap-4">
-              <Button variant="destructive" onClick={() => onClose(false)}>
+              <Button variant="destructive" onClick={() => onClose?.(false)}>
                 Discard
               </Button>
               <Button variant="outline" onClick={() => setIsCanceling(false)}>

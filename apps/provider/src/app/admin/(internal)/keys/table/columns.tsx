@@ -98,7 +98,6 @@ export const columns: Array<ColumnDef<Key>> = [
 ]
 
 export function getFilters(addressesGroup: Awaited<ReturnType<typeof ListBasicAddressGroups>>): Array<FilterGroup<Key>> {
-
  return [
    {
      group: "state",

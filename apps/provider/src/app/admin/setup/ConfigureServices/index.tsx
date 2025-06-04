@@ -7,7 +7,7 @@ import {Button} from "@igniter/ui/components/button";
 import {DataTable} from "@/components/DataTable";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {columns} from "./Columns";
-import {AddOrUpdateServiceDialog} from "./AddOrUpdateServiceDialog";
+import {AddOrUpdateServiceDialog} from "@/components/AddOrUpdateServiceDialog";
 import {LoaderIcon} from "@igniter/ui/assets";
 
 export interface ConfigureServicesProp {

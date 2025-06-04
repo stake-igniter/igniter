@@ -8,7 +8,7 @@ import React, { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@igniter/ui/components/select'
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from '@igniter/ui/components/dropzone'
 import { CloudUploadIcon, FileWarning } from 'lucide-react'
-import ImportProcess, { ImportProcessStatus } from '@/app/admin/(internal)/addresses/import/ImportProcess'
+import ImportProcess, { ImportProcessStatus } from '@/app/admin/(internal)/keys/import/ImportProcess'
 import { Button } from '@igniter/ui/components/button'
 import { toCurrencyFormat } from '@igniter/ui/lib/utils'
 import { LoaderIcon } from '@igniter/ui/assets'
@@ -167,7 +167,7 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
           className="w-full h-[40px]"
           onClick={() => {
             setIsRedirecting(true)
-            router.push('/admin/addresses')
+            router.push('/admin/keys')
           }}
         >
           {isRedirecting && (
