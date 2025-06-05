@@ -1,16 +1,15 @@
 'use server'
-import { z } from 'zod'
-import { isValidPrivateKey } from '@/app/admin/(internal)/keys/import/utils'
-import { getCurrentUserIdentity } from '@/lib/utils/actions'
-import { CreateKey, KeyState } from '@/db/schema'
-import { DirectSecp256k1Wallet } from '@cosmjs/proto-signing'
-import { insertMany, listKeysWithPk, listPrivateKeysByAddressGroup } from '@/lib/dal/keys'
-import { GetApplicationSettings } from '@/actions/ApplicationSettings'
+import {z} from 'zod'
+import {isValidPrivateKey} from '@/app/admin/(internal)/keys/import/utils'
+import {getCurrentUserIdentity} from '@/lib/utils/actions'
+import {CreateKey, KeyState} from '@/db/schema'
+import {DirectSecp256k1Wallet} from '@cosmjs/proto-signing'
+import {countPrivateKeysByAddressGroup, insertMany, listKeysWithPk, listPrivateKeysByAddressGroup} from '@/lib/dal/keys'
+import {GetApplicationSettings} from '@/actions/ApplicationSettings'
 
 export async function ListKeys() {
   await validateUserSignedInIsTheOwner()
-
-  return await listKeysWithPk()
+  return listKeysWithPk()
 }
 
 const KeysSchema = z.array(z.string().refine(isValidPrivateKey))
@@ -44,10 +43,14 @@ export async function ImportKeys(keys: string[], addressGroupId: number) {
   await insertMany(keysToInsert)
 }
 
-export async function ExportKeys(addressGroupId: number) {
-  await validateUserSignedInIsTheOwner()
+export async function GetKeysByAddressGroupAndState(addressGroupId: number, keyState?: KeyState) {
+  await validateUserSignedInIsTheOwner();
+  return listPrivateKeysByAddressGroup(addressGroupId, keyState);
+}
 
-  return await listPrivateKeysByAddressGroup(addressGroupId)
+export async function CountKeysByAddressGroupAndState(addressGroupId: number, keyState?: KeyState) {
+  await validateUserSignedInIsTheOwner();
+  return countPrivateKeysByAddressGroup(addressGroupId, keyState);
 }
 
 export async function validateUserSignedInIsTheOwner() {

@@ -3,6 +3,7 @@ import { KeyState } from '@/db/schema'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
 import Address from '@igniter/ui/components/Address'
 import { ListBasicAddressGroups } from '@/actions/AddressGroups'
+import {KeyStateLabels} from "@/app/admin/(internal)/keys/constants";
 
 export interface Key {
   id: number
@@ -16,16 +17,6 @@ export interface Key {
     name: string
   } | null
   createdAt: Date
-}
-
-const labelByState: Record<KeyState, string> = {
-  [KeyState.Available]: 'Available',
-  [KeyState.Delivered]: 'Delivered',
-  [KeyState.Staking]: 'Staking',
-  [KeyState.Staked]: 'Staked',
-  [KeyState.StakeFailed]: 'Stake Failed',
-  [KeyState.Unstaking]: 'Unstaking',
-  [KeyState.Unstaked]: 'Unstaked',
 }
 
 export const columns: Array<ColumnDef<Key>> = [
@@ -65,7 +56,7 @@ export const columns: Array<ColumnDef<Key>> = [
       const status = row.getValue("state") as KeyState;
       return (
         <span className="flex justify-center gap-2">
-          {labelByState[status] || status}
+          {KeyStateLabels[status] || status}
         </span>
       );
     },
@@ -105,7 +96,7 @@ export function getFilters(addressesGroup: Awaited<ReturnType<typeof ListBasicAd
        [{label: "All Keys", value: "", column: "state", isDefault: true}],
 
        (Object.values(KeyState).map((state) => ({
-         label: labelByState[state],
+         label: KeyStateLabels[state],
          value: state,
          column: "state"
        })))

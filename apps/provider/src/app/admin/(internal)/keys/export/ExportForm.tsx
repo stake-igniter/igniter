@@ -1,39 +1,34 @@
 'use client'
-import { ListAddressGroups } from '@/actions/AddressGroups'
-import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@igniter/ui/components/select'
+import {ListAddressGroups} from '@/actions/AddressGroups'
+import {useRouter} from 'next/navigation'
+import React, {useEffect, useState} from 'react'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@igniter/ui/components/select'
 import OverrideSidebar from '@igniter/ui/components/OverrideSidebar'
-import { ActivityHeader } from '@igniter/ui/components/ActivityHeader'
-import { AbortConfirmationDialog } from '@igniter/ui/components/AbortConfirmationDialog'
-import { Button } from '@igniter/ui/components/button'
-import { LoaderIcon } from '@igniter/ui/assets'
-import { toCurrencyFormat } from '@igniter/ui/lib/utils'
-import { ExportKeys } from '@/actions/Keys'
+import {ActivityHeader} from '@igniter/ui/components/ActivityHeader'
+import {AbortConfirmationDialog} from '@igniter/ui/components/AbortConfirmationDialog'
+import {Button} from '@igniter/ui/components/button'
+import {LoaderIcon} from '@igniter/ui/assets'
+import {toCurrencyFormat} from '@igniter/ui/lib/utils'
+import {CountKeysByAddressGroupAndState, GetKeysByAddressGroupAndState} from '@/actions/Keys'
+import {KeyStateLabels} from "@/app/admin/(internal)/keys/constants";
+import {KeyState} from "@/db/schema";
 
 const exportToJson = (jsonData: object, name: string) => {
-  // Convert the data to a JSON string with proper formatting
   const jsonString = JSON.stringify(jsonData, null, 2);
 
-  // Create a blob with the JSON data
-  const blob = new Blob([jsonString], { type: 'application/json' });
+  const blob = new Blob([jsonString], {type: 'application/json'});
 
-  // Create a URL for the blob
   const url = window.URL.createObjectURL(blob);
 
-  // Create a temporary anchor element
   const link = document.createElement('a');
   link.href = url;
 
-  // Set the file name
   link.download = name;
 
-  // Append to body, click and remove
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 
-  // Clean up the URL
   window.URL.revokeObjectURL(url);
 };
 
@@ -48,15 +43,35 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
   const [isAbortDialogOpen, setAbortDialogOpen] = useState(false)
   const [status, setStatus] = useState<'form' | 'success' | 'loading' | 'error'>('form')
   const [addressGroup, setAddressGroup] = useState<string>('')
+  const [keyState, setKeyState] = useState<KeyState | undefined>()
   const [keysExported, setKeysExported] = useState(0)
+  const [totalKeysCount, setTotalKeysCount] = useState<number | null>(null);
+  const [isLoadingKeyCount, setIsLoadingKeyCount] = useState(false);
+
+  const fetchTotalKeysCount = async (groupId: string, keyState?: KeyState) => {
+    if (!groupId) return;
+
+    setIsLoadingKeyCount(true);
+    try {
+      const count = await CountKeysByAddressGroupAndState(Number(groupId), keyState);
+      setTotalKeysCount(count);
+    } catch (error) {
+      console.error("Failed to fetch keys count:", error);
+      setTotalKeysCount(null);
+    } finally {
+      setIsLoadingKeyCount(false);
+    }
+  };
 
   const exportKeys = async () => {
-    if (!addressGroup || status === 'loading') return;
+    if (!addressGroup || !keyState || status === 'loading') return;
 
     setStatus('loading')
     try {
-      const privateKeys = await ExportKeys(Number(addressGroup))
+      const privateKeys = await GetKeysByAddressGroupAndState(Number(addressGroup), keyState);
+
       const filename = `${addressesGroup.find((a) => a.id === parseInt(addressGroup))?.name}-keys-at-${new Date().toISOString().replace(/[:.]/g, '_')}.json`;
+
       exportToJson(
         privateKeys.map(({privateKey}) => ({
           hex: privateKey
@@ -70,6 +85,14 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
     }
   }
 
+  useEffect(() => {
+    if (addressGroup) {
+      fetchTotalKeysCount(addressGroup, keyState);
+    } else {
+      setTotalKeysCount(null);
+    }
+  }, [addressGroup, keyState]);
+
   let content: React.ReactNode;
 
   if (status === 'form' || status === 'loading') {
@@ -77,7 +100,7 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
       <>
         <Select value={addressGroup} onValueChange={setAddressGroup}>
           <SelectTrigger className={'w-full'}>
-            <SelectValue placeholder={'Select an address group'} />
+            <SelectValue placeholder={'Select an address group'}/>
           </SelectTrigger>
           <SelectContent>
             {addressesGroup.map((addressGroup) => (
@@ -87,15 +110,69 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
             ))}
           </SelectContent>
         </Select>
+
+        <Select
+          disabled={!addressGroup}
+          value={keyState}
+          onValueChange={(value) => setKeyState(value as KeyState)}
+        >
+          <SelectTrigger className={'w-full'}>
+            <SelectValue placeholder={'Select a key state'}/>
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(KeyStateLabels).map(([value, label]) => (
+              <SelectItem value={value} key={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {addressGroup && (
+          <div className="p-4 rounded-md bg-[var(--color-slate-2)]">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-[var(--color-white-3)]">Name</span>
+                <span className="text-sm">
+          {addressesGroup.find(group => group.id.toString() === addressGroup)?.name}
+        </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-[var(--color-white-3)]">Visibility</span>
+                <span className="text-sm">
+          {addressesGroup.find(group => group.id.toString() === addressGroup)?.private ? 'Private' : 'Public'}
+                </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-[var(--color-white-3)]">Keys to Export:</span>
+                    <span className="text-sm">
+              {isLoadingKeyCount ? (
+                <div className="flex items-center justify-center px-4">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
+                </div>
+              ) : totalKeysCount !== null ? (
+                totalKeysCount
+              ) : (
+                "Failed to load"
+              )}
+            </span>
+                  </div>
+
+            </div>
+          </div>
+        )}
+
         <p>
-          The keys of this address group will be exported as a json file like this:
+          Example output:
           <br/>
-          {'[{ hex: "<pk1>" },{ hex: "<pk2>" },...,{ hex: "<pkN>" }]'}.
+          <div className="p-4 rounded-md bg-[var(--color-slate-2)] mt-2">
+            <pre className="whitespace-pre-wrap">{JSON.stringify([{ hex: '<pk1>' },{ hex: '<pk2>' }], null, 2)}</pre>
+          </div>
         </p>
         <Button
           className="w-full h-[40px]"
           onClick={exportKeys}
-          disabled={status === 'loading' || !addressGroup}
+          disabled={status === 'loading' || !addressGroup || !totalKeysCount || totalKeysCount <= 0}
         >
           {status === 'loading' && (
             <LoaderIcon className="animate-spin"/>
@@ -110,7 +187,8 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
         <div
           className={'relative flex h-[64px] mt-[-5px] gradient-border-green'}
         >
-          <div className={`absolute inset-0 flex flex-row items-center bg-[var(--background)] rounded-[8px] p-[18px_25px] justify-between`}>
+          <div
+            className={`absolute inset-0 flex flex-row items-center bg-[var(--background)] rounded-[8px] p-[18px_25px] justify-between`}>
           <span className="text-[20px] text-[var(--color-white-3)]">
             Keys Exported
           </span>
@@ -134,7 +212,7 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
           className="w-full h-[40px]"
           onClick={() => {
             setIsRedirecting(true)
-            router.push('/admin/addresses')
+            router.push('/admin/keys')
           }}
         >
           {isRedirecting && (
@@ -150,7 +228,8 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
         <div
           className={'relative flex h-[64px] mt-[-5px] gradient-border-red'}
         >
-          <div className={`absolute inset-0 flex flex-row items-center bg-[var(--background)] rounded-[8px] p-[18px_25px] justify-between`}>
+          <div
+            className={`absolute inset-0 flex flex-row items-center bg-[var(--background)] rounded-[8px] p-[18px_25px] justify-between`}>
           <span className="text-[20px] text-[var(--color-white-3)]">
             Oops! Something went wrong.
           </span>
@@ -158,6 +237,7 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
         </div>
 
         <Button
+          disabled={!totalKeysCount || totalKeysCount <= 0}
           className="w-full h-[40px]"
           onClick={exportKeys}
         >
