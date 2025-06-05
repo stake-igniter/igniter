@@ -1,9 +1,10 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import {AddressGroupWithDetails, Service} from "@/db/schema";
+import {AddressGroupWithDetails} from "@/db/schema";
 import {Region, RegionDisplay} from "@/lib/models/commons";
-import {SortOption} from "@igniter/ui/components/DataTable/index";
+import {FilterGroup, SortOption} from "@igniter/ui/components/DataTable/index";
+
 
 export const columns: ColumnDef<AddressGroupWithDetails>[] = [
   {
@@ -31,7 +32,7 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
     header: "Services",
     cell: ({ row }) => {
       const addressGroupServices = row.getValue("addressGroupServices") as AddressGroupWithDetails["addressGroupServices"];
-      const services  = addressGroupServices.map((as) => as.serviceId);
+      const services  = addressGroupServices.map((as) => as.service.name);
 
       if (!services || services.length === 0) {
         return "-";
@@ -39,11 +40,16 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
 
       return (
         <div className="flex gap-2">
-          {services.map((service) => (
-            <div key={service} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full cursor-pointer">
+          {services.slice(0, 3).map((service) => (
+            <div key={service} className="bg-blue-100 text-blue-800 text-xs p-1 rounded-[4px] cursor-pointer">
               {service}
             </div>
           ))}
+          {services.length > 3 && (
+            <span className="py-1 rounded-full">
+              + {services.length - 3}
+            </span>
+          )}
         </div>
       );
     },
@@ -79,7 +85,7 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
   },
 ];
 
-export const sorts: Array<Array<SortOptioddddddddddddddddddddddn<AddressGroupWithDetails>>> = [
+export const sorts: Array<Array<SortOption<AddressGroupWithDetails>>> = [
   [
     {
       label: "Most Recent",
@@ -89,3 +95,17 @@ export const sorts: Array<Array<SortOptioddddddddddddddddddddddn<AddressGroupWit
     },
   ],
 ]
+
+export const filters: Array<FilterGroup<AddressGroupWithDetails>> = [
+  {
+    group: "visibility",
+    items: [
+      [{label: "All", value: "", column: "private", isDefault: true}],
+      [
+        {label: "Private", value: true, column: "private"},
+        {label: "Public", value: false, column: "private"}
+      ],
+    ]
+  },
+];
+

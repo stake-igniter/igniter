@@ -40,6 +40,8 @@ import { Combobox } from "@/app/admin/setup/ConfigureAddressGroups/Combobox";
 import { getEndpointInterpolatedUrl } from "@/lib/models/supplier";
 import {Switch} from "@igniter/ui/components/switch";
 import {Label} from "@igniter/ui/components/label";
+import {useQuery} from "@tanstack/react-query";
+import {ListServices} from "@/actions/Services";
 
 const poktAddressRegex = /^pokt[a-zA-Z0-9]{39,42}$/;
 
@@ -135,9 +137,7 @@ export const CreateOrUpdateAddressGroupSchema = z.object({
 export interface AddOrUpdateAddressGroupProps {
   onClose?: (shouldRefreshAddressGroups: boolean) => void;
   addressGroup?: AddressGroupWithDetails;
-  services: Service[];
 }
-
 
 export interface ServiceItemProps {
   service: Service;
@@ -302,8 +302,14 @@ const ServiceItem = ({
 export function AddOrUpdateAddressGroupDialog({
                                                 onClose,
                                                 addressGroup,
-                                                services,
                                               }: Readonly<AddOrUpdateAddressGroupProps>) {
+  const {data: services, isLoading: isLoadingServices} = useQuery({
+    queryKey: ['services'],
+    queryFn: ListServices,
+    refetchInterval: 60000,
+    initialData: []
+  });
+
   const [isCancelling, setIsCanceling] = useState(false);
   const [isCreatingAddressGroup, setIsCreatingAddressGroup] = useState(false);
   const [isUpdatingAddressGroup, setIsUpdatingAddressGroup] = useState(false);
@@ -424,203 +430,211 @@ export function AddOrUpdateAddressGroupDialog({
         </DialogTitle>
         <div className="h-[1px] bg-[var(--slate-dividers)]" />
 
-        <div className="px-4 py-3 min-h-[570px]">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
-              <div className="grid grid-cols-24 gap-1">
-                <div className="col-span-10 flex flex-col gap-4 px-2">
-                  {/* Name */}
-                  <FormField
-                    name="name"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+        {!isLoadingServices && (
+          <div className="px-4 py-3 min-h-[570px]">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+                <div className="grid grid-cols-24 gap-1">
+                  <div className="col-span-10 flex flex-col gap-4 px-2">
+                    {/* Name */}
+                    <FormField
+                      name="name"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Name</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    name="region"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Region</FormLabel>
-                        <FormControl>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Region" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="us-east">US East</SelectItem>
-                              <SelectItem value="us-west">US West</SelectItem>
-                              <SelectItem value="canada">Canada</SelectItem>
-                              <SelectItem value="latam">Latin America</SelectItem>
-                              <SelectItem value="europe-west">Europe West</SelectItem>
-                              <SelectItem value="europe-north">Europe North</SelectItem>
-                              <SelectItem value="middle-east">Middle East</SelectItem>
-                              <SelectItem value="africa-south">Africa South</SelectItem>
-                              <SelectItem value="asia-east">Asia East</SelectItem>
-                              <SelectItem value="asia-southeast">
-                                Asia Southeast
-                              </SelectItem>
-                              <SelectItem value="asia-south">Asia South</SelectItem>
-                              <SelectItem value="australia">Australia</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      name="region"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Region</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Region" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="us-east">US East</SelectItem>
+                                <SelectItem value="us-west">US West</SelectItem>
+                                <SelectItem value="canada">Canada</SelectItem>
+                                <SelectItem value="latam">Latin America</SelectItem>
+                                <SelectItem value="europe-west">Europe West</SelectItem>
+                                <SelectItem value="europe-north">Europe North</SelectItem>
+                                <SelectItem value="middle-east">Middle East</SelectItem>
+                                <SelectItem value="africa-south">Africa South</SelectItem>
+                                <SelectItem value="asia-east">Asia East</SelectItem>
+                                <SelectItem value="asia-southeast">
+                                  Asia Southeast
+                                </SelectItem>
+                                <SelectItem value="asia-south">Asia South</SelectItem>
+                                <SelectItem value="australia">Australia</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    name="domain"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Domain</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      name="domain"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Domain</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    name="services"
-                    control={form.control}
-                    render={() => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Assign services</FormLabel>
-                        <FormControl>
-                          <Combobox
-                            items={selectableServices}
-                            placeholder="Select service"
-                            searchPlaceholder="Search services"
-                            emptyMessage="No services found"
-                            onSelect={handleAddService}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      name="services"
+                      control={form.control}
+                      render={() => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Assign services</FormLabel>
+                          <FormControl>
+                            <Combobox
+                              items={selectableServices}
+                              placeholder="Select service"
+                              searchPlaceholder="Search services"
+                              emptyMessage="No services found"
+                              onSelect={handleAddService}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="private"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4">
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="border-[var(--slate-dividers)]"
-                          />
-                        </FormControl>
-                        <FormLabel>Internal use only</FormLabel>
-                      </FormItem>
+                    <FormField
+                      control={form.control}
+                      name="private"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4">
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className="border-[var(--slate-dividers)]"
+                            />
+                          </FormControl>
+                          <FormLabel>Internal use only</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="col-span-14 flex flex-col gap-4 px-2 !max-h-[550px] overflow-y-auto">
+                    {servicesOnForm.length > 0 ? (
+                      <div className="space-y-4">
+                        {servicesOnForm.map(({ serviceId, addSupplierShare, supplierShare, revShare }) => {
+                          const service = services.find(
+                            (s) => s.serviceId === serviceId
+                          );
+                          if (!service) return null;
+                          return (
+                            <ServiceItem
+                              key={serviceId}
+                              service={service}
+                              ag={name}
+                              region={region}
+                              domain={domain}
+                              revShare={revShare}
+                              addSupplierShare={addSupplierShare}
+                              supplierShare={supplierShare}
+                              onRemove={() => handleRemoveService(serviceId)}
+                              onAddSupplierShareChange={(
+                                newAddSupplierShare: boolean
+                              ) => {
+                                const current = form.getValues(
+                                  "services"
+                                ) as AddressGroupService[];
+                                form.setValue(
+                                  "services",
+                                  current.map((entry) =>
+                                    entry.serviceId === serviceId
+                                      ? {
+                                        ...entry,
+                                        supplierShare: newAddSupplierShare ? (entry.supplierShare ?? 1) : null,
+                                        addSupplierShare: newAddSupplierShare,
+                                      }
+                                      : entry
+                                  )
+                                );
+                              }}
+                              onSupplierShareChange={(
+                                newSupplierShare: number
+                              ) => {
+                                const current = form.getValues(
+                                  "services"
+                                ) as AddressGroupService[];
+                                form.setValue(
+                                  "services",
+                                  current.map((entry) =>
+                                    entry.serviceId === serviceId
+                                      ? {
+                                        ...entry,
+                                        supplierShare: newSupplierShare,
+                                      }
+                                      : entry
+                                  )
+                                );
+                              }}
+                              onRevShareChange={(
+                                newRevShareArray: { address: string; share: number }[]
+                              ) => {
+                                const current = form.getValues(
+                                  "services"
+                                ) as AddressGroupService[];
+                                form.setValue(
+                                  "services",
+                                  current.map((entry) =>
+                                    entry.serviceId === serviceId
+                                      ? {
+                                        ...entry,
+                                        revShare: newRevShareArray,
+                                      }
+                                      : entry
+                                  )
+                                );
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="text-muted-foreground text-sm text-center">
+                        No services assigned
+                      </div>
                     )}
-                  />
+                  </div>
                 </div>
+              </form>
+            </Form>
+          </div>
+        )}
 
-                <div className="col-span-14 flex flex-col gap-4 px-2 !max-h-[550px] overflow-y-auto">
-                  {servicesOnForm.length > 0 ? (
-                    <div className="space-y-4">
-                      {servicesOnForm.map(({ serviceId, addSupplierShare, supplierShare, revShare }) => {
-                        const service = services.find(
-                          (s) => s.serviceId === serviceId
-                        );
-                        if (!service) return null;
-                        return (
-                          <ServiceItem
-                            key={serviceId}
-                            service={service}
-                            ag={name}
-                            region={region}
-                            domain={domain}
-                            revShare={revShare}
-                            addSupplierShare={addSupplierShare}
-                            supplierShare={supplierShare}
-                            onRemove={() => handleRemoveService(serviceId)}
-                            onAddSupplierShareChange={(
-                              newAddSupplierShare: boolean
-                            ) => {
-                              const current = form.getValues(
-                                "services"
-                              ) as AddressGroupService[];
-                              form.setValue(
-                                "services",
-                                current.map((entry) =>
-                                  entry.serviceId === serviceId
-                                    ? {
-                                      ...entry,
-                                      supplierShare: newAddSupplierShare ? (entry.supplierShare ?? 1) : null,
-                                      addSupplierShare: newAddSupplierShare,
-                                    }
-                                    : entry
-                                )
-                              );
-                            }}
-                            onSupplierShareChange={(
-                              newSupplierShare: number
-                            ) => {
-                              const current = form.getValues(
-                                "services"
-                              ) as AddressGroupService[];
-                              form.setValue(
-                                "services",
-                                current.map((entry) =>
-                                  entry.serviceId === serviceId
-                                    ? {
-                                      ...entry,
-                                      supplierShare: newSupplierShare,
-                                    }
-                                    : entry
-                                )
-                              );
-                            }}
-                            onRevShareChange={(
-                              newRevShareArray: { address: string; share: number }[]
-                            ) => {
-                              const current = form.getValues(
-                                "services"
-                              ) as AddressGroupService[];
-                              form.setValue(
-                                "services",
-                                current.map((entry) =>
-                                  entry.serviceId === serviceId
-                                    ? {
-                                      ...entry,
-                                      revShare: newRevShareArray,
-                                    }
-                                    : entry
-                                )
-                              );
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-muted-foreground text-sm text-center">
-                      No services assigned
-                    </div>
-                  )}
-                </div>
-              </div>
-            </form>
-          </Form>
-        </div>
+        {isLoadingServices && (
+          <div className="flex justify-center items-center">
+            <LoaderIcon clasName="animate-spin" />
+          </div>
+        )}
 
         <div className="h-[1px] bg-[var(--slate-dividers)]" />
         <DialogFooter className="p-2 flex flex-row ">
