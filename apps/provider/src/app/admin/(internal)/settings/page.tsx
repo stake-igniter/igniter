@@ -13,6 +13,11 @@ export default function SettingsPage() {
       <div className="mx-30 py-10">
         <div className={'flex flex-row items-center gap-4'}>
           <h1>Settings</h1>
+          <Button
+            variant={"outline"}
+          >
+            Reload Parameters
+          </Button>
         </div>
         <div className="container mx-auto ">
          Coming Soon

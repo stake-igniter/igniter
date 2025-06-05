@@ -79,7 +79,7 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
   },
 ];
 
-export const sorts: Array<Array<SortOption<AddressGroupWithDetails>>> = [
+export const sorts: Array<Array<SortOptioddddddddddddddddddddddn<AddressGroupWithDetails>>> = [
   [
     {
       label: "Most Recent",
