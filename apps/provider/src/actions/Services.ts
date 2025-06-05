@@ -21,6 +21,11 @@ export async function UpdateService(id: string, service: Pick<Service, 'revShare
   });
 }
 
+export async function GetByServiceId(id: string) {
+  const [service] = await list([id]);
+  return service;
+}
+
 export async function ListServices() {
   return list();
 }

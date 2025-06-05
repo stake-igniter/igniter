@@ -203,7 +203,7 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
         onResponse={(abort) => {
           setAbortDialogOpen(false);
           if (abort) {
-            router.push('/admin/addresses')
+            router.push('/admin/keys')
           }
         }}
       />

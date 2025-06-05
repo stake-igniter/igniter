@@ -8,7 +8,6 @@ import {getShortAddress} from "@igniter/ui/lib/utils";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,7 +25,7 @@ import {
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {InfoIcon, LoaderIcon} from "@igniter/ui/assets";
 import urlJoin from "url-join";
-import {CreateService, UpdateService} from "@/actions/Services";
+import {CreateService, UpdateService, GetByServiceId} from "@/actions/Services";
 import {ApplicationSettings, Service} from "@/db/schema";
 import {GetApplicationSettings} from "@/actions/ApplicationSettings";
 import {Region} from "@/lib/models/commons";
@@ -84,13 +83,7 @@ export function AddOrUpdateServiceDialog({
   const [isCreatingService, setIsCreatingService] = useState(false);
   const [isUpdatingService, setIsUpdatingService] = useState(false);
   const [settings, setSettings] = useState<ApplicationSettings>();
-
-  useEffect(() => {
-    (async () => {
-      const settings = await GetApplicationSettings();
-      setSettings(settings);
-    })();
-  }, []);
+  const [serviceExists, setServiceExists] = useState(false);
 
   const SERVICE_BY_ID_URL = useMemo(() => {
     if (settings?.rpcUrl) {
@@ -99,6 +92,65 @@ export function AddOrUpdateServiceDialog({
 
     return '';
   }, [settings?.rpcUrl]);
+
+  const checkLocalService = useCallback(async (serviceId: string) => {
+    setIsLoadingService(true);
+    try {
+      const existingService = await GetByServiceId(serviceId);
+      if (existingService) {
+        setServiceExists(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error checking local service:", error);
+      return false;
+    } finally {
+      setIsLoadingService(false);
+    }
+  }, []);
+
+  const fetchService = useCallback(async (serviceId: string) => {
+    if (!serviceId) return;
+    setIsLoadingService(true);
+
+    try {
+      const response = await fetch(
+        SERVICE_BY_ID_URL.replace("{service-id}", serviceId)
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch service");
+      }
+
+      const data = await response.json() as ServiceResponse;
+
+      return {
+        serviceId: data.service.id,
+        name: data.service.name,
+        ownerAddress: data.service.owner_address,
+        computeUnits: parseInt(data.service.compute_units_per_relay),
+      };
+    } catch (error) {
+      console.error("Error fetching service:", error);
+      setHasLoadServiceError(true);
+    } finally {
+      setIsLoadingService(false);
+    }
+  }, [SERVICE_BY_ID_URL, checkLocalService]);
+
+  const focusServiceIdInput = useCallback(() => {
+    if (serviceIdInputRef.current) {
+      serviceIdInputRef.current.focus();
+    }
+  }, [serviceIdInputRef.current]);
+
+  useEffect(() => {
+    (async () => {
+      const settings = await GetApplicationSettings();
+      setSettings(settings);
+    })();
+  }, []);
 
   const handleCancel = useCallback(() => {
     if (serviceOnChain) {
@@ -120,47 +172,33 @@ export function AddOrUpdateServiceDialog({
   const serviceId = form.watch('serviceId');
 
   useEffect(() => {
+    setServiceExists(false);
+    setHasLoadServiceError(false);
+  }, [serviceId]);
+
+  useEffect(() => {
     // TODO: change to use react-query
     const fetchServiceData = async () => {
       if (SERVICE_BY_ID_URL && serviceId && serviceId.length > 0) {
-        setIsLoadingService(true);
         try {
+          const exists = await checkLocalService(serviceId);
+
+          if (exists) {
+            return;
+          }
+          const service = await fetchService(serviceId);
+          setServiceOnChain(service);
           const url = SERVICE_BY_ID_URL.replace('{service-id}', serviceId.toLowerCase().trim());
           const response = await fetch(url);
-
-          if (response.ok) {
-            const data = await response.json() as ServiceResponse;
-
-            setServiceOnChain({
-              serviceId: data.service.id,
-              name: data.service.name,
-              ownerAddress: data.service.owner_address,
-              computeUnits: parseInt(data.service.compute_units_per_relay, 10)
-            });
-            setHasLoadServiceError(false);
-          } else {
-            setServiceOnChain(null);
-            setHasLoadServiceError(false);
-          }
         } catch (error) {
-          console.error('Error fetching service:', error);
           setServiceOnChain(null);
-          setHasLoadServiceError(true);
         } finally {
-          setIsLoadingService(false);
           focusServiceIdInput();
         }
       } else {
         setServiceOnChain(null);
       }
     };
-
-    const focusServiceIdInput = () => {
-      requestAnimationFrame(() => {
-        serviceIdInputRef.current?.focus();
-      });
-    };
-
 
     const debounceTimer = setTimeout(() => {
       fetchServiceData();
@@ -266,8 +304,8 @@ export function AddOrUpdateServiceDialog({
                     )}
                   />
 
-                  {!serviceOnChain && !hasLoadServiceError && (
-                    <div className="flex justify-center items-center bg-[var(--color-slate-3)] p-3 rounded-md">
+                  {!serviceOnChain && !hasLoadServiceError && !serviceExists && (
+                    <div className="flex justify-center items-center p-3 rounded-md">
                       Specify the service on-chain ID before you can continue
                     </div>
                   )}
@@ -275,6 +313,12 @@ export function AddOrUpdateServiceDialog({
                   {!serviceOnChain && hasLoadServiceError && (
                     <div className="flex justify-center items-center bg-[var(--color-slate-3)] p-3 rounded-md">
                       There was an error loading the service. Does it exist?
+                    </div>
+                  )}
+
+                  {serviceExists && (
+                    <div className="flex justify-center items-center bg-[var(--color-slate-3)] p-3 rounded-md">
+                      This service ID is already registered in your local database. You can edit it from the Services list.
                     </div>
                   )}
 
