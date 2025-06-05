@@ -1,5 +1,5 @@
 {
-  "id": "4fcb415e-8bb4-40bd-9175-bb9ce0ddcfdf",
+  "id": "91331765-0bf4-40e2-9fd0-091cdb1c244b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -283,6 +283,12 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
+        },
+        "updatedAtHeight": {
+          "name": "updatedAtHeight",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         },
         "createdAt": {
           "name": "createdAt",

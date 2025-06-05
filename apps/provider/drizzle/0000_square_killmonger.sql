@@ -36,6 +36,7 @@ CREATE TABLE "application_settings" (
 	"minimumStake" integer NOT NULL,
 	"isBootstrapped" boolean NOT NULL,
 	"rpcUrl" varchar NOT NULL,
+	"updatedAtHeight" varchar,
 	"createdAt" timestamp DEFAULT now(),
 	"createdBy" varchar(255) NOT NULL,
 	"updatedAt" timestamp DEFAULT now(),

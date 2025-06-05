@@ -1,20 +1,21 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {useForm, useWatch} from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@igniter/ui/components/button";
 import {
   Form,
-  FormControl, FormDescription,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@igniter/ui/components/form";
 import { Input } from "@igniter/ui/components/input";
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import { UpsertApplicationSettings } from "@/actions/ApplicationSettings";
-import {ApplicationSettings, ChainId} from "@/db/schema";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {RetrieveBlockchainSettings, UpsertApplicationSettings} from "@/actions/ApplicationSettings";
+import { ApplicationSettings, ChainId } from "@/db/schema";
 import urlJoin from "url-join";
 
 interface FormProps {
@@ -28,6 +29,7 @@ export const FormSchema = z.object({
   chainId: z.nativeEnum(ChainId),
   rpcUrl: RpcUrlSchema,
   appIdentity: z.string().min(1, "App Identity is Required"),
+  updatedAtHeight: z.string().nullable(),
   minimumStake: z.coerce.number(),
 });
 
@@ -36,12 +38,14 @@ type FormValues = z.infer<typeof FormSchema>;
 const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingBlockchainParams, setIsLoadingBlockchainParams] = useState(false);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       rpcUrl: defaultValues?.rpcUrl || "",
       minimumStake: defaultValues?.minimumStake,
       chainId: defaultValues?.chainId,
+      updatedAtHeight: defaultValues?.updatedAtHeight ?? null,
       appIdentity: defaultValues?.appIdentity || "",
     },
   });
@@ -84,7 +88,6 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
   const retrieveBlockchainParams = async () => {
     const url = form.getValues().rpcUrl;
-
     const validatedUrl = RpcUrlSchema.safeParse(url);
 
     if (!validatedUrl.success) {
@@ -98,30 +101,24 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
     try {
       setIsLoadingBlockchainParams(true);
 
-      const supplierParamsUrl = urlJoin(validatedUrl.data, "pokt-network/poktroll/supplier/params");
-      const supplierParamsResponse = await fetch(supplierParamsUrl);
+      const updatedAtHeight = form.getValues().updatedAtHeight;
 
-      if (!supplierParamsResponse.ok) {
-        throw new Error("Failed to fetch supplier params");
+      const response = await RetrieveBlockchainSettings(validatedUrl.data, updatedAtHeight);
+
+      if (!response.success && response.errors) {
+        const [error] = response.errors;
+        form.setError('rpcUrl', {
+          type: 'manual',
+          message: error,
+        });
+        return;
+      } else if (response.network && response.height && response.minStake) {
+        form.setValue("chainId", response.network as ChainId);
+        form.setValue("minimumStake", response.minStake);
+        form.setValue("updatedAtHeight", response.height);
       }
-
-      const supplierParams = await supplierParamsResponse.json();
-      const minStake = parseFloat(supplierParams.params.min_stake.amount) / 1e6;
-
-      const nodeInfoUrl = urlJoin(validatedUrl.data, "cosmos/base/tendermint/v1beta1/node_info");
-      const nodeInfoResponse = await fetch(nodeInfoUrl);
-
-      if (!nodeInfoResponse.ok) {
-        throw new Error("Failed to fetch node info");
-      }
-
-      const nodeInfo = await nodeInfoResponse.json();
-      const network = nodeInfo.default_node_info.network;
-
-      form.setValue('chainId', network);
-      form.setValue('minimumStake', minStake);
     } catch (err) {
-      const {message} = err as Error;
+      const { message } = err as Error;
       console.error("Failed to fetch blockchain params", err);
       form.setError('rpcUrl', {
         type: 'manual',
@@ -130,7 +127,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
     } finally {
       setIsLoadingBlockchainParams(false);
     }
-  }
+  };
 
   const submit = async (values: FormValues) => {
     setIsLoading(true);
@@ -147,11 +144,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
   return (
     <div className="flex flex-col justify-between gap-4">
       <Form {...form}>
-        <form
-          ref={formRef}
-          onSubmit={form.handleSubmit(submit)}
-          className="grid gap-4"
-        >
+        <form ref={formRef} onSubmit={form.handleSubmit(submit)} className="grid gap-4">
           <div className="grid grid-cols-2 gap-4">
             <FormField
               name="appIdentity"
@@ -160,10 +153,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                 <FormItem>
                   <FormLabel>App Identity</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                    />
+                    <Input {...field} disabled={true} />
                   </FormControl>
                   <FormMessage />
                   <FormDescription>
@@ -180,11 +170,11 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                 <FormItem>
                   <FormLabel>Shannon API Url</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isLoadingBlockchainParams}
-                    />
+                    <Input {...field} disabled={isLoadingBlockchainParams} />
                   </FormControl>
+                  <FormDescription>
+                    The RPC will determine the chainID and minimum stake. The chainID can not be changed later.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -198,10 +188,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                 <FormItem>
                   <FormLabel>Network</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                    />
+                    <Input {...field} disabled={true} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -214,10 +201,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                 <FormItem>
                   <FormLabel>Network Minimum Stake</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                    />
+                    <Input {...field} disabled={true} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -228,11 +212,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
       </Form>
 
       <div className="flex justify-end">
-        <Button
-          type="button"
-          onClick={handleGoNext}
-          disabled={isLoading}
-        >
+        <Button type="button" onClick={handleGoNext} disabled={isLoading}>
           {isLoading ? "Loading..." : "Next"}
         </Button>
       </div>

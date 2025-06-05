@@ -21,6 +21,7 @@ const defaultSettings: ApplicationSettings = {
   isBootstrapped: false,
   createdBy: "",
   updatedBy: "",
+  updatedAtHeight: "",
   createdAt: new Date(),
   updatedAt: new Date(),
 };
