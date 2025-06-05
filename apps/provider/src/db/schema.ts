@@ -94,6 +94,7 @@ export const applicationSettingsTable = pgTable("application_settings", {
   minimumStake: integer().notNull(),
   isBootstrapped: boolean().notNull(),
   rpcUrl: varchar().notNull(),
+  updatedAtHeight: varchar(),
   createdAt: timestamp().defaultNow(),
   createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
   updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
