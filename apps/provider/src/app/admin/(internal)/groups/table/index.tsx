@@ -6,7 +6,7 @@ import {DeleteAddressGroup, ListAddressGroups} from "@/actions/AddressGroups";
 import {Button} from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import DataTable from "@igniter/ui/components/DataTable/index";
-import {columns, sorts} from "./columns";
+import {columns, filters, sorts} from "./columns";
 import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
 import {ListServices} from "@/actions/Services";
 import {useQuery} from "@tanstack/react-query";
@@ -73,7 +73,7 @@ export default function AddressGroupsTable() {
         }
       ]}
       data={addressGroups}
-      filters={[]}
+      filters={filters}
       sorts={sorts}
     />
   );
@@ -97,7 +97,6 @@ export default function AddressGroupsTable() {
     <div className='flex flex-col gap-4'>
       {isAddingAddressGroup && (
         <AddOrUpdateAddressGroupDialog
-          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setIsAddingAddressGroup(false);
 
@@ -110,7 +109,6 @@ export default function AddressGroupsTable() {
 
       {updateAddressGroup && (
         <AddOrUpdateAddressGroupDialog
-          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setUpdateAddressGroup(null);
 

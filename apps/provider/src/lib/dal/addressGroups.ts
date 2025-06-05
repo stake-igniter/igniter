@@ -133,7 +133,11 @@ export async function list(
     with: {
       addressGroupServices: {
         with: {
-          service: true,
+          service: {
+            columns: {
+              name: true,
+            }
+          }
         },
         limit: 8,
       },

@@ -10,20 +10,11 @@ import {ListServices} from "@/actions/Services";
 export default function GroupsPage() {
   const queryClient = useQueryClient();
 
-  const {data: services, isLoading: isLoadingServices} = useQuery({
-    queryKey: ['services'],
-    queryFn: ListServices,
-    staleTime: Infinity,
-    refetchInterval: 60000,
-    initialData: []
-  });
-
   const [isAddingGroup, setIsAddingGroup] = React.useState(false);
   return (
     <div className="flex flex-col gap-10">
       {isAddingGroup && (
         <AddOrUpdateAddressGroupDialog
-          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setIsAddingGroup(false);
             if (shouldRefreshAddressGroups) {

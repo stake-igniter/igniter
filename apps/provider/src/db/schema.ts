@@ -226,7 +226,11 @@ export const addressGroupServicesTable = pgTable(
   }),
 );
 
-export type AddressGroupService = typeof addressGroupServicesTable.$inferSelect;
+export type AddressGroupService = typeof addressGroupServicesTable.$inferSelect & {
+  service: Service;
+  addressGroup: AddressGroup;
+};
+
 export type CreateAddressGroupService = typeof addressGroupServicesTable.$inferInsert;
 
 export  const addressGroupServicesRelations = relations(

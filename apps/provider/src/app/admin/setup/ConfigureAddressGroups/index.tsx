@@ -128,7 +128,6 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
     <div className='flex flex-col gap-4'>
       {isAddingAddressGroup && (
         <AddOrUpdateAddressGroupDialog
-          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setIsAddingAddressGroup(false);
 
@@ -141,7 +140,6 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
 
       {updateAddressGroup && (
         <AddOrUpdateAddressGroupDialog
-          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setUpdateAddressGroup(null);
 
