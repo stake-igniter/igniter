@@ -191,7 +191,7 @@ export default function ExportForm({addressesGroup}: ExportFormProps) {
           setAbortDialogOpen(false);
           if (abort) {
             setIsRedirecting(true)
-            router.push('/admin/addresses')
+            router.push('/admin/keys')
           }
         }}
       />

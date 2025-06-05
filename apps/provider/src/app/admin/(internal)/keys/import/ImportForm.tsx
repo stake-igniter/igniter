@@ -97,6 +97,25 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
           </SelectContent>
         </Select>
 
+        {addressGroup && (
+          <div className="p-4 rounded-md bg-[var(--color-slate-2)]">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-[var(--color-white-3)]">Name</span>
+                <span className="text-sm">
+          {addressesGroup.find(group => group.id.toString() === addressGroup)?.name}
+        </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-[var(--color-white-3)]">Visibility</span>
+                <span className="text-sm">
+          {addressesGroup.find(group => group.id.toString() === addressGroup)?.private ? 'Private' : 'Public'}
+        </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Dropzone {...dropzone}>
           <DropZoneArea>
             <DropzoneTrigger
