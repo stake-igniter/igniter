@@ -227,8 +227,9 @@ export const addressGroupServicesTable = pgTable(
 );
 
 export type AddressGroupService = typeof addressGroupServicesTable.$inferSelect & {
-  service: Service;
-  addressGroup: AddressGroup;
+  service: {
+    name: string;
+  }
 };
 
 export type CreateAddressGroupService = typeof addressGroupServicesTable.$inferInsert;
