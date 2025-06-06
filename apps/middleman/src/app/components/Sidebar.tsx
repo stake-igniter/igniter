@@ -44,7 +44,7 @@ const mainRoutes = [
 const adminRoutes = [
   {
     title: "Overview",
-    url: "/app/overview",
+    url: "/admin/overview",
     icon: OverviewDark,
   },
   {
