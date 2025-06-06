@@ -13,6 +13,7 @@ import { CurrencyContextProvider } from "@igniter/ui/context/currency";
 import { auth } from "@/auth";
 import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
+import QueryClientProvider from '@/app/context/QueryClientProvider'
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -49,6 +50,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
     <body>
+    <QueryClientProvider>
     <SessionProvider>
       <ThemeProvider
         attribute="class"
@@ -83,6 +85,7 @@ export default async function RootLayout({
         </ApplicationSettingsProvider>
       </ThemeProvider>
     </SessionProvider>
+    </QueryClientProvider>
     </body>
     </html>
   );

@@ -133,3 +133,25 @@ export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: s
     minStake,
   }
 }
+
+export async function ValidateBlockchainRPC(url: string) {
+  const currentSettings = await getApplicationSettings();
+  const {success, network, errors} = await RetrieveBlockchainSettings(url, currentSettings.updatedAtHeight);
+  if (!success) {
+    return {
+      success: false,
+      errors,
+    };
+  }
+
+  if (network !== currentSettings.chainId) {
+    return {
+      success: false,
+      errors: ["Chain does not match the current configured chain"],
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
