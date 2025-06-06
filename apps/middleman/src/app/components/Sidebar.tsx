@@ -41,6 +41,19 @@ const mainRoutes = [
   },
 ];
 
+const adminRoutes = [
+  {
+    title: "Overview",
+    url: "/app/overview",
+    icon: OverviewDark,
+  },
+  {
+    title: "Settings",
+    url: "/admin/settings",
+    icon: SettingsDark,
+  }
+]
+
 const footerRoutes = [
   {
     title: "Help",
@@ -59,7 +72,9 @@ export const dynamic = "force-dynamic";
 export default function Sidebar({}: Readonly<AppSidebarProps>) {
   const pathname = usePathname();
 
-  const MainRoutesMenu = mainRoutes.map((route) => (
+  const routes = pathname.startsWith("/admin") ? adminRoutes : mainRoutes;
+
+  const MainRoutesMenu = routes.map((route) => (
     <SidebarMenuItem
       key={route.title}
       className={
