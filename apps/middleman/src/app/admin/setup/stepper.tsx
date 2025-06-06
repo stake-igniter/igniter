@@ -3,15 +3,14 @@ import { Button } from "@igniter/ui/components/button";
 import { Progress } from "@igniter/ui/components/progress";
 import { CheckIcon } from "@igniter/ui/assets";
 import { defineStepper } from "@stepperize/react";
-import React, { useState } from "react";
-import { useSession } from "next-auth/react";
+import React from "react";
 import { cn } from "@igniter/ui/lib/utils";
 import { ApplicationSettings } from "@/db/schema";
-import { Label } from "@igniter/ui/components/label";
 import { completeSetup } from "@/actions/ApplicationSettings";
 import ApplicationSettingsForm from "./settingsForm";
 import { Provider } from "@/actions/Providers";
 import ProvidersForm from "./providersForm";
+import BlockchainFormComponent from '@/app/admin/setup/blockchainFrom'
 
 interface StepperProps {
   providers: Provider[];
@@ -19,6 +18,10 @@ interface StepperProps {
 }
 
 const { useStepper, steps, utils } = defineStepper(
+  {
+    id: "blockchain",
+    title: "Blockchain Settings",
+  },
   {
     id: "application-settings",
     title: "Application Settings and Branding",
@@ -161,6 +164,12 @@ export const Stepper: React.FC<StepperProps> = ({ settings, providers }) => {
 
         <div className="space-y-5">
           {stepper.switch({
+            "blockchain": () => (
+              <BlockchainFormComponent
+                defaultValues={settings}
+                goNext={stepper.next}
+              />
+            ),
             "application-settings": () => (
               <ApplicationSettingsComponent
                 settings={settings}

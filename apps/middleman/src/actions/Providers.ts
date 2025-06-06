@@ -4,6 +4,7 @@ import {list, upsertProviders, getByIdentity} from "@/lib/dal/providers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
+import { getApplicationSettings } from '@/actions/ApplicationSettings'
 
 export interface Provider {
   id: number;
@@ -19,7 +20,9 @@ const updateProvidersSchema = z.object({
 });
 
 export async function loadProvidersFromCdn(): Promise<Provider[]> {
-  const url = process.env.PROVIDERS_CDN_URL;
+  const applicationSettings = await getApplicationSettings();
+
+  const url = process.env.PROVIDERS_CDN_URL!.replace('{chainId}', applicationSettings.chainId);
 
   if (!url) {
     throw new Error("PROVIDERS_CDN_URL is not defined");
