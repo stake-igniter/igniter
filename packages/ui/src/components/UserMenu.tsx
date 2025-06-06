@@ -4,8 +4,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@igniter/ui/components/dropdown-menu";
-import { UserAvatar } from "./UserAvatar";
 import { getRandomInt, getShortAddress } from "@igniter/ui/lib/utils";
+import AvatarByString from './AvatarByString'
 
 export interface UserMenuProps {
   user: {
@@ -23,7 +23,8 @@ export default function UserMenu({ user, children }: Readonly<UserMenuProps>) {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <div className="flex items-center gap-2 p-2">
-          <UserAvatar address={address} selectedAvatar={randomAvatar} />
+          <AvatarByString string={address}  />
+          {/*<UserAvatar address={address} selectedAvatar={randomAvatar} />*/}
           <span className="font-mono text-sm">
             {getShortAddress(address, 5)}
           </span>
