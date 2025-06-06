@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
-import { isValidPrivateKey, readFile } from '@/app/admin/(internal)/addresses/import/utils'
+import { isValidPrivateKey, readFile } from '@/app/admin/(internal)/keys/import/utils'
 import { ImportKeys } from '@/actions/Keys'
 import {
   Dialog,
@@ -167,7 +167,7 @@ export default function ImportProcess({file, addressGroupId, onImportCompleted}:
   return (
     <Dialog open={open} onOpenChange={handleOpenChanged}>
       <DialogTrigger asChild>
-        <Button>Stake Keys</Button>
+        <Button>Import Keys</Button>
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(event) => event.preventDefault()}

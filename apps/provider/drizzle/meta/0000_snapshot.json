@@ -1,9 +1,90 @@
 {
-  "id": "7bf593de-a52b-49a7-97d1-136781c7b7c4",
+  "id": "91331765-0bf4-40e2-9fd0-091cdb1c244b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.address_group_services": {
+      "name": "address_group_services",
+      "schema": "",
+      "columns": {
+        "address_group_id": {
+          "name": "address_group_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "service_id": {
+          "name": "service_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "addSupplierShare": {
+          "name": "addSupplierShare",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "supplierShare": {
+          "name": "supplierShare",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "revShare": {
+          "name": "revShare",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::json"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "address_group_services_address_group_id_address_groups_id_fk": {
+          "name": "address_group_services_address_group_id_address_groups_id_fk",
+          "tableFrom": "address_group_services",
+          "tableTo": "address_groups",
+          "columnsFrom": [
+            "address_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "address_group_services_service_id_services_serviceId_fk": {
+          "name": "address_group_services_service_id_services_serviceId_fk",
+          "tableFrom": "address_group_services",
+          "tableTo": "services",
+          "columnsFrom": [
+            "service_id"
+          ],
+          "columnsTo": [
+            "serviceId"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "address_group_services_address_group_id_service_id_pk": {
+          "name": "address_group_services_address_group_id_service_id_pk",
+          "columns": [
+            "address_group_id",
+            "service_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.address_groups": {
       "name": "address_groups",
       "schema": "",
@@ -50,12 +131,12 @@
           "notNull": false,
           "default": "'{}'"
         },
-        "services": {
-          "name": "services",
-          "type": "varchar[]",
+        "private": {
+          "name": "private",
+          "type": "boolean",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'{}'"
+          "notNull": true,
+          "default": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -178,24 +259,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "fee": {
-          "name": "fee",
-          "type": "numeric(5, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "delegatorRewardsAddress": {
-          "name": "delegatorRewardsAddress",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "chainId": {
           "name": "chainId",
           "type": "chain_ids",
@@ -220,6 +283,12 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
+        },
+        "updatedAtHeight": {
+          "name": "updatedAtHeight",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         },
         "createdAt": {
           "name": "createdAt",

@@ -25,7 +25,7 @@ import Pagination from "./Pagination";
 
 export interface FilterItem<TData> {
   label: string;
-  value: string | number;
+  value: string | number | boolean;
   column: keyof TData;
   isDefault?: boolean;
 }

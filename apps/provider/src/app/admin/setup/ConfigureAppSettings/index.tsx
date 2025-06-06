@@ -5,69 +5,41 @@ import { z } from "zod";
 import { Button } from "@igniter/ui/components/button";
 import {
   Form,
-  FormControl, FormDescription,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@igniter/ui/components/form";
 import { Input } from "@igniter/ui/components/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@igniter/ui/components/select";
 import React, {useMemo, useRef, useState} from "react";
-import { upsertSettings } from "@/actions/ApplicationSettings";
-import {ApplicationSettings, ChainId} from "@/db/schema";
+import { UpsertApplicationSettings } from "@/actions/ApplicationSettings";
+import {ApplicationSettings} from "@/db/schema";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;
   goNext: () => void;
+  goBack: () => void;
 }
 
-export const formSchema = z.object({
-  chainId: z.nativeEnum(ChainId),
+export const FormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
-  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
-  domain: z.string()
-    .regex(
-      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+.*)$/,
-      "Invalid domain format. Ensure it's a valid domain name."
-    ).min(1, "Domain is required"),
-  fee: z.coerce
-    .number()
-    .min(1, "Provider fee must be greater than 0")
-    .max(100),
-  delegatorRewardsAddress: z.string().refine(
-    (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
-    (val) => ({ message: `${val} is not a valid address` })
-  ),
-  appIdentity: z.string().min(1, "App Identity is Required"),
-  minimumStake: z.coerce.number().min(15000, "Minimum stake is required").default(15000),
 });
 
-const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
+type FormValues = z.infer<typeof FormSchema>;
+
+const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext, goBack }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(FormSchema),
     defaultValues: {
-      chainId: defaultValues.chainId || ChainId.Pocket,
-      rpcUrl: defaultValues.rpcUrl || "",
-      name: defaultValues.name || "",
-      supportEmail: defaultValues.supportEmail || "",
-      fee: Number(defaultValues.fee) || 1,
-      domain: defaultValues.domain || "",
-      delegatorRewardsAddress: defaultValues.delegatorRewardsAddress || "",
-      minimumStake: defaultValues.minimumStake,
-      appIdentity: defaultValues.appIdentity || "",
+      name: defaultValues?.name || "",
+      supportEmail: defaultValues?.supportEmail || "",
     },
   });
 
-  const isUpdate = useMemo(() => defaultValues.id !== 0, [defaultValues]);
+  const isUpdate = useMemo(() => defaultValues?.id !== 0, [defaultValues]);
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleGoNext = () => {
@@ -82,7 +54,9 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           onSubmit={form.handleSubmit(async (values: any) => {
             setIsLoading(true);
             try {
-              await upsertSettings(values, isUpdate);
+              console.log('Updating the settings');
+              await UpsertApplicationSettings(values, isUpdate);
+              console.log('Updated the settings?');
               goNext();
             } catch (error) {
               console.error(error);
@@ -108,104 +82,6 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
             />
 
             <FormField
-              name="appIdentity"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>App Identity</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      disabled={true}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription>
-                    Your App Identity is the unique public identifier derived from your private key.
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              name="chainId"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Chain ID</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Chain ID" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pocket">Mainnet</SelectItem>
-                        <SelectItem value="pocket-beta">Beta</SelectItem>
-                        <SelectItem value="pocket-alpha">Alpha</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name="rpcUrl"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Shannon API Url</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              name="fee"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Service Fee</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center">
-                      <Input {...field} type="number" className="flex-grow" />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name="delegatorRewardsAddress"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Delegator rewards address</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
               name="supportEmail"
               control={form.control}
               render={({ field }) => (
@@ -218,27 +94,15 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                 </FormItem>
               )}
             />
-
-            <FormField
-              name="domain"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Domain</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center">
-                      <Input {...field} className="flex-grow" />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
         </form>
       </Form>
       <div className="flex justify-end gap-4">
-        <Button disabled>Back</Button>
+        <Button
+          disabled={isLoading}
+          onClick={goBack}>
+          Back
+        </Button>
         <Button
           onClick={handleGoNext}
           disabled={isLoading}

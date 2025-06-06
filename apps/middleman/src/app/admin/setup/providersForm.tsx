@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from 'react'
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,7 +13,8 @@ import {
   FormMessage,
 } from "@igniter/ui/components/form";
 import { Checkbox } from "@igniter/ui/components/checkbox";
-import { Provider, submitProviders } from "@/actions/Providers";
+import { loadProvidersFromCdn, Provider, submitProviders } from '@/actions/Providers'
+import { LoaderIcon } from '@igniter/ui/assets'
 
 interface ProvidersFormProps {
   providers: Provider[];
@@ -28,11 +29,11 @@ const formSchema = z.object({
 });
 
 const ProvidersForm: React.FC<ProvidersFormProps> = ({
-  providers,
   goNext,
   goBack,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [providers, setProviders] = useState<Array<Provider>>([])
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -40,8 +41,35 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
     },
   });
 
-  return (
-    <Form {...form}>
+  async function updateProvidersList() {
+    try {
+      setIsLoading(true)
+      const providersList = await loadProvidersFromCdn()
+      setProviders(providersList)
+      if (!providers.length) {
+        form.setValue('providers', providersList.map((provider) => provider.identity))
+      }
+    } catch (error) {
+      console.error("Failed to load providers list", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    updateProvidersList()
+  }, [])
+
+  let content: React.ReactNode = null;
+
+  if (isLoading) {
+    content = (
+      <div className="flex justify-center items-center w-full h-[300px]">
+        <LoaderIcon className="animate-spin" />
+      </div>
+    )
+  } else {
+    content = (
       <form
         onSubmit={form.handleSubmit(async (values) => {
           setIsLoading(true);
@@ -78,14 +106,14 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
                             onCheckedChange={(checked) => {
                               return checked
                                 ? field.onChange([
-                                    ...field.value,
-                                    item.identity,
-                                  ])
+                                  ...field.value,
+                                  item.identity,
+                                ])
                                 : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item.identity
-                                    )
-                                  );
+                                  field.value?.filter(
+                                    (value) => value !== item.identity
+                                  )
+                                );
                             }}
                           />
                         </FormControl>
@@ -110,6 +138,12 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
           </Button>
         </div>
       </form>
+    )
+  }
+
+  return (
+    <Form {...form}>
+      {content}
     </Form>
   );
 };

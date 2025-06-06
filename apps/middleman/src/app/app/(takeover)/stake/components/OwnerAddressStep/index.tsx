@@ -1,4 +1,4 @@
-import { ActivityHeader } from '@/app/app/(takeover)/stake/components/ActivityHeader'
+import { ActivityHeader } from '@igniter/ui/components/ActivityHeader';
 import { useWalletConnection } from '@igniter/ui/context/WalletConnection/index'
 import { useEffect, useState } from 'react'
 import { UserAvatar } from '@igniter/ui/components/UserAvatar'

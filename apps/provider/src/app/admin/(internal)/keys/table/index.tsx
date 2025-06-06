@@ -2,7 +2,7 @@
 
 import { ListKeys } from '@/actions/Keys'
 import { useQuery } from '@tanstack/react-query'
-import { Key } from '@/app/admin/(internal)/addresses/table/columns'
+import { Key } from '@/app/admin/(internal)/keys/table/columns'
 import DataTable from '@igniter/ui/components/DataTable/index'
 import {columns, getFilters, sorts} from './columns'
 import { ListBasicAddressGroups } from '@/actions/AddressGroups'

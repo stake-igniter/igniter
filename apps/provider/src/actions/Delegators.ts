@@ -5,6 +5,7 @@ import {Delegator, delegatorsTable} from "@/db/schema";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
+import { getApplicationSettings } from '@/lib/dal/applicationSettings'
 
 export async function ListDelegators() {
   return list();
@@ -19,8 +20,11 @@ export async function UpdateDelegator(identity: string, updateValues: Pick<Deleg
 }
 
 export async function UpdateDelegatorsFromSource() {
-  const userIdentity = await getCurrentUserIdentity();
-  const delegatorsCdnUrl = process.env.DELEGATORS_CDN_URL;
+  const [userIdentity, appSettings] = await Promise.all([
+    getCurrentUserIdentity(),
+    getApplicationSettings()
+  ]);
+  const delegatorsCdnUrl = process.env.DELEGATORS_CDN_URL!.replace('{chainId}', appSettings.chainId);
 
   if (!delegatorsCdnUrl) {
     throw new Error("DELEGATORS_CDN_URL environment variable is not defined");

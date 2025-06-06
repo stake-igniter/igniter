@@ -1,5 +1,6 @@
 import { db } from "@/db";
-import { CreateKey, keysTable } from "@/db/schema";
+import {CreateKey, keysTable, KeyState} from "@/db/schema";
+import {and, eq, count} from "drizzle-orm";
 
 /**
  * Inserts multiple keys into the database using a transaction.
@@ -42,11 +43,42 @@ export async function listKeysWithPk() {
   })
 }
 
-export async function listPrivateKeysByAddressGroup(addressGroupId: number) {
+export async function countPrivateKeysByAddressGroup(addressGroupId: number, state?: KeyState) {
+  const filters = [];
+
+  if (addressGroupId) {
+    filters.push(eq(keysTable.addressGroupId, addressGroupId));
+  }
+
+  if (state) {
+    filters.push(eq(keysTable.state, state));
+  }
+
+  const [result] = await db.select({
+    count: count()
+  })
+    .from(keysTable)
+    .where(filters.length > 0 ? and(...filters) : undefined);
+
+  return Number(result?.count || 0);
+}
+
+
+export async function listPrivateKeysByAddressGroup(addressGroupId: number, state?: KeyState) {
+  const filters = [];
+
+  if (addressGroupId) {
+    filters.push(eq(keysTable.addressGroupId, addressGroupId));
+  }
+
+  if (state) {
+    filters.push(eq(keysTable.state, state));
+  }
+
   return db.query.keysTable.findMany({
+    ...(filters.length > 0 && { where: and(...filters) }),
     columns: {
       privateKey: true
     },
-    where: (keysTable, { eq }) => eq(keysTable.addressGroupId, addressGroupId),
-  })
+  });
 }

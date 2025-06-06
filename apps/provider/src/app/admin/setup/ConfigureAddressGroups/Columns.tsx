@@ -26,14 +26,11 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
     },
   },
   {
-    accessorKey: "addressCount",
-    header: "Addresses",
-  },
-  {
-    accessorKey: "services",
+    accessorKey: "addressGroupServices",
     header: "Services",
     cell: ({ row }) => {
-      const services = row.getValue("services") as AddressGroupWithDetails["services"];
+      const addressGroupServices = row.getValue("addressGroupServices") as AddressGroupWithDetails["addressGroupServices"];
+      const services  = addressGroupServices.map((as) => as.serviceId);
 
       if (!services || services.length === 0) {
         return "-";
@@ -49,5 +46,13 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
         </div>
       );
     },
+  },
+  {
+    accessorKey: "private",
+    header: "Private",
+  },
+  {
+    accessorKey: "keysCount",
+    header: "Keys",
   },
 ];

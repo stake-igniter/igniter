@@ -7,7 +7,7 @@ import {Button} from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {DataTable} from "@/components/DataTable";
 import {columns} from "./Columns";
-import {AddOrUpdateAddressGroupDialog} from "./AddOrUpdateAddressGroupDialog";
+import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
 import {LoaderIcon} from "@igniter/ui/assets";
 import {ListServices} from "@/actions/Services";
 
@@ -21,7 +21,7 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
   const [isLoadingServices, setIsLoadingServices] = useState(false);
   const [isAddingAddressGroup, setIsAddingAddressGroup] = useState(false);
   const [isDeletingAddressGroup, setIsDeletingAddressGroup] = useState(false);
-  const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroup | null>(null);
+  const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroupWithDetails | null>(null);
   const [addressGroups, setAddressGroups] = useState<AddressGroupWithDetails[]>([]);
   const [addressGroupToDelete, setAddressGroupToDelete] = useState<AddressGroup | null>(null);
   const [services, setServices] = useState<Service[]>([]);
@@ -128,7 +128,6 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
     <div className='flex flex-col gap-4'>
       {isAddingAddressGroup && (
         <AddOrUpdateAddressGroupDialog
-          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setIsAddingAddressGroup(false);
 
@@ -141,7 +140,6 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
 
       {updateAddressGroup && (
         <AddOrUpdateAddressGroupDialog
-          services={services}
           onClose={(shouldRefreshAddressGroups) => {
             setUpdateAddressGroup(null);
 

@@ -131,8 +131,9 @@ export default function StakePage() {
                                 setTransaction(transaction)
                             } else {
                               const failedStage = getFailedStage(result);
-                              debugger;
-                              setStakingErrorMessage(errorsMap[failedStage]);
+                              if (failedStage) {
+                                setStakingErrorMessage(errorsMap[failedStage]);
+                              }
                             }
                         }}
                         onBack={() => {

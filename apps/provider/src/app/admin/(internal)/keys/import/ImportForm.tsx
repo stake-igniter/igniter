@@ -8,7 +8,7 @@ import React, { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@igniter/ui/components/select'
 import { Dropzone, DropZoneArea, DropzoneTrigger, useDropzone } from '@igniter/ui/components/dropzone'
 import { CloudUploadIcon, FileWarning } from 'lucide-react'
-import ImportProcess, { ImportProcessStatus } from '@/app/admin/(internal)/addresses/import/ImportProcess'
+import ImportProcess, { ImportProcessStatus } from '@/app/admin/(internal)/keys/import/ImportProcess'
 import { Button } from '@igniter/ui/components/button'
 import { toCurrencyFormat } from '@igniter/ui/lib/utils'
 import { LoaderIcon } from '@igniter/ui/assets'
@@ -97,6 +97,25 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
           </SelectContent>
         </Select>
 
+        {addressGroup && (
+          <div className="p-4 rounded-md bg-[var(--color-slate-2)]">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-[var(--color-white-3)]">Name</span>
+                <span className="text-sm">
+          {addressesGroup.find(group => group.id.toString() === addressGroup)?.name}
+        </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-[var(--color-white-3)]">Visibility</span>
+                <span className="text-sm">
+          {addressesGroup.find(group => group.id.toString() === addressGroup)?.private ? 'Private' : 'Public'}
+        </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <Dropzone {...dropzone}>
           <DropZoneArea>
             <DropzoneTrigger
@@ -167,7 +186,7 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
           className="w-full h-[40px]"
           onClick={() => {
             setIsRedirecting(true)
-            router.push('/admin/addresses')
+            router.push('/admin/keys')
           }}
         >
           {isRedirecting && (
@@ -203,7 +222,7 @@ export default function ImportForm({addressesGroup}: ImportFormProps) {
         onResponse={(abort) => {
           setAbortDialogOpen(false);
           if (abort) {
-            router.push('/admin/addresses')
+            router.push('/admin/keys')
           }
         }}
       />

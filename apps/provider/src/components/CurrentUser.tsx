@@ -107,13 +107,6 @@ export default function CurrentUser() {
             </DropdownMenuItem>
           </Link>
         )}
-        {["owner", "admin"].includes(data.user.role) && !isAdmin && (
-          <Link href={Routes.adminRoot}>
-            <DropdownMenuItem className="max-h-[38px]">
-              <span>Go to Admin</span>
-            </DropdownMenuItem>
-          </Link>
-        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => signOut()}>Sign out</DropdownMenuItem>
       </UserMenu>

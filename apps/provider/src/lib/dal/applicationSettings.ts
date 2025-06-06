@@ -15,15 +15,13 @@ const defaultSettings: ApplicationSettings = {
   supportEmail: "",
   ownerIdentity: "",
   ownerEmail: "",
-  fee: "0",
-  domain: "",
-  delegatorRewardsAddress: "",
   rpcUrl: "",
-  isBootstrapped: false,
   chainId: ChainId.Pocket,
-  minimumStake: 15000,
+  minimumStake: 0,
+  isBootstrapped: false,
   createdBy: "",
   updatedBy: "",
+  updatedAtHeight: "",
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -74,11 +72,9 @@ export async function updateApplicationSettings(
   settings: Partial<ApplicationSettings>
 ): Promise<ApplicationSettings> {
   const existingSettings = await getApplicationSettingsFromDatabase();
-
   if (!existingSettings?.id) {
     throw new Error("No existing settings found to update");
   }
-
   const updatedSettings = await db
     .update(applicationSettingsTable)
     .set(settings)
