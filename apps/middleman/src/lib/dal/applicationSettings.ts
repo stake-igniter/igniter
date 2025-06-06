@@ -26,6 +26,7 @@ const defaultSettings: ApplicationSettings = {
   createdBy: "",
   updatedAt: new Date(),
   updatedBy: "",
+  updatedAtHeight: null
 };
 
 export async function getApplicationSettings(): Promise<ApplicationSettings> {

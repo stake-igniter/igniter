@@ -30,10 +30,8 @@ interface FormProps {
 }
 
 export const formSchema = z.object({
-  chainId: z.nativeEnum(ChainId),
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email().optional(),
-  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
   ownerEmail: z.string().email(),
   fee: z.coerce
     .number()
@@ -43,8 +41,6 @@ export const formSchema = z.object({
     (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
     (val) => ({ message: `${val} is not a valid address` })
   ),
-  appIdentity: z.string().min(1, "App Identity is Required"),
-  minimumStake: z.coerce.number().default(15000),
   privacyPolicy: z.string().optional(),
 });
 
@@ -53,16 +49,12 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      chainId: defaultValues.chainId || ChainId.Pocket,
       name: defaultValues.name || "",
       supportEmail: defaultValues.supportEmail || "",
-      rpcUrl: defaultValues.rpcUrl || "",
       ownerEmail: defaultValues.ownerEmail || "",
       fee: Number(defaultValues.fee) || 1,
-      minimumStake: defaultValues.minimumStake,
       privacyPolicy: defaultValues.privacyPolicy || "",
       delegatorRewardsAddress: defaultValues.delegatorRewardsAddress || "",
-      appIdentity: defaultValues.appIdentity || "",
     },
   });
 
@@ -100,63 +92,13 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           />
 
           <FormField
-            name="appIdentity"
+            name="supportEmail"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>App Identity</FormLabel>
+                <FormLabel>Support Email</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    disabled={true}
-                  />
-                </FormControl>
-                <FormMessage />
-                <FormDescription>
-                  Your App Identity is the unique public identifier derived from your private key.
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            name="chainId"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Chain ID</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Chain ID" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pocket">Mainnet</SelectItem>
-                      <SelectItem value="pocket-beta">Beta</SelectItem>
-                      <SelectItem value="pocket-alpha">Alpha</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="rpcUrl"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>RPC Url</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                  />
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -197,35 +139,6 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            name="ownerEmail"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Owner Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="supportEmail"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Support Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
         <FormField
           name="privacyPolicy"
           control={form.control}
@@ -233,7 +146,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
             <FormItem>
               <FormLabel>Privacy Policy</FormLabel>
               <FormControl>
-                <Textarea className="resize-none" {...field} />
+                <Textarea className="resize-none h-[200px]" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

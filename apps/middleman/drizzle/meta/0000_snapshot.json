@@ -1,5 +1,5 @@
 {
-  "id": "cceacbbe-86c5-4f64-a127-0f1e76974ad8",
+  "id": "d7773347-ef33-48d4-9a1b-cf9485524dad",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -59,14 +59,13 @@
           "name": "fee",
           "type": "numeric(5, 2)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "minimumStake": {
           "name": "minimumStake",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "default": 15000
+          "notNull": true
         },
         "isBootstrapped": {
           "name": "isBootstrapped",
@@ -85,13 +84,19 @@
           "name": "delegatorRewardsAddress",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "rpcUrl": {
           "name": "rpcUrl",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
+        },
+        "updatedAtHeight": {
+          "name": "updatedAtHeight",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         },
         "privacyPolicy": {
           "name": "privacyPolicy",
