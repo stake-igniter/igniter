@@ -4,23 +4,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@igniter/ui/components/sidebar";
-import { ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import OverviewDark from "@/app/assets/icons/dark/overview.svg";
 import ActivityDark from "@/app/assets/icons/dark/activity.svg";
 import NodesDark from "@/app/assets/icons/dark/nodes.svg";
 import SettingsDark from "@/app/assets/icons/dark/settings.svg";
-import HelpDark from "@/app/assets/icons/dark/help.svg";
-import ContactDark from "@/app/assets/icons/dark/contact.svg";
-import AppSidebar from "@igniter/ui/components/AppSidebar";
-
-export interface AppSidebarRoute {
-  title: string;
-  url: string;
-  icon: ComponentType;
-}
-
+import ProvidersDark from "@/app/assets/icons/dark/providers.svg";
+import AppSidebar from "@igniter/ui/components/AppSidebar"
 export interface AppSidebarProps {}
 
 const mainRoutes = [
@@ -48,23 +39,15 @@ const adminRoutes = [
     icon: OverviewDark,
   },
   {
+    title: "Providers",
+    url: "/admin/providers",
+    icon: ProvidersDark,
+  },
+  {
     title: "Settings",
     url: "/admin/settings",
     icon: SettingsDark,
   }
-]
-
-const footerRoutes = [
-  {
-    title: "Help",
-    url: "/help",
-    icon: HelpDark,
-  },
-  {
-    title: "Contact",
-    url: "/contact",
-    icon: ContactDark,
-  },
 ];
 
 export const dynamic = "force-dynamic";
@@ -91,24 +74,6 @@ export default function Sidebar({}: Readonly<AppSidebarProps>) {
       </SidebarMenuButton>
     </SidebarMenuItem>
   ));
-
-  // const FooterRoutesMenu = footerRoutes.map((route) => (
-  //   <SidebarMenuItem
-  //     key={route.title}
-  //     className={
-  //       pathname.includes(route.title.toLowerCase())
-  //         ? "bg-muted rounded-lg font-medium text-foreground"
-  //         : ""
-  //     }
-  //   >
-  //     <SidebarMenuButton asChild>
-  //       <Link href={route.url}>
-  //         <route.icon />
-  //         <span>{route.title}</span>
-  //       </Link>
-  //     </SidebarMenuButton>
-  //   </SidebarMenuItem>
-  // ));
 
   return (
     <AppSidebar MainRoutes={MainRoutesMenu} FooterRoutes={[]} />

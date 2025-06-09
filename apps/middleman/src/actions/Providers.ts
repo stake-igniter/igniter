@@ -1,6 +1,6 @@
 "use server";
 
-import {list, upsertProviders, getByIdentity} from "@/lib/dal/providers";
+import {list, upsertProviders, getByIdentity, update} from "@/lib/dal/providers";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
@@ -19,7 +19,7 @@ const updateProvidersSchema = z.object({
   }),
 });
 
-export async function loadProvidersFromCdn(): Promise<Provider[]> {
+export async function UpdateProvidersFromSource(): Promise<Provider[]> {
   const applicationSettings = await getApplicationSettings();
 
   const url = process.env.PROVIDERS_CDN_URL!.replace('{chainId}', applicationSettings.chainId);
@@ -75,10 +75,32 @@ export async function submitProviders(
   revalidatePath("/admin/setup");
 }
 
-export async function listProviders() {
-  return list();
+export async function ListProviders(all?: boolean) {
+  return list(all);
 }
 
 export async function GetProviderByIdentity(identity: string) {
   return getByIdentity(identity);
+}
+
+export async function UpdateVisibility(identity: string, visible: boolean) {
+  try {
+    const updates = visible
+      ? { visible }
+      : { visible, enabled: false };
+
+    await update(identity, updates);
+  } catch (error) {
+    console.log('UpdateVisibility: An error occurred while performing the update operation');
+    console.error(error);
+  }
+}
+
+export async function UpdateEnabled(identity: string, enabled: boolean) {
+  try {
+    await update(identity, { enabled });
+  } catch (error) {
+    console.log('UpdateEnabled: An error occurred while performing the update operation');
+    console.error(error);
+  }
 }

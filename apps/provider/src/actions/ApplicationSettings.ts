@@ -110,7 +110,7 @@ export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: s
   const newHeight = parseInt(newHeightStr, 10);
 
   if (updatedAtHeight) {
-    if (newHeight.toString() < updatedAtHeight) {
+    if (Number(newHeight) < Number(updatedAtHeight)) {
       errors.push(`Retrieved height (${newHeight}) is lower than the current stored height (${updatedAtHeight}).`);
       return {
         success: false,
@@ -133,7 +133,7 @@ export interface ValidateBlockchainRPCResponse {
   errors?: string[];
 }
 
-export async function ValidateBlockchainRPC(url: string) {
+export async function ValidateBlockchainRPC(url: string) : Promise<ValidateBlockchainRPCResponse> {
   const currentSettings = await GetApplicationSettings();
   const {success, network, errors} = await RetrieveBlockchainSettings(url, currentSettings.updatedAtHeight);
   if (!success) {

@@ -14,7 +14,7 @@ import {
 } from "@igniter/ui/components/form";
 import { Input } from "@igniter/ui/components/input";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {RetrieveBlockchainSettings, upsertSettings} from "@/actions/ApplicationSettings";
+import {RetrieveBlockchainSettings, UpsertApplicationSettings} from "@/actions/ApplicationSettings";
 import { ApplicationSettings, ChainId } from "@/db/schema";
 
 interface FormProps {
@@ -109,7 +109,6 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
         });
         return;
       } else if (response.network && response.height && response.minStake) {
-        console.log(response);
         form.setValue("chainId", response.network as ChainId);
         form.setValue("minimumStake", response.minStake);
         form.setValue("updatedAtHeight", response.height);
@@ -129,7 +128,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
   const submit = async (values: FormValues) => {
     setIsLoading(true);
     try {
-      await upsertSettings(values, isUpdate);
+      await UpsertApplicationSettings(values, isUpdate);
       goNext();
     } catch (error) {
       console.error("Something failed while updating the application settings", error);

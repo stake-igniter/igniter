@@ -12,7 +12,7 @@ import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 import urlJoin from 'url-join'
 
-const updateSettingsSchema = z.object({
+const UpdateSettingsSchema = z.object({
   updatedAtHeight: z.string().optional(),
   appIdentity: z.string().min(1, "App identity is required").optional(),
   name: z.string().min(1, "Name is required").optional(),
@@ -39,19 +39,22 @@ export async function getApplicationSettings() {
   return await fetchApplicationSettings();
 }
 
-export async function upsertSettings(
+function ValidateWithSchema(schema: z.ZodSchema<any>, data: Partial<ApplicationSettings>) {
+  const validation = schema.safeParse(data);
+
+  if (!validation.success) {
+    throw new Error(validation.error.message);
+  }
+
+  return validation;
+}
+
+export async function UpsertApplicationSettings(
   values: Partial<ApplicationSettings>,
   isUpdate: boolean
 ) {
   const userIdentity = await getCurrentUserIdentity();
-
-  const schema = isUpdate ? updateSettingsSchema : CreateSettingsSchema;
-  const validatedFields = schema.safeParse(values);
-
-  if (!validatedFields.success) {
-    throw new Error("Invalid form data");
-  }
-
+  const validatedFields = ValidateWithSchema(isUpdate ? UpdateSettingsSchema : CreateSettingsSchema, values);
   if (isUpdate) {
     await updateApplicationSettings({
       ...validatedFields.data,
@@ -62,11 +65,8 @@ export async function upsertSettings(
       ...validatedFields.data,
       createdBy: userIdentity,
       updatedBy: userIdentity,
-      delegatorRewardsAddress: '',
     });
   }
-
-  revalidatePath("/admin/setup");
 }
 
 export async function completeSetup() {
@@ -116,7 +116,7 @@ export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: s
   const newHeight = parseInt(newHeightStr, 10);
 
   if (updatedAtHeight) {
-    if (newHeight.toString() < updatedAtHeight) {
+    if (Number(newHeight) < Number(updatedAtHeight)) {
       errors.push(`Retrieved height (${newHeight}) is lower than the current stored height (${updatedAtHeight}).`);
       return {
         success: false,

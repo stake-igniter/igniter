@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/db";
 import { Provider, providersTable } from "@/db/schema";
-import { sql } from "drizzle-orm";
+import {and, eq, sql} from "drizzle-orm";
 
 export async function upsertProviders(
   providers: Pick<Provider, "name" | "identity" | "url" | "enabled" | "visible" | "createdBy" | "updatedBy">[],
@@ -18,12 +18,16 @@ export async function upsertProviders(
     .returning();
 }
 
-export async function list() : Promise<Provider[]> {
+export async function list(all?: boolean) : Promise<Provider[]> {
+  const filters = [];
+
+  if (!all) {
+    filters.push(eq(providersTable.visible, true));
+  }
+
   const providers = await db.query.providersTable.findMany({
-    where: (providers, {eq}) => {
-      return eq(providers.visible, true);
-    }
-  })
+    ...(filters.length > 0 && { where: and(...filters) }),
+  });
 
   if (!providers) {
     return [];
@@ -44,3 +48,19 @@ export async function getByIdentity(identity: string) {
   });
 }
 
+export async function update(
+  identity: string,
+  providerUpdates: Partial<Provider>,
+): Promise<Provider> {
+  const [updatedProvider] = await db
+    .update(providersTable)
+    .set(providerUpdates)
+    .where(sql`${providersTable.identity} = ${identity}`)
+    .returning();
+
+  if (!updatedProvider) {
+    throw new Error("Failed to update the provider");
+  }
+
+  return updatedProvider;
+}

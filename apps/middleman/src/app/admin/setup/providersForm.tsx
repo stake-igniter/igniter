@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@igniter/ui/components/form";
 import { Checkbox } from "@igniter/ui/components/checkbox";
-import { loadProvidersFromCdn, Provider, submitProviders } from '@/actions/Providers'
+import { UpdateProvidersFromSource, Provider, submitProviders } from '@/actions/Providers'
 import { LoaderIcon } from '@igniter/ui/assets'
 
 interface ProvidersFormProps {
@@ -44,7 +44,7 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
   async function updateProvidersList() {
     try {
       setIsLoading(true)
-      const providersList = await loadProvidersFromCdn()
+      const providersList = await UpdateProvidersFromSource()
       setProviders(providersList)
       if (!providers.length) {
         form.setValue('providers', providersList.map((provider) => provider.identity))

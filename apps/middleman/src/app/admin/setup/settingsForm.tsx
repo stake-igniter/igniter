@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Button } from "@igniter/ui/components/button";
 import {
   Form,
-  FormControl, FormDescription,
+  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -13,20 +13,14 @@ import {
 } from "@igniter/ui/components/form";
 import { Input } from "@igniter/ui/components/input";
 import { Textarea } from "@igniter/ui/components/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@igniter/ui/components/select";
-import React, { useMemo, useState } from "react";
-import { upsertSettings } from "@/actions/ApplicationSettings";
+import React, {useMemo, useRef, useState} from "react";
+import { UpsertApplicationSettings } from "@/actions/ApplicationSettings";
 import {ApplicationSettings, ChainId} from "@/db/schema";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;
   goNext: () => void;
+  goBack: () => void;
 }
 
 export const formSchema = z.object({
@@ -35,6 +29,7 @@ export const formSchema = z.object({
   ownerEmail: z.string().email(),
   fee: z.coerce
     .number()
+    .int("Service fee must be a whole number")
     .min(1, "Service fee must be greater than 0")
     .max(100),
   delegatorRewardsAddress: z.string().refine(
@@ -44,7 +39,7 @@ export const formSchema = z.object({
   privacyPolicy: z.string().optional(),
 });
 
-const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
+const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext, goBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,107 +55,135 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
   const isUpdate = useMemo(() => defaultValues.id !== 0, [defaultValues]);
 
+  const formRef = useRef<HTMLFormElement>(null);
+
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(async (values: any) => {
-          setIsLoading(true);
-          try {
-            await upsertSettings(values, isUpdate);
-            goNext();
-          } catch (error) {
-            console.error(error);
-          } finally {
-            setIsLoading(false);
-          }
-        })}
-        className="grid gap-4"
-      >
-        <div className="grid grid-cols-2 gap-4">
+    <div className="flex flex-col justify-between gap-4">
+      <Form {...form}>
+        <form
+          ref={formRef}
+          onSubmit={form.handleSubmit(async (values: any) => {
+            setIsLoading(true);
+            try {
+              console.log('values:', values, isUpdate);
+              await UpsertApplicationSettings(values, isUpdate);
+              goNext();
+            } catch (error) {
+              console.error(error);
+            } finally {
+              setIsLoading(false);
+            }
+          })}
+          className="grid gap-4"
+        >
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              name="name"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="supportEmail"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Support Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              name="fee"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Service Fee</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Input {...field} type="number" className="flex-grow" />
+                      <span className="ml-2">%</span>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              name="delegatorRewardsAddress"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Delegator rewards address</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              name="ownerEmail"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Owner Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
-            name="name"
+            name="privacyPolicy"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Privacy Policy</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Textarea className="resize-none h-[200px]" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </form>
+      </Form>
 
-          <FormField
-            name="supportEmail"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Support Email</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            name="fee"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Service Fee</FormLabel>
-                <FormControl>
-                  <div className="flex items-center">
-                    <Input {...field} type="number" className="flex-grow" />
-                    <span className="ml-2">%</span>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            name="delegatorRewardsAddress"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Delegator rewards address</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          name="privacyPolicy"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Privacy Policy</FormLabel>
-              <FormControl>
-                <Textarea className="resize-none h-[200px]" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end gap-4">
-          <Button disabled>Back</Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : "Next"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+      <div className="flex justify-end gap-4">
+        <Button
+          onClick={goBack}
+        >
+          Back
+        </Button>
+        <Button
+          onClick={() => formRef.current?.requestSubmit()}
+          disabled={isLoading}>
+          {isLoading ? "Saving..." : "Next"}
+        </Button>
+      </div>
+    </div>
   );
 };
 
