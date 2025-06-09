@@ -18,7 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   getApplicationSettings,
   RetrieveBlockchainSettings,
-  upsertSettings,
+  UpsertApplicationSettings,
   ValidateBlockchainRPC
 } from "@/actions/ApplicationSettings";
 import { LoaderIcon } from "@igniter/ui/assets";
@@ -57,6 +57,7 @@ const FormSchema = z.object({
   updatedAtHeight: z.string().optional(),
   fee: z.coerce
     .number()
+    .int("Service fee must be a whole number")
     .min(1, "Service fee must be greater than 0")
     .max(100),
   delegatorRewardsAddress: z.string().refine(
@@ -124,6 +125,8 @@ export default function SettingsPage() {
         throw new Error("Failed to retrieve blockchain settings");
       }
 
+      console.log(response);
+
       form.setValue('minimumStake', response.minStake);
       form.setValue('updatedAtHeight', response.height);
       await form.handleSubmit(onSubmit)();
@@ -139,7 +142,7 @@ export default function SettingsPage() {
     setIsSubmitting(true);
     try {
       const { chainId, ...settings} = values;
-      await upsertSettings({
+      await UpsertApplicationSettings({
         ...settings,
         chainId: chainId as ChainId,
       }, true);
@@ -215,7 +218,13 @@ export default function SettingsPage() {
                         <FormLabel>Service Fee</FormLabel>
                         <FormControl>
                           <div className="flex items-center">
-                            <Input {...field} type="number" className="flex-grow" />
+                            <Input
+                              {...field}
+                              min={1}
+                              max={100}
+                              type="number"
+                              className="flex-grow"
+                            />
                             <span className="ml-2">%</span>
                           </div>
                         </FormControl>

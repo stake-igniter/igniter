@@ -1,7 +1,7 @@
 "use server";
 
 import {getApplicationSettings} from "@/actions/ApplicationSettings";
-import {listProviders} from "@/actions/Providers";
+import {ListProviders} from "@/actions/Providers";
 import {StakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {SignedMemo, SignedMemoPayload, SignedTransaction} from '@igniter/ui/models';
 import {ApplicationSettings, CreateTransaction, ProviderFee, TransactionStatus, TransactionType} from "@/db/schema";
@@ -20,7 +20,7 @@ export interface CreateSignedMemoRequest {
 
 export async function CalculateStakeDistribution(stakeAmount: number): Promise<StakeDistributionOffer[]> {
   const applicationSettings = await getApplicationSettings();
-  const providers = await listProviders();
+  const providers = await ListProviders();
 
   const availableNodeSizes = [applicationSettings.minimumStake];
 
@@ -51,11 +51,10 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       id: provider.id,
       identity: provider.identity,
       name: provider.name,
-      fee: provider.fee || '',
+      fee: provider.fee!,
       feeType: provider.feeType || ProviderFee.Fixed,
       regions: provider.regions || [],
       rewards: 'N/A',
-      delegatorRewardsAddress: provider.delegatorRewardsAddress || '',
       operationalFundsAmount: provider.operationalFunds,
       stakeDistribution: distribution
     };
@@ -85,8 +84,8 @@ export async function CreateStakeTransaction(request: CreateStakeTransactionRequ
 export async function CreateSignedMemo(request: CreateSignedMemoRequest) : Promise<SignedMemo> {
   const signedMemoPayload: SignedMemoPayload = {
     t: new Date().toISOString(),
-    a: request.settings.delegatorRewardsAddress,
-    f: request.settings.fee,
+    a: request.settings.delegatorRewardsAddress!,
+    f: request.settings.fee?.toString() ?? '',
   };
 
   const canonicalPayload = JSON.stringify(

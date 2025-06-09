@@ -3,13 +3,12 @@ import {ProviderFee} from "@/db/schema";
 export interface StakeDistributionOffer {
     id: number;
     identity: string;
-    fee: string;
+    fee: number;
     feeType: ProviderFee;
     name: string;
     rewards: string;
     regions: string[];
     operationalFundsAmount: number;
-    delegatorRewardsAddress: string;
     stakeDistribution: StakeDistributionItem[];
 }
 

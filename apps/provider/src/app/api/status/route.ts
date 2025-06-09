@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     
     const response: StatusResponse = {
       minimumStake: minimumStake,
-      fee: Math.max(...fees).toString(),
+      fee: Math.max(...fees),
       feeType: Array.from(new Set(fees)).length === 1 ? ProviderFee.Fixed : ProviderFee.UpTo,
       regions: getUniqueRegions(addressGroups),
       domains: getUniqueDomains(addressGroups),

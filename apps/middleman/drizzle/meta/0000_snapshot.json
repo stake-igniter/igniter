@@ -1,5 +1,5 @@
 {
-  "id": "d7773347-ef33-48d4-9a1b-cf9485524dad",
+  "id": "d127edee-fa75-4772-a610-83ab7997fea7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -57,7 +57,7 @@
         },
         "fee": {
           "name": "fee",
-          "type": "numeric(5, 2)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -334,7 +334,7 @@
         },
         "fee": {
           "name": "fee",
-          "type": "numeric",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },

@@ -1,12 +1,12 @@
 "use client";
 import { Button } from "@igniter/ui/components/button";
 import { Progress } from "@igniter/ui/components/progress";
-import { CheckIcon } from "@igniter/ui/assets";
+import {CheckIcon, LoaderIcon} from "@igniter/ui/assets";
 import { defineStepper } from "@stepperize/react";
-import React from "react";
+import React, {useEffect} from "react";
 import { cn } from "@igniter/ui/lib/utils";
 import { ApplicationSettings } from "@/db/schema";
-import { completeSetup } from "@/actions/ApplicationSettings";
+import {completeSetup, getApplicationSettings} from "@/actions/ApplicationSettings";
 import ApplicationSettingsForm from "./settingsForm";
 import { Provider } from "@/actions/Providers";
 import ProvidersForm from "./providersForm";
@@ -14,7 +14,6 @@ import BlockchainFormComponent from '@/app/admin/setup/blockchainFrom'
 
 interface StepperProps {
   providers: Provider[];
-  settings: Partial<ApplicationSettings>;
 }
 
 const { useStepper, steps, utils } = defineStepper(
@@ -50,10 +49,15 @@ const AdminUserComponent = ({ address }: { address: string }) => {
 const ApplicationSettingsComponent: React.FC<{
   settings: Partial<ApplicationSettings>;
   goNext: () => void;
-}> = ({ settings, goNext }) => {
+  goBack: () => void;
+}> = ({ settings, goNext, goBack }) => {
   return (
     <div className="grid gap-4">
-      <ApplicationSettingsForm defaultValues={settings} goNext={goNext} />
+      <ApplicationSettingsForm
+        defaultValues={settings}
+        goNext={goNext}
+        goBack={goBack}
+      />
     </div>
   );
 };
@@ -75,10 +79,32 @@ const BootstrapCompleteComponent = () => {
   return <h3 className="text-lg py-4">System Bootstrap complete!</h3>;
 };
 
-export const Stepper: React.FC<StepperProps> = ({ settings, providers }) => {
+export const Stepper: React.FC<StepperProps> = ({ providers }) => {
   const stepper = useStepper();
+  const [isLoadingSettings, setIsLoadingSettings] = React.useState(true);
+  const [hasError, setHasError] = React.useState(false);
+  const [settings, setSettings] = React.useState<ApplicationSettings>();
 
   const currentIndex = utils.getIndex(stepper.current.id);
+
+  const updateSettingsFromDb = async () => {
+    setHasError(false);
+    setSettings(undefined);
+    try {
+      setIsLoadingSettings(true);
+      const dbSettings = await getApplicationSettings();
+      setSettings(dbSettings as ApplicationSettings);
+    } catch (error) {
+      console.error("Something went wrong while retrieving the current applications settings", error);
+      setHasError(true);
+    } finally {
+      setIsLoadingSettings(false);
+    }
+  };
+
+  useEffect(() => {
+    updateSettingsFromDb();
+  }, [currentIndex]);
 
   return (
     <div className="space-y-6 p-6 border rounded-lg min-h-[400px] flex flex-col justify-between">
@@ -163,17 +189,31 @@ export const Stepper: React.FC<StepperProps> = ({ settings, providers }) => {
         </div>
 
         <div className="space-y-5">
-          {stepper.switch({
+          {isLoadingSettings && (
+            <div className="flex justify-center items-center h-fit">
+              <LoaderIcon className="animate-spin" />
+            </div>
+          )}
+          {hasError && (
+            <div className="flex justify-center items-center h-fit">
+              <p>Something went wrong while retrieving the current applications settings</p>
+              <Button>
+                Try again
+              </Button>
+            </div>
+          )}
+          {!isLoadingSettings && !hasError && stepper.switch({
             "blockchain": () => (
               <BlockchainFormComponent
-                defaultValues={settings}
+                defaultValues={settings!}
                 goNext={stepper.next}
               />
             ),
             "application-settings": () => (
               <ApplicationSettingsComponent
-                settings={settings}
+                settings={settings!}
                 goNext={stepper.next}
+                goBack={stepper.prev}
               />
             ),
             "configure-providers": () => (

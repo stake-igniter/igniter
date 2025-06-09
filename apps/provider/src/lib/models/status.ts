@@ -5,7 +5,7 @@ export interface StatusRequest {}
 
 export interface StatusResponse {
   minimumStake: number;
-  fee: string;
+  fee: number;
   feeType: ProviderFee;
   domains: string[];
   regions: string[];
