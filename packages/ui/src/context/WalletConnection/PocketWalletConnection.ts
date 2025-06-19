@@ -167,6 +167,8 @@ export class PocketWalletConnection implements WalletConnection {
 
     const transaction = {
       address: signer || this.connectedIdentity || "",
+      gas: 'auto',
+      gasAdjustment: 2,
       messages,
     };
 
