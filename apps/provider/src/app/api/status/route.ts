@@ -3,18 +3,17 @@ import {getApplicationSettings} from "@/lib/dal/applicationSettings";
 import {list} from "@/lib/dal/addressGroups";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
-import {AddressGroup, ProviderFee} from "@/db/schema";
-import {list as listServices} from "@/lib/dal/services";
+import {AddressGroupWithDetails, ProviderFee} from "@/db/schema";
 import {getRevShare} from "@/lib/utils/services";
 
-function getUniqueRegions(addressGroups: AddressGroup[]) {
-  return Array.from(new Set(addressGroups.map((group) => group.region)).values());
+function getUniqueRegions(addressGroups: AddressGroupWithDetails[]) {
+  return Array.from(new Set(addressGroups.map((group) => group.relayMiner.region)).values());
 }
 
-function getUniqueDomains(addressGroups: AddressGroup[]) {
+function getUniqueDomains(addressGroups: AddressGroupWithDetails[]) {
   return Array.from(new Set(addressGroups
-    .filter((group) => group.domain)
-    .map((group) => group.domain!)
+    .filter((group) => group.relayMiner.domain)
+    .map((group) => group.relayMiner.domain!)
   ).values());
 }
 
@@ -42,6 +41,7 @@ export async function POST(request: Request) {
         group.addressGroupServices.map((service) =>
           getRevShare(service, '').map((share) => share.revSharePercentage)
         );
+
       return [...allFees, ...groupFees.flat()];
     }, [] as number[]);
     

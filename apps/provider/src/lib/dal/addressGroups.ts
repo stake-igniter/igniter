@@ -4,13 +4,13 @@ import {
   addressGroupTable,
   AddressGroupWithDetails,
   CreateAddressGroup,
-  AddressGroupService, addressGroupServicesTable, keysTable
+  AddressGroupService, addressGroupServicesTable, keysTable, relayMinersTable
 } from "@/db/schema";
 import {eq, sql, and} from "drizzle-orm";
 
 export async function insert(
   addressGroup: CreateAddressGroup,
-  services: Omit<AddressGroupService, "addressGroupId">[]
+  services: Omit<AddressGroupService, "addressGroupId" | "service">[]
 ): Promise<AddressGroup> {
   return db.transaction(async (tx) => {
     const [insertedGroup] = await tx
@@ -41,7 +41,7 @@ export async function insert(
 export async function update(
   id: number,
   addressGroupUpdates: Partial<AddressGroup>,
-  services: Omit<AddressGroupService, "addressGroupId">[]
+  services: Omit<AddressGroupService, "addressGroupId" | "service">[]
 ): Promise<AddressGroup> {
   return db.transaction(async (tx) => {
     const [updatedGroup] = await tx
@@ -93,13 +93,13 @@ export async function remove(id: number): Promise<AddressGroup> {
 }
 
 export async function list(
-  region: string = "",
-  priv?: boolean
+    region: string = "",
+    priv?: boolean
 ): Promise<AddressGroupWithDetails[]> {
   const filters = [];
 
   if (region) {
-    filters.push(eq(addressGroupTable.region, region));
+    filters.push(eq(relayMinersTable.region, region));
   }
   if (priv !== undefined) {
     filters.push(eq(addressGroupTable.private, priv));
@@ -110,27 +110,28 @@ export async function list(
     columns: {
       id: true,
       name: true,
-      region: true,
-      domain: true,
       clients: true,
       private: true,
+      relayMinerId: true,
       createdAt: true,
       updatedAt: true,
       createdBy: true,
       updatedBy: true,
     },
-    extras: {
-      keysCount: sql<number>`
-          CAST(
-          (
-            SELECT COUNT(*)
-            FROM ${keysTable}
-            WHERE ${keysTable}."address_group_id" = ${addressGroupTable.id}
-          ) AS INTEGER
-          )
-      `.as("keys_count"),
-    },
     with: {
+      relayMiner: {
+        columns: {
+          id: true,
+          name: true,
+          identity: true,
+          region: true,
+          domain: true,
+          createdAt: true,
+          updatedAt: true,
+          createdBy: true,
+          updatedBy: true
+        },
+      },
       addressGroupServices: {
         with: {
           service: {
@@ -139,12 +140,23 @@ export async function list(
             }
           }
         },
-        limit: 8,
       },
+    },
+    extras: {
+      keysCount: sql<number>`
+        CAST(
+          (
+            SELECT COUNT(*)
+            FROM ${keysTable}
+        WHERE ${keysTable}."address_group_id" = ${addressGroupTable.id}
+        ) AS INTEGER
+        )
+      `.as("keys_count"),
     },
     orderBy: addressGroupTable.name,
   });
 }
+
 
 export async function simpleList() {
   return db.query.addressGroupTable.findMany()

@@ -3,9 +3,8 @@
 import React from 'react'
 import {Button} from "@igniter/ui/components/button";
 import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
-import AddressGroupsTable from "@/app/admin/(internal)/groups/table";
-import {useQuery, useQueryClient} from "@tanstack/react-query";
-import {ListServices} from "@/actions/Services";
+import AddressGroupsTable from "./table";
+import {useQueryClient} from "@tanstack/react-query";
 
 export default function GroupsPage() {
   const queryClient = useQueryClient();
