@@ -8,18 +8,9 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import DataTable from "@igniter/ui/components/DataTable/index";
 import {columns, filters, sorts} from "./columns";
 import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
-import {ListServices} from "@/actions/Services";
 import {useQuery} from "@tanstack/react-query";
 
 export default function AddressGroupsTable() {
-  const {data: services, isLoading: isLoadingServices} = useQuery({
-    queryKey: ['services'],
-    queryFn: ListServices,
-    staleTime: Infinity,
-    refetchInterval: 60000,
-    initialData: []
-  });
-
   const {data: addressGroups, refetch: fetchAddressGroups, isLoading: isLoadingAddressGroups} = useQuery({
     queryKey: ['groups'],
     queryFn: ListAddressGroups,
@@ -35,9 +26,8 @@ export default function AddressGroupsTable() {
 
   const isLoading = useMemo(() => {
     return isLoadingAddressGroups ||
-      isLoadingServices ||
       isDeletingAddressGroup;
-  }, [isLoadingAddressGroups, isLoadingServices, isDeletingAddressGroup]);
+  }, [isLoadingAddressGroups, isDeletingAddressGroup]);
 
   useEffect(() => {
     fetchAddressGroups();

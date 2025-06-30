@@ -112,18 +112,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "region": {
-          "name": "region",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
         "clients": {
           "name": "clients",
           "type": "varchar[]",
@@ -137,6 +125,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "relay_miner_id": {
+          "name": "relay_miner_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "createdAt": {
           "name": "createdAt",
@@ -167,6 +161,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "address_groups_relay_miner_id_relay_miners_id_fk": {
+          "name": "address_groups_relay_miner_id_relay_miners_id_fk",
+          "tableFrom": "address_groups",
+          "tableTo": "relay_miners",
+          "columnsFrom": [
+            "relay_miner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
         "address_groups_createdBy_users_identity_fk": {
           "name": "address_groups_createdBy_users_identity_fk",
           "tableFrom": "address_groups",
@@ -195,15 +202,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "address_groups_name_unique": {
-          "name": "address_groups_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -578,6 +577,121 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.relay_miners": {
+      "name": "relay_miners",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "relay_miners_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "identity": {
+          "name": "identity",
+          "type": "varchar(66)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "region": {
+          "name": "region",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "domain": {
+          "name": "domain",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "relay_miners_createdBy_users_identity_fk": {
+          "name": "relay_miners_createdBy_users_identity_fk",
+          "tableFrom": "relay_miners",
+          "tableTo": "users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "relay_miners_updatedBy_users_identity_fk": {
+          "name": "relay_miners_updatedBy_users_identity_fk",
+          "tableFrom": "relay_miners",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updatedBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "relay_miners_identity_unique": {
+          "name": "relay_miners_identity_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "identity"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

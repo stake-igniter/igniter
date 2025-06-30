@@ -45,6 +45,12 @@ const mainRoutes = [
     icon: ActivityDark,
   },
   {
+    id: "miners",
+    title: "Relay Miners",
+    url: "/admin/miners",
+    icon: ActivityDark,
+  },
+  {
     title: "Delegators",
     url: "/admin/delegators",
     icon: SettingsDark,

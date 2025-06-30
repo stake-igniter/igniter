@@ -4,7 +4,7 @@ import type {AddressGroup, CreateAddressGroup, AddressGroupService, CreateServic
 import { insert, list, remove, simpleList, update } from '@/lib/dal/addressGroups'
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
-export async function CreateAddressGroup(addressGroup: Omit<CreateAddressGroup, 'createdBy' | 'updatedBy'>, services: Omit<AddressGroupService, 'addressGroupId'>[]) {
+export async function CreateAddressGroup(addressGroup: Omit<CreateAddressGroup, 'createdBy' | 'updatedBy'>, services: Omit<AddressGroupService, 'addressGroupId' | 'service'>[]) {
   const identity = await getCurrentUserIdentity();
   return insert(
     {
@@ -16,7 +16,7 @@ export async function CreateAddressGroup(addressGroup: Omit<CreateAddressGroup, 
   );
 }
 
-export async function UpdateAddressGroup(id: number, addressGroup: Pick<AddressGroup, 'name' | 'clients' | 'region'>, services: Omit<AddressGroupService, 'addressGroupId'>[]) {
+export async function UpdateAddressGroup(id: number, addressGroup: Pick<AddressGroup, 'name' | 'clients'>, services: Omit<AddressGroupService, 'addressGroupId' | 'service'>[]) {
   const identity = await getCurrentUserIdentity();
   return update(
     id,

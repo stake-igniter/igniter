@@ -12,6 +12,7 @@ import ConfigureAddressGroup from "./ConfigureAddressGroups";
 import ConfigureServices from "@/app/admin/setup/ConfigureServices";
 import ConfigureDelegators from "@/app/admin/setup/ConfigureDelegators";
 import ConfigureBlockChain from "@/app/admin/setup/ConfigureBlockChain";
+import ConfigureRelayMiners from "@/app/admin/setup/ConfigureRelayMiners";
 
 const { useStepper, steps, utils } = defineStepper(
   {
@@ -21,6 +22,10 @@ const { useStepper, steps, utils } = defineStepper(
   {
     id: "identity-settings",
     title: "Identity Settings",
+  },
+  {
+    id: "relay-miners",
+    title: "Configure Relay-miners"
   },
   {
     id: "services",
@@ -182,6 +187,9 @@ export const Stepper: React.FC = () => {
                 goNext={stepper.next}
                 goBack={stepper.prev}
               />
+            ),
+            "relay-miners": () => (
+              <ConfigureRelayMiners goNext={stepper.next} goBack={stepper.prev} />
             ),
             services: () => (
               <ConfigureServices goNext={stepper.next} goBack={stepper.prev} />

@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import {AddressGroup, AddressGroupWithDetails, Service} from "@/db/schema";
+import {AddressGroup, AddressGroupWithDetails, RelayMiner, Service} from "@/db/schema";
 import {Region, RegionDisplay} from "@/lib/models/commons";
 
 export const columns: ColumnDef<AddressGroupWithDetails>[] = [
@@ -10,19 +10,11 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
     header: "Name",
   },
   {
-    accessorKey: "region",
-    header: "Region",
+    accessorKey: "relayMiner",
+    header: "Relay Miner",
     cell: ({ row }) => {
-      const region = row.getValue("region") as Region;
-      return RegionDisplay[region];
-    },
-  },
-  {
-    accessorKey: "domain",
-    header: "Domain",
-    cell: ({ row }) => {
-      const domain = row.getValue("domain") as string;
-      return domain || '-';
+      const rm = row.getValue("relayMiner") as RelayMiner;
+      return `${rm.name} (${rm.identity})` || '-';
     },
   },
   {

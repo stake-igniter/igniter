@@ -53,7 +53,7 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
     }
 
     console.log('Generating addresses...');
-    const response = await getSupplierStakeConfigurations(data, delegatorIdentity, settings);
+    const response = await getSupplierStakeConfigurations(data, delegatorIdentity);
 
     if (!response || response.length === 0) {
       console.log('No addresses available');
