@@ -172,13 +172,29 @@ export const servicesRelations = relations(
   })
 )
 
+export const relayMinersTable = pgTable("relay_miners", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  name: varchar({ length: 255 }).notNull(),
+  identity: varchar({ length: 66 }).notNull().unique(),
+  region: varchar({ length: 255 }).notNull(),
+  domain: varchar({ length: 255 }).notNull(),
+  createdAt: timestamp().defaultNow(),
+  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+});
+
+export type RelayMiner = typeof relayMinersTable.$inferSelect;
+export type CreateRelayMiner = typeof relayMinersTable.$inferInsert;
+
 export const addressGroupTable = pgTable("address_groups", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull().unique(),
-  region: varchar({ length: 255 }).notNull(),
-  domain: varchar({ length: 255 }),
+  name: varchar({ length: 255 }).notNull(),
   clients: varchar().array().default([]),
   private: boolean().notNull().default(false),
+  relayMinerId: integer("relay_miner_id")
+      .references(() => relayMinersTable.id, { onDelete: 'restrict' })
+      .notNull(),
   createdAt: timestamp().defaultNow(),
   createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
   updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
@@ -192,13 +208,18 @@ export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
 export type AddressGroupWithDetails = AddressGroup & {
   keysCount: number;
   addressGroupServices: AddressGroupService[];
+  relayMiner: RelayMiner;
 }
 
 export const addressGroupsRelations = relations(
   addressGroupTable,
-  ({ many }) => ({
+  ({ many, one }) => ({
     addresses: many(keysTable),
     addressGroupServices: many(addressGroupServicesTable),
+    relayMiner: one(relayMinersTable, {
+      fields: [addressGroupTable.relayMinerId],
+      references: [relayMinersTable.id],
+    }),
   })
 );
 

@@ -54,9 +54,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext, goBack }) =
           onSubmit={form.handleSubmit(async (values: any) => {
             setIsLoading(true);
             try {
-              console.log('Updating the settings');
               await UpsertApplicationSettings(values, isUpdate);
-              console.log('Updated the settings?');
               goNext();
             } catch (error) {
               console.error(error);

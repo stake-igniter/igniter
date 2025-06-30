@@ -29,19 +29,14 @@ import {
   AddressGroupWithDetails,
   Service,
 } from "@/db/schema";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@igniter/ui/components/select";
-import { Combobox } from "@/app/admin/setup/ConfigureAddressGroups/Combobox";
+import { Combobox } from "./Combobox";
 import { getEndpointInterpolatedUrl } from "@/lib/models/supplier";
 import {Switch} from "@igniter/ui/components/switch";
 import {Label} from "@igniter/ui/components/label";
 import {useQuery} from "@tanstack/react-query";
 import {ListServices} from "@/actions/Services";
+import {ListRelayMiners} from "@/actions/RelayMiners";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@igniter/ui/components/select";
 
 const poktAddressRegex = /^pokt[a-zA-Z0-9]{39,42}$/;
 
@@ -95,19 +90,11 @@ const ServiceSchema = z.object({
 export const CreateOrUpdateAddressGroupSchema = z.object({
   name: z
     .string()
-    .min(1, "Name is required")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Name must be a valid slug (lowercase letters, numbers, and hyphens only, cannot start or end with a hyphen)"
-    ),
+    .min(1, "Name is required"),
 
-  region: z
-    .string()
-    .min(1, "Region is required")
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Region must be a valid slug (lowercase letters, numbers, and hyphens only, cannot start or end with a hyphen)"
-    ),
+  relayMinerId: z
+      .coerce
+      .number(),
 
   clients: z
     .array(
@@ -119,19 +106,9 @@ export const CreateOrUpdateAddressGroupSchema = z.object({
 
   private: z.boolean().default(false),
 
-  domain: z
-    .string()
-    .regex(
-      /^(?!:\/\/)([a-zA-Z0-9-_]+(\.[a-zA-Z0-9-_]+)+.*)$/,
-      "Invalid domain format. Ensure it's a valid domain name."
-    )
-    .optional()
-    .default(""),
-
   services: z
     .array(ServiceSchema)
     .min(1, "You need to assign at least one service")
-    .max(8, "You can only assign up to 8 services"),
 });
 
 export interface AddOrUpdateAddressGroupProps {
@@ -144,7 +121,7 @@ export interface ServiceItemProps {
   revShare: { address: string; share: number }[];
   addSupplierShare: boolean;
   supplierShare: number | null;
-  ag: string;
+  rm: string;
   region: string;
   domain: string;
   onRemove: () => void;
@@ -158,7 +135,7 @@ type AddressGroupService = z.infer<typeof ServiceSchema>;
 const ServiceItem = ({
                        service,
                        revShare,
-                       ag,
+                       rm,
                        region,
                        domain,
                        addSupplierShare,
@@ -214,7 +191,7 @@ const ServiceItem = ({
             <div key={index} className="text-sm pl-2">
               {getEndpointInterpolatedUrl(endpoint, {
                 sid: service.serviceId,
-                ag,
+                rm,
                 region,
                 domain,
               })}
@@ -310,9 +287,18 @@ export function AddOrUpdateAddressGroupDialog({
     initialData: []
   });
 
+  const {data: relayMiners, isLoading: isLoadingRelayMiners} = useQuery({
+    queryKey: ['relay-miners'],
+    queryFn: ListRelayMiners,
+    refetchInterval: 60000,
+    initialData: []
+  });
+
   const [isCancelling, setIsCanceling] = useState(false);
   const [isCreatingAddressGroup, setIsCreatingAddressGroup] = useState(false);
   const [isUpdatingAddressGroup, setIsUpdatingAddressGroup] = useState(false);
+
+  const isLoading = useMemo(() => isLoadingServices || isLoadingRelayMiners, [isLoadingServices, isLoadingRelayMiners]);
 
   const [assignedServices, setAssignedServices] = useState<string[]>([]);
 
@@ -320,10 +306,9 @@ export function AddOrUpdateAddressGroupDialog({
     resolver: zodResolver(CreateOrUpdateAddressGroupSchema),
     defaultValues: {
       name: addressGroup?.name ?? "",
-      region: addressGroup?.region ?? "",
-      domain: addressGroup?.domain ?? "",
       clients: addressGroup?.clients ?? [],
       private: addressGroup?.private ?? false,
+      relayMinerId: addressGroup?.relayMinerId,
       services:
         addressGroup?.addressGroupServices.map((as) => ({
           serviceId: as.serviceId,
@@ -385,8 +370,11 @@ export function AddOrUpdateAddressGroupDialog({
   }, [assignedServices, services]);
 
   const name = form.watch("name");
-  const region = form.watch("region");
-  const domain = form.watch("domain");
+  const relayMinerId = form.watch("relayMinerId");
+
+  const selectedRelayMiner = useMemo(() => {
+    return relayMiners.find((rm) => rm.id === Number(relayMinerId));
+  }, [relayMinerId]);
 
   async function onSubmit({services, ...values}: z.infer<typeof CreateOrUpdateAddressGroupSchema>) {
     if (addressGroup) {
@@ -430,7 +418,7 @@ export function AddOrUpdateAddressGroupDialog({
         </DialogTitle>
         <div className="h-[1px] bg-[var(--slate-dividers)]" />
 
-        {!isLoadingServices && (
+        {!isLoading && (
           <div className="px-4 py-3 min-h-[570px]">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
@@ -452,54 +440,29 @@ export function AddOrUpdateAddressGroupDialog({
                     />
 
                     <FormField
-                      name="region"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col gap-2">
-                          <FormLabel>Region</FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select Region" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="us-east">US East</SelectItem>
-                                <SelectItem value="us-west">US West</SelectItem>
-                                <SelectItem value="canada">Canada</SelectItem>
-                                <SelectItem value="latam">Latin America</SelectItem>
-                                <SelectItem value="europe-west">Europe West</SelectItem>
-                                <SelectItem value="europe-north">Europe North</SelectItem>
-                                <SelectItem value="middle-east">Middle East</SelectItem>
-                                <SelectItem value="africa-south">Africa South</SelectItem>
-                                <SelectItem value="asia-east">Asia East</SelectItem>
-                                <SelectItem value="asia-southeast">
-                                  Asia Southeast
-                                </SelectItem>
-                                <SelectItem value="asia-south">Asia South</SelectItem>
-                                <SelectItem value="australia">Australia</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      name="domain"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col gap-2">
-                          <FormLabel>Domain</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                        name="relayMinerId"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormItem className="flex flex-col gap-2">
+                              <FormLabel>Relay Miner</FormLabel>
+                              <FormControl>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={String(field.value ?? "")}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {relayMiners.map((rm) => (
+                                        <SelectItem key={rm.identity} value={rm.id.toString()}>{`${rm.name} (${rm.identity})`}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                        )}
                     />
 
                     <FormField
@@ -511,7 +474,7 @@ export function AddOrUpdateAddressGroupDialog({
                           <FormControl>
                             <Combobox
                               items={selectableServices}
-                              placeholder="Select service"
+                              placeholder="Select"
                               searchPlaceholder="Search services"
                               emptyMessage="No services found"
                               onSelect={handleAddService}
@@ -552,9 +515,9 @@ export function AddOrUpdateAddressGroupDialog({
                             <ServiceItem
                               key={serviceId}
                               service={service}
-                              ag={name}
-                              region={region}
-                              domain={domain}
+                              rm={selectedRelayMiner?.identity ?? ""}
+                              region={selectedRelayMiner?.region ?? ""}
+                              domain={selectedRelayMiner?.domain ?? ""}
                               revShare={revShare}
                               addSupplierShare={addSupplierShare}
                               supplierShare={supplierShare}
@@ -630,7 +593,7 @@ export function AddOrUpdateAddressGroupDialog({
           </div>
         )}
 
-        {isLoadingServices && (
+        {isLoading && (
           <div className="flex justify-center items-center">
             <LoaderIcon clasName="animate-spin" />
           </div>

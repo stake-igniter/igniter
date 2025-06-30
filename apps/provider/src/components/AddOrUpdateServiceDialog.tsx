@@ -187,7 +187,7 @@ export function AddOrUpdateServiceDialog({
             return;
           }
           const service = await fetchService(serviceId);
-          setServiceOnChain(service);
+          setServiceOnChain(service ?? null);
           const url = SERVICE_BY_ID_URL.replace('{service-id}', serviceId.toLowerCase().trim());
           const response = await fetch(url);
         } catch (error) {
@@ -418,11 +418,11 @@ export function AddOrUpdateServiceDialog({
                                 if (endpoints[index]) {
                                   setPatternHelp({
                                     input: endpoints[index].url || getDefaultUrlWithSchemeByRpcType(endpoints[index].rpcType),
-                                    ag: 'rm-01', // Hard coded address group for help
-                                    region: Region.AFRICA_SOUTH, // Hard coded region for help
+                                    ag: 'rm-01', // Hard-coded address group for help
+                                    region: Region.AFRICA_SOUTH, // Hard-coded region for help
                                     result: getEndpointInterpolatedUrl(endpoints[index], {
-                                      ag: 'rm-01', // Hard coded address group for help
-                                      region: Region.AFRICA_SOUTH, // Hard coded region for help
+                                      rm: 'rm-01', // Hard-coded relay miner identity for help
+                                      region: Region.AFRICA_SOUTH, // Hard-coded region for help
                                       sid: serviceId,
                                       domain: 'example.com',
                                     })
@@ -487,8 +487,8 @@ export function AddOrUpdateServiceDialog({
             </p>
 
             <div className="grid grid-cols-[80px_1fr] gap-2 items-start">
-              <div className="font-medium">{`{ag}`}</div>
-              <div className="text-sm">The name of the address group for which nodes are being requested</div>
+              <div className="font-medium">{`{rm}`}</div>
+              <div className="text-sm">The identity of the relay miner associated to the address group for which nodes are being requested</div>
             </div>
 
             <div className="grid grid-cols-[80px_1fr] gap-2 items-start">

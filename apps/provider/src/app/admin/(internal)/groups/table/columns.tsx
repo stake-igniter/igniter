@@ -1,8 +1,7 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import {AddressGroupWithDetails} from "@/db/schema";
-import {Region, RegionDisplay} from "@/lib/models/commons";
+import {AddressGroupWithDetails, RelayMiner} from "@/db/schema";
 import {FilterGroup, SortOption} from "@igniter/ui/components/DataTable/index";
 
 
@@ -12,19 +11,11 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
     header: "Name",
   },
   {
-    accessorKey: "region",
-    header: "Region",
+    accessorKey: "relayMiner",
+    header: "Relay Miner",
     cell: ({ row }) => {
-      const region = row.getValue("region") as Region;
-      return RegionDisplay[region];
-    },
-  },
-  {
-    accessorKey: "domain",
-    header: "Domain",
-    cell: ({ row }) => {
-      const domain = row.getValue("domain") as string;
-      return domain || '-';
+      const rm = row.getValue("relayMiner") as RelayMiner;
+      return `${rm.name} (${rm.identity})` || '-';
     },
   },
   {
