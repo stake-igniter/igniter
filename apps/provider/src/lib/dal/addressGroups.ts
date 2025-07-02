@@ -110,7 +110,7 @@ export async function list(
     columns: {
       id: true,
       name: true,
-      clients: true,
+      linkedAddresses: true,
       private: true,
       relayMinerId: true,
       createdAt: true,
