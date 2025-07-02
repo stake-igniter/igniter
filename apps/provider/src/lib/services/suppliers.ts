@@ -67,7 +67,14 @@ export async function getSupplierStakeConfigurations(
   stakeDistribution: SupplierStakeRequest,
   requestingDelegator: string,
 ): Promise<Supplier[]> {
-  const addressGroups = await list(stakeDistribution.region, false);
+  const allAddressGroups = await list(stakeDistribution.region);
+
+  const linkedAddressGroups = allAddressGroups.filter((ag) => ag.linkedAddresses?.includes(stakeDistribution.ownerAddress));
+
+  const addressGroups = linkedAddressGroups.length > 0
+      ? linkedAddressGroups
+      : allAddressGroups.filter((ag) => !ag.private);
+
   const services = await listServices();
 
   const totalNewSuppliers = stakeDistribution.items
