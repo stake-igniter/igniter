@@ -96,13 +96,19 @@ export const CreateOrUpdateAddressGroupSchema = z.object({
       .coerce
       .number(),
 
-  clients: z
-    .array(
-      z
-        .string()
-        .regex(/^pokt[a-zA-Z0-9]{39,42}$/, "Must be a valid Cosmos address with 'pokt' prefix")
-    )
-    .default([]),
+  linkedAddresses: z
+      .array(
+          z
+              .string()
+              .regex(/^pokt[a-zA-Z0-9]{39,42}$/, "Must be a valid Cosmos address with 'pokt' prefix")
+      )
+      .default([])
+      .refine((addresses) => {
+        return new Set(addresses).size === addresses.length;
+      }, {
+        message: "Each linked address must be unique",
+      }),
+
 
   private: z.boolean().default(false),
 
@@ -306,7 +312,7 @@ export function AddOrUpdateAddressGroupDialog({
     resolver: zodResolver(CreateOrUpdateAddressGroupSchema),
     defaultValues: {
       name: addressGroup?.name ?? "",
-      clients: addressGroup?.clients ?? [],
+      linkedAddresses: addressGroup?.linkedAddresses ?? [],
       private: addressGroup?.private ?? false,
       relayMinerId: addressGroup?.relayMinerId,
       services:
@@ -371,6 +377,7 @@ export function AddOrUpdateAddressGroupDialog({
 
   const name = form.watch("name");
   const relayMinerId = form.watch("relayMinerId");
+  const linkedAddresses = form.watch("linkedAddresses");
 
   const selectedRelayMiner = useMemo(() => {
     return relayMiners.find((rm) => rm.id === Number(relayMinerId));
@@ -500,6 +507,62 @@ export function AddOrUpdateAddressGroupDialog({
                           <FormLabel>Internal use only</FormLabel>
                         </FormItem>
                       )}
+                    />
+
+                    <FormField
+                        name="linkedAddresses"
+                        control={form.control}
+                        render={() => (
+                            <FormItem className="flex flex-col gap-2">
+                              <div className="flex justify-between">
+                                <FormLabel>Linked Addresses</FormLabel>
+                                <FormLabel
+                                    className="text-[var(--color-slate-9)] hover:underline cursor-pointer"
+                                    onClick={() => {
+                                      const currentAddresses = form.getValues("linkedAddresses");
+                                      form.setValue("linkedAddresses", [...currentAddresses, ""]);
+                                    }}
+                                >
+                                  Add Address
+                                </FormLabel>
+                              </div>
+                              <FormControl>
+                                <div className="space-y-2">
+                                  {linkedAddresses && linkedAddresses.map((address, index) => (
+                                      <div key={index} className="grid grid-cols-24 items-center gap-2">
+                                        <Input
+                                            className="col-span-22"
+                                            value={address}
+                                            onChange={(e) => {
+                                              const currentAddresses = [...form.getValues("linkedAddresses")];
+                                              currentAddresses[index] = e.target.value;
+                                              form.setValue("linkedAddresses", currentAddresses);
+                                            }}
+                                            placeholder="pokt..."
+                                        />
+                                        <Button
+                                            className="col-span-2"
+                                            onClick={() => {
+                                              const currentAddresses = [...form.getValues("linkedAddresses")];
+                                              currentAddresses.splice(index, 1);
+                                              form.setValue("linkedAddresses", currentAddresses);
+                                            }}
+                                            size="sm"
+                                        >
+                                          x
+                                        </Button>
+                                      </div>
+                                  ))}
+                                  {linkedAddresses && linkedAddresses.length === 0 && (
+                                      <div className="text-muted-foreground text-sm">
+                                        No linked addresses added
+                                      </div>
+                                  )}
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                        )}
                     />
                   </div>
 
