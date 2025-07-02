@@ -40,6 +40,15 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
     },
   },
   {
+    accessorKey: "linkedAddresses",
+    header: "Linked Addresses",
+    cell: ({ row }) => {
+
+      const linkedAddresses = row.getValue("linkedAddresses") as string[]
+      return linkedAddresses && linkedAddresses.length > 0 ? `${linkedAddresses.length} Linked Addresses` : "No Linked Addresses";
+    }
+  },
+  {
     accessorKey: "private",
     header: "Private",
   },
