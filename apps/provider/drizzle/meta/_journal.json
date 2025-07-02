@@ -15,6 +15,13 @@
       "when": 1751245450799,
       "tag": "0001_heavy_dreaming_celestial",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751427819043,
+      "tag": "0002_nervous_leopardon",
+      "breakpoints": true
     }
   ]
 }

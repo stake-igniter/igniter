@@ -190,7 +190,7 @@ export type CreateRelayMiner = typeof relayMinersTable.$inferInsert;
 export const addressGroupTable = pgTable("address_groups", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  clients: varchar().array().default([]),
+  linkedAddresses: varchar().array().default([]),
   private: boolean().notNull().default(false),
   relayMinerId: integer("relay_miner_id")
       .references(() => relayMinersTable.id, { onDelete: 'restrict' })
