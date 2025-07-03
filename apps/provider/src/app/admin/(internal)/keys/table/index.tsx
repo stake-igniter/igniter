@@ -25,6 +25,7 @@ export default function KeysTable({initialKeys, initialAddressesGroup}: KeysTabl
     id: key.id,
     address: key.address,
     addressGroup: key.addressGroup!,
+    ownerAddress: key.ownerAddress,
     state: key.state,
     createdAt: new Date(key.createdAt!),
     delegator: key.delegator,

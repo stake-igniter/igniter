@@ -100,6 +100,7 @@ export async function getSupplierStakeConfigurations(
       addressGroupId: distribution.addressGroup.id,
       numberOfKeys: distribution.keys.numberOfKeys.length,
       willDeliverTo: requestingDelegator,
+      ownerAddress: stakeDistribution.ownerAddress,
     }),
   })));
 
