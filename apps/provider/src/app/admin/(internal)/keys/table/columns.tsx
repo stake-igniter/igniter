@@ -13,6 +13,7 @@ export interface Key {
     name: string
   }
   state: KeyState
+  ownerAddress: string | null
   delegator: {
     name: string
   } | null
@@ -47,6 +48,21 @@ export const columns: Array<ColumnDef<Key>> = [
     filterFn: (row, columnId, value) => {
       const addressGroup = row.getValue("addressGroup") as Key['addressGroup'];
       return typeof value === 'string' ? addressGroup.name.toLowerCase().includes(value.toLowerCase()) : addressGroup.id === value;
+    },
+  },
+  {
+    accessorKey: "ownerAddress",
+    header: "Owner",
+    cell: ({ row }) => {
+      const ownerAddress = row.getValue("ownerAddress") as string;
+
+      if (!ownerAddress) {
+        return 'Owner Not Set';
+      }
+
+      return (
+          <Address address={ownerAddress} />
+      );
     },
   },
   {

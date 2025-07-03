@@ -106,10 +106,11 @@ export type CreateApplicationSettings = typeof applicationSettingsTable.$inferIn
 
 export const keysTable = pgTable("keys", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  // todo: this shouldn't be unique?
-  address: varchar({ length: 255 }).notNull(),
-  publicKey: varchar({ length: 66 }).notNull(),
+  address: varchar({ length: 255 }).unique().notNull(),
+  publicKey: varchar({ length: 66 }).unique().notNull(),
   privateKey: encryptedText("privateKey").notNull(),
+  // TODO: make it not null once all data is sanitized. See: https://github.com/stake-igniter/igniter/issues/109
+  ownerAddress: varchar({ length: 255 }).default(''),
   state: addressStateEnum().notNull().default(KeyState.Available),
   deliveredAt: timestamp(),
   deliveredTo: varchar("delegator_identity").references(() => delegatorsTable.identity),
