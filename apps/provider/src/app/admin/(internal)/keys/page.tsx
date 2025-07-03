@@ -9,7 +9,7 @@ export default async function AddressesPage() {
   const [keys, addressesGroup] = await Promise.all([
     ListKeys(),
     ListBasicAddressGroups(),
-  ])
+  ]);
 
   return (
     <div className="flex flex-col gap-10">
