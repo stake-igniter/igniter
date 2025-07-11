@@ -14,6 +14,7 @@ import { auth } from "@/auth";
 import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
+import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -73,6 +74,7 @@ export default async function RootLayout({
                   <SidebarInset>
                     <div className={"w-full h-full flex overflow-x-hidden"}>
                       <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
+                        <RegisterPlugins />
                         {children}
                         <Toaster />
                       </div>

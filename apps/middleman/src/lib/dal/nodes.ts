@@ -1,6 +1,6 @@
 import "server-only";
 import { db } from "@/db";
-import {desc, eq} from 'drizzle-orm'
+import {desc, eq, sql} from 'drizzle-orm'
 import {nodesTable} from "@/db/schema";
 
 export async function getNodesByUser(userIdentity: string) {
@@ -35,4 +35,16 @@ export async function getNode(address: string) {
       },
     },
   });
+}
+
+export async function getOwnerAddressesByUser(userIdentity: string) {
+  const result = await db.execute(
+    sql`
+    SELECT DISTINCT ${nodesTable.ownerAddress}
+    FROM ${nodesTable}
+    WHERE ${nodesTable.createdBy} = ${userIdentity}
+  `
+  );
+
+  return result.rows.map((row) => row.ownerAddress as string);
 }

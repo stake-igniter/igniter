@@ -1,76 +1,93 @@
-import Link from 'next/link';
-import { Button } from "@igniter/ui/components/button";
-import BinCardList from "./components/BinCardList";
-import {amountToPokt} from "@igniter/ui/lib/utils";
-import {GetUserNodes} from "@/actions/Nodes";
+import { Suspense } from 'react';
+import { GetOwnerAddresses } from '@/actions/Nodes'
+import ApolloWrapper from '@igniter/ui/graphql/client'
+import SummaryLoader from '@igniter/ui/components/RewardsSummary/Loader';
+import ServerSummary from '@igniter/ui/components/RewardsSummary/ServerSummary'
+import RewardsByAddressesLoader from '@igniter/ui/components/RewardsByAddresses/Loader'
+import ServerRewardsByAddresses from '@igniter/ui/components/RewardsByAddresses/ServerRewardsByAddresses'
+import { getApplicationSettings } from '@/actions/ApplicationSettings'
+import InitializeHeightContext from '@igniter/ui/context/Height/InitializeContext'
+import Link from 'next/link'
+import { Button } from '@igniter/ui/components/button'
+import { clsx } from 'clsx'
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const nodes = await GetUserNodes();
+  const [ownerAddresses, applicationSettings] = await Promise.all([
+    GetOwnerAddresses(),
+    getApplicationSettings()
+  ]);
 
-  let nodesWith15k = 0, nodesWith30k = 0, nodesWith45k = 0, nodesWith60k = 0, totalStaked = 0;
+  const headerComponent = (
+    <div className={
+      clsx(
+        ownerAddresses.length && "border-b-1"
+      )
+    }>
+      <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-col">
+            <h1>Overview</h1>
+            <p className="text-muted-foreground">
+              Welcome to your $POKT staking dashboard.
+            </p>
+          </div>
+          <div className="flex flex-col">
+            <div className="flex flex-row gap-3">
+              <Link href="/app/stake">
+                <Button>Stake</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
-  for (const node of nodes) {
-    const stakedAmount = amountToPokt(node.stakeAmount);
-    totalStaked += stakedAmount;
-
-    if (stakedAmount < 30000) {
-      nodesWith15k++;
-    } else if (stakedAmount < 45000) {
-      nodesWith30k++;
-    } else if (stakedAmount < 60000) {
-      nodesWith45k++;
-    } else {
-      nodesWith60k++;
-    }
+  if (!ownerAddresses.length) {
+    return headerComponent
   }
 
-  const binCards = [
-    { value: "Node", label: "", count: nodesWith15k },
-  ];
+  let graphqlUrl: string
+
+  if (applicationSettings.chainId === 'pocket') {
+    graphqlUrl = 'https://api.poktscan.com'
+  } else if (applicationSettings.chainId === 'pocket-beta') {
+    graphqlUrl = 'https://api.poktscan.com'
+  } else {
+    graphqlUrl = 'https://alpha-api.poktscan.com'
+  }
 
   return (
-    <>
-      <div className="border-b-1">
-        <div className="mx-30 py-10">
-          <div className="flex flex-row justify-between items-center">
-            <div className="flex flex-col">
-              <h1>Overview</h1>
-              <p className="text-muted-foreground">
-                Welcome to your $POKT staking dashboard.
-              </p>
+    <ApolloWrapper url={graphqlUrl}>
+      <InitializeHeightContext graphQlUrl={graphqlUrl}>
+        {headerComponent}
+        <div className={'flex flex-col p-4 w-full gap-4 md:gap-6 sm:px-3 md:px-6 lg:px-6 xl:px-10'}>
+            <div className={'min-w-[260px]'}>
+              <Suspense
+                key={ownerAddresses.join(',')}
+                fallback={
+                  <SummaryLoader />
+                }
+              >
+                <ServerSummary addresses={ownerAddresses} isOwners={true} graphQlUrl={graphqlUrl} />
+              </Suspense>
             </div>
-            <div className="flex flex-col">
-              <div className="flex flex-row gap-3">
-                <Link href="/app/stake">
-                  <Button>Stake</Button>
-                </Link>
-                {/*<Link href="/app/migrate">*/}
-                {/*  <Button>Migrate</Button>*/}
-                {/*</Link>*/}
-              </div>
-            </div>
-          </div>
+
+            <Suspense
+              key={ownerAddresses.join(',')}
+              fallback={
+                <RewardsByAddressesLoader chartType={'line'} />
+              }
+            >
+              <ServerRewardsByAddresses
+                addresses={ownerAddresses}
+                graphQlUrl={graphqlUrl}
+              />
+            </Suspense>
         </div>
-      </div>
-      <div className="mx-30 py-8 border-b-1">
-        <div className="flex flex-row justify-between items-center">
-          <div className="flex flex-col gap-3">
-            <h3 className="text-(--slightly-muted-foreground)">Stake</h3>
-            <h1 className="font-mono">
-              {totalStaked.toLocaleString()} <span className="text-muted-foreground">$POKT</span>
-            </h1>
-            {/*<p className="flex flex-row gap-2">*/}
-            {/*  <ChangeIndicator change={120000} isPercentage={false} />*/}
-            {/*  <span className="text-muted-foreground">vs. Previous Month</span>*/}
-            {/*</p>*/}
-          </div>
-          <div className="flex flex-col gap-3">
-            <BinCardList bins={binCards} />
-          </div>
-        </div>
-      </div>
-    </>
-  );
+      </InitializeHeightContext>
+    </ApolloWrapper>
+  )
 }
