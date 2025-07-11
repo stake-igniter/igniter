@@ -174,11 +174,24 @@ export const servicesRelations = relations(
   })
 )
 
+export const regionsTable = pgTable("regions", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  displayName: varchar({ length: 20 }).unique().notNull(),
+  urlValue: varchar({ length: 20 }).unique().notNull(),
+  createdAt: timestamp().defaultNow(),
+  createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
+  updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+});
+
+export type Region = typeof regionsTable.$inferSelect;
+export type CreateRegion = typeof regionsTable.$inferInsert;
+
 export const relayMinersTable = pgTable("relay_miners", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
   identity: varchar({ length: 66 }).notNull().unique(),
-  region: varchar({ length: 255 }).notNull(),
+  regionId: integer("region_id").references(() => regionsTable.id).notNull(),
   domain: varchar({ length: 255 }).notNull(),
   createdAt: timestamp().defaultNow(),
   createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
@@ -186,7 +199,15 @@ export const relayMinersTable = pgTable("relay_miners", {
   updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
 });
 
+export const relayMinersRelations = relations(relayMinersTable, ({ one }) => ({
+  region: one(regionsTable, {
+    fields: [relayMinersTable.regionId],
+    references: [regionsTable.id],
+  }),
+}));
+
 export type RelayMiner = typeof relayMinersTable.$inferSelect;
+export type RelayMinerWithDetails = RelayMiner & { region: Region };
 export type CreateRelayMiner = typeof relayMinersTable.$inferInsert;
 
 export const addressGroupTable = pgTable("address_groups", {
@@ -210,7 +231,7 @@ export type CreateAddressGroup = typeof addressGroupTable.$inferInsert;
 export type AddressGroupWithDetails = AddressGroup & {
   keysCount: number;
   addressGroupServices: AddressGroupService[];
-  relayMiner: RelayMiner;
+  relayMiner: RelayMinerWithDetails;
 }
 
 export const addressGroupsRelations = relations(
@@ -285,5 +306,3 @@ export const delegatorsTable = pgTable("delegators", {
 
 export type Delegator = typeof delegatorsTable.$inferSelect;
 export type CreateDelegator = typeof delegatorsTable.$inferInsert;
-
-

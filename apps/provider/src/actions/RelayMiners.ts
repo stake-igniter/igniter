@@ -21,7 +21,7 @@ export async function CreateRelayMiner(relayMiner: Omit<CreateRelayMinerType, 'c
   });
 }
 
-export async function UpdateRelayMiner(id: number, relayMiner: Pick<RelayMiner, 'name' | 'identity' | 'region' | 'domain'>) {
+export async function UpdateRelayMiner(id: number, relayMiner: Pick<RelayMiner, 'name' | 'identity' | 'regionId' | 'domain'>) {
   const identity = await getCurrentUserIdentity();
   return update(id, {
     ...relayMiner,

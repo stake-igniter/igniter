@@ -1,10 +1,13 @@
-import {RelayMiner, relayMinersTable, CreateRelayMiner} from "@/db/schema";
+import {RelayMiner, relayMinersTable, CreateRelayMiner, RelayMinerWithDetails} from "@/db/schema";
 import {db} from "@/db";
 import {sql} from "drizzle-orm";
 
-export async function list(): Promise<RelayMiner[]> {
+export async function list(): Promise<RelayMinerWithDetails[]> {
     return db.query.relayMinersTable.findMany({
         orderBy: relayMinersTable.name,
+        with: {
+          region: true,
+        }
     });
 }
 
