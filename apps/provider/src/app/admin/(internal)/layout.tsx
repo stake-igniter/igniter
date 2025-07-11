@@ -13,6 +13,7 @@ import Sidebar from "@/components/Sidebar";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
 import { auth } from '@/auth'
 import NotificationsProvider from '@igniter/ui/context/Notifications/index'
+import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -50,7 +51,8 @@ export default async function RootLayout({
                     <Sidebar />
                     <SidebarInset>
                       <div className={"w-full h-full flex overflow-x-hidden"}>
-                        <div className="flex flex-col w-full gap-6">
+                        <div className="flex flex-col gap-6 w-[calc(100dvw)] md:w-[calc(100dvw-255px)]">
+                          <RegisterPlugins />
                           <NotificationsProvider>
                             {children}
                           </NotificationsProvider>

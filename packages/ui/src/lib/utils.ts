@@ -46,7 +46,7 @@ export function toCompactFormat(value: number) {
 }
 
 export function amountToPokt(amount: string | number): number {
-  return Number(amount) / UPOKT_CONSTANT;
+  return isNaN(Number(amount)) ? 0 : Number(amount) / UPOKT_CONSTANT;
 }
 
 export function toDateFormat(value: Date | null) {

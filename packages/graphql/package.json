@@ -1,0 +1,33 @@
+{
+  "name": "@igniter/graphql",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "codegen": "graphql-codegen --config codegen.ts"
+  },
+  "dependencies": {
+    "graphql": "~16.11.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*",
+    "typescript": "5.7.3",
+    "@graphql-codegen/cli": "~5.0.7",
+    "@graphql-codegen/schema-ast": "~4.1.0",
+    "dotenv": "~17.2.0",
+    "@graphql-typed-document-node/core": "~3.2.0"
+  }
+}

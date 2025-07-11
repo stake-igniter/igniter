@@ -15,6 +15,7 @@ import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
 import QuickDetailProvider from '@/app/detail/Detail'
 import QueryClientProvider from '@/app/context/QueryClientProvider'
+import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
 import NotificationsProvider from '@igniter/ui/context/Notifications/index'
 
 export const metadata: Metadata = {
@@ -74,9 +75,10 @@ export default async function RootLayout({
                         </AppTopBar>
                         <div className="flex flex-1">
                           <Sidebar />
-                          <SidebarInset>
+                          <SidebarInset className={'transition-none'}>
                             <div className={"w-full h-full flex overflow-x-hidden"}>
-                              <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
+                              <div className="flex flex-col gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden w-[calc(100dvw)] md:w-[calc(100dvw-255px)] transition-none">
+                                <RegisterPlugins />
                                 <NotificationsProvider>
                                   {children}
                                 </NotificationsProvider>

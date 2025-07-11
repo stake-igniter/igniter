@@ -1,6 +1,6 @@
 'use server'
 
-import { getNode, getNodesByUser } from '@/lib/dal/nodes'
+import { getNode, getNodesByUser, getOwnerAddressesByUser } from '@/lib/dal/nodes'
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
 export async function GetUserNodes() {
@@ -23,4 +23,9 @@ export async function GetNode(address: string) {
   }
 
   return node
+}
+
+export async function GetOwnerAddresses() {
+  const userIdentity = await getCurrentUserIdentity();
+  return await getOwnerAddressesByUser(userIdentity)
 }

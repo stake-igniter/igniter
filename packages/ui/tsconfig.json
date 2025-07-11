@@ -1,6 +1,7 @@
 {
   "extends": "@igniter/typescript-config/react-library.json",
   "compilerOptions": {
+    "moduleResolution": "bundler",
     "typeRoots": ["node_modules/@types", "./src"],
     "rootDir": "./src"
   },
