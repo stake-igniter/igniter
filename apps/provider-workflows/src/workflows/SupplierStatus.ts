@@ -7,7 +7,7 @@ import { delegatorActivities } from '@/activities'
 export interface SupplierStatusArgs {
 }
 
-export async function SupplierStatusArgs(args: SupplierStatusArgs) {
+export async function SupplierStatus(args: SupplierStatusArgs) {
   const { mockActivity } =
     proxyActivities<ReturnType<typeof delegatorActivities>>({
       startToCloseTimeout: '30s',
