@@ -1,0 +1,39 @@
+{
+  "name": "@igniter/db",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./connection": {
+      "import": "./dist/src/connection.js",
+      "require": "./dist/src/connection.js",
+      "types": "./dist/src/connection.d.ts"
+    },
+    "./provider": {
+      "import": "./dist/src/provider/index.js",
+      "require": "./dist/src/provider/index.js",
+      "types": "./dist/src/provider/index.d.ts"
+    },
+    "./middleman": {
+      "import": "./dist/src/middleman/index.js",
+      "require": "./dist/src/middleman/index.js",
+      "types": "./dist/src/middleman/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@igniter/logger": "workspace:*",
+    "@igniter/commons": "workspace:*",
+    "drizzle-orm": "0.44.1",
+    "pg": "8.14.0"
+  },
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*",
+    "@types/pg": "^8.11.11",
+    "tsc-alias": "^1.8.15"
+  }
+}

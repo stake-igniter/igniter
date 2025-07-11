@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: provider-workflows
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: provider
+      component: workflows
+  template:
+    metadata:
+      labels:
+        app: provider
+        component: workflows
+    spec:
+      containers:
+        - name: provider
+          image: localhost:5001/provider-workflows
+          envFrom:
+            - configMapRef:
+                name: provider-workflows-config
+            - secretRef:
+                name: postgres-provider-connection
+            - secretRef:
+                name: provider-secrets

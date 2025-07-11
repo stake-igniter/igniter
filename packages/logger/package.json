@@ -1,0 +1,27 @@
+{
+  "name": "@igniter/logger",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "require": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc --project ./tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "pino": "9.7.0",
+    "pino-pretty": "13.0.0"
+  },
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*"
+  }
+}

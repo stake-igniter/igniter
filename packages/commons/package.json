@@ -1,0 +1,44 @@
+{
+  "name": "@igniter/commons",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./constants": {
+      "import": "./dist/src/constants.js",
+      "require": "./dist/src/constants.js",
+      "types": "./dist/src/constants.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/src/utils.js",
+      "require": "./dist/src/utils.js",
+      "types": "./dist/src/utils.d.ts"
+    },
+    "./crypto": {
+      "import": "./dist/src/crypto.js",
+      "require": "./dist/src/crypto.js",
+      "types": "./dist/src/crypto.d.ts"
+    },
+    "./pocket": {
+      "import": "./dist/src/pocket.js",
+      "require": "./dist/src/pocket.js",
+      "types": "./dist/src/pocket.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@igniter/logger": "workspace:*",
+    "@cosmjs/stargate": "^0.33.1",
+    "@cosmjs/crypto": "^0.33.1",
+    "@cosmjs/encoding": "^0.33.1"
+  },
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*",
+    "tsc-alias": "^1.8.15",
+    "@types/node": "22.14.1"
+  }
+}

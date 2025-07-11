@@ -6,10 +6,11 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "build:middleman:docker": "./tools/docker/build.sh middleman",
-    "build:workflows:docker": "./tools/docker/build.sh middleman-workflows",
-    "build:provider:docker": "./tools/docker/build.sh provider",
-    "create-cluster": "./tools/docker/cluster.sh"
+    "build:middleman:docker": "./tilt/docker/build.sh middleman",
+    "build:middleman-workflows:docker": "./tilt/docker/build.sh middleman-workflows",
+    "build:provider-workflows:docker": "./tilt/docker/build.sh provider-workflows",
+    "build:provider:docker": "./tilt/docker/build.sh provider",
+    "create-cluster": "./tilt/docker/cluster.sh"
   },
   "workspaces": [
     "apps/*",

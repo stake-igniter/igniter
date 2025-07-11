@@ -1,0 +1,8 @@
+resources:
+  - ../base
+patches:
+  - target:
+      version: v1
+      kind: ConfigMap
+      name: provider-workflows-config
+    path: ./patch-config.yml
