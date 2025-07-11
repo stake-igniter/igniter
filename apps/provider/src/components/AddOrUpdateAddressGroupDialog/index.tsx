@@ -579,7 +579,7 @@ export function AddOrUpdateAddressGroupDialog({
                               key={serviceId}
                               service={service}
                               rm={selectedRelayMiner?.identity ?? ""}
-                              region={selectedRelayMiner?.region ?? ""}
+                              region={selectedRelayMiner?.region?.urlValue ?? ""}
                               domain={selectedRelayMiner?.domain ?? ""}
                               revShare={revShare}
                               addSupplierShare={addSupplierShare}

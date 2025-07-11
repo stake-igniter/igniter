@@ -24,6 +24,8 @@ import { LoaderIcon } from "@igniter/ui/assets";
 import { RelayMiner } from "@/db/schema";
 import {CreateRelayMiner, UpdateRelayMiner} from "@/actions/RelayMiners";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@igniter/ui/components/select";
+import { ListRegions } from "@/actions/Regions";
+import { useQuery } from "@tanstack/react-query";
 
 const CreateOrUpdateRelayMinerSchema = z.object({
     name: z
@@ -38,13 +40,7 @@ const CreateOrUpdateRelayMinerSchema = z.object({
             "Identity must be a valid slug (lowercase letters, numbers, and hyphens only, cannot start or end with a hyphen)"
         ),
 
-    region: z
-        .string()
-        .min(1, "Region is required")
-        .regex(
-            /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-            "Region must be a valid slug (lowercase letters, numbers, and hyphens only, cannot start or end with a hyphen)"
-        ),
+    regionId: z.number(),
 
     domain: z
         .string()
@@ -61,19 +57,27 @@ export interface AddOrUpdateRelayMinerProps {
 }
 
 export function AddOrUpdateRelayMinerDialog({
-                                                onClose,
-                                                relayMiner,
-                                            }: Readonly<AddOrUpdateRelayMinerProps>) {
-    const [isCancelling, setIsCanceling] = useState(false);
-    const [isCreatingRelayMiner, setIsCreatingRelayMiner] = useState(false);
-    const [isUpdatingRelayMiner, setIsUpdatingRelayMiner] = useState(false);
+  onClose,
+  relayMiner,
+}: Readonly<AddOrUpdateRelayMinerProps>) {
+  const [isCancelling, setIsCanceling] = useState(false);
+  const [isCreatingRelayMiner, setIsCreatingRelayMiner] = useState(false);
+  const [isUpdatingRelayMiner, setIsUpdatingRelayMiner] = useState(false);
+  
+  // Add this query to fetch regions
+  const { data: regions, isLoading: isLoadingRegions } = useQuery({
+    queryKey: ['regions'],
+    queryFn: ListRegions,
+    refetchInterval: 60000,
+    initialData: []
+  });
 
     const form = useForm<z.infer<typeof CreateOrUpdateRelayMinerSchema>>({
         resolver: zodResolver(CreateOrUpdateRelayMinerSchema),
         defaultValues: {
             name: relayMiner?.name ?? "",
             identity: relayMiner?.identity ?? "",
-            region: relayMiner?.region ?? "",
+            regionId: relayMiner?.regionId,
             domain: relayMiner?.domain ?? "",
         },
     });
@@ -114,7 +118,7 @@ export function AddOrUpdateRelayMinerDialog({
         }
     }
 
-    const isLoading = isCreatingRelayMiner || isUpdatingRelayMiner;
+    const isLoading = isCreatingRelayMiner || isUpdatingRelayMiner || isLoadingRegions;
 
     return (
         <Dialog open={true}>
@@ -170,36 +174,31 @@ export function AddOrUpdateRelayMinerDialog({
 
                                 {/* Region */}
                                 <FormField
-                                    name="region"
+                                    name="regionId"
                                     control={form.control}
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col gap-2">
                                             <FormLabel>Region</FormLabel>
                                             <FormControl>
-                                                <Select
-                                                    onValueChange={field.onChange}
-                                                    defaultValue={field.value}
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select Region" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="us-east">US East</SelectItem>
-                                                        <SelectItem value="us-west">US West</SelectItem>
-                                                        <SelectItem value="canada">Canada</SelectItem>
-                                                        <SelectItem value="latam">Latin America</SelectItem>
-                                                        <SelectItem value="europe-west">Europe West</SelectItem>
-                                                        <SelectItem value="europe-north">Europe North</SelectItem>
-                                                        <SelectItem value="middle-east">Middle East</SelectItem>
-                                                        <SelectItem value="africa-south">Africa South</SelectItem>
-                                                        <SelectItem value="asia-east">Asia East</SelectItem>
-                                                        <SelectItem value="asia-southeast">
-                                                            Asia Southeast
-                                                        </SelectItem>
-                                                        <SelectItem value="asia-south">Asia South</SelectItem>
-                                                        <SelectItem value="australia">Australia</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                {!isLoadingRegions && (
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        defaultValue={field.value?.toString()}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue
+                                                                placeholder={regions && regions.length > 0 ? "Select a region" : "No regions configured"}
+                                                            />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {regions.map((region) => (
+                                                                <SelectItem key={region.id} value={region.id.toString()}>
+                                                                    {region.displayName}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

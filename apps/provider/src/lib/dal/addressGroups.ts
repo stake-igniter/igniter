@@ -93,13 +93,13 @@ export async function remove(id: number): Promise<AddressGroup> {
 }
 
 export async function list(
-    region: string = "",
+    region?: number,
     priv?: boolean
 ): Promise<AddressGroupWithDetails[]> {
   const filters = [];
 
   if (region) {
-    filters.push(eq(relayMinersTable.region, region));
+    filters.push(eq(relayMinersTable.regionId, region));
   }
   if (priv !== undefined) {
     filters.push(eq(addressGroupTable.private, priv));
@@ -124,13 +124,16 @@ export async function list(
           id: true,
           name: true,
           identity: true,
-          region: true,
+          regionId: true,
           domain: true,
           createdAt: true,
           updatedAt: true,
           createdBy: true,
           updatedBy: true
         },
+        with: {
+          region: true,
+        }
       },
       addressGroupServices: {
         with: {
