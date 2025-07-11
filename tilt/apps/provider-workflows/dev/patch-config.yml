@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: provider-workflows-config
+data:
+  TEMPORAL_URL: "temporal-frontend.default.svc.cluster.local:7233"
+  TEMPORAL_NAMESPACE: "provider"
+  TEMPORAL_TASK_QUEUE: "provider-operations"
+  TEMPORAL_WORKFLOW_RETENTION: "604800"
+  POKT_RPC_URL: "https://shannon-testnet-grove-rpc.beta.poktroll.com"

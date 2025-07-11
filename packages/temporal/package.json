@@ -1,0 +1,28 @@
+{
+  "name": "@igniter/temporal",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "require": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@igniter/logger": "workspace:*",
+    "@igniter/commons": "workspace:*",
+    "@temporalio/worker": "^1.11.7",
+    "@temporalio/client": "^1.11.7"
+  },
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*",
+    "tsc-alias": "^1.8.15"
+  }
+}
