@@ -19,8 +19,9 @@ import {
   GetApplicationSettings,
   RetrieveBlockchainSettings,
   UpsertApplicationSettings,
-  ValidateBlockchainRPC
-} from "@/actions/ApplicationSettings";
+  ValidateBlockchainRPC,
+  ValidateIndexerUrl,
+} from '@/actions/ApplicationSettings'
 import { LoaderIcon } from "@igniter/ui/assets";
 import {ChainId} from "@/db/schema";
 
@@ -47,6 +48,29 @@ const FormSchema = z.object({
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Failed to validate RPC URL",
+      });
+      return false;
+    }
+  }),
+  indexerApiUrl: z.string().optional().superRefine(async (url, ctx) => {
+    if (!url) {
+      return; // Skip validation if empty
+    }
+
+    try {
+      const response = await ValidateIndexerUrl(url);
+
+      if (!response.success && response.errors && response.errors.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: response.errors[0],
+        });
+        return false;
+      }
+    } catch (error) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Failed to validate Indexer API URL",
       });
       return false;
     }
@@ -80,6 +104,7 @@ export default function SettingsPage() {
       supportEmail: settings?.supportEmail || "",
       ownerEmail: settings?.ownerEmail || "",
       rpcUrl: settings?.rpcUrl || "",
+      indexerApiUrl: settings?.indexerApiUrl || "",
       chainId: settings?.chainId || "",
       minimumStake: settings?.minimumStake,
       appIdentity: settings?.appIdentity || "",
@@ -90,6 +115,7 @@ export default function SettingsPage() {
       supportEmail: settings.supportEmail || "",
       ownerEmail: settings.ownerEmail || "",
       rpcUrl: settings.rpcUrl || "",
+      indexerApiUrl: settings.indexerApiUrl || "",
       chainId: settings.chainId || "",
       minimumStake: settings.minimumStake,
       appIdentity: settings.appIdentity || "",
@@ -143,13 +169,13 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-10 overflow-auto !max-h-[calc(100dvh-73px)]">
       <div className="mx-30 py-10">
         <div className={'flex flex-row items-center gap-4'}>
           <h1>Settings</h1>
         </div>
 
-        <div className="container mx-auto">
+        <div className="container mx-auto !overflow-auto">
           {isLoadingSettings || !settings ? (
             <div className="flex justify-center items-center h-fit">
               <LoaderIcon className="animate-spin" />
@@ -282,6 +308,19 @@ export default function SettingsPage() {
                       />
                     </div>
                   </div>
+                  <FormField
+                    control={form.control}
+                    name="indexerApiUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Indexer API URL</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 <Button type="submit" disabled={isSubmitting || !isDirty}>

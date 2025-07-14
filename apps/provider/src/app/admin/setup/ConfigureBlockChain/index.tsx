@@ -1,6 +1,6 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@igniter/ui/components/button";
 import {
@@ -14,9 +14,12 @@ import {
 } from "@igniter/ui/components/form";
 import { Input } from "@igniter/ui/components/input";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {RetrieveBlockchainSettings, UpsertApplicationSettings} from "@/actions/ApplicationSettings";
+import {
+  RetrieveBlockchainSettings,
+  RetrieveIndexerNetwork,
+  UpsertApplicationSettings,
+} from '@/actions/ApplicationSettings'
 import { ApplicationSettings, ChainId } from "@/db/schema";
-import urlJoin from "url-join";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;
@@ -28,9 +31,35 @@ const RpcUrlSchema = z.string().url("Please enter a valid URL").min(1, "URL is r
 export const FormSchema = z.object({
   chainId: z.nativeEnum(ChainId),
   rpcUrl: RpcUrlSchema,
+  indexerApiUrl: RpcUrlSchema,
   appIdentity: z.string().min(1, "App Identity is Required"),
   updatedAtHeight: z.string().nullable(),
   minimumStake: z.coerce.number(),
+}).superRefine(async (values, ctx) => {
+  if (!values.indexerApiUrl) {
+    return; // Skip validation if empty
+  }
+
+  try {
+    const indexerNetwork = await RetrieveIndexerNetwork(values.indexerApiUrl);
+
+    if (indexerNetwork !== values.chainId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Indexer network (${indexerNetwork}) does not match chain ID (${values.chainId})`,
+        path: ['indexerApiUrl'],
+      });
+      return false;
+    }
+
+  } catch (error) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Failed to validate Indexer API URL",
+      path: ['indexerApiUrl'],
+    });
+    return false;
+  }
 });
 
 type FormValues = z.infer<typeof FormSchema>;
@@ -43,6 +72,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       rpcUrl: defaultValues?.rpcUrl || "",
+      indexerApiUrl: defaultValues?.indexerApiUrl || "",
       minimumStake: defaultValues?.minimumStake,
       chainId: defaultValues?.chainId,
       updatedAtHeight: defaultValues?.updatedAtHeight ?? null,
@@ -52,10 +82,11 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const rpcUrl = useWatch({
-    control: form.control,
-    name: "rpcUrl",
-  });
+  const { isValidating, isSubmitting } = form.formState
+  const [rpcUrl, chainId] = form.watch([
+    'rpcUrl',
+    'chainId'
+  ])
 
   const debouncedRetrieveParams = useCallback(() => {
     if (debounceTimerRef.current) {
@@ -208,11 +239,29 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
               )}
             />
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              name="indexerApiUrl"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Indexer API Url</FormLabel>
+                  <FormControl>
+                    <Input {...field} disabled={!chainId || !rpcUrl || isLoadingBlockchainParams} />
+                  </FormControl>
+                  <FormDescription>
+                    This API will be used to retrieve the rewards and data that needs indexing. Must match the chainID of the Shannon API.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </form>
       </Form>
 
       <div className="flex justify-end">
-        <Button type="button" onClick={handleGoNext} disabled={isLoading}>
+        <Button type="button" onClick={handleGoNext} disabled={isLoading || isValidating || isSubmitting}>
           {isLoading ? "Loading..." : "Next"}
         </Button>
       </div>

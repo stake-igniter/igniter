@@ -13,6 +13,7 @@ const defaultSettings: ApplicationSettings = {
   name: "",
   supportEmail: "",
   rpcUrl: "",
+  indexerApiUrl: "",
   appIdentity: "",
   ownerEmail: "",
   ownerIdentity: "",

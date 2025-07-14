@@ -8,7 +8,7 @@ import { labels } from './constants'
 import NoData from '../NoData'
 import { amountToPokt, toCurrencyFormat } from '../../lib/utils'
 import useFetchOnBlock, { DocumentNodeData } from '../../hooks/useFetchOnNewBlock'
-import { summaryDocument } from '@igniter/graphql'
+import { summaryDocument } from '@igniter/graphql/rewards'
 import { summaryVariables } from './operations'
 import SummaryLoader from './Loader'
 

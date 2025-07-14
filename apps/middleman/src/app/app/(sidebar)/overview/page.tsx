@@ -30,7 +30,11 @@ export default async function Page() {
           <div className="flex flex-col">
             <h1>Overview</h1>
             <p className="text-muted-foreground">
-              Welcome to your $POKT staking dashboard.
+              {
+                ownerAddresses.length ?
+                'Welcome to your $POKT staking dashboard.':
+                `Stake your $POKT to earn and see your rewards here.`
+              }
             </p>
           </div>
           <div className="flex flex-col">
@@ -49,15 +53,7 @@ export default async function Page() {
     return headerComponent
   }
 
-  let graphqlUrl: string
-
-  if (applicationSettings.chainId === 'pocket') {
-    graphqlUrl = 'https://api.poktscan.com'
-  } else if (applicationSettings.chainId === 'pocket-beta') {
-    graphqlUrl = 'https://api.poktscan.com'
-  } else {
-    graphqlUrl = 'https://alpha-api.poktscan.com'
-  }
+  const graphqlUrl = applicationSettings.indexerApiUrl
 
   return (
     <ApolloWrapper url={graphqlUrl}>

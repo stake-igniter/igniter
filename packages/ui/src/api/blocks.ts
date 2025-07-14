@@ -1,5 +1,5 @@
 import { cache } from 'react'
-import { latestBlockDocument, numBlocksPerSessionDocument } from '@igniter/graphql'
+import { latestBlockDocument, numBlocksPerSessionDocument } from '@igniter/graphql/block'
 import { getServerApolloClient } from '../lib/graphql/server'
 import { unstable_cache } from 'next/cache'
 

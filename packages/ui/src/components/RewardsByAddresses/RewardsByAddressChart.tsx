@@ -19,7 +19,7 @@ import { useGroupAll } from './GroupAllSwitch'
 import { amountToPokt, getShortAddress, toCompactFormat, toCurrencyFormat } from '../../lib/utils'
 import useFetchOnBlock, { DocumentNodeData, ExtractVariables } from '../../hooks/useFetchOnNewBlock'
 import { ContentLoader } from './Loader'
-import { rewardsByAddressAndTimeGroupByDateDocument } from '@igniter/graphql'
+import { rewardsByAddressAndTimeGroupByDateDocument } from '@igniter/graphql/rewards'
 import { useSelectedTime } from './TimeSelector'
 
 export interface RewardItem extends LineBarItem {
