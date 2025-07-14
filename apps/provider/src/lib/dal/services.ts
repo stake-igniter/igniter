@@ -1,5 +1,5 @@
 import {db} from "@/db";
-import {CreateService, Service, servicesTable} from "@/db/schema";
+import { addressGroupServicesTable, CreateService, Service, servicesTable } from '@/db/schema'
 import {sql} from "drizzle-orm";
 
 export async function insert(
@@ -58,4 +58,15 @@ export async function update(
   }
 
   return updatedService;
+}
+
+export async function getDistinctRevAddresses(): Promise<Array<string>> {
+  const distinctAddresses = await db
+    .select({
+      address: sql<string>`DISTINCT (json_array_elements(${addressGroupServicesTable.revShare})->>'address')`
+    })
+    .from(addressGroupServicesTable)
+    .where(sql`${addressGroupServicesTable.revShare}::text != '[]'`);
+
+  return distinctAddresses.map(a => a.address);
 }

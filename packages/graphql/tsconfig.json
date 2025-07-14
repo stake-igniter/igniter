@@ -1,9 +1,10 @@
 {
   "extends": "@igniter/typescript-config/base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "./src",
+    "moduleResolution": "bundler",
+    "typeRoots": ["node_modules/@types", "./src"],
+    "rootDir": "./src"
   },
-  "include": ["src/index.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

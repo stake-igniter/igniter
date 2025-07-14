@@ -12,15 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function Page() {
   const applicationSettings = await getApplicationSettings();
 
-  let graphqlUrl: string
-
-  if (applicationSettings.chainId === 'pocket') {
-    graphqlUrl = 'https://api.poktscan.com'
-  } else if (applicationSettings.chainId === 'pocket-beta') {
-    graphqlUrl = 'https://api.poktscan.com'
-  } else {
-    graphqlUrl = 'https://alpha-api.poktscan.com'
-  }
+  const graphqlUrl = applicationSettings.indexerApiUrl
 
   const addresses = [applicationSettings.delegatorRewardsAddress!]
 

@@ -25,12 +25,10 @@ export function summaryVariables(
     }
   }
 
-  const stakedStatus: StakeStatus = 'Staked'
-
   return {
     filter: {
       stakeStatus: {
-        equalTo: stakedStatus
+        equalTo: StakeStatus.Staked
       },
       ...addressesFilter,
     },

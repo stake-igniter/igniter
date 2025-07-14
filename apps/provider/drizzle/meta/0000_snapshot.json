@@ -1,5 +1,5 @@
 {
-  "id": "91331765-0bf4-40e2-9fd0-091cdb1c244b",
+  "id": "dafc82ea-d037-40d4-89c3-6e485769b6b8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -280,6 +280,12 @@
         },
         "rpcUrl": {
           "name": "rpcUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indexerApiUrl": {
+          "name": "indexerApiUrl",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true

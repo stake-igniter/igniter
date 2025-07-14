@@ -2,7 +2,7 @@ import { summaryVariables } from './operations'
 import Summary from './Summary'
 import { getLatestBlock } from '../../api/blocks'
 import { getServerApolloClient } from '../../lib/graphql/server'
-import { summaryDocument } from '@igniter/graphql'
+import { summaryDocument } from '@igniter/graphql/rewards'
 
 interface ServerSummaryProps {
   addresses: Array<string>

@@ -22,8 +22,6 @@ const config: CodegenConfig = {
     './src/gql/': {
       preset: 'client',
       config: {
-        enumsAsTypes: true,
-        useTypeImports: true,
         namingConvention: {
           enumValues: 'keep'
         }

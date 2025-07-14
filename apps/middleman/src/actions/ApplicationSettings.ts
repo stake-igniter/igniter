@@ -6,11 +6,14 @@ import {
   insertApplicationSettings,
   updateApplicationSettings,
 } from "@/lib/dal/applicationSettings";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 import urlJoin from 'url-join'
+import { getServerApolloClient } from '@igniter/ui/graphql/server'
+import { indexerStatusDocument } from '@igniter/graphql'
+
+const UrlSchema = z.string().url("Please enter a valid URL").min(1, "URL is required")
 
 const UpdateSettingsSchema = z.object({
   updatedAtHeight: z.string().optional(),
@@ -23,6 +26,7 @@ const UpdateSettingsSchema = z.object({
     .max(100).transform((value) => value.toString()).optional(),
   minimumStake: z.number().optional(),
   rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required").optional(),
+  indexerApiUrl: UrlSchema.optional(),
   delegatorRewardsAddress: z.string().min(1, "Delegator rewards address is required").optional(),
   privacyPolicy: z.string().optional(),
 });
@@ -30,6 +34,7 @@ const UpdateSettingsSchema = z.object({
 const CreateSettingsSchema = z.object({
   minimumStake: z.number().min(1),
   rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
+  indexerApiUrl: UrlSchema,
   appIdentity: z.string().min(1, "App identity is required"),
   chainId: z.nativeEnum(ChainId),
   updatedAtHeight: z.string(),
@@ -134,6 +139,16 @@ export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: s
   }
 }
 
+export async function RetrieveIndexerNetwork(url: string) {
+  const client = getServerApolloClient(url)
+
+  const {data} = await client.query({
+    query: indexerStatusDocument,
+  })
+
+  return data?.status?.chain || ''
+}
+
 export async function ValidateBlockchainRPC(url: string) {
   const currentSettings = await getApplicationSettings();
   const {success, network, errors} = await RetrieveBlockchainSettings(url, currentSettings.updatedAtHeight);
@@ -154,4 +169,22 @@ export async function ValidateBlockchainRPC(url: string) {
   return {
     success: true,
   };
+}
+
+export async function ValidateIndexerUrl(url: string) {
+  const [currentSettings, indexerNetwork] = await Promise.all([
+    getApplicationSettings(),
+    RetrieveIndexerNetwork(url),
+  ]);
+
+  if (currentSettings.chainId !== indexerNetwork) {
+    return {
+      success: false,
+      errors: ["Chain does not match the current configured chain"],
+    };
+  }
+
+  return {
+   success: true,
+  }
 }
