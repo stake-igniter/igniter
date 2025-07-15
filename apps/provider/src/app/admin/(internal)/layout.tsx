@@ -11,6 +11,7 @@ import CurrentUser from "@/components/CurrentUser";
 import { CurrencyContextProvider } from "@igniter/ui/context/currency";
 import Sidebar from "@/components/Sidebar";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
+import NotificationsProvider from '@igniter/ui/context/Notifications/index'
 
 export const metadata: Metadata = {
   title: "Igniter",
@@ -44,7 +45,9 @@ export default function RootLayout({
                     <SidebarInset>
                       <div className={"w-full h-full flex overflow-x-hidden"}>
                         <div className="flex flex-col w-full gap-6">
-                          {children}
+                          <NotificationsProvider>
+                            {children}
+                          </NotificationsProvider>
                         </div>
                       </div>
                     </SidebarInset>
