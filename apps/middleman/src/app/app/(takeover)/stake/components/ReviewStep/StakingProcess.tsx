@@ -173,13 +173,71 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
     setOpen(open);
 
     if (!open) {
-      setCurrentStep(StakingProcessStep.requestSuppliers);
-      setStakingStatus({
-        requestSuppliersStatus: 'pending',
-        transactionSignatureStatus: 'pending',
-        schedulingTransactionStatus: 'pending',
-      });
+      let newStep: StakingProcessStep
+
+      if (stakingStatus.requestSuppliersStatus !== 'success') {
+        newStep = StakingProcessStep.requestSuppliers;
+      } else if (stakingStatus.transactionSignatureStatus !== 'success') {
+        newStep = StakingProcessStep.transactionSignature;
+      } else if (stakingStatus.schedulingTransactionStatus !== 'success') {
+        newStep = StakingProcessStep.SchedulingTransaction;
+      } else {
+        newStep = StakingProcessStep.Completed;
+      }
+
+      setCurrentStep(newStep);
+
+      let newStakingStatus: StakingProcessStatus
+
+      if (newStep === StakingProcessStep.requestSuppliers) {
+        newStakingStatus = {
+          requestSuppliersStatus: 'pending',
+          transactionSignatureStatus: 'pending',
+          schedulingTransactionStatus: 'pending',
+        }
+      } else if (newStep === StakingProcessStep.transactionSignature) {
+        newStakingStatus = {
+          requestSuppliersStatus: 'success',
+          transactionSignatureStatus: 'pending',
+          schedulingTransactionStatus: 'pending',
+        }
+      } else if (newStep === StakingProcessStep.SchedulingTransaction) {
+        newStakingStatus = {
+          requestSuppliersStatus: 'success',
+          transactionSignatureStatus: 'success',
+          schedulingTransactionStatus: 'pending',
+        }
+      } else {
+        // return if every step was completed
+        return
+      }
+
+      setStakingStatus(newStakingStatus);
       setIsCancellable(false);
+    } else {
+      if (currentStep === StakingProcessStep.Completed) {
+        return
+      } else if (currentStep === StakingProcessStep.requestSuppliers) {
+        setStakingStatus({
+          requestSuppliersStatus: 'pending',
+          transactionSignatureStatus: 'pending',
+          schedulingTransactionStatus: 'pending',
+        })
+      } else if (currentStep === StakingProcessStep.transactionSignature) {
+        setStakingStatus({
+          requestSuppliersStatus: 'success',
+          transactionSignatureStatus: 'pending',
+          schedulingTransactionStatus: 'pending',
+        })
+      } else if (currentStep === StakingProcessStep.SchedulingTransaction) {
+        setStakingStatus({
+          requestSuppliersStatus: 'success',
+          transactionSignatureStatus: 'success',
+          schedulingTransactionStatus: 'pending',
+        })
+      }
+
+      setIsCancellable(true);
     }
   }
 

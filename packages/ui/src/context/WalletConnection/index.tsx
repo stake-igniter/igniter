@@ -139,11 +139,16 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
     setAllConnectedIdentities(pocketConnection.connectedIdentities ?? []);
 
     if (!reconnected) {
-      throw new Error('Failed to reconnect');
+      if (onDisconnect) {
+        onDisconnect();
+        return false;
+      } else {
+        throw new Error('Failed to reconnect');
+      }
     }
 
     return true;
-  }, []);
+  }, [onDisconnect]);
 
   useEffect(() => {
     if (expectedIdentity) {
