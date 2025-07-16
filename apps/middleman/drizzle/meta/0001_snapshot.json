@@ -1,213 +1,9 @@
 {
-  "id": "91331765-0bf4-40e2-9fd0-091cdb1c244b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "1fbd91e4-d6c7-487c-9589-5f4cbe67dd1d",
+  "prevId": "d127edee-fa75-4772-a610-83ab7997fea7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.address_group_services": {
-      "name": "address_group_services",
-      "schema": "",
-      "columns": {
-        "address_group_id": {
-          "name": "address_group_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "service_id": {
-          "name": "service_id",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "addSupplierShare": {
-          "name": "addSupplierShare",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "supplierShare": {
-          "name": "supplierShare",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "revShare": {
-          "name": "revShare",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::json"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "address_group_services_address_group_id_address_groups_id_fk": {
-          "name": "address_group_services_address_group_id_address_groups_id_fk",
-          "tableFrom": "address_group_services",
-          "tableTo": "address_groups",
-          "columnsFrom": [
-            "address_group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "address_group_services_service_id_services_serviceId_fk": {
-          "name": "address_group_services_service_id_services_serviceId_fk",
-          "tableFrom": "address_group_services",
-          "tableTo": "services",
-          "columnsFrom": [
-            "service_id"
-          ],
-          "columnsTo": [
-            "serviceId"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "address_group_services_address_group_id_service_id_pk": {
-          "name": "address_group_services_address_group_id_service_id_pk",
-          "columns": [
-            "address_group_id",
-            "service_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.address_groups": {
-      "name": "address_groups",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "address_groups_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "region": {
-          "name": "region",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "domain": {
-          "name": "domain",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "clients": {
-          "name": "clients",
-          "type": "varchar[]",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'{}'"
-        },
-        "private": {
-          "name": "private",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "address_groups_createdBy_users_identity_fk": {
-          "name": "address_groups_createdBy_users_identity_fk",
-          "tableFrom": "address_groups",
-          "tableTo": "users",
-          "columnsFrom": [
-            "createdBy"
-          ],
-          "columnsTo": [
-            "identity"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "address_groups_updatedBy_users_identity_fk": {
-          "name": "address_groups_updatedBy_users_identity_fk",
-          "tableFrom": "address_groups",
-          "tableTo": "users",
-          "columnsFrom": [
-            "updatedBy"
-          ],
-          "columnsTo": [
-            "identity"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "address_groups_name_unique": {
-          "name": "address_groups_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.application_settings": {
       "name": "application_settings",
       "schema": "",
@@ -237,12 +33,18 @@
         },
         "appIdentity": {
           "name": "appIdentity",
-          "type": "varchar(66)",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
         "supportEmail": {
           "name": "supportEmail",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ownerEmail": {
+          "name": "ownerEmail",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
@@ -253,18 +55,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "ownerEmail": {
-          "name": "ownerEmail",
-          "type": "varchar(255)",
+        "fee": {
+          "name": "fee",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
-        },
-        "chainId": {
-          "name": "chainId",
-          "type": "chain_ids",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
         },
         "minimumStake": {
           "name": "minimumStake",
@@ -278,15 +73,40 @@
           "primaryKey": false,
           "notNull": true
         },
+        "chainId": {
+          "name": "chainId",
+          "type": "chain_ids",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "delegatorRewardsAddress": {
+          "name": "delegatorRewardsAddress",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "rpcUrl": {
           "name": "rpcUrl",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
+        "indexerApiUrl": {
+          "name": "indexerApiUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updatedAtHeight": {
           "name": "updatedAtHeight",
           "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "privacyPolicy": {
+          "name": "privacyPolicy",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -297,12 +117,6 @@
           "notNull": false,
           "default": "now()"
         },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "updatedAt": {
           "name": "updatedAt",
           "type": "timestamp",
@@ -310,9 +124,15 @@
           "notNull": false,
           "default": "now()"
         },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updatedBy": {
           "name": "updatedBy",
-          "type": "varchar(255)",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         }
@@ -352,8 +172,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.delegators": {
-      "name": "delegators",
+    "public.nodes": {
+      "name": "nodes",
       "schema": "",
       "columns": {
         "id": {
@@ -363,7 +183,121 @@
           "notNull": true,
           "identity": {
             "type": "always",
-            "name": "delegators_id_seq",
+            "name": "nodes_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ownerAddress": {
+          "name": "ownerAddress",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "node_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stakeAmount": {
+          "name": "stakeAmount",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "balance": {
+          "name": "balance",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerId": {
+          "name": "providerId",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "nodes_providerId_providers_identity_fk": {
+          "name": "nodes_providerId_providers_identity_fk",
+          "tableFrom": "nodes",
+          "tableTo": "providers",
+          "columnsFrom": [
+            "providerId"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "nodes_createdBy_users_identity_fk": {
+          "name": "nodes_createdBy_users_identity_fk",
+          "tableFrom": "nodes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.providers": {
+      "name": "providers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "providers_id_seq",
             "schema": "public",
             "increment": "1",
             "startWith": "1",
@@ -381,7 +315,13 @@
         },
         "identity": {
           "name": "identity",
-          "type": "varchar(66)",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -391,18 +331,68 @@
           "primaryKey": false,
           "notNull": true
         },
+        "visible": {
+          "name": "visible",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "fee": {
+          "name": "fee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "feeType": {
+          "name": "feeType",
+          "type": "provider_fee",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "domains": {
+          "name": "domains",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'"
+        },
+        "regions": {
+          "name": "regions",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'{}'"
+        },
+        "status": {
+          "name": "status",
+          "type": "provider_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unknown'"
+        },
+        "minimumStake": {
+          "name": "minimumStake",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "operationalFunds": {
+          "name": "operationalFunds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 5
+        },
         "createdAt": {
           "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
         },
         "updatedAt": {
           "name": "updatedAt",
@@ -411,18 +401,24 @@
           "notNull": false,
           "default": "now()"
         },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updatedBy": {
           "name": "updatedBy",
-          "type": "varchar(255)",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "delegators_createdBy_users_identity_fk": {
-          "name": "delegators_createdBy_users_identity_fk",
-          "tableFrom": "delegators",
+        "providers_createdBy_users_identity_fk": {
+          "name": "providers_createdBy_users_identity_fk",
+          "tableFrom": "providers",
           "tableTo": "users",
           "columnsFrom": [
             "createdBy"
@@ -433,9 +429,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "delegators_updatedBy_users_identity_fk": {
-          "name": "delegators_updatedBy_users_identity_fk",
-          "tableFrom": "delegators",
+        "providers_updatedBy_users_identity_fk": {
+          "name": "providers_updatedBy_users_identity_fk",
+          "tableFrom": "providers",
           "tableTo": "users",
           "columnsFrom": [
             "updatedBy"
@@ -449,8 +445,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "delegators_identity_unique": {
-          "name": "delegators_identity_unique",
+        "providers_identity_unique": {
+          "name": "providers_identity_unique",
           "nullsNotDistinct": false,
           "columns": [
             "identity"
@@ -461,8 +457,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.keys": {
-      "name": "keys",
+    "public.transactions": {
+      "name": "transactions",
       "schema": "",
       "columns": {
         "id": {
@@ -472,7 +468,7 @@
           "notNull": true,
           "identity": {
             "type": "always",
-            "name": "keys_id_seq",
+            "name": "transactions_id_seq",
             "schema": "public",
             "increment": "1",
             "startWith": "1",
@@ -482,47 +478,114 @@
             "cycle": false
           }
         },
-        "address": {
-          "name": "address",
+        "hash": {
+          "name": "hash",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "publicKey": {
-          "name": "publicKey",
-          "type": "varchar(66)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "privateKey": {
-          "name": "privateKey",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "state": {
-          "name": "state",
-          "type": "address_states",
+        "type": {
+          "name": "type",
+          "type": "tx_type",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'available'"
+          "notNull": true
         },
-        "deliveredAt": {
-          "name": "deliveredAt",
+        "status": {
+          "name": "status",
+          "type": "tx_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "log": {
+          "name": "log",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "executionHeight": {
+          "name": "executionHeight",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "executionTimestamp": {
+          "name": "executionTimestamp",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "delegator_identity": {
-          "name": "delegator_identity",
-          "type": "varchar",
+        "verificationHeight": {
+          "name": "verificationHeight",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "address_group_id": {
-          "name": "address_group_id",
+        "verificationTimestamp": {
+          "name": "verificationTimestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dependsOn": {
+          "name": "dependsOn",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "signedPayload": {
+          "name": "signedPayload",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fromAddress": {
+          "name": "fromAddress",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unsignedPayload": {
+          "name": "unsignedPayload",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estimatedFee": {
+          "name": "estimatedFee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "consumedFee": {
+          "name": "consumedFee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "providerFee": {
+          "name": "providerFee",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "typeProviderFee": {
+          "name": "typeProviderFee",
+          "type": "provider_fee",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "providerId": {
+          "name": "providerId",
+          "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
@@ -539,16 +602,35 @@
           "primaryKey": false,
           "notNull": false,
           "default": "now()"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "keys_delegator_identity_delegators_identity_fk": {
-          "name": "keys_delegator_identity_delegators_identity_fk",
-          "tableFrom": "keys",
-          "tableTo": "delegators",
+        "transactions_dependsOn_transactions_id_fk": {
+          "name": "transactions_dependsOn_transactions_id_fk",
+          "tableFrom": "transactions",
+          "tableTo": "transactions",
           "columnsFrom": [
-            "delegator_identity"
+            "dependsOn"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "transactions_providerId_providers_identity_fk": {
+          "name": "transactions_providerId_providers_identity_fk",
+          "tableFrom": "transactions",
+          "tableTo": "providers",
+          "columnsFrom": [
+            "providerId"
           ],
           "columnsTo": [
             "identity"
@@ -556,15 +638,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "keys_address_group_id_address_groups_id_fk": {
-          "name": "keys_address_group_id_address_groups_id_fk",
-          "tableFrom": "keys",
-          "tableTo": "address_groups",
+        "transactions_createdBy_users_identity_fk": {
+          "name": "transactions_createdBy_users_identity_fk",
+          "tableFrom": "transactions",
+          "tableTo": "users",
           "columnsFrom": [
-            "address_group_id"
+            "createdBy"
           ],
           "columnsTo": [
-            "id"
+            "identity"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -576,136 +658,64 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.services": {
-      "name": "services",
+    "public.transactions_to_nodes": {
+      "name": "transactions_to_nodes",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "services_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "serviceId": {
-          "name": "serviceId",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ownerAddress": {
-          "name": "ownerAddress",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "computeUnits": {
-          "name": "computeUnits",
+        "transactionId": {
+          "name": "transactionId",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "revSharePercentage": {
-          "name": "revSharePercentage",
+        "nodeId": {
+          "name": "nodeId",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "endpoints": {
-          "name": "endpoints",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "createdBy": {
-          "name": "createdBy",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updatedAt": {
-          "name": "updatedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updatedBy": {
-          "name": "updatedBy",
-          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "services_createdBy_users_identity_fk": {
-          "name": "services_createdBy_users_identity_fk",
-          "tableFrom": "services",
-          "tableTo": "users",
+        "transactions_to_nodes_transactionId_transactions_id_fk": {
+          "name": "transactions_to_nodes_transactionId_transactions_id_fk",
+          "tableFrom": "transactions_to_nodes",
+          "tableTo": "transactions",
           "columnsFrom": [
-            "createdBy"
+            "transactionId"
           ],
           "columnsTo": [
-            "identity"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "services_updatedBy_users_identity_fk": {
-          "name": "services_updatedBy_users_identity_fk",
-          "tableFrom": "services",
-          "tableTo": "users",
+        "transactions_to_nodes_nodeId_nodes_id_fk": {
+          "name": "transactions_to_nodes_nodeId_nodes_id_fk",
+          "tableFrom": "transactions_to_nodes",
+          "tableTo": "nodes",
           "columnsFrom": [
-            "updatedBy"
+            "nodeId"
           ],
           "columnsTo": [
-            "identity"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "services_serviceId_unique": {
-          "name": "services_serviceId_unique",
-          "nullsNotDistinct": false,
+      "compositePrimaryKeys": {
+        "transactions_to_nodes_transactionId_nodeId_pk": {
+          "name": "transactions_to_nodes_transactionId_nodeId_pk",
           "columns": [
-            "serviceId"
+            "transactionId",
+            "nodeId"
           ]
         }
       },
+      "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {
-        "check_endpoints_not_empty": {
-          "name": "check_endpoints_not_empty",
-          "value": "json_array_length(endpoints) > 0"
-        }
-      },
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.users": {
@@ -781,19 +791,6 @@
     }
   },
   "enums": {
-    "public.address_states": {
-      "name": "address_states",
-      "schema": "public",
-      "values": [
-        "available",
-        "delivered",
-        "staking",
-        "staked",
-        "stake_failed",
-        "unstaking",
-        "unstaked"
-      ]
-    },
     "public.chain_ids": {
       "name": "chain_ids",
       "schema": "public",
@@ -801,6 +798,15 @@
         "pocket",
         "pocket-beta",
         "pocket-alpha"
+      ]
+    },
+    "public.node_status": {
+      "name": "node_status",
+      "schema": "public",
+      "values": [
+        "staked",
+        "unstaked",
+        "unstaking"
       ]
     },
     "public.provider_fee": {
@@ -811,6 +817,16 @@
         "fixed"
       ]
     },
+    "public.provider_status": {
+      "name": "provider_status",
+      "schema": "public",
+      "values": [
+        "healthy",
+        "unhealthy",
+        "unknown",
+        "unreachable"
+      ]
+    },
     "public.role": {
       "name": "role",
       "schema": "public",
@@ -818,6 +834,26 @@
         "admin",
         "user",
         "owner"
+      ]
+    },
+    "public.tx_status": {
+      "name": "tx_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "success",
+        "failure",
+        "not_executed"
+      ]
+    },
+    "public.tx_type": {
+      "name": "tx_type",
+      "schema": "public",
+      "values": [
+        "Stake",
+        "Unstake",
+        "Upstake",
+        "Operational Funds"
       ]
     }
   },

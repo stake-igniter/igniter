@@ -1,6 +1,6 @@
 {
-  "id": "91331765-0bf4-40e2-9fd0-091cdb1c244b",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "6d913467-c524-4cf3-b235-1ca1be2147f6",
+  "prevId": "91331765-0bf4-40e2-9fd0-091cdb1c244b",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -283,6 +283,12 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
+        },
+        "indexerApiUrl": {
+          "name": "indexerApiUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         },
         "updatedAtHeight": {
           "name": "updatedAtHeight",

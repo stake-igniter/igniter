@@ -18,7 +18,6 @@ CREATE TABLE "application_settings" (
 	"chainId" "chain_ids" NOT NULL,
 	"delegatorRewardsAddress" varchar(255),
 	"rpcUrl" varchar NOT NULL,
-	"indexerApiUrl" varchar NOT NULL,
 	"updatedAtHeight" varchar,
 	"privacyPolicy" text,
 	"createdAt" timestamp DEFAULT now(),
