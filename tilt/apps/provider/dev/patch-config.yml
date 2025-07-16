@@ -14,3 +14,6 @@ data:
   TEMPORAL_URL: "temporal-frontend.default.svc.cluster.local:7233"
   TEMPORAL_NAMESPACE: "provider"
   TEMPORAL_TASK_QUEUE: "provider-operations"
+  MAINNET_INDEXER_API_URL: "https://api.poktscan.com/"
+  BETA_INDEXER_API_URL: "https://beta-api.poktscan.com/"
+  ALPHA_INDEXER_API_URL: "https://alpha-api.poktscan.com/"

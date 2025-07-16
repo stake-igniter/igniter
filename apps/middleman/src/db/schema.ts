@@ -140,7 +140,7 @@ export const applicationSettingsTable = pgTable("application_settings", {
   chainId: chainIdEnum().notNull(),
   delegatorRewardsAddress: varchar({ length: 255 }),
   rpcUrl: varchar().notNull(),
-  indexerApiUrl: varchar().notNull(),
+  indexerApiUrl: varchar(),
   updatedAtHeight: varchar(),
   privacyPolicy: text(),
   createdAt: timestamp().defaultNow(),

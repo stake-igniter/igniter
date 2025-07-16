@@ -53,7 +53,17 @@ export default async function Page() {
     return headerComponent
   }
 
-  const graphqlUrl = applicationSettings.indexerApiUrl
+  let graphqlUrl = applicationSettings.indexerApiUrl
+
+  if (!graphqlUrl) {
+    if (applicationSettings.chainId === 'pocket') {
+      graphqlUrl = process.env.MAINNET_INDEXER_API_URL || ''
+    } else if (applicationSettings.chainId === 'pocket-beta') {
+      graphqlUrl = process.env.BETA_INDEXER_API_URL || ''
+    } else {
+      graphqlUrl = process.env.ALPHA_INDEXER_API_URL || ''
+    }
+  }
 
   return (
     <ApolloWrapper url={graphqlUrl}>
