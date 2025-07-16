@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
-import { WalletConnectionProvider } from "@igniter/ui/context/WalletConnection/index";
+import { WalletConnectionProvider } from '@/app/context/WalletConnectionProvider'
 import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
 import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
 import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
@@ -11,6 +11,7 @@ import CurrentUser from "@/components/CurrentUser";
 import { CurrencyContextProvider } from "@igniter/ui/context/currency";
 import Sidebar from "@/components/Sidebar";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
+import { auth } from '@/auth'
 import NotificationsProvider from '@igniter/ui/context/Notifications/index'
 
 export const metadata: Metadata = {
@@ -18,11 +19,13 @@ export const metadata: Metadata = {
   description: "Light up your earnings with Igniter",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <QueryClientProvider>
       <SessionProvider>
@@ -33,7 +36,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ApplicationSettingsProvider>
-            <WalletConnectionProvider>
+            <WalletConnectionProvider
+              protocol={'shannon'}
+              expectedIdentity={session?.user?.identity}
+            >
               <CurrencyContextProvider>
                 <SidebarProvider className="flex flex-col">
                   <AppTopBar>

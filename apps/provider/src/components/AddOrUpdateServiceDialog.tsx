@@ -97,7 +97,7 @@ export function AddOrUpdateServiceDialog({
     setIsLoadingService(true);
     try {
       const existingService = await GetByServiceId(serviceId);
-      if (existingService) {
+      if (existingService && !service) {
         setServiceExists(true);
         return true;
       }
@@ -108,7 +108,7 @@ export function AddOrUpdateServiceDialog({
     } finally {
       setIsLoadingService(false);
     }
-  }, []);
+  }, [service]);
 
   const fetchService = useCallback(async (serviceId: string) => {
     if (!serviceId) return;
@@ -188,8 +188,6 @@ export function AddOrUpdateServiceDialog({
           }
           const service = await fetchService(serviceId);
           setServiceOnChain(service);
-          const url = SERVICE_BY_ID_URL.replace('{service-id}', serviceId.toLowerCase().trim());
-          const response = await fetch(url);
         } catch (error) {
           setServiceOnChain(null);
         } finally {
