@@ -23,6 +23,8 @@ function Value({value}: {value: string}) {
 interface SummaryProps {
   isOwners: boolean
   addresses: Array<string>
+  supplierAddresses: Array<string>
+  noDataMessage?: string
   initialData: DocumentNodeData<typeof summaryDocument> | null
   initialError: boolean
 }
@@ -30,12 +32,14 @@ interface SummaryProps {
 export default function Summary({
   isOwners,
   addresses,
+  supplierAddresses,
+  noDataMessage = 'There is no data available for your nodes.',
   initialError,
   initialData
 }: SummaryProps) {
   const variables = useCallback((_: number, currentTime: string) => {
-    return summaryVariables(isOwners, addresses, currentTime)
-  }, [isOwners, addresses])
+    return summaryVariables(isOwners, addresses, supplierAddresses, currentTime)
+  }, [isOwners, addresses, supplierAddresses])
 
   const { data, error, refetch, isLoading } = useFetchOnBlock({
     query: summaryDocument,
@@ -62,7 +66,7 @@ export default function Summary({
   if (!addresses.length) {
     return (
       <div className={'rounded-lg border h-[130px] pt-2 border-[color:--divider] bg-[color:--main-background] base-shadow flex w-full items-center justify-center'}>
-        <NoData label={'Select addresses to see the data.'} />
+        <NoData label={noDataMessage} />
       </div>
     )
   }

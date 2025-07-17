@@ -9,13 +9,15 @@ import ServerRewardsByAddresses from '@igniter/ui/components/RewardsByAddresses/
 import { getDistinctRevAddresses } from '@/lib/dal/services'
 import { CircleAlert } from 'lucide-react'
 import Link from 'next/link'
+import { listStakedAddresses } from '@/lib/dal/keys'
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const [applicationSettings, addresses] = await Promise.all([
+  const [applicationSettings, addresses, supplierAddresses] = await Promise.all([
     GetApplicationSettings(),
-    getDistinctRevAddresses()
+    getDistinctRevAddresses(),
+    listStakedAddresses()
   ]);
 
   let graphqlUrl = applicationSettings.indexerApiUrl
@@ -67,6 +69,7 @@ export default async function Page() {
           >
             <ServerSummary
               addresses={addresses}
+              supplierAddresses={supplierAddresses}
               isOwners={false}
               graphQlUrl={graphqlUrl}
             />
@@ -82,6 +85,7 @@ export default async function Page() {
           <ServerRewardsByAddresses
             addresses={addresses}
             graphQlUrl={graphqlUrl}
+            supplierAddresses={supplierAddresses}
           />
         </Suspense>
       </div>

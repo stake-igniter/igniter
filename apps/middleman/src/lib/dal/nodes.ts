@@ -48,3 +48,12 @@ export async function getOwnerAddressesByUser(userIdentity: string) {
 
   return result.rows.map((row) => row.ownerAddress as string);
 }
+
+// TODO: filter for staked nodes only when we handle this state
+export async function getStakedNodesAddress() {
+  return await db.query.nodesTable.findMany({
+    columns: {
+      address: true,
+    }
+  }).then((nodes) => nodes.map((node) => node.address));
+}

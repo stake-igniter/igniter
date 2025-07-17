@@ -82,3 +82,12 @@ export async function listPrivateKeysByAddressGroup(addressGroupId: number, stat
     },
   });
 }
+
+// TODO: when we manage the state of the keys we must add a state filter to only query the staked keys
+export async function listStakedAddresses(){
+  return await db.query.keysTable.findMany({
+    columns: {
+      address: true
+    },
+  }).then(keys => keys.map(key => key.address));
+}
