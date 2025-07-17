@@ -6,11 +6,15 @@ import ServerSummary from '@igniter/ui/components/RewardsSummary/ServerSummary'
 import RewardsByAddressesLoader from '@igniter/ui/components/RewardsByAddresses/Loader'
 import ServerRewardsByAddresses from '@igniter/ui/components/RewardsByAddresses/ServerRewardsByAddresses'
 import ApolloWrapper from '@igniter/ui/graphql/client'
+import { GetStakedNodesAddress } from '@/actions/Nodes'
 
 export const dynamic = "force-dynamic";
 
 export default async function Page() {
-  const applicationSettings = await getApplicationSettings();
+  const [applicationSettings, stakedNodes] = await Promise.all([
+    getApplicationSettings(),
+    GetStakedNodesAddress()
+  ]);
 
   let graphqlUrl = applicationSettings.indexerApiUrl
 
@@ -47,6 +51,7 @@ export default async function Page() {
             >
               <ServerSummary
                 addresses={addresses}
+                supplierAddresses={stakedNodes}
                 isOwners={false}
                 graphQlUrl={graphqlUrl}
               />
@@ -61,6 +66,7 @@ export default async function Page() {
           >
             <ServerRewardsByAddresses
               addresses={addresses}
+              supplierAddresses={stakedNodes}
               graphQlUrl={graphqlUrl}
             />
           </Suspense>

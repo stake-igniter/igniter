@@ -29,6 +29,8 @@ export interface RewardItem extends LineBarItem {
 interface RewardsByAddressChartProps {
   initialError: boolean
   addresses: Array<string>
+  supplierAddresses: Array<string>
+  noDataMessage?: string
   initialData: DocumentNodeData<typeof rewardsByAddressAndTimeGroupByDateDocument> | null
   initialVariables: ExtractVariables<typeof rewardsByAddressAndTimeGroupByDateDocument> | null
 }
@@ -36,8 +38,10 @@ interface RewardsByAddressChartProps {
 export default function RewardsByAddressChart({
   initialError,
   addresses,
+  supplierAddresses,
   initialData,
   initialVariables,
+  noDataMessage = 'You do not have any rewards in the time selected..'
 }: RewardsByAddressChartProps) {
   const {chartType} = useChartType()
   const {setData, data} = useDataContext<RewardItem>()
@@ -47,10 +51,11 @@ export default function RewardsByAddressChart({
   const variables = useCallback((_: number, timestamp: string) => {
     return lastVariables.current = rewardsByAddressAndTimeGroupByDateVariables(
       addresses,
+      supplierAddresses,
       timestamp,
       selectedTime,
     )
-  }, [addresses, selectedTime])
+  }, [addresses, supplierAddresses, selectedTime])
 
   const { data: rawData, error, refetch, isLoading } = useFetchOnBlock({
     query: rewardsByAddressAndTimeGroupByDateDocument,
@@ -196,7 +201,7 @@ export default function RewardsByAddressChart({
   if (!addresses.length) {
     content = (
       <div className={'mt-[-10px] flex w-full items-center justify-center'}>
-        <NoData label={'No data available.'} />
+        <NoData label={noDataMessage} />
       </div>
     )
   } else if (isLoading) {

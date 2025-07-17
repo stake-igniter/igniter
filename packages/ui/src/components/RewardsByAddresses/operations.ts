@@ -4,6 +4,7 @@ import { rewardsByAddressAndTimeGroupByDateDocument } from '@igniter/graphql'
 
 export function rewardsByAddressAndTimeGroupByDateVariables(
   addresses: Array<string>,
+  supplierAddresses: Array<string>,
   dateStr: string,
   timeSelected: string
 ): ExtractVariables<typeof rewardsByAddressAndTimeGroupByDateDocument> {
@@ -11,6 +12,7 @@ export function rewardsByAddressAndTimeGroupByDateVariables(
 
   return {
     addresses,
+    supplierAddresses,
     startDate: start.toISOString(),
     endDate: end.toISOString(),
     truncInterval,

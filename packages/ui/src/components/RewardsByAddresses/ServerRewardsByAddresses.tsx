@@ -17,12 +17,16 @@ import { SelectedTimeProvider } from './TimeSelector'
 
 interface RewardsByAddressesProps {
   addresses: Array<string>
+  supplierAddresses: Array<string>
   graphQlUrl: string
+  noDataMessage?: string
 }
 
 export default async function ServerRewardsByAddresses({
   addresses,
+  supplierAddresses,
   graphQlUrl,
+  noDataMessage,
 }: RewardsByAddressesProps) {
   let
     data,
@@ -43,6 +47,7 @@ export default async function ServerRewardsByAddresses({
 
       variables = rewardsByAddressAndTimeGroupByDateVariables(
         addresses,
+        supplierAddresses,
         latestBlock.timestamp,
         timeSelected,
       )
@@ -78,6 +83,8 @@ export default async function ServerRewardsByAddresses({
               <RewardsByAddressChart
                 initialError={error}
                 addresses={addresses}
+                supplierAddresses={supplierAddresses}
+                noDataMessage={noDataMessage}
                 initialData={data || null}
                 initialVariables={variables || null}
               />

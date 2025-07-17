@@ -5,6 +5,7 @@ import { ExtractVariables } from '../../hooks/useFetchOnNewBlock'
 export function summaryVariables(
   filterForOwners: boolean,
   addresses: Array<string>,
+  supplierAddresses: Array<string>,
   dateStr: string,
 ): ExtractVariables<typeof summaryDocument> {
   const date = getDateFromIsoString(dateStr)
@@ -30,11 +31,15 @@ export function summaryVariables(
       stakeStatus: {
         equalTo: StakeStatus.Staked
       },
+      id: {
+        in: supplierAddresses
+      },
       ...addressesFilter,
     },
     currentDate: date.toISOString(),
     last24Hours: addHoursToUtc(date, -24).toISOString(),
     last48Hours: addHoursToUtc(date, -48).toISOString(),
-    addresses: addresses,
+    addresses,
+    supplierAddresses,
   }
 }
