@@ -1,6 +1,6 @@
 {
-  "id": "3b35288f-75cc-4820-a114-bf4fbc740849",
-  "prevId": "91331765-0bf4-40e2-9fd0-091cdb1c244b",
+  "id": "112ac1ad-dab9-4a23-a9cf-f81c7ce4ffef",
+  "prevId": "ed908c75-958e-4f59-b109-271a117251c7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -112,8 +112,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "clients": {
-          "name": "clients",
+        "linkedAddresses": {
+          "name": "linkedAddresses",
           "type": "varchar[]",
           "primaryKey": false,
           "notNull": false,
@@ -282,6 +282,12 @@
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
+        },
+        "indexerApiUrl": {
+          "name": "indexerApiUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
         },
         "updatedAtHeight": {
           "name": "updatedAtHeight",
@@ -499,6 +505,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "ownerAddress": {
+          "name": "ownerAddress",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
         "state": {
           "name": "state",
           "type": "address_states",
@@ -570,7 +583,132 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "keys_address_unique": {
+          "name": "keys_address_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "address"
+          ]
+        },
+        "keys_publicKey_unique": {
+          "name": "keys_publicKey_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "publicKey"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.regions": {
+      "name": "regions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "regions_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "displayName": {
+          "name": "displayName",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urlValue": {
+          "name": "urlValue",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "createdBy": {
+          "name": "createdBy",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updatedBy": {
+          "name": "updatedBy",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "regions_createdBy_users_identity_fk": {
+          "name": "regions_createdBy_users_identity_fk",
+          "tableFrom": "regions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "createdBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "regions_updatedBy_users_identity_fk": {
+          "name": "regions_updatedBy_users_identity_fk",
+          "tableFrom": "regions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updatedBy"
+          ],
+          "columnsTo": [
+            "identity"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "regions_displayName_unique": {
+          "name": "regions_displayName_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "displayName"
+          ]
+        },
+        "regions_urlValue_unique": {
+          "name": "regions_urlValue_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "urlValue"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -608,9 +746,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "region": {
-          "name": "region",
-          "type": "varchar(255)",
+        "region_id": {
+          "name": "region_id",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -618,7 +756,7 @@
           "name": "domain",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "createdAt": {
           "name": "createdAt",
@@ -649,6 +787,19 @@
       },
       "indexes": {},
       "foreignKeys": {
+        "relay_miners_region_id_regions_id_fk": {
+          "name": "relay_miners_region_id_regions_id_fk",
+          "tableFrom": "relay_miners",
+          "tableTo": "regions",
+          "columnsFrom": [
+            "region_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "relay_miners_createdBy_users_identity_fk": {
           "name": "relay_miners_createdBy_users_identity_fk",
           "tableFrom": "relay_miners",

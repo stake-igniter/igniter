@@ -1,1 +1,0 @@
-ALTER TABLE "application_settings" ADD COLUMN "indexerApiUrl" varchar;

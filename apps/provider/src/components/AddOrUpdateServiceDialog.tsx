@@ -18,7 +18,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@i
 import {Dialog, DialogContent, DialogFooter, DialogTitle,} from "@igniter/ui/components/dialog";
 import {
   getDefaultUrlWithSchemeByRpcType,
-  getEndpointInterpolatedUrl, getUrlTokenFromRpcType,
+  getEndpointInterpolatedUrl,
   PROTOCOL_DEFAULT_TYPE,
   RPCType
 } from "@/lib/models/supplier";
@@ -74,7 +74,7 @@ export function AddOrUpdateServiceDialog({
     service?.endpoints ?? [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]
   );
 
-  const [serviceOnChain, setServiceOnChain] = useState<ServiceOnChain | null>(null);
+  const [serviceOnChain, setServiceOnChain] = useState<ServiceOnChain>();
   const [isLoadingService, setIsLoadingService] = useState(false);
   const serviceIdInputRef = useRef<HTMLInputElement>(null);
   const [hasLoadServiceError, setHasLoadServiceError] = useState(false);
@@ -189,12 +189,12 @@ export function AddOrUpdateServiceDialog({
           const service = await fetchService(serviceId);
           setServiceOnChain(service);
         } catch (error) {
-          setServiceOnChain(null);
+          setServiceOnChain(undefined);
         } finally {
           focusServiceIdInput();
         }
       } else {
-        setServiceOnChain(null);
+        setServiceOnChain(undefined);
       }
     };
 
@@ -416,11 +416,11 @@ export function AddOrUpdateServiceDialog({
                                 if (endpoints[index]) {
                                   setPatternHelp({
                                     input: endpoints[index].url || getDefaultUrlWithSchemeByRpcType(endpoints[index].rpcType),
-                                    ag: 'rm-01', // Hard coded address group for help
-                                    region: Region.AFRICA_SOUTH, // Hard coded region for help
+                                    ag: 'rm-01', // Hard-coded address group for help
+                                    region: Region.AFRICA_SOUTH, // Hard-coded region for help
                                     result: getEndpointInterpolatedUrl(endpoints[index], {
-                                      ag: 'rm-01', // Hard coded address group for help
-                                      region: Region.AFRICA_SOUTH, // Hard coded region for help
+                                      rm: 'rm-01', // Hard-coded relay miner identity for help
+                                      region: Region.AFRICA_SOUTH, // Hard-coded region for help
                                       sid: serviceId,
                                       domain: 'example.com',
                                     })

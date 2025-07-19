@@ -30,8 +30,6 @@ export default function CurrentUser() {
     clearConnectedIdentity
   } = useWalletConnection();
 
-  const settingsChainId = applicationSettings?.chainId!;
-
   const authenticateUser = async (address: string) => {
     try {
       if (status === 'loading') {
@@ -40,8 +38,8 @@ export default function CurrentUser() {
 
       const chainOnWallet = await getChain();
 
-      if (chainOnWallet !== settingsChainId) {
-        await switchChain(settingsChainId);
+      if (applicationSettings && (chainOnWallet !== applicationSettings?.chainId)) {
+        await switchChain(applicationSettings?.chainId);
       }
 
       if (status === 'authenticated') {
