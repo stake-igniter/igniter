@@ -13,14 +13,6 @@ export const columns: ColumnDef<Service>[] = [
     header: "Name",
   },
   {
-    accessorKey: "revSharePercentage",
-    header: "Revenue Share %",
-    cell: ({ row }) => {
-      const percentage = row.getValue("revSharePercentage");
-      return percentage === null ? "-" : `${percentage}%`;
-    },
-  },
-  {
     accessorKey: "endpoints",
     header: "Protocols",
     cell: ({ row }) => {

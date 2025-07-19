@@ -2,15 +2,15 @@
 
 import { ColumnDef } from '@igniter/ui/components/table';
 import { Delegator } from "@/db/schema";
-import { Checkbox } from "@igniter/ui/components/checkbox";
-import { useState } from "react";
+import React, { useState } from "react";
 import {UpdateDelegator} from "@/actions/Delegators";
+import {Switch} from "@igniter/ui/components/switch";
 
 export const columns: ColumnDef<Delegator>[] = [
   {
     accessorKey: "enabled",
     header: "Enabled",
-    cell: ({ row, table }) => {
+    cell: ({ row }) => {
       const delegator = row.original;
       const [isChecked, setIsChecked] = useState(delegator.enabled);
       const [isUpdating, setUpdating] = useState(false);
@@ -37,10 +37,11 @@ export const columns: ColumnDef<Delegator>[] = [
 
       return (
         <div className="flex items-center justify-start px-4">
-          <Checkbox
-            checked={isChecked}
-            onCheckedChange={handleToggle}
-            aria-label="Toggle enabled status"
+          <Switch
+              checked={isChecked}
+              onCheckedChange={handleToggle}
+              className="border-[var(--slate-dividers)]"
+              aria-label={`Enable ${delegator.name} as delegator`}
           />
         </div>
       );

@@ -1,10 +1,9 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import {RelayMiner} from "@/db/schema";
-import {Region, RegionDisplay} from "@/lib/models/commons";
+import {RelayMinerWithDetails, Region} from "@/db/schema";
 
-export const columns: ColumnDef<RelayMiner>[] = [
+export const columns: ColumnDef<RelayMinerWithDetails>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -18,7 +17,7 @@ export const columns: ColumnDef<RelayMiner>[] = [
     header: "Region",
     cell: ({ row }) => {
       const region = row.getValue("region") as Region;
-      return RegionDisplay[region];
+      return region.displayName;
     },
   },
   {

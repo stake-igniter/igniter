@@ -40,7 +40,7 @@ const CreateOrUpdateRelayMinerSchema = z.object({
             "Identity must be a valid slug (lowercase letters, numbers, and hyphens only, cannot start or end with a hyphen)"
         ),
 
-    regionId: z.number(),
+    regionId: z.coerce.number(),
 
     domain: z
         .string()
