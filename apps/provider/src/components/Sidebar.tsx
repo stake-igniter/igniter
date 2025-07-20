@@ -39,15 +39,21 @@ const mainRoutes = [
     icon: ProvidersDark,
   },
   {
-    id: "groups",
-    title: "Address Groups",
-    url: "/admin/groups",
+    id: "regions",
+    title: "Regions",
+    url: "/admin/regions",
     icon: ActivityDark,
   },
   {
     id: "miners",
     title: "Relay Miners",
     url: "/admin/miners",
+    icon: ActivityDark,
+  },
+  {
+    id: "groups",
+    title: "Address Groups",
+    url: "/admin/groups",
     icon: ActivityDark,
   },
   {

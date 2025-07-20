@@ -9,6 +9,7 @@ import DataTable from "@igniter/ui/components/DataTable/index";
 import {columns, getFilters} from "./columns";
 import {AddOrUpdateRelayMinerDialog} from "@/components/AddOrUpdateRelayMinerDialog";
 import {useQuery} from "@tanstack/react-query";
+import { Trash2Icon, PencilIcon } from "lucide-react";
 
 export default function RelayMinersTable() {
     const {data: relayMiners, refetch: fetchRelayMiners, isLoading: isLoadingRelayMiners} = useQuery({
@@ -44,19 +45,21 @@ export default function RelayMinersTable() {
                         <div className="flex gap-2 justify-end">
                             <Button
                                 disabled={isLoading}
-                                className="bg-slate-2 border-0"
-                                variant={"outline"}
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => setUpdateRelayMiner(row.original)}
+                                title="Edit Relay Miner"
                             >
-                                Update
+                                <PencilIcon className="h-4 w-4" />
                             </Button>
                             <Button
                                 disabled={isLoading}
-                                className="bg-slate-2 border-0"
-                                variant={"outline"}
+                                variant="ghost"
+                                size="icon"
                                 onClick={() => setRelayMinerToDelete(row.original)}
+                                title="Delete Relay Miner"
                             >
-                                Delete
+                                <Trash2Icon className="h-4 w-4 text-red-500" />
                             </Button>
                         </div>
                     )

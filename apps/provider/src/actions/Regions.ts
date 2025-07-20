@@ -21,7 +21,7 @@ export async function CreateRegion(region: Omit<CreateRegionType, 'createdBy' | 
     });
 }
 
-export async function UpdateRegion(id: number, region: Pick<Region, 'displayName'>) {
+export async function UpdateRegion(id: number, region: Pick<Region, 'displayName' | 'urlValue'>) {
     const identity = await getCurrentUserIdentity();
     return update(id, {
         ...region,
