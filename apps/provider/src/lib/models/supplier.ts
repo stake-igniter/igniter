@@ -100,7 +100,7 @@ export function getEndpointInterpolatedUrl(endpoint: SupplierEndpoint, params: S
 }
 
 export interface SupplierStakeRequest {
-  region?: string;
+  region?: number;
   ownerAddress: string;
   revSharePercentage: number;
   delegatorAddress: string;

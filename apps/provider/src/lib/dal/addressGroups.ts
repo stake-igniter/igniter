@@ -93,8 +93,8 @@ export async function remove(id: number): Promise<AddressGroup> {
 }
 
 export async function list(
+    priv?: boolean,
     region?: number,
-    priv?: boolean
 ): Promise<AddressGroupWithDetails[]> {
   const filters = [];
 

@@ -1,13 +1,15 @@
 import {NextResponse} from "next/server";
 import {getApplicationSettings} from "@/lib/dal/applicationSettings";
 import {list} from "@/lib/dal/addressGroups";
+import {list as listRegions} from '@/lib/dal/regions';
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
 import {AddressGroupWithDetails, ProviderFee} from "@/db/schema";
 import {getRevShare} from "@/lib/utils/services";
 
-function getUniqueRegions(addressGroups: AddressGroupWithDetails[]) {
-  return Array.from(new Set(addressGroups.map((group) => group.relayMiner.region)).values());
+async function getUniqueRegions(): Promise<string[]> {
+  const regions = await listRegions();
+  return regions.map((region) => region.displayName);
 }
 
 function getUniqueDomains(addressGroups: AddressGroupWithDetails[]) {
@@ -32,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     const applicationSettings = await getApplicationSettings();
-    const addressGroups = await list('', false);
+    const addressGroups = await list(false);
 
     const minimumStake = applicationSettings.minimumStake;
 
@@ -44,12 +46,14 @@ export async function POST(request: Request) {
 
       return [...allFees, ...groupFees.flat()];
     }, [] as number[]);
+
+    const regions = await getUniqueRegions();
     
     const response: StatusResponse = {
+      regions,
       minimumStake: minimumStake,
       fee: Math.max(...fees),
       feeType: Array.from(new Set(fees)).length === 1 ? ProviderFee.Fixed : ProviderFee.UpTo,
-      regions: getUniqueRegions(addressGroups),
       domains: getUniqueDomains(addressGroups),
       healthy: true,
     };
