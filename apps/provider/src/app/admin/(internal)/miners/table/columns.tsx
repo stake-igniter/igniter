@@ -1,12 +1,11 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import {RelayMiner} from "@/db/schema";
-import {Region, RegionDisplay} from "@/lib/models/commons";
-import {FilterGroup, SortOption} from "@igniter/ui/components/DataTable/index";
+import {RelayMinerWithDetails, Region} from "@/db/schema";
+import {FilterGroup} from "@igniter/ui/components/DataTable/index";
+import {ListRelayMiners} from "@/actions/RelayMiners";
 
-
-export const columns: ColumnDef<RelayMiner>[] = [
+export const columns: ColumnDef<RelayMinerWithDetails>[] = [
     {
         accessorKey: "name",
         header: "Name",
@@ -20,7 +19,11 @@ export const columns: ColumnDef<RelayMiner>[] = [
         header: "Region",
         cell: ({ row }) => {
             const region = row.getValue("region") as Region;
-            return RegionDisplay[region];
+            return region.displayName;
+        },
+        filterFn: (row, _columnId, value) => {
+            const region = row.getValue("region") as Region;
+            return region.id === value;
         },
     },
     {
@@ -45,27 +48,18 @@ export const columns: ColumnDef<RelayMiner>[] = [
     },
 ];
 
-export const sorts: Array<Array<SortOption<RelayMiner>>> = [
-    [
+export function getFilters(miners: Awaited<ReturnType<typeof ListRelayMiners>>): Array<FilterGroup<RelayMinerWithDetails>> {
+    return [
         {
-            label: "Most Recent",
-            column: "updatedAt",
-            direction: "desc",
-            isDefault: true,
-        },
-    ],
-]
-
-export const filters: Array<FilterGroup<RelayMiner>> = [
-    {
-        group: "region",
-        items: [
-            [{label: "All Regions", value: "", column: "region", isDefault: true}],
-            [
-                {label: "US", value: "us", column: "region"},
-                {label: "EU", value: "eu", column: "region"},
-                {label: "APAC", value: "apac", column: "region"}
-            ],
-        ]
-    },
-];
+            group: 'region',
+            items: [
+                [{label: "All Regions", value: "", column: "region", isDefault: true}],
+                (miners.map((miner) => ({
+                    label: miner.region.displayName,
+                    value: miner.region.id,
+                    column: "region"
+                })))
+            ]
+        }
+    ]
+}
