@@ -2,8 +2,6 @@
 
 import { ColumnDef } from '@igniter/ui/components/table';
 import { Service } from "@/db/schema";
-import {SortOption} from "@igniter/ui/components/DataTable/index";
-import {Key} from "@/app/admin/(internal)/keys/table/columns";
 
 export const columns: ColumnDef<Service>[] = [
   {
@@ -44,14 +42,3 @@ export const columns: ColumnDef<Service>[] = [
     },
   },
 ];
-
-export const sorts: Array<Array<SortOption<Service>>> = [
-  [
-    {
-      label: "Most Recent",
-      column: "updatedAt",
-      direction: "desc",
-      isDefault: true,
-    },
-  ],
-]

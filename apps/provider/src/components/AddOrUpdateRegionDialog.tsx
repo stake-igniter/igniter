@@ -75,7 +75,7 @@ export function AddOrUpdateRegionDialog({
     if (region) {
       setIsUpdatingRegion(true);
       try {
-        await UpdateRegion(region.id, { displayName: values.displayName });
+        await UpdateRegion(region.id, values);
         onClose?.(true);
       } catch (e) {
         console.error("Failed to update region", e);
@@ -142,13 +142,13 @@ export function AddOrUpdateRegionDialog({
                     <FormItem className="flex flex-col gap-2">
                       <FormLabel>URL Value</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="e.g., us-east" disabled={!!region} />
+                        <Input {...field} placeholder="e.g., us-east" />
                       </FormControl>
-                      {!region && (
-                        <div className="text-[var(--color-slate-9)] text-xs">
-                          This value will be used in URLs and cannot be changed after creation
-                        </div>
-                      )}
+                      {region &&
+                          <div className="text-[var(--color-slate-9)] text-xs">
+                            This value might be in use on service urls of staked suppliers. Changing it will require that these are re-staked if your infrastructure has changed.
+                          </div>
+                      }
                       <FormMessage />
                     </FormItem>
                   )}

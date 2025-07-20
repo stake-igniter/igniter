@@ -9,6 +9,7 @@ import DataTable from "@igniter/ui/components/DataTable/index";
 import {columns, filters, sorts} from "./columns";
 import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
 import {useQuery} from "@tanstack/react-query";
+import { Trash2Icon, PencilIcon } from "lucide-react";
 
 export default function AddressGroupsTable() {
   const {data: addressGroups, refetch: fetchAddressGroups, isLoading: isLoadingAddressGroups} = useQuery({
@@ -42,22 +43,26 @@ export default function AddressGroupsTable() {
           header: '',
           cell: ({ row }) => (
             <div className="flex gap-2 justify-end">
-              <Button
-                disabled={isLoading}
-                className="bg-slate-2 border-0"
-                variant={"outline"}
-                onClick={() => setUpdateAddressGroup(row.original)}
-              >
-                Update
-              </Button>
-              <Button
-                disabled={isLoading}
-                className="bg-slate-2 border-0"
-                variant={"outline"}
-                onClick={() => setAddressGroupToDelete(row.original)}
-              >
-                Delete
-              </Button>
+                <div className="flex gap-2 justify-end">
+                    <Button
+                        disabled={isLoading}
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setUpdateAddressGroup(row.original)}
+                        title="Edit AddressGroup"
+                    >
+                        <PencilIcon className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        disabled={isLoading}
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setAddressGroupToDelete(row.original)}
+                        title="Delete AddressGroup"
+                    >
+                        <Trash2Icon className="h-4 w-4 text-red-500" />
+                    </Button>
+                </div>
             </div>
           )
         }

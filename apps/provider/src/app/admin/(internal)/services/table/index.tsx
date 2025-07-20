@@ -4,9 +4,10 @@ import {useEffect, useMemo, useState} from "react";
 import {Service} from "@/db/schema";
 import {DeleteService, ListServices} from "@/actions/Services";
 import {Button} from "@igniter/ui/components/button";
+import { Trash2Icon, PencilIcon } from "lucide-react";
 import DataTable from "@igniter/ui/components/DataTable/index";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import {columns, sorts} from "./columns";
+import {columns} from "./columns";
 import {AddOrUpdateServiceDialog} from "@/components/AddOrUpdateServiceDialog";
 import { useQuery } from '@tanstack/react-query'
 
@@ -39,30 +40,32 @@ export default function ServicesTable() {
           id: 'actions',
           header: '',
           cell: ({ row }) => (
-            <div className="flex gap-2 justify-end">
-              <Button
-                disabled={isLoading}
-                className="bg-slate-2 border-0"
-                variant={"outline"}
-                onClick={() => setUpdateService(row.original)}
-              >
-                Update
-              </Button>
-              <Button
-                disabled={isLoading}
-                className="bg-slate-2 border-0"
-                variant={"outline"}
-                onClick={() => setServiceToDelete(row.original)}
-              >
-                Delete
-              </Button>
-            </div>
+              <div className="flex gap-2 justify-end">
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setUpdateService(row.original)}
+                      title="Edit Region"
+                  >
+                      <PencilIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setServiceToDelete(row.original)}
+                      title="Delete Region"
+                  >
+                      <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+              </div>
           )
         }
       ]}
       data={services}
       filters={[]}
-      sorts={sorts}
+      sorts={[]}
     />
   );
 
