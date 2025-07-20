@@ -67,7 +67,7 @@ export async function getSupplierStakeConfigurations(
   stakeDistribution: SupplierStakeRequest,
   requestingDelegator: string,
 ): Promise<Supplier[]> {
-  const allAddressGroups = await list(stakeDistribution.region);
+  const allAddressGroups = await list(undefined, stakeDistribution.region);
 
   const linkedAddressGroups = allAddressGroups.filter((ag) => ag.linkedAddresses?.includes(stakeDistribution.ownerAddress));
 
@@ -133,7 +133,7 @@ export async function getSupplierStakeConfigurations(
             url: getEndpointInterpolatedUrl(endpoint, {
               sid: serviceItem.serviceId,
               rm: item.addressGroup.relayMiner.identity,
-              region: item.addressGroup.relayMiner.region,
+              region: item.addressGroup.relayMiner.region.urlValue,
               domain: item.addressGroup.relayMiner.domain,
             }),
             rpcType: endpoint.rpcType,
