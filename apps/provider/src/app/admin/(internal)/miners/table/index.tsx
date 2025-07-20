@@ -6,7 +6,7 @@ import {DeleteRelayMiner, ListRelayMiners} from "@/actions/RelayMiners";
 import {Button} from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import DataTable from "@igniter/ui/components/DataTable/index";
-import {columns, filters, sorts} from "./columns";
+import {columns, getFilters} from "./columns";
 import {AddOrUpdateRelayMinerDialog} from "@/components/AddOrUpdateRelayMinerDialog";
 import {useQuery} from "@tanstack/react-query";
 
@@ -63,8 +63,8 @@ export default function RelayMinersTable() {
                 }
             ]}
             data={relayMiners}
-            filters={filters}
-            sorts={sorts}
+            filters={getFilters(relayMiners)}
+            sorts={[]}
         />
     );
 
