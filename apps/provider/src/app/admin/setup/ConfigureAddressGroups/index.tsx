@@ -10,6 +10,7 @@ import {columns} from "./Columns";
 import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
 import {LoaderIcon} from "@igniter/ui/assets";
 import {ListServices} from "@/actions/Services";
+import {PencilIcon, Trash2Icon} from "lucide-react";
 
 export interface ConfigureAddressGroupsProp {
   goNext: () => void;
@@ -46,22 +47,26 @@ export default function ConfigureAddressGroups({ goNext, goBack }: Readonly<Conf
             </Button>
           }
           itemActions={(addressGroup) => (
-            <div className="flex gap-2">
-              <Button
-                disabled={isLoading}
-                variant="secondary"
-                onClick={() => setUpdateAddressGroup(addressGroup)}
-              >
-                Update
-              </Button>
-              <Button
-                disabled={isLoading}
-                variant="destructive"
-                onClick={() => setAddressGroupToDelete(addressGroup)}
-              >
-                Delete
-              </Button>
-            </div>
+              <div className="flex gap-2 justify-end pr-2">
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setUpdateAddressGroup(addressGroup)}
+                      title="Edit AddressGroup"
+                  >
+                      <PencilIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setAddressGroupToDelete(addressGroup)}
+                      title="Delete AddressGroup"
+                  >
+                      <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+              </div>
           )}
         />
       )

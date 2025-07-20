@@ -66,7 +66,7 @@ export default function CurrentUser() {
         message: JSON.stringify(message),
         signature,
         publicKey,
-        redirectTo: '/app',
+        redirectTo: '/admin',
       });
     } catch (error) {
       if ((error as {message: string})?.message === "The user rejected the request.") {

@@ -1,7 +1,6 @@
 'use client';
 
 import {useEffect, useMemo, useState} from "react";
-import {RelayMiner} from "@/db/schema";
 import {DeleteRelayMiner, ListRelayMiners} from "@/actions/RelayMiners";
 import {Button} from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
@@ -9,6 +8,8 @@ import {DataTable} from "@/components/DataTable";
 import {columns} from "./Columns";
 import {AddOrUpdateRelayMinerDialog} from "@/components/AddOrUpdateRelayMinerDialog";
 import {LoaderIcon} from "@igniter/ui/assets";
+import {Trash2Icon, PencilIcon} from 'lucide-react';
+import {RelayMinerWithDetails} from "@/db/schema";
 
 export interface ConfigureRelayMinersProp {
   goNext: () => void;
@@ -19,9 +20,9 @@ export default function ConfigureRelayMiners({ goNext, goBack }: Readonly<Config
   const [isLoadingRelayMiners, setIsLoadingRelayMiners] = useState(false);
   const [isAddingRelayMiner, setIsAddingRelayMiner] = useState(false);
   const [isDeletingRelayMiner, setIsDeletingRelayMiner] = useState(false);
-  const [updateRelayMiner, setUpdateRelayMiner] = useState<RelayMiner | null>(null);
-  const [relayMiners, setRelayMiners] = useState<RelayMiner[]>([]);
-  const [relayMinerToDelete, setRelayMinerToDelete] = useState<RelayMiner | null>(null);
+  const [updateRelayMiner, setUpdateRelayMiner] = useState<RelayMinerWithDetails | null>(null);
+  const [relayMiners, setRelayMiners] = useState<RelayMinerWithDetails[]>([]);
+  const [relayMinerToDelete, setRelayMinerToDelete] = useState<RelayMinerWithDetails | null>(null);
 
   const isLoading = useMemo(() => {
     return isLoadingRelayMiners ||
@@ -42,22 +43,26 @@ export default function ConfigureRelayMiners({ goNext, goBack }: Readonly<Config
             </Button>
           }
           itemActions={(relayMiner) => (
-            <div className="flex gap-2">
-              <Button
-                disabled={isLoading}
-                variant="secondary"
-                onClick={() => setUpdateRelayMiner(relayMiner)}
-              >
-                Update
-              </Button>
-              <Button
-                disabled={isLoading}
-                variant="destructive"
-                onClick={() => setRelayMinerToDelete(relayMiner)}
-              >
-                Delete
-              </Button>
-            </div>
+              <div className="flex gap-2 justify-end pr-2">
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setUpdateRelayMiner(relayMiner)}
+                      title="Edit Relay Miner"
+                  >
+                      <PencilIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setRelayMinerToDelete(relayMiner)}
+                      title="Delete Relay Miner"
+                  >
+                      <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+              </div>
           )}
         />
       )

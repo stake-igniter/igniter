@@ -30,13 +30,13 @@ export const columns: ColumnDef<Delegator>[] = [
       };
 
       if (isUpdating) return (
-        <div className="flex items-center justify-start px-4">
+        <div className="flex items-center justify-start px-4 min-w-5">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-500"></div>
         </div>
       )
 
       return (
-        <div className="flex items-center justify-start px-4">
+        <div className="flex items-center justify-start">
           <Switch
               checked={isChecked}
               onCheckedChange={handleToggle}

@@ -132,7 +132,7 @@ export async function getSupplierStakeConfigurations(
           endpoints: serviceItem?.endpoints.map(endpoint => ({
             url: getEndpointInterpolatedUrl(endpoint, {
               sid: serviceItem.serviceId,
-              rm: item.addressGroup.relayMiner.identity,Ω
+              rm: item.addressGroup.relayMiner.identity,
               region: item.addressGroup.relayMiner.region.urlValue,
               domain: item.addressGroup.relayMiner.domain,
             }),

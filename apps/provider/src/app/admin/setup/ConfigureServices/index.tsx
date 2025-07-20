@@ -9,6 +9,7 @@ import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {columns} from "./Columns";
 import {AddOrUpdateServiceDialog} from "@/components/AddOrUpdateServiceDialog";
 import {LoaderIcon} from "@igniter/ui/assets";
+import {PencilIcon, Trash2Icon} from "lucide-react";
 
 export interface ConfigureServicesProp {
   goNext: () => void;
@@ -37,22 +38,26 @@ export default function ConfigureServices({ goNext, goBack }: Readonly<Configure
             </Button>
           }
           itemActions={(service) => (
-            <div className="flex gap-2">
-              <Button
-                disabled={isLoading}
-                variant="secondary"
-                onClick={() => setUpdateService(service)}
-              >
-                Update
-              </Button>
-              <Button
-                disabled={isLoading}
-                variant="destructive"
-                onClick={() => setServiceToDelete(service)}
-              >
-                Delete
-              </Button>
-            </div>
+              <div className="flex gap-2 justify-end pr-2">
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setUpdateService(service)}
+                      title="Edit Region"
+                  >
+                      <PencilIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setServiceToDelete(service)}
+                      title="Delete Region"
+                  >
+                      <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+              </div>
           )}
         />
       )

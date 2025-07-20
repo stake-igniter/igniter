@@ -12,7 +12,7 @@ import {Region} from "@/db/schema";
 import {AddOrUpdateRegionDialog} from "@/components/AddOrUpdateRegionDialog";
 
 export default function RegionsTable() {
-    const { data: regions, isLoadingRegions, refetch: refetchRegions } = useQuery({
+    const { data: regions, isLoading: isLoadingRegions, refetch: refetchRegions } = useQuery({
         queryKey: ['regions'],
         queryFn: ListRegions,
         refetchInterval: 60000,
@@ -24,7 +24,7 @@ export default function RegionsTable() {
 
     const isLoading = useMemo(() => {
         return isLoadingRegions || isDeletingRegion;
-    })
+    }, [isLoadingRegions, isDeletingRegion]);
 
     const content = (
         <DataTable
@@ -68,6 +68,8 @@ export default function RegionsTable() {
     );
 
     const confirmDeleteRegion = useCallback(async () => {
+        if (!regionToDelete) return;
+
         setIsDeletingRegion(true);
         try {
             await DeleteRegion(regionToDelete.id);

@@ -9,6 +9,7 @@ import { DataTable } from "@/components/DataTable";
 import { columns } from "./Columns";
 import { AddOrUpdateRegionDialog } from "@/components/AddOrUpdateRegionDialog";
 import { LoaderIcon } from "@igniter/ui/assets";
+import {PencilIcon, Trash2Icon} from "lucide-react";
 
 export interface ConfigureRegionsProps {
   goNext?: () => void;
@@ -39,22 +40,26 @@ export default function ConfigureRegions({ goNext, goBack }: Readonly<ConfigureR
             </Button>
           }
           itemActions={(region) => (
-            <div className="flex gap-2">
-              <Button
-                disabled={isLoading}
-                variant="secondary"
-                onClick={() => setUpdateRegion(region)}
-              >
-                Update
-              </Button>
-              <Button
-                disabled={isLoading}
-                variant="destructive"
-                onClick={() => setRegionToDelete(region)}
-              >
-                Delete
-              </Button>
-            </div>
+              <div className="flex gap-2 justify-end pr-2">
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setUpdateRegion(region)}
+                      title="Edit Region"
+                  >
+                      <PencilIcon className="h-4 w-4" />
+                  </Button>
+                  <Button
+                      disabled={isLoading}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setRegionToDelete(region)}
+                      title="Delete Region"
+                  >
+                      <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+              </div>
           )}
         />
       )

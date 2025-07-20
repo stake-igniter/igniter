@@ -22,13 +22,6 @@ const nextConfig = {
     return config;
   },
   output: "standalone",
-  redirects: async () => [
-    {
-      source: "/app",
-      destination: "/app/overview",
-      permanent: true,
-    },
-  ],
 };
 
 export default nextConfig;
