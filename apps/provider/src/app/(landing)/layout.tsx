@@ -50,12 +50,8 @@ export default function RootLayout({
       >
         <ApplicationSettingsProvider>
           <WalletConnectionProvider>
-            <div className="flex flex-row justify-center min-h-screen bg-(--black-1)">
-              <div className="w-[958px] border-x border-(--black-dividers)">
-                <Header />
-                {children}
-                <Footer />
-              </div>
+            <div className="flex flex-col items-center justify-center w-full h-dvh">
+              {children}
             </div>
           </WalletConnectionProvider>
         </ApplicationSettingsProvider>
