@@ -1,43 +1,51 @@
-'use client';
-
 import CurrentUser from "@/app/components/CurrentUser";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import React from "react";
 
-function OwnersOnlyAllowed() {
+function SiteNotReady() {
     return (
-        <div className="flex flex-col items-center justify-center w-[30%] text-center gap-2 p-2">
-            <h1>Sign In not allowed</h1>
-            <p>
-                Seems like you're trying to access this application before it has been opened to the public.
-                You can try again with a different account.
-            </p>
-            <CurrentUser />
-        </div>
+      <>
+        <h1>Sign In not allowed</h1>
+        <p>
+          Seems like you're trying to access this application before it has been opened to the public.
+        </p>
+        <p className={'mb-3'}>
+          If you are the owner, try again with a different account.
+        </p>
+        <CurrentUser />
+      </>
     );
 }
 
-function ErrorContent() {
-    const searchParams = useSearchParams();
-    const error = searchParams.get("error");
-
-    if (error === "OwnerOnly") {
-        return <OwnersOnlyAllowed />;
-    }
-
-    return (
-        <div className="flex flex-col items-center justify-center w-[30%] text-center gap-2 p-2">
-            <h1>Authentication Error</h1>
-            <p>An unknown error occurred while trying to authenticate the account. You can try again.</p>
-            <CurrentUser />
-        </div>
-    );
+function UnknownError() {
+  return (
+    <>
+      <h1 className={'font-semibold'}>Authentication Error</h1>
+      <p className={'mb-3'}>
+        An unknown error occurred while trying to authenticate the account. You can try again.
+      </p>
+      <CurrentUser />
+    </>
+  );
 }
 
-export default function AuthError() {
-    return (
-        <Suspense fallback={null}>
-            <ErrorContent />
-        </Suspense>
-    );
+export default async function AuthError({searchParams}: {
+  searchParams: Promise<Record<string, string | Array<string> | undefined>>
+}) {
+  const awaitedSearchParams = await searchParams;
+
+  let content: React.ReactNode
+
+  if (awaitedSearchParams.type === "NotReady") {
+    content = <SiteNotReady />
+  } else {
+    content = <UnknownError />
+  }
+
+  return (
+    <div
+      className={"flex flex-col items-center justify-center w-full max-w-[400px] gb- py-10 px-4 text-center gap-4 sm:border border-[color:var(--divider)] rounded-lg"}
+    >
+      {content}
+    </div>
+  );
 }
