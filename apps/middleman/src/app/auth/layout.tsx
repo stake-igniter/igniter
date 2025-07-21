@@ -4,6 +4,7 @@ import {SessionProvider} from "next-auth/react";
 import {Jost, Overpass_Mono} from "next/font/google";
 import {auth} from "@/auth";
 import {WalletConnectionProvider} from "@igniter/ui/context/WalletConnection/index";
+import { ThemeProvider } from "@/app/theme";
 
 const jost = Jost({
   variable: "--font-jost",
@@ -36,13 +37,20 @@ export default async function AuthLayout({
      >
      <body>
      <SessionProvider>
-       <WalletConnectionProvider
-         expectedIdentity={session?.user?.identity}
+       <ThemeProvider
+         attribute="class"
+         defaultTheme="dark"
+         enableSystem
+         disableTransitionOnChange
        >
-        <div className="flex flex-col items-center justify-center w-full h-screen">
-          {children}
-        </div>
-       </WalletConnectionProvider>
+         <WalletConnectionProvider
+           expectedIdentity={session?.user?.identity}
+         >
+          <div className="flex flex-col items-center justify-center w-full h-dvh">
+            {children}
+          </div>
+         </WalletConnectionProvider>
+         </ThemeProvider>
        </SessionProvider>
      </body>
     </html>
