@@ -1,6 +1,6 @@
 "use server";
 
-import {ApplicationSettings, ChainId} from "@/db/schema";
+import {ApplicationSettings, ChainId, UserRole} from "@/db/schema";
 import {
   getApplicationSettings as fetchApplicationSettings,
   insertApplicationSettings,
@@ -8,7 +8,7 @@ import {
 } from "@/lib/dal/applicationSettings";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import {getCurrentUserIdentity} from "@/lib/utils/actions";
+import {getCurrentUser} from "@/lib/utils/actions";
 import urlJoin from "url-join";
 import { getServerApolloClient } from '@igniter/ui/graphql/server'
 import { indexerStatusDocument } from '@igniter/graphql'
@@ -53,8 +53,16 @@ export async function UpsertApplicationSettings(
   values: Partial<ApplicationSettings>,
   isUpdate: boolean
 ) {
-  const userIdentity = await getCurrentUserIdentity();
+  const user = await getCurrentUser();
+  const userIdentity= user.identity;
+
+  if (user.role !== UserRole.Owner) {
+    // TODO: Allow for more granular changes when actual `Admin` users are allowed.
+    throw new Error("Unauthorized");
+  }
+
   const validatedFields = ValidateWithSchema(isUpdate ? UpdateSettingsSchema : CreateSettingsSchema, values);
+
   if (isUpdate) {
     await updateApplicationSettings({
       ...validatedFields.data,
@@ -70,7 +78,7 @@ export async function UpsertApplicationSettings(
 }
 
 export async function completeSetup() {
-  await updateApplicationSettings({ isBootstrapped: true });
+  await UpsertApplicationSettings({ isBootstrapped: true }, true);
   return redirect("/admin");
 }
 
