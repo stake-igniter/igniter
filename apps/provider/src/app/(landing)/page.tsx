@@ -1,16 +1,14 @@
-import Hero from "./components/Hero";
-import About from "./components/About";
-import EmptySpace from "./components/EmptySpace";
-import Services from "./components/Services";
+import React from 'react'
+import CurrentUser from '@/components/CurrentUser'
 
 export default function Landing() {
-    return (
-        <div className="h-[100vh] overflow-y-scroll scrollbar-hidden">
-            <Hero />
-            <About />
-            <EmptySpace />
-            <Services />
-            <EmptySpace />
-        </div>
-    );
+  return (
+    <div className="flex flex-col items-center justify-center text-center w-full max-w-[400px] gap-3 py-10 px-4 sm:!bg-background sm:border border-[color:var(--divider)] rounded-lg">
+      <h1 className={'font-bold'}>Provider Sign In</h1>
+      <p className={'mb-3'}>
+        If you are an admin, please sign in to continue.
+      </p>
+      <CurrentUser />
+    </div>
+  )
 }
