@@ -109,13 +109,17 @@ export default function DataTable<TData, TValue>({
               defaultLabel={defaultFilters[groupIndex]?.label || ""}
             />
           ))}
-          <SortDropdown
-            sorts={sorts}
-            table={table}
-            selectedSort={selectedSort}
-            defaultSort={defaultSort}
-            currentDirection={currentDirection}
-          />
+          {
+            sorts.length > 0 && (
+              <SortDropdown
+                sorts={sorts}
+                table={table}
+                selectedSort={selectedSort}
+                defaultSort={defaultSort}
+                currentDirection={currentDirection}
+              />
+            )
+          }
         </div>
       </div>
 

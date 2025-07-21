@@ -4,7 +4,7 @@ import React from "react";
 function SiteNotReady() {
     return (
       <>
-        <h1>Sign In not allowed</h1>
+        <h1 className={'font-semibold'}>Sign In not allowed</h1>
         <p>
           Seems like you're trying to access this application before it has been opened to the public.
         </p>

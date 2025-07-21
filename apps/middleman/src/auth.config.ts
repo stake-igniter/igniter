@@ -25,7 +25,7 @@ const authConfig: NextAuthConfig = {
       );
 
       if (!isBootstrapped && address !== process.env.OWNER_IDENTITY) {
-        return "/auth/error?error=OwnerOnly";
+        return "/auth/error?type=NotReady";
       }
 
       return true;
