@@ -10,6 +10,7 @@ import {
   varchar,
   json,
   primaryKey,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import {RPCType} from "@/lib/models/supplier";
 import {check} from "drizzle-orm/pg-core/checks";
@@ -190,13 +191,17 @@ export type CreateRegion = typeof regionsTable.$inferInsert;
 export const relayMinersTable = pgTable("relay_miners", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 255 }).notNull(),
-  identity: varchar({ length: 66 }).notNull().unique(),
+  identity: varchar({ length: 66 }).notNull(),
   regionId: integer("region_id").references(() => regionsTable.id).notNull(),
   domain: varchar({ length: 255 }).notNull(),
   createdAt: timestamp().defaultNow(),
   createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
   updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
   updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+}, (table) => {
+  return {
+    uniqueIdentityRegion: uniqueIndex("unique_identity_region_idx").on(table.identity, table.regionId)
+  };
 });
 
 export const relayMinersRelations = relations(relayMinersTable, ({ one }) => ({

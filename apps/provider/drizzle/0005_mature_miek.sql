@@ -1,0 +1,2 @@
+ALTER TABLE "relay_miners" DROP CONSTRAINT "relay_miners_identity_unique";--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_identity_region_idx" ON "relay_miners" USING btree ("identity","region_id");

@@ -16,6 +16,7 @@ import { Input } from "@igniter/ui/components/input";
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogTitle,
 } from "@igniter/ui/components/dialog";
@@ -63,6 +64,7 @@ export function AddOrUpdateRelayMinerDialog({
   const [isCancelling, setIsCanceling] = useState(false);
   const [isCreatingRelayMiner, setIsCreatingRelayMiner] = useState(false);
   const [isUpdatingRelayMiner, setIsUpdatingRelayMiner] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // Add this query to fetch regions
   const { data: regions, isLoading: isLoadingRegions } = useQuery({
@@ -95,6 +97,8 @@ export function AddOrUpdateRelayMinerDialog({
     }, [onClose, form]);
 
     async function onSubmit(values: z.infer<typeof CreateOrUpdateRelayMinerSchema>) {
+        setError(null);
+        
         if (relayMiner) {
             setIsUpdatingRelayMiner(true);
             try {
@@ -102,6 +106,7 @@ export function AddOrUpdateRelayMinerDialog({
                 onClose?.(true);
             } catch (e) {
                 console.error("Failed to update relay miner", e);
+                setError(e instanceof Error ? e.message : "Failed to update relay miner. Make sure the combination of identity and region is unique and try again.");
             } finally {
                 setIsUpdatingRelayMiner(false);
             }
@@ -112,6 +117,7 @@ export function AddOrUpdateRelayMinerDialog({
                 onClose?.(true);
             } catch (e) {
                 console.error("Failed to create relay miner", e);
+                setError("Failed to create relay miner. Make sure the combination of identity and region is unique and try again.");
             } finally {
                 setIsCreatingRelayMiner(false);
             }
@@ -129,16 +135,22 @@ export function AddOrUpdateRelayMinerDialog({
             >
                 <DialogTitle asChild>
                     <div className="flex flex-row justify-between items-center py-4 px-4">
-            <span className="text-[14px]">
-              {relayMiner
-                  ? `Update Relay Miner: ${relayMiner.name}`
-                  : "Add New Relay Miner"}
-            </span>
+                        <span className="text-[14px]">
+                          {relayMiner
+                              ? `Update Relay Miner: ${relayMiner.name}`
+                              : "Add New Relay Miner"}
+                        </span>
                     </div>
                 </DialogTitle>
                 <div className="h-[1px] bg-[var(--slate-dividers)]" />
 
                 <div className="px-4 py-3">
+                    {error && (
+                        <DialogDescription className="mb-4 text-destructive font-medium">
+                            {error}
+                        </DialogDescription>
+                    )}
+                    
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
                             <div className="flex flex-col gap-4">

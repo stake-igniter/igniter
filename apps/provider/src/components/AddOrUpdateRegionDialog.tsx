@@ -144,6 +144,11 @@ export function AddOrUpdateRegionDialog({
                       <FormControl>
                         <Input {...field} placeholder="e.g., us-east" />
                       </FormControl>
+                      {!region &&
+                          <div className="text-[var(--color-slate-9)] text-xs">
+                            This value will available for use in your service URLs configurations.
+                          </div>
+                      }
                       {region &&
                           <div className="text-[var(--color-slate-9)] text-xs">
                             This value might be in use on service urls of staked suppliers. Changing it will require that these are re-staked if your infrastructure has changed.

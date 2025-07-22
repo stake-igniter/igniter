@@ -250,7 +250,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                     <Input {...field} disabled={!chainId || !rpcUrl || isLoadingBlockchainParams} />
                   </FormControl>
                   <FormDescription>
-                    The RPC will determine the chainID and minimum stake. The chainID can not be changed later.
+                   This URL will be used to retrieve rewards calculations
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
