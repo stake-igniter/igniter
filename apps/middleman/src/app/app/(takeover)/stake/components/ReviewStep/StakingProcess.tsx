@@ -20,6 +20,7 @@ import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {CreateSignedMemo, CreateStakeTransaction} from "@/actions/Stake";
 import {StageStatus} from "@/app/app/(takeover)/stake/types";
 import {stageFailed, stageSucceeded} from "@/app/app/(takeover)/stake/utils";
+import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export interface StakingProcessStatus {
   requestSuppliersStatus: StageStatus;
@@ -55,6 +56,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
   const [transaction, setTransaction] = useState<DbTransaction | null>(null);
   const [transactionMessages, setTransactionMessages] = useState<TransactionMessage[]>([]);
   const [signedTransaction, setSignedTransaction] = useState<SignedTransaction | null>(null);
+  const { addNotification } = useNotifications();
 
   useEffect(() => {
     (async () => {
@@ -97,7 +99,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
       } catch (err) {
         const { message } = err as Error;
         console.log('An error occurred while retrieving the supplier stake info. Error:', message);
-        handleFailedStage('requestSuppliersStatus');
+        handleFailedStage('requestSuppliersStatus', 'An error occurred while retrieving the supplier stake info. You have incurred no fees. You can try again. If the problem persists, please contact support.');
       }
     })();
   }, [open, currentStep]);
@@ -125,7 +127,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
       } catch (err) {
         const { message } = err as Error;
         console.log('An error occurred while collecting the signature.Error:', message);
-        handleFailedStage('transactionSignatureStatus');
+        handleFailedStage('transactionSignatureStatus', 'An unknown error occurred while collecting your signature for the transaction. If it was intentionally rejected, this is required in order to proceed. If not, please make sure you have a supported wallet extension enabled. You have incurred no fees. You can try again. If the problem persists, please contact support.');
       }
     })();
   }, [open, currentStep]);
@@ -153,7 +155,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
       } catch (err) {
         const { message } = err as Error;
         console.log('An error occurred while scheduling the signed transactions. Error:', message);
-        handleFailedStage('schedulingTransactionStatus');
+        handleFailedStage('schedulingTransactionStatus', 'An unknown error occurred while scheduling the signed transactions.');
       }
     })();
   }, [open, currentStep]);
@@ -241,7 +243,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
     }
   }
 
-  function handleFailedStage(stageName: keyof StakingProcessStatus) {
+  function handleFailedStage(stageName: keyof StakingProcessStatus, message?: string) {
     setStakingStatus((prev) => ({
       ...prev,
       [stageName]: 'error',
@@ -253,8 +255,16 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
         handleOpenChanged(false);
         return currentStatus;
       });
-    }, 1000);
 
+      if (message) {
+        addNotification({
+          id: `stake-process-${stageName}-error`,
+          type: 'error',
+          showTypeIcon: true,
+          content: message,
+        });
+      }
+    }, 1000);
   }
 
   return (
