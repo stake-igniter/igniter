@@ -185,12 +185,12 @@ function StakeSummary({operations, status, networkFee}: StakeSummaryProps) {
           <p className={'px-4 py-[11px] text-[color:var(--color-white-3)]'}>
             Stake is being processed. Avoid moving funds from your wallet for at least one hour to prevent funding errors.
           </p>
-          <hr className={'border-[color:var(--divider)]'} />
-          <div className={'p-2'}>
-            <ActionButton>
-              About Staking
-            </ActionButton>
-          </div>
+          {/*<hr className={'border-[color:var(--divider)]'} />*/}
+          {/*<div className={'p-2'}>*/}
+          {/*  <ActionButton>*/}
+          {/*    About Staking*/}
+          {/*  </ActionButton>*/}
+          {/*</div>*/}
         </div>
       )}
 

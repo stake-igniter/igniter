@@ -81,12 +81,12 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
                         <span className="text-[14px] text-[var(--color-white-3)] p-[11px_16px]">
                             Stake is being processed. Avoid moving funds from your wallet for at least one hour to prevent funding errors.
                         </span>
-                        <div className="h-[1px] bg-[var(--slate-dividers)]"/>
-                        <div className="p-2">
-                            <Button variant="secondaryBorder" className="w-full">
-                                About Staking
-                            </Button>
-                        </div>
+                        {/*<div className="h-[1px] bg-[var(--slate-dividers)]"/>*/}
+                        {/*<div className="p-2">*/}
+                        {/*    <Button variant="secondaryBorder" className="w-full">*/}
+                        {/*        About Staking*/}
+                        {/*    </Button>*/}
+                        {/*</div>*/}
                     </div>
                     <div className="flex flex-col p-0 rounded-[8px] border border-[var(--black-dividers)]">
                         <span
