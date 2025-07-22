@@ -462,7 +462,7 @@ export function AddOrUpdateAddressGroupDialog({
                                   </SelectTrigger>
                                   <SelectContent>
                                     {relayMiners.map((rm) => (
-                                        <SelectItem key={`${rm.identity}-${rm.regionId}`} value={rm.id.toString()}>{`${rm.name} (${rm.identity})`}</SelectItem>
+                                        <SelectItem key={rm.identity} value={rm.id.toString()}>{`${rm.name} (${rm.identity} - ${rm.region.displayName})`}</SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>

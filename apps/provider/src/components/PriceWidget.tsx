@@ -8,11 +8,13 @@ export default async function PriceWidget() {
   return (
     <div className="rounded-md">
       <div className="flex flex-row gap-1 items-center">
-        <Price
-          value={price.usd}
-          change={price.usd_24h_change}
-          showLabel
-        />
+        {price && (
+          <Price
+            value={price.usd}
+            change={price.usd_24h_change}
+            showLabel
+          />
+        )}
       </div>
     </div>
   );
