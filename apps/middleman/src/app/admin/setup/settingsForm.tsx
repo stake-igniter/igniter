@@ -1,4 +1,5 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,7 +16,8 @@ import { Input } from "@igniter/ui/components/input";
 import { Textarea } from "@igniter/ui/components/textarea";
 import React, {useMemo, useRef, useState} from "react";
 import { UpsertApplicationSettings } from "@/actions/ApplicationSettings";
-import {ApplicationSettings, ChainId} from "@/db/schema";
+import {ApplicationSettings} from "@/db/schema";
+import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;
@@ -57,6 +59,8 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext, goBack }) =
 
   const formRef = useRef<HTMLFormElement>(null);
 
+  const { addNotification } = useNotifications();
+
   return (
     <div className="flex flex-col justify-between gap-4">
       <Form {...form}>
@@ -70,6 +74,12 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext, goBack }) =
               goNext();
             } catch (error) {
               console.error(error);
+              addNotification({
+                id: `settings-form-submit-error`,
+                type: 'error',
+                showTypeIcon: true,
+                content: 'Failed to save settings. Please try again.',
+              });
             } finally {
               setIsLoading(false);
             }

@@ -15,6 +15,7 @@ import {
 import { Button } from '@igniter/ui/components/button'
 import { CheckSuccess, LoaderIcon, XIcon } from '@igniter/ui/assets'
 import { FileWarning } from 'lucide-react'
+import {useNotifications} from "@igniter/ui/context/Notifications/index";
 type StageStatus = 'pending' | 'success' | 'error' | 'invalid';
 
 export interface ImportProcessStatus {
@@ -43,8 +44,9 @@ export default function ImportProcess({file, addressGroupId, onImportCompleted}:
   const [importStatus, setImportStatus] = useState<ImportProcessStatus>({
     validateFile: 'pending',
     importKeys: 'pending',
-  })
-  const [keys, setKeys] = useState<Array<string>>([])
+  });
+  const [keys, setKeys] = useState<Array<string>>([]);
+  const { addNotification } = useNotifications();
 
   function handleOpenChanged(open: boolean) {
     setOpen(open);
@@ -59,7 +61,7 @@ export default function ImportProcess({file, addressGroupId, onImportCompleted}:
     setIsCancellable(false);
   }
 
-  function handleFailedStage(stageName: keyof ImportProcessStatus) {
+  function handleFailedStage(stageName: keyof ImportProcessStatus, message?: string) {
     setImportStatus((prev) => ({
       ...prev,
       [stageName]: 'error',
@@ -71,6 +73,15 @@ export default function ImportProcess({file, addressGroupId, onImportCompleted}:
         handleOpenChanged(false);
         return currentStatus;
       });
+
+      if (message) {
+        addNotification({
+          id: `import-keys-process-${stageName}-error`,
+          type: 'error',
+          showTypeIcon: true,
+          content: message,
+        });
+      }
     }, 1000);
   }
 
@@ -107,7 +118,7 @@ export default function ImportProcess({file, addressGroupId, onImportCompleted}:
           });
         }, 2000);
       } else {
-        handleFailedStage('validateFile')
+        handleFailedStage('validateFile', 'The file you\'re trying to import is invalid.');
       }
     }
   }
@@ -134,7 +145,7 @@ export default function ImportProcess({file, addressGroupId, onImportCompleted}:
           });
         }, 2000);
       } else {
-        handleFailedStage('importKeys')
+        handleFailedStage('importKeys', 'An unknown error occurred while importing keys. Please try again. Contact support if the issue persists.');
       }
     }
   }

@@ -10,6 +10,9 @@ import { RightArrowIcon } from '../../assets'
 import { clsx } from 'clsx'
 
 interface NotificationProps {
+  id?: string;
+  title?: string;
+  description?: string;
   type: 'error' | 'warning' | 'info' | 'success';
   showTypeIcon?: boolean;
   entity?: {
@@ -195,7 +198,11 @@ export default function NotificationsProvider({children}: React.PropsWithChildre
       value={{
         notifications,
         addNotification: (notification) => {
-          setNotifications([...notifications, notification])
+          setNotifications((prevNotifications) => {
+            const newNotifications = [...prevNotifications].filter((n) => n.id !== notification.id)
+            newNotifications.push(notification)
+            return newNotifications
+          });
         }
       }}
     >
