@@ -13,8 +13,5 @@ export function getRevShare(addressGroupService: AddressGroupService, operatorAd
     });
   }
 
-  return revShare.length > 0 ? revShare : [{
-    address: operatorAddress,
-    revSharePercentage: 0,
-  }];
+  return revShare.length > 0 ? revShare : [];
 }

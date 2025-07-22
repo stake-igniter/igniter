@@ -79,12 +79,12 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                     {errorMessage}
                   </span>
                 )}
-                <div className="h-[1px] bg-[var(--slate-dividers)]" />
-                <div className="p-2">
-                    <Button variant="secondaryBorder" className="w-full">
-                        About Staking
-                    </Button>
-                </div>
+                {/*<div className="h-[1px] bg-[var(--slate-dividers)]" />*/}
+                {/*<div className="p-2">*/}
+                {/*    <Button variant="secondaryBorder" className="w-full">*/}
+                {/*        About Staking*/}
+                {/*    </Button>*/}
+                {/*</div>*/}
             </div>
 
             <div className="flex flex-col p-0 rounded-[8px] border border-[var(--black-dividers)]">
