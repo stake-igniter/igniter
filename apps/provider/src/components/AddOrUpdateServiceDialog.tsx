@@ -485,8 +485,8 @@ export function AddOrUpdateServiceDialog({
             </p>
 
             <div className="grid grid-cols-[80px_1fr] gap-2 items-start">
-              <div className="font-medium">{`{ag}`}</div>
-              <div className="text-sm">The name of the address group for which nodes are being requested</div>
+              <div className="font-medium">{`{rm}`}</div>
+              <div className="text-sm">The identity of the relay miner associated to the address group the supplier belongs</div>
             </div>
 
             <div className="grid grid-cols-[80px_1fr] gap-2 items-start">

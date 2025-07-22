@@ -250,7 +250,7 @@ const FormComponent: React.FC<FormProps> = ({ defaultValues, goNext }) => {
                     <Input {...field} disabled={!chainId || !rpcUrl || isLoadingBlockchainParams} />
                   </FormControl>
                   <FormDescription>
-                    This API will be used to retrieve the rewards and data that needs indexing. Must match the chainID of the Shannon API.
+                    This URL will be used to retrieve rewards from the indexer.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

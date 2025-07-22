@@ -10,7 +10,7 @@ import QueryClientProvider from "@/app/context/QueryClientProvider";
 import { auth } from '@/auth'
 
 export const metadata: Metadata = {
-  title: "Igniter",
+  title: "Stake Igniter",
   description: "Light up your earnings with Igniter",
 };
 

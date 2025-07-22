@@ -9,7 +9,7 @@ import Header from "@/app/(landing)/components/Header";
 import Footer from "@/app/(landing)/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Igniter",
+  title: "Stake Igniter",
   description: "Light up your earnings with Igniter",
 };
 

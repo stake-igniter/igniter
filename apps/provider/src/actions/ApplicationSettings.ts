@@ -78,7 +78,15 @@ export async function UpsertApplicationSettings(
 }
 
 export async function completeSetup() {
-  await UpsertApplicationSettings({ isBootstrapped: true }, true);
+  const user = await getCurrentUser();
+  const userIdentity= user.identity;
+
+  if (user.role !== UserRole.Owner) {
+    // TODO: Allow for more granular changes when actual `Admin` users are allowed.
+    throw new Error("Unauthorized");
+  }
+
+  await updateApplicationSettings({ isBootstrapped: true, updatedBy: userIdentity });
   return redirect("/admin");
 }
 

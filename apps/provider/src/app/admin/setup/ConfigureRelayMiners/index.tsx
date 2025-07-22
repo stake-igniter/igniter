@@ -39,7 +39,7 @@ export default function ConfigureRelayMiners({ goNext, goBack }: Readonly<Config
             <Button
               onClick={() => setIsAddingRelayMiner(true) }
             >
-              Add address Group
+              Add Relay Miner
             </Button>
           }
           itemActions={(relayMiner) => (
