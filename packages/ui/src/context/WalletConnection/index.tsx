@@ -139,12 +139,12 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
     setAllConnectedIdentities(pocketConnection.connectedIdentities ?? []);
 
     if (!reconnected) {
-      if (onDisconnect) {
-        onDisconnect();
-        return false;
-      } else {
-        throw new Error('Failed to reconnect');
-      }
+    //   if (onDisconnect) {
+    //     onDisconnect();
+    //     return false;
+    //   } else {
+      throw new Error('Failed to reconnect');
+      // }
     }
 
     return true;
