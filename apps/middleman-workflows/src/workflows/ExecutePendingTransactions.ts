@@ -13,19 +13,20 @@ export async function ExecutePendingTransactions(args: ExecutePendingTransaction
       },
     });
 
-  const txIds = await listTransactions();
+  const txs = await listTransactions();
 
-  for (const txId of txIds) {
+  for (const {id, createdAt} of txs) {
+    const workflowId = `ExecuteTransaction-${id}-${createdAt?.getTime()}`;
     await executeChild("ExecuteTransaction", {
-      args: [{ transactionId: txId }],
-      workflowId: `ExecuteTransaction-${txId}`,
+      workflowId,
+      args: [{ transactionId: id }],
       workflowIdReusePolicy: WorkflowIdReusePolicy.ALLOW_DUPLICATE_FAILED_ONLY,
       retry: {
         maximumAttempts: 5,
       },
     }).catch((err) => {
       if (err.name === "WorkflowExecutionAlreadyStartedError") {
-        console.log(`Workflow with ID=${txId} is already running, skipping.`);
+        console.log(`Workflow with ID=${workflowId} is already running, skipping.`);
       } else {
         throw err;
       }
