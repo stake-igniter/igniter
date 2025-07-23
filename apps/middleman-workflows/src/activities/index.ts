@@ -31,7 +31,7 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
   },
   async listTransactions() {
       const txs = await transactionDAL.listByStatus(TransactionStatus.Pending);
-      return txs.map(({ id }) => id);
+      return txs.map(({ id, createdAt }) => ({ id, createdAt }));
   },
   async listProviders() {
     return providerDAL.list();
