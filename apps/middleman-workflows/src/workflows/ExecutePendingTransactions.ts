@@ -16,7 +16,7 @@ export async function ExecutePendingTransactions(args: ExecutePendingTransaction
   const txs = await listTransactions();
 
   for (const {id, createdAt} of txs) {
-    const workflowId = `ExecuteTransaction-${id}-${createdAt?.getTime()}`;
+    const workflowId = `ExecuteTransaction-${id}-${createdAt}`;
     await executeChild("ExecuteTransaction", {
       workflowId,
       args: [{ transactionId: id }],
