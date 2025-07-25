@@ -11,7 +11,7 @@ import { CaretSmallIcon } from '@igniter/ui/assets'
 import { NodeDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
 import TransactionHash from '@igniter/ui/components/TransactionHash'
 import { QuickInfoPopOverIcon } from '@igniter/ui/components/QuickInfoPopOverIcon'
-import { UserAvatar } from '@igniter/ui/components/UserAvatar'
+import AvatarByString from '@igniter/ui/components/AvatarByString'
 
 function ActionButton({children, ...props}: React.PropsWithChildren & Omit<ButtonProps, 'children'>) {
   return (
@@ -50,7 +50,7 @@ export default function NodeDetail({
       label: 'Owner',
       value: (
         <div className={'flex items-center gap-2'}>
-          <UserAvatar address={ownerAddress} selectedAvatar={1} />
+          <AvatarByString string={ownerAddress} />
           <span className={'font-mono text-sm'}>
             {getShortAddress(ownerAddress, 5)}
           </span>

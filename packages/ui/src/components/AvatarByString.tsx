@@ -77,6 +77,7 @@ function AvatarA({ size, darkColor, color, type, transform }: AvatarAProps) {
       className='avatar'
       style={{
         width: size,
+        minWidth: size,
         height: size,
         borderRadius: type === 'circle' ? '50%' : '4px',
         transform: transform
@@ -114,6 +115,7 @@ function AvatarC({
       className='avatar grid'
       style={{
         width: size,
+        minWidth: size,
         height: size,
         borderRadius: type === 'circle' ? '50%' : '4px',
         transform: transform,
@@ -142,6 +144,7 @@ function AvatarD({
       className='avatar relative w-full h-full'
       style={{
         width: size,
+        minWidth: size,
         height: size,
         backgroundColor: darkColor,
         transform: type === 'circle' ? transform : undefined,
@@ -153,6 +156,7 @@ function AvatarD({
         className='absolute'
         style={{
           width: size - 2,
+          minWidth: size - 2,
           height: Math.ceil(size / 3) - 1,
           borderRadius: '3px',
           left: 1,
@@ -165,6 +169,7 @@ function AvatarD({
         className='absolute'
         style={{
           width: size - 2,
+          minWidth: size - 2,
           height: Math.ceil(size / 3) - 1,
           borderRadius: '3px',
           left: 1,
@@ -184,6 +189,7 @@ function AvatarE({ size, darkColor, color, type }: AvatarProps) {
       className='avatar flex items-center justify-center'
       style={{
         width: size,
+        minWidth: size,
         height: size,
         backgroundColor: darkColor,
         overflow: 'hidden',
@@ -195,6 +201,7 @@ function AvatarE({ size, darkColor, color, type }: AvatarProps) {
           borderRadius: '50%',
           backgroundColor: color,
           width: childSize,
+          minWidth: childSize,
           height: childSize,
         }}
       />
@@ -207,6 +214,7 @@ function AvatarF({ size, darkColor, color, type, transform }: AvatarAProps) {
     <div
       style={{
         width: size,
+        minWidth: size,
         height: size,
         borderRadius: type === 'circle' ? '50%' : '4px',
         transform: transform

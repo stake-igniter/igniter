@@ -1,6 +1,5 @@
 'use client';
 
-import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import { getShortAddress, toCurrencyFormat } from '@igniter/ui/lib/utils'
@@ -11,7 +10,7 @@ import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
 import {Transaction} from "@/db/schema";
 import React from "react";
-import { UserAvatar } from '@igniter/ui/components/UserAvatar'
+import AvatarByString from '@igniter/ui/components/AvatarByString'
 
 export interface ReviewStepProps {
     amount: number;
@@ -175,7 +174,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                         Owner Address
                     </span>
                     <span className="flex flex-row items-center text-[14px] text-[var(--color-white-1)]">
-                        <UserAvatar address={ownerAddress} selectedAvatar={1} />
+                        <AvatarByString string={ownerAddress} />
                         <span className="ml-2 font-mono">
                             {getShortAddress(ownerAddress, 5)}
                         </span>
