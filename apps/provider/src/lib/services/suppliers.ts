@@ -3,7 +3,7 @@ import {list} from "@/lib/dal/addressGroups";
 import {list as listServices} from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
 import {CreateKey} from "@/db/schema";
-import {insertMany} from "@/lib/dal/keys";
+import {insertMany, markAvailable} from "@/lib/dal/keys";
 import {getRevShare} from "@/lib/utils/services";
 
 type KeyDistributionItem = { numberOfKeys: number[] };
@@ -151,4 +151,8 @@ export async function getSupplierStakeConfigurations(
   return newCompleteSuppliersDistribution.reduce((suppliers, distribution) => {
     return suppliers.concat(distribution.suppliers);
   }, [] as Supplier[]);
+}
+
+export async function releaseDeliveredSuppliers(addresses: string[], requestingDelegator: string) {
+  return markAvailable(addresses, requestingDelegator);
 }

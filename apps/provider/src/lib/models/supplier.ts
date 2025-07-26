@@ -112,3 +112,6 @@ export interface StakeDistributionItem {
   qty: number;
 }
 
+export interface SupplierReleaseRequest {
+  items: string[];
+}

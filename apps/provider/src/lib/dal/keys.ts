@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import {CreateKey, keysTable, KeyState} from "@/db/schema";
-import {and, eq, count} from "drizzle-orm";
+import {and, eq, count, inArray, isNull} from "drizzle-orm";
 
 /**
  * Inserts multiple keys into the database using a transaction.
@@ -29,6 +29,31 @@ export async function insertMany(keys: CreateKey[]): Promise<CreateKey[]> {
 
     return insertedKeys;
   });
+}
+
+/**
+ * Updates keys that match the given addresses and delegator identity
+ * from 'Delivered' state to 'Available' state and clears delivery information.
+ * 
+ * @param addresses - Array of addresses to update
+ * @param delegatorIdentity - The delegator identity who currently has the keys
+ * @returns The number of keys that were updated
+ */
+export async function markAvailable(addresses: string[], delegatorIdentity: string) {
+  return db.update(keysTable)
+    .set({
+      state: KeyState.Available,
+      deliveredAt: null,
+      deliveredTo: null
+    })
+    .where(
+      and(
+        inArray(keysTable.address, addresses),
+        eq(keysTable.deliveredTo, delegatorIdentity),
+        eq(keysTable.state, KeyState.Delivered)
+      )
+    )
+    .returning({ address: keysTable.address });
 }
 
 export async function listKeysWithPk() {
