@@ -8,14 +8,11 @@ import {
   Node,
   NodeStatus,
   Provider,
-  ProviderStatus,
   Transaction,
   TransactionStatus,
-} from "../lib/db/schema";
-import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "../lib/constants";
-import {signPayload} from "../lib/crypto"
-import {getApplicationSettingsFromDatabase} from "../lib/dal/applicationSettings";
+} from "@/lib/db/schema";
 import {extractStakedNodes} from "@/workflows/utils";
+import {providerServiceInstance} from "@/lib/provider";
 
 export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
   async getTransaction(transactionId: number) {
@@ -36,61 +33,13 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
   async listProviders() {
     return providerDAL.list();
   },
+
   async fetchProviderStatus(providers: Provider[]) {
-    let identity: string;
-    let signature: string;
-
-    try {
-      const applicationSettings = await getApplicationSettingsFromDatabase();
-      identity = applicationSettings?.appIdentity ?? '';
-    } catch (error) {
-      throw new Error("Unable to load the application settings and determine the identity of the app");
-    }
-
-    try {
-      const signatureBuffer = await signPayload(JSON.stringify({}));
-      signature = signatureBuffer.toString('base64');
-    } catch (error) {
-      console.error(error);
-      throw new Error('Unable to sign the payload.');
-    }
+    const { signature, identity } = await providerServiceInstance.signPayload(JSON.stringify({}));
 
     const providerStatus = await Promise.allSettled(
-      providers.map(async (provider) => {
-        try {
-          const STATUS_URL = `${provider.url}/api/status`;
-          const status = await fetch(STATUS_URL, {
-            method: "POST",
-            body: JSON.stringify({}),
-            headers: {
-              "Content-Type": "application/json",
-              [REQUEST_IDENTITY_HEADER]: identity,
-              [REQUEST_SIGNATURE_HEADER]: signature,
-            },
-          });
-
-          const { healthy, ...statusProps } = await status.json();
-
-          if (healthy) {
-            return {
-              ...statusProps,
-              id: provider.id,
-              status: ProviderStatus.Healthy,
-            };
-          } else {
-            return {
-              id: provider.id,
-              status: ProviderStatus.Unhealthy,
-            };
-          }
-        } catch (error) {
-          console.error("Error fetching provider status:", error);
-          return {
-            id: provider.id,
-            status: ProviderStatus.Unreachable,
-          };
-        }
-      })
+      providers.map(async (provider) =>
+        providerServiceInstance.status(provider, signature, identity))
     );
 
     return providerStatus.map((result) => {
@@ -103,6 +52,7 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
       }
     });
   },
+
   async updateProviders(providers: Provider[]) {
     await providerDAL.updateProviders(providers);
   },
@@ -147,7 +97,7 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
     }
     return [tx.success, tx.code, tx.gasUsed?.toString() || "0"] as const;
   },
-  async createNewNodesFromTransaction(transactionId: number) : Promise<Pick<Node, 'id'>[]> {
+  async createNewNodesFromTransaction(transactionId: number) : Promise<Pick<Node, 'id' | 'address'>[]> {
     try {
       const transaction = await transactionDAL.getTransaction(transactionId);
 
@@ -174,4 +124,45 @@ export const delegatorActivities = (blockchainProvider: IBlockchain) => ({
       return [];
     }
   },
+  async notifyProviderOfStakedAddresses(transactionId: number) {
+    try {
+      const transaction = await transactionDAL.getTransaction(transactionId);
+
+      if (!transaction || !transaction.providerId) {
+        return {
+          success: false,
+          message: 'Transaction not found or transaction is not associated to a provider.',
+        }
+      }
+
+      const provider = await providerDAL.getProvider(transaction.providerId);
+
+      if (!provider) {
+        return {
+          success: false,
+          message: 'Provider not found.',
+        }
+      }
+
+      const newlyStakedNodes = extractStakedNodes(transaction);
+
+      const addresses = newlyStakedNodes.map(({ address }) => address);
+
+      await providerServiceInstance.markStaked(addresses, provider);
+
+      return {
+        success: true,
+        message: 'Successfully marked the addresses as staked.',
+        addresses,
+      };
+    } catch (error) {
+      const {message} = error as Error;
+      console.log('Something went wrong while notifying the provider of the staked addresses.');
+      console.error(error);
+      return {
+        success: false,
+        message: message || 'An unknown error occurred while notifying the provider of the staked addresses.',
+      }
+    }
+  }
 });

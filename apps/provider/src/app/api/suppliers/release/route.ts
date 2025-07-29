@@ -45,12 +45,12 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<'
         const {data} = signatureValidationResponse;
 
 
-        if (!data || !data.items.length) {
+        if (!data || !data.addresses.length) {
             console.log('Invalid request. Empty suppliers list.');
             return NextResponse.json({error: "Invalid request. Empty suppliers list."}, {status: 400});
         }
 
-        await releaseDeliveredSuppliers(data.items, delegatorIdentity);
+        await releaseDeliveredSuppliers(data.addresses, delegatorIdentity);
         return NextResponse.json({ data: 'OK' }, { status: 200 });
     } catch (e) {
         console.error(e);

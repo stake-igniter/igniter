@@ -1,6 +1,6 @@
 import {NextResponse} from "next/server";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
-import {SupplierReleaseRequest} from "@/lib/models/supplier";
+import {SupplierMarkStakedRequest} from "@/lib/models/supplier";
 import {APIResponse} from "@/lib/models/response";
 import {stakeDeliveredSuppliers} from "@/lib/services/suppliers";
 import {REQUEST_IDENTITY_HEADER} from "@/lib/constants";
@@ -34,7 +34,7 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<'
         }
 
         console.log('Validating signature...');
-        const signatureValidationResponse = await validateRequestSignature<SupplierReleaseRequest>(request);
+        const signatureValidationResponse = await validateRequestSignature<SupplierMarkStakedRequest>(request);
 
         if (signatureValidationResponse instanceof NextResponse) {
             console.log('Signature validation failed. Exiting.');
@@ -45,12 +45,12 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<'
         const {data} = signatureValidationResponse;
 
 
-        if (!data || !data.items.length) {
+        if (!data || !data.addresses.length) {
             console.log('Invalid request. Empty suppliers list.');
             return NextResponse.json({error: "Invalid request. Empty suppliers list."}, {status: 400});
         }
 
-        await stakeDeliveredSuppliers(data.items, delegatorIdentity);
+        await stakeDeliveredSuppliers(data.addresses, delegatorIdentity);
         return NextResponse.json({ data: 'OK' }, { status: 200 });
     } catch (e) {
         console.error(e);

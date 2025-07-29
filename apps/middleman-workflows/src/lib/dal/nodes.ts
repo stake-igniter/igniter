@@ -6,7 +6,7 @@ export async function insert(nodes: CreateNode[], transactionId?: number) {
         const insertedNodes = await tx
           .insert(nodesTable)
           .values(nodes)
-          .returning({ id: nodesTable.id });
+          .returning({ id: nodesTable.id, address: nodesTable.address });
 
         if (transactionId && insertedNodes.length > 0) {
             const relations: CreateTransactionsToNodesRelation[] = insertedNodes.map(node => ({
