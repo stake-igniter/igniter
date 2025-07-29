@@ -113,5 +113,9 @@ export interface StakeDistributionItem {
 }
 
 export interface SupplierReleaseRequest {
-  items: string[];
+  addresses: string[];
+}
+
+export interface SupplierMarkStakedRequest {
+  addresses: string[];
 }
