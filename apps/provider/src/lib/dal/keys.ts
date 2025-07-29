@@ -47,7 +47,8 @@ export async function markAvailable(addresses: string[], delegatorIdentity: stri
     .set({
       state: KeyState.Available,
       deliveredAt: null,
-      deliveredTo: null
+      deliveredTo: null,
+      ownerAddress: null,
     })
     .where(
       and(
@@ -162,6 +163,21 @@ export async function markKeysDelivered(
       })
       .where(inArray(keysTable.id, keyIds))
       .returning();
+}
+
+export async function markStaked(addresses: string[], delegatorIdentity: string) {
+  return db.update(keysTable)
+      .set({
+        state: KeyState.Staked,
+      })
+      .where(
+          and(
+              inArray(keysTable.address, addresses),
+              eq(keysTable.deliveredTo, delegatorIdentity),
+              eq(keysTable.state, KeyState.Delivered)
+          )
+      )
+      .returning({ address: keysTable.address });
 }
 
 /**
