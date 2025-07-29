@@ -2,7 +2,7 @@ import {getEndpointInterpolatedUrl, Supplier, SupplierStakeRequest} from "@/lib/
 import {list} from "@/lib/dal/addressGroups";
 import {list as listServices} from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
-import {insertNewKeys, lockAvailableKeys, markAvailable, markKeysDelivered} from "@/lib/dal/keys";
+import {insertNewKeys, lockAvailableKeys, markAvailable, markKeysDelivered, markStaked} from "@/lib/dal/keys";
 import {getRevShare} from "@/lib/utils/services";
 import {db} from "@/db";
 
@@ -184,4 +184,8 @@ export async function getSupplierStakeConfigurations(
 
 export async function releaseDeliveredSuppliers(addresses: string[], requestingDelegator: string) {
   return markAvailable(addresses, requestingDelegator);
+}
+
+export async function stakeDeliveredSuppliers(addresses: string[], requestingDelegator: string) {
+    return markStaked(addresses, requestingDelegator);
 }
