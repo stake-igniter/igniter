@@ -1,6 +1,9 @@
 import { db } from "@/db";
-import {CreateKey, keysTable, KeyState} from "@/db/schema";
-import {and, eq, count, inArray, isNull} from "drizzle-orm";
+import {CreateKey, Key, keysTable, KeyState} from "@/db/schema";
+import {PgTransaction} from 'drizzle-orm/pg-core';
+import {and, eq, count, inArray, sql, ExtractTablesWithRelations} from "drizzle-orm";
+import {NodePgQueryResultHKT} from "drizzle-orm/node-postgres";
+import * as schema from "@/db/schema";
 
 /**
  * Inserts multiple keys into the database using a transaction.
@@ -34,7 +37,7 @@ export async function insertMany(keys: CreateKey[]): Promise<CreateKey[]> {
 /**
  * Updates keys that match the given addresses and delegator identity
  * from 'Delivered' state to 'Available' state and clears delivery information.
- * 
+ *
  * @param addresses - Array of addresses to update
  * @param delegatorIdentity - The delegator identity who currently has the keys
  * @returns The number of keys that were updated
@@ -115,4 +118,66 @@ export async function listStakedAddresses(){
       address: true
     },
   }).then(keys => keys.map(key => key.address));
+}
+
+
+/**
+ * Atomically lock up to `count` Available keys for update,
+ * skipping those already locked by concurrent txns.
+ */
+export async function lockAvailableKeys(
+    tx: PgTransaction<NodePgQueryResultHKT, typeof schema>,
+    addressGroupId: number,
+    count: number
+): Promise<Key[]> {
+  return tx
+      .select()
+      .from(keysTable)
+      .where(
+          and(
+              eq(keysTable.addressGroupId, addressGroupId),
+              eq(keysTable.state, KeyState.Available),
+          )
+      )
+      .limit(count)
+      .for('update', { skipLocked: true });
+}
+
+/**
+ * UPDATE those rows to Delivered and set deliveredTo/At
+ * Returns the updated rows.
+ */
+export async function markKeysDelivered(
+    tx: PgTransaction<NodePgQueryResultHKT>,
+    keyIds: number[],
+    deliveredTo: string
+): Promise<Key[]> {
+  if (!keyIds.length) return [];
+  return tx
+      .update(keysTable)
+      .set({
+        state: KeyState.Delivered,
+        deliveredTo,
+        deliveredAt: new Date(),
+      })
+      .where(inArray(keysTable.id, keyIds))
+      .returning();
+}
+
+/**
+ * INSERT new keys, returning the full rows
+ */
+export async function insertNewKeys(
+    tx: PgTransaction<NodePgQueryResultHKT>,
+    newKeys: CreateKey[]
+): Promise<Key[]> {
+  if (!newKeys.length) return [];
+  const inserted = await tx
+      .insert(keysTable)
+      .values(newKeys)
+      .returning();
+  if (inserted.length !== newKeys.length) {
+    throw new Error("Failed to insert all new keys");
+  }
+  return inserted;
 }
