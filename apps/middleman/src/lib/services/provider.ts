@@ -34,3 +34,29 @@ export async function requestSuppliers(stakeOffer: StakeDistributionOffer, setti
         throw error;
     }
 }
+
+export async function releaseSuppliers(stakeOffer: StakeDistributionOffer, addresses: string[]) {
+    try {
+        const response = await fetch("/api/provider-rpc", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                provider: stakeOffer.identity,
+                path: "/api/suppliers/release",
+                data: {
+                    addresses,
+                },
+            }),
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.json();
+            throw new Error(errorBody?.error || "Failed to request keys");
+        }
+    } catch (error) {
+        console.error("Failed to request keys:", error);
+        throw error;
+    }
+}
