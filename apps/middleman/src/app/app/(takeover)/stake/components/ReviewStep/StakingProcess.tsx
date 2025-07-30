@@ -14,7 +14,7 @@ import {CheckSuccess, LoaderIcon, XIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {Transaction as DbTransaction} from "@/db/schema";
 import {requestSuppliers} from "@/lib/services/provider";
-import {SignedTransaction, TransactionMessage,} from "@/lib/models/Transactions";
+import {SignedTransaction, SupplierStake, TransactionMessage,} from "@/lib/models/Transactions";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {CreateSignedMemo, CreateStakeTransaction} from "@/actions/Stake";
@@ -33,6 +33,7 @@ export interface StakingProcessProps {
   ownerAddress: string;
   region?: string;
   onStakeCompleted: (result: StakingProcessStatus, transaction?: DbTransaction) => void;
+  onSuppliersReceived: (suppliers: SupplierStake[]) => void;
 }
 
 enum StakingProcessStep {
@@ -42,7 +43,7 @@ enum StakingProcessStep {
   Completed
 }
 
-export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: Readonly<StakingProcessProps>) {
+export function StakingProcess({offer, onStakeCompleted, ownerAddress, region, onSuppliersReceived}: Readonly<StakingProcessProps>) {
   const [open, setOpen] = useState(false);
   const [isCancellable, setIsCancellable] = useState<boolean>(true);
   const [stakingStatus, setStakingStatus] = useState<StakingProcessStatus>({
@@ -94,6 +95,8 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region}: 
           ...prev,
           requestSuppliersStatus: 'success',
         }));
+
+        onSuppliersReceived(suppliers);
 
         setCurrentStep(StakingProcessStep.transactionSignature);
       } catch (err) {

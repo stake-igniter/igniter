@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {PickStakeAmountStep} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep";
 import {PickOfferStep} from "@/app/app/(takeover)/stake/components/PickOfferStep";
 import {ReviewStep} from "@/app/app/(takeover)/stake/components/ReviewStep";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {StakeSuccessStep} from "@/app/app/(takeover)/stake/components/StakeSuccessStep";
-import {redirect} from "next/navigation";
+import {useRouter} from "next/navigation";
 import {AbortConfirmationDialog} from '@igniter/ui/components/AbortConfirmationDialog'
 import { Transaction } from '@/db/schema'
 import {allStagesSucceeded, getFailedStage} from "@/app/app/(takeover)/stake/utils";
@@ -14,6 +14,10 @@ import {StakingProcessStatus} from "@/app/app/(takeover)/stake/components/Review
 import { useWalletConnection } from '@igniter/ui/context/WalletConnection/index'
 import OwnerAddressStep from '@/app/app/(takeover)/stake/components/OwnerAddressStep'
 import Loading from '@/app/app/(takeover)/stake/components/Loading'
+import {SupplierStake} from "@/lib/models/Transactions";
+import {releaseSuppliers} from "@/lib/services/provider";
+import {useNotifications} from "@igniter/ui/context/Notifications/index";
+
 
 enum StakeActivitySteps {
     OwnerAddress = 'OwnerAddress',
@@ -35,11 +39,15 @@ export default function StakePage() {
     const [selectedOffer, setSelectedOffer] = useState<StakeDistributionOffer | undefined>();
     const [transaction, setTransaction] = useState<Transaction | undefined>(undefined);
     const [isAbortDialogOpen, setAbortDialogOpen] = useState(false);
+    const [isAborting, setIsAborting] = useState(false);
     const [ownerAddress, setOwnerAddress] = useState<string>(
       connectedIdentities!.length > 1 ?
       '' : connectedIdentity!
     );
     const [stakingErrorMessage, setStakingErrorMessage] = useState<string | undefined>(undefined);
+    const [supplierProspects, setSupplierProspects] = useState<Array<SupplierStake>>([]);
+    const { addNotification } = useNotifications();
+    const router = useRouter();
 
     const errorsMap: Record<keyof StakingProcessStatus, string> = {
       requestSuppliersStatus: 'The staking process failed while requesting suppliers. Please try again later or contact support if the issue persists.',
@@ -47,19 +55,19 @@ export default function StakePage() {
       schedulingTransactionStatus: 'The transaction was signed but could not be scheduled. Please try again or contact support if the issue persists.'
     };
 
-  useEffect(() => {
-    if (isConnected) {
-      setOwnerAddress(
-        connectedIdentities!.length > 1 ?
-          '' : connectedIdentity!
-      )
-      setStep(
-        connectedIdentities!.length > 1 ?
-          StakeActivitySteps.OwnerAddress :
-          StakeActivitySteps.PickStakeAmount
-      );
-    }
-  }, [isConnected])
+    useEffect(() => {
+        if (isConnected) {
+          setOwnerAddress(
+            connectedIdentities!.length > 1 ?
+              '' : connectedIdentity!
+          )
+          setStep(
+            connectedIdentities!.length > 1 ?
+              StakeActivitySteps.OwnerAddress :
+              StakeActivitySteps.PickStakeAmount
+          );
+        }
+    }, [isConnected])
 
     const handleOwnerAddressChange = (address: string) => {
       setOwnerAddress(address);
@@ -70,6 +78,33 @@ export default function StakePage() {
         setStakeAmount(amount);
         setStep(StakeActivitySteps.PickOffer);
     };
+
+    const onAbort = useCallback(async (abort: boolean) => {
+        if (abort) {
+            setIsAborting(true);
+            try {
+                if (supplierProspects.length > 0) {
+                    const addresses = supplierProspects.map((s) => s.operatorAddress);
+                    await releaseSuppliers(selectedOffer!, addresses);
+                }
+                setIsAborting(false);
+                await router.push('/app');
+            } catch (error) {
+                console.error(error);
+                addNotification({
+                    id: `abort-stake-error`,
+                    type: 'error',
+                    showTypeIcon: true,
+                    content: 'An error occurred while aborting the staking process. Please try again or contact support if the issue persists.',
+                });
+                setIsAborting(false);
+            } finally {
+                setAbortDialogOpen(false);
+            }
+        } else {
+            setAbortDialogOpen(false);
+        }
+    }, [supplierProspects]);
 
     if (!isConnected) {
       return (
@@ -125,6 +160,7 @@ export default function StakePage() {
                         errorMessage={stakingErrorMessage}
                         selectedOffer={selectedOffer!}
                         ownerAddress={ownerAddress}
+                        onSuppliersReceived={setSupplierProspects}
                         onStakeCompleted={(result, transaction) => {
                             if (allStagesSucceeded(result)) {
                                 setStep(StakeActivitySteps.Success);
@@ -149,19 +185,15 @@ export default function StakePage() {
                         amount={stakeAmount}
                         selectedOffer={selectedOffer!}
                         onClose={() => {
-                            redirect('/app');
+                            router.push('/app');
                         }}
                     />
                 )}
             </div>
             <AbortConfirmationDialog
                 isOpen={isAbortDialogOpen}
-                onResponse={(abort) => {
-                    setAbortDialogOpen(false);
-                    if (abort) {
-                        redirect("/app");
-                    }
-                }}
+                isLoading={isAborting}
+                onResponse={(abort) => { onAbort(abort) }}
             />
         </>
     );

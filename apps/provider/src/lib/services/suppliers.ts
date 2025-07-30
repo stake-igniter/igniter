@@ -104,7 +104,8 @@ export async function getSupplierStakeConfigurations(
                 const reused = await markKeysDelivered(
                     tx as any,
                     avail.map(k => k.id),
-                    requestingDelegator
+                    requestingDelegator,
+                    stakeDistribution.ownerAddress,
                 );
 
                 const toCreate = needed - reused.length;

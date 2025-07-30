@@ -151,7 +151,8 @@ export async function lockAvailableKeys(
 export async function markKeysDelivered(
     tx: PgTransaction<NodePgQueryResultHKT>,
     keyIds: number[],
-    deliveredTo: string
+    deliveredTo: string,
+    ownerAddress: string,
 ): Promise<Key[]> {
   if (!keyIds.length) return [];
   return tx
@@ -160,6 +161,7 @@ export async function markKeysDelivered(
         state: KeyState.Delivered,
         deliveredTo,
         deliveredAt: new Date(),
+        ownerAddress,
       })
       .where(inArray(keysTable.id, keyIds))
       .returning();
