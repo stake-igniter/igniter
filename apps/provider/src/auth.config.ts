@@ -2,6 +2,7 @@ import { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { bootstrapStatus } from "@/lib/services/bootstrap";
 import {SiwpMessage} from "@poktscan/vault-siwp";
+import {env} from "@/config/env";
 
 const authConfig: NextAuthConfig = {
   cookies: {
@@ -24,7 +25,7 @@ const authConfig: NextAuthConfig = {
         JSON.parse((credentials?.message || "{}") as string)
       );
 
-       if (!isBootstrapped && address !== process.env.OWNER_IDENTITY) {
+       if (!isBootstrapped && address !== env.OWNER_IDENTITY) {
          return '/auth/error?error=OwnerOnly';
        }
 

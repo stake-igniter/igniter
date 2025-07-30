@@ -7,10 +7,12 @@ import {
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import {getCompressedPublicKeyFromAppIdentity} from "@/lib/crypto";
+import {env} from "@/config/env";
 
 const defaultSettings: ApplicationSettings = {
   id: 0,
   name: "",
+  indexerApiUrl: "",
   appIdentity: "",
   supportEmail: "",
   ownerIdentity: "",
@@ -32,7 +34,7 @@ export async function getApplicationSettings(): Promise<ApplicationSettings> {
 
   const envSettings = {
     chainId: process.env.CHAIN_ID as ChainId,
-    ownerIdentity: process.env.OWNER_IDENTITY!,
+    ownerIdentity: env.OWNER_IDENTITY,
     ownerEmail: process.env.OWNER_EMAIL!,
     appIdentity: appIdentity.toString('hex'),
   };
@@ -55,7 +57,7 @@ export async function insertApplicationSettings(
     .insert(applicationSettingsTable)
     .values({
       ...settings,
-      ownerIdentity: process.env.OWNER_IDENTITY!,
+      ownerIdentity: env.OWNER_IDENTITY,
       isBootstrapped: false,
     })
     .returning()

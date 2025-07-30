@@ -77,6 +77,9 @@ importers:
       drizzle-orm:
         specifier: 0.44.1
         version: 0.44.1(@types/pg@8.11.11)(@vercel/postgres@0.10.0)(pg@8.14.0)
+      envalid:
+        specifier: ^8.1.0
+        version: 8.1.0
       isomorphic-dompurify:
         specifier: ^2.22.0
         version: 2.22.0(bufferutil@4.0.9)
@@ -198,6 +201,9 @@ importers:
       drizzle-orm:
         specifier: 0.44.1
         version: 0.44.1(@types/pg@8.11.11)(@vercel/postgres@0.10.0)(pg@8.14.0)
+      envalid:
+        specifier: ^8.1.0
+        version: 8.1.0
       js-sha256:
         specifier: ^0.11.0
         version: 0.11.0
@@ -277,6 +283,9 @@ importers:
       drizzle-orm:
         specifier: 0.44.1
         version: 0.44.1(@types/pg@8.11.11)(@vercel/postgres@0.10.0)(pg@8.14.0)
+      envalid:
+        specifier: ^8.1.0
+        version: 8.1.0
       isomorphic-dompurify:
         specifier: ^2.22.0
         version: 2.22.0(bufferutil@4.0.9)
@@ -5423,6 +5432,10 @@ packages:
   env-editor@0.4.2:
     resolution: {integrity: sha512-ObFo8v4rQJAE59M69QzwloxPZtd33TpYEIjtKD1rrFDcM1Gd7IkDxEBU+HriziN6HSHQnBJi8Dmy+JWkav5HKA==}
     engines: {node: '>=8'}
+
+  envalid@8.1.0:
+    resolution: {integrity: sha512-OT6+qVhKVyCidaGoXflb2iK1tC8pd0OV2Q+v9n33wNhUJ+lus+rJobUj4vJaQBPxPZ0vYrPGuxdrenyCAIJcow==}
+    engines: {node: '>=18'}
 
   eol@0.9.1:
     resolution: {integrity: sha512-Ds/TEoZjwggRoz/Q2O7SE3i4Jm66mqTDfmdHdq/7DKVk3bro9Q8h6WdXKdPqFLMoqxrDK5SVRzHVPOS6uuGtrg==}
@@ -15770,6 +15783,10 @@ snapshots:
 
   env-editor@0.4.2:
     optional: true
+
+  envalid@8.1.0:
+    dependencies:
+      tslib: 2.8.1
 
   eol@0.9.1:
     optional: true
