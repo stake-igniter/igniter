@@ -10,6 +10,7 @@ import {columns, getFilters} from "./columns";
 import {AddOrUpdateRelayMinerDialog} from "@/components/AddOrUpdateRelayMinerDialog";
 import {useQuery} from "@tanstack/react-query";
 import { Trash2Icon, PencilIcon } from "lucide-react";
+import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export default function RelayMinersTable() {
     const {data: relayMiners, refetch: fetchRelayMiners, isLoading: isLoadingRelayMiners} = useQuery({
@@ -24,6 +25,7 @@ export default function RelayMinersTable() {
     const [isDeletingRelayMiner, setIsDeletingRelayMiner] = useState(false);
     const [updateRelayMiner, setUpdateRelayMiner] = useState<RelayMiner | null>(null);
     const [relayMinerToDelete, setRelayMinerToDelete] = useState<RelayMiner | null>(null);
+    const { addNotification } = useNotifications();
 
     const isLoading = useMemo(() => {
         return isLoadingRelayMiners ||
@@ -80,6 +82,12 @@ export default function RelayMinersTable() {
             await fetchRelayMiners();
         } catch (error) {
             console.error("Failed to delete relay miner:", error);
+            addNotification({
+                id: `delete-relay-miner-error`,
+                type: 'error',
+                showTypeIcon: true,
+                content: 'Unable to delete relay miner. Please ensure it\'s not associated with any address groups before trying again.',
+            });
         } finally {
             setIsDeletingRelayMiner(false);
             setRelayMinerToDelete(null);

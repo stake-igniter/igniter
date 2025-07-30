@@ -10,6 +10,7 @@ import { Trash2Icon, PencilIcon } from "lucide-react";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import {Region} from "@/db/schema";
 import {AddOrUpdateRegionDialog} from "@/components/AddOrUpdateRegionDialog";
+import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export default function RegionsTable() {
     const { data: regions, isLoading: isLoadingRegions, refetch: refetchRegions } = useQuery({
@@ -21,6 +22,7 @@ export default function RegionsTable() {
     const [updateRegion, setUpdateRegion] = React.useState<Region>();
     const [regionToDelete, setRegionToDelete] = React.useState<Region>();
     const [isDeletingRegion, setIsDeletingRegion] = React.useState(false);
+    const { addNotification } = useNotifications();
 
     const isLoading = useMemo(() => {
         return isLoadingRegions || isDeletingRegion;
@@ -76,6 +78,12 @@ export default function RegionsTable() {
             await refetchRegions();
         } catch (error) {
             console.error('Error deleting region:', error);
+            addNotification({
+                id: `delete-relay-miner-error`,
+                type: 'error',
+                showTypeIcon: true,
+                content: 'Unable to delete region. Please ensure it\'s not associated with any relay miner before trying again.',
+            });
         } finally {
             setIsDeletingRegion(false);
             setRegionToDelete(undefined);

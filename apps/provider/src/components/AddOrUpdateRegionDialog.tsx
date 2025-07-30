@@ -50,6 +50,7 @@ export function AddOrUpdateRegionDialog({
   const [isCancelling, setIsCanceling] = useState(false);
   const [isCreatingRegion, setIsCreatingRegion] = useState(false);
   const [isUpdatingRegion, setIsUpdatingRegion] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof CreateOrUpdateRegionSchema>>({
     resolver: zodResolver(CreateOrUpdateRegionSchema),
@@ -72,6 +73,7 @@ export function AddOrUpdateRegionDialog({
   }, [onClose, form]);
 
   async function onSubmit(values: z.infer<typeof CreateOrUpdateRegionSchema>) {
+    setError(null);
     if (region) {
       setIsUpdatingRegion(true);
       try {
@@ -79,6 +81,7 @@ export function AddOrUpdateRegionDialog({
         onClose?.(true);
       } catch (e) {
         console.error("Failed to update region", e);
+        setError('There has been an error updating the region. Please, try again.');
       } finally {
         setIsUpdatingRegion(false);
       }
@@ -89,6 +92,7 @@ export function AddOrUpdateRegionDialog({
         onClose?.(true);
       } catch (e) {
         console.error("Failed to create region", e);
+        setError('There has been an error creating the region. Please, try again.');
       } finally {
         setIsCreatingRegion(false);
       }
@@ -113,8 +117,21 @@ export function AddOrUpdateRegionDialog({
             </span>
           </div>
         </DialogTitle>
-        <div className="h-[1px] bg-[var(--slate-dividers)]" />
-
+        {!error && (
+            <div className="h-[1px] bg-[var(--slate-dividers)]" />
+        )}
+        {error && (
+            <div
+                className={'flex flex-col items-center bg-[color:var(--color-black-1)]'}
+            >
+              <div className={'flex items-center'}>
+                <div className={'flex flex-row items-center p-1'}>
+                  {error}
+                </div>
+              </div>
+              <div className="!min-h-0.5 !h-[2px] w-full bg-linear-to-r from-[color:#f97834] to-[color:#f8a23e]" />
+            </div>
+        )}
         <div className="px-4 py-3">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">

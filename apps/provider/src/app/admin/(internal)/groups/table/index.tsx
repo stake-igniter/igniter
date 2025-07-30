@@ -10,6 +10,7 @@ import {columns, filters, sorts} from "./columns";
 import {AddOrUpdateAddressGroupDialog} from "@/components/AddOrUpdateAddressGroupDialog";
 import {useQuery} from "@tanstack/react-query";
 import { Trash2Icon, PencilIcon } from "lucide-react";
+import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export default function AddressGroupsTable() {
   const {data: addressGroups, refetch: fetchAddressGroups, isLoading: isLoadingAddressGroups} = useQuery({
@@ -24,6 +25,7 @@ export default function AddressGroupsTable() {
   const [isDeletingAddressGroup, setIsDeletingAddressGroup] = useState(false);
   const [updateAddressGroup, setUpdateAddressGroup] = useState<AddressGroupWithDetails | null>(null);
   const [addressGroupToDelete, setAddressGroupToDelete] = useState<AddressGroup | null>(null);
+  const { addNotification } = useNotifications();
 
   const isLoading = useMemo(() => {
     return isLoadingAddressGroups ||
@@ -57,8 +59,21 @@ export default function AddressGroupsTable() {
                         disabled={isLoading}
                         variant="ghost"
                         size="icon"
-                        onClick={() => setAddressGroupToDelete(row.original)}
-                        title="Delete AddressGroup"
+                        onClick={() => {
+                            if (row.original.keysCount > 0) {
+                                addNotification({
+                                    id: `ag-has-keys-error`,
+                                    type: 'warning',
+                                    showTypeIcon: true,
+                                    content: 'Address groups with associated keys are protected from deletion. Support for removing these groups will be added in a future version.'
+                                });
+
+                                return;
+                            }
+
+                            setAddressGroupToDelete(row.original);
+                        }}
+                        title={'Delete Address Group'}
                     >
                         <Trash2Icon className="h-4 w-4 text-red-500" />
                     </Button>
@@ -82,6 +97,12 @@ export default function AddressGroupsTable() {
       await fetchAddressGroups();
     } catch (error) {
       console.error("Failed to delete addressGroup:", error);
+        addNotification({
+            id: `delete-ag-error`,
+            type: 'error',
+            showTypeIcon: true,
+            content: 'Failed to delete the address group. This could be due to a network issue or server problem. Please try again or contact support if the problem persists.'
+        });
     } finally {
       setIsDeletingAddressGroup(false);
       setAddressGroupToDelete(null);

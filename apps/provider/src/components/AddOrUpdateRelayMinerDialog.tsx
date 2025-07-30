@@ -142,15 +142,22 @@ export function AddOrUpdateRelayMinerDialog({
                         </span>
                     </div>
                 </DialogTitle>
-                <div className="h-[1px] bg-[var(--slate-dividers)]" />
-
+                {!error && (
+                    <div className="h-[1px] bg-[var(--slate-dividers)]" />
+                )}
+                {error && (
+                    <div
+                        className={'flex flex-col text-center bg-[color:var(--color-black-1)]'}
+                    >
+                        <div className={'flex items-center'}>
+                            <div className={'flex flex-row items-center p-1'}>
+                                {error}
+                            </div>
+                        </div>
+                        <div className="!min-h-0.5 !h-[2px] w-full bg-linear-to-r from-[color:#f97834] to-[color:#f8a23e]" />
+                    </div>
+                )}
                 <div className="px-4 py-3">
-                    {error && (
-                        <DialogDescription className="mb-4 text-destructive font-medium">
-                            {error}
-                        </DialogDescription>
-                    )}
-                    
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
                             <div className="flex flex-col gap-4">
