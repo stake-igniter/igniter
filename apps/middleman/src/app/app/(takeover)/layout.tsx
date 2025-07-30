@@ -8,6 +8,7 @@ import CurrentUser from "@/app/components/CurrentUser";
 import {jost, overpass_mono} from "@/styles/layout";
 import PriceWidget from "@/app/components/PriceWidget";
 import {auth} from "@/auth";
+import NotificationsProvider from "@igniter/ui/context/Notifications/index";
 
 export default async function TakeOverLayout({
                                      children,
@@ -41,7 +42,9 @@ export default async function TakeOverLayout({
             <div className="flex flex-1">
               <div className={"w-full h-full flex"}>
                 <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
-                  {children}
+                  <NotificationsProvider>
+                    {children}
+                  </NotificationsProvider>
                 </div>
               </div>
             </div>
