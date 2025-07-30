@@ -15,9 +15,9 @@ import WalletPickerItem, {WalletPickerItemProps} from "./components/WalletPicker
 import {DialogClose} from "../dialog";
 import {Provider, useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {useEffect, useState} from "react";
-import { UserAvatar } from '../UserAvatar'
 import { getShortAddress } from "../../lib/utils";
 import { Checkbox } from '../checkbox'
+import AvatarByString from "../AvatarByString";
 
 export interface WalletPickerProps {
     onWalletSelect?: (provider: Provider) => void;
@@ -136,7 +136,7 @@ export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
                           className="border border-amber-100 w-full h-11 cursor-pointer select-none flex flex-row items-center gap-2 py-3 pl-3 pr-4 bg-(--input-bg) border rounded-lg"
                           onClick={() => setSelectedAccount(addressLastSignedIn)}
                         >
-                            <UserAvatar address={addressLastSignedIn} selectedAvatar={1} />
+                            <AvatarByString string={addressLastSignedIn} />
                             <div className="flex flex-col w-full gap-0">
                                 <p className="font-mono text-sm">
                                     {getShortAddress(addressLastSignedIn, 5)}
@@ -158,7 +158,7 @@ export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
                       className="w-full h-11 cursor-pointer select-none flex flex-row items-center gap-2 py-3 pl-3 pr-4 bg-(--input-bg) border rounded-lg"
                       onClick={() => setSelectedAccount(address)}
                     >
-                        <UserAvatar address={address} selectedAvatar={1} />
+                        <AvatarByString string={address} />
                         <div className="flex flex-col w-full gap-0">
                             <p className="font-mono text-sm">
                                 {getShortAddress(address, 5)}

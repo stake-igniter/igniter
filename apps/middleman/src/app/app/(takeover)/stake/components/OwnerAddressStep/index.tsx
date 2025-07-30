@@ -1,11 +1,11 @@
 import { ActivityHeader } from '@igniter/ui/components/ActivityHeader';
 import { useWalletConnection } from '@igniter/ui/context/WalletConnection/index'
 import { useEffect, useState } from 'react'
-import { UserAvatar } from '@igniter/ui/components/UserAvatar'
 import { getShortAddress } from '@igniter/ui/lib/utils'
 import { Checkbox } from '@igniter/ui/components/checkbox'
 import { Button } from '@igniter/ui/components/button'
 import Amount from '@igniter/ui/components/Amount'
+import AvatarByString from '@igniter/ui/components/AvatarByString'
 
 interface OwnerAddressStepProps {
   onClose: () => void;
@@ -74,7 +74,7 @@ export default function OwnerAddressStep({onClose, onOwnerAddressSelected, selec
           className="w-full h-11 cursor-pointer select-none flex flex-row items-center gap-2 py-3 pl-3 pr-4 bg-(--input-bg) border border-amber-100 rounded-lg"
           onClick={() => setSelectedOwnerAddress(connectedIdentity!)}
         >
-          <UserAvatar address={connectedIdentity!} selectedAvatar={1} />
+          <AvatarByString string={connectedIdentity!} />
           <div className="flex flex-col w-full gap-0">
             <p className="font-mono text-sm">
               {getShortAddress(connectedIdentity!, 5)}
@@ -109,7 +109,7 @@ export default function OwnerAddressStep({onClose, onOwnerAddressSelected, selec
             className="w-full h-11 cursor-pointer select-none flex flex-row items-center gap-2 py-3 pl-3 pr-4 bg-(--input-bg) border rounded-lg"
             onClick={() => setSelectedOwnerAddress(address)}
           >
-            <UserAvatar address={address} selectedAvatar={1} />
+            <AvatarByString string={address} />
             <div className="flex flex-col w-full gap-0">
               <p className="font-mono text-sm">
                 {getShortAddress(address, 5)}
