@@ -112,3 +112,10 @@ export interface StakeDistributionItem {
   qty: number;
 }
 
+export interface SupplierReleaseRequest {
+  addresses: string[];
+}
+
+export interface SupplierMarkStakedRequest {
+  addresses: string[];
+}

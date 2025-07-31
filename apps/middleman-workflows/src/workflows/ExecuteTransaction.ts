@@ -1,8 +1,8 @@
 import {
   proxyActivities,
 } from "@temporalio/workflow";
-import { delegatorActivities } from "../activities";
-import {TransactionStatus} from "../lib/db/schema";
+import { delegatorActivities } from "@/activities";
+import {TransactionStatus} from "@/lib/db/schema";
 import {SendTransactionResult} from "@/lib/blockchain";
 
 
@@ -20,6 +20,7 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     getBlockHeight,
     verifyTransaction,
     createNewNodesFromTransaction,
+    notifyProviderOfStakedAddresses,
   } = proxyActivities<ReturnType<typeof delegatorActivities>>({
     startToCloseTimeout: "30s",
     retry: {
@@ -89,6 +90,8 @@ export async function ExecuteTransaction(args: TransactionArgs) {
 
   if (success) {
     const newNodes = await createNewNodesFromTransaction(transaction.id);
+    await notifyProviderOfStakedAddresses(transaction.id);
+
 
     return {
       ...transaction,

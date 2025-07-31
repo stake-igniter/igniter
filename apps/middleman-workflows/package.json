@@ -10,6 +10,9 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@cosmjs/crypto": "^0.33.1",
+    "@cosmjs/encoding": "^0.33.1",
+    "@cosmjs/stargate": "^0.33.1",
     "@pokt-foundation/pocketjs-provider": "2.2.1",
     "@pokt-foundation/pocketjs-signer": "2.2.1",
     "@pokt-foundation/pocketjs-transaction-builder": "2.2.1",
@@ -19,14 +22,13 @@
     "@temporalio/common": "1.11.7",
     "@temporalio/worker": "1.11.7",
     "@temporalio/workflow": "1.11.7",
-    "@cosmjs/stargate": "^0.33.1",
-    "@cosmjs/crypto": "^0.33.1",
-    "@cosmjs/encoding": "^0.33.1",
     "dotenv": "16.4.7",
     "drizzle-orm": "0.44.1",
+    "envalid": "^8.1.0",
     "js-sha256": "^0.11.0",
     "long": "5.3.1",
-    "pg": "^8.14.0"
+    "pg": "^8.14.0",
+    "url-join": "^5.0.0"
   },
   "devDependencies": {
     "@igniter/eslint-config": "workspace:*",

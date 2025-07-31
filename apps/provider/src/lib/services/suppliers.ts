@@ -2,9 +2,9 @@ import {getEndpointInterpolatedUrl, Supplier, SupplierStakeRequest} from "@/lib/
 import {list} from "@/lib/dal/addressGroups";
 import {list as listServices} from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
-import {CreateKey} from "@/db/schema";
-import {insertMany} from "@/lib/dal/keys";
+import {insertNewKeys, lockAvailableKeys, markAvailable, markKeysDelivered, markStaked} from "@/lib/dal/keys";
 import {getRevShare} from "@/lib/utils/services";
+import {db} from "@/db";
 
 type KeyDistributionItem = { numberOfKeys: number[] };
 
@@ -64,91 +64,129 @@ function calculateDistribution(
 }
 
 export async function getSupplierStakeConfigurations(
-  stakeDistribution: SupplierStakeRequest,
-  requestingDelegator: string,
+    stakeDistribution: SupplierStakeRequest,
+    requestingDelegator: string,
 ): Promise<Supplier[]> {
-  const allAddressGroups = await list(undefined, stakeDistribution.region);
+    const allGroups = await list(undefined, stakeDistribution.region);
+    const linked = allGroups.filter(g =>
+        g.linkedAddresses?.includes(stakeDistribution.ownerAddress)
+    );
+    const addressGroups = linked.length
+        ? linked
+        : allGroups.filter(g => !g.private);
 
-  const linkedAddressGroups = allAddressGroups.filter((ag) => ag.linkedAddresses?.includes(stakeDistribution.ownerAddress));
+    const services = await listServices();
 
-  const addressGroups = linkedAddressGroups.length > 0
-      ? linkedAddressGroups
-      : allAddressGroups.filter((ag) => !ag.private);
+    const totalAmounts = stakeDistribution.items.flatMap(i =>
+        Array(i.qty).fill(i.amount)
+    );
+    const perGroup = calculateDistribution(totalAmounts, addressGroups);
+    const slotsByGroup = addressGroups.map((grp, i) => ({
+        addressGroup: grp,
+        slots: perGroup[i]!.numberOfKeys,
+    }));
 
-  const services = await listServices();
+    let allocation: {
+        addressGroup: typeof addressGroups[0];
+        slots: number[];
+        keys: { address: string }[];
+    }[];
 
-  const totalNewSuppliers = stakeDistribution.items
-    .reduce((allSuppliers, item) => {
-      const newSuppliers = Array.from({length: item.qty}, () => item.amount);
-      return allSuppliers.concat(newSuppliers);
-    }, [] as number[]);
+    try {
+        allocation = await db.transaction(async (tx) => {
+            const results  = [];
 
-  const newSuppliersPerGroup = calculateDistribution(
-    totalNewSuppliers,
-    addressGroups,
-  );
+            for (const { addressGroup, slots } of slotsByGroup) {
+                const needed = slots.length;
 
-  const newSuppliersDistribution = addressGroups.map((addressGroup, index) => ({
-    addressGroup,
-    keys: newSuppliersPerGroup[index]!,
-  }));
+                const avail = await lockAvailableKeys(tx as any, addressGroup.id, needed);
 
-  const newSuppliersDistributionWithKeys = await Promise.all(newSuppliersDistribution.map(async (distribution) => ({
-    addressGroup: distribution.addressGroup,
-    amounts: distribution.keys.numberOfKeys,
-    keys: await createKeys({
-      addressGroupId: distribution.addressGroup.id,
-      numberOfKeys: distribution.keys.numberOfKeys.length,
-      willDeliverTo: requestingDelegator,
-      ownerAddress: stakeDistribution.ownerAddress,
-    }),
-  })));
+                const reused = await markKeysDelivered(
+                    tx as any,
+                    avail.map(k => k.id),
+                    requestingDelegator,
+                    stakeDistribution.ownerAddress,
+                );
 
-  const newCompleteSuppliersDistribution = newSuppliersDistributionWithKeys.map(item => ({
-    ...item,
-    suppliers: item.keys.map((key, index) => ({
-      operatorAddress: key.address,
-      stakeAmount: item.amounts[index]!.toString(),
-      services: item.addressGroup.addressGroupServices?.map((svcConfigurations) => {
-        const serviceItem = services.find(service => service.serviceId === svcConfigurations.serviceId);
-        const revShare = getRevShare(svcConfigurations, key.address);
+                const toCreate = needed - reused.length;
+                let created: typeof reused = [];
+                if (toCreate > 0) {
+                    const newRows = await createKeys({
+                        addressGroupId: addressGroup.id,
+                        willDeliverTo: requestingDelegator,
+                        numberOfKeys: toCreate,
+                        ownerAddress: stakeDistribution.ownerAddress,
+                    });
+                    created = await insertNewKeys(tx as any, newRows);
+                }
 
-        revShare.push({
-          address: stakeDistribution.delegatorAddress,
-          revSharePercentage: stakeDistribution.revSharePercentage,
-        });
-
-        const ownerShare = 100 - revShare.reduce((sum, share) => sum + share.revSharePercentage, 0);
-
-        return {
-          serviceId: svcConfigurations.serviceId,
-          revShare: [
-            ...revShare,
-            {
-              address: stakeDistribution.ownerAddress,
-              revSharePercentage: ownerShare,
+                results.push({
+                    addressGroup,
+                    slots,
+                    keys: [...reused, ...created],
+                });
             }
-          ],
-          endpoints: serviceItem?.endpoints.map(endpoint => ({
-            url: getEndpointInterpolatedUrl(endpoint, {
-              sid: serviceItem.serviceId,
-              rm: item.addressGroup.relayMiner.identity,
-              region: item.addressGroup.relayMiner.region.urlValue,
-              domain: item.addressGroup.relayMiner.domain,
-            }),
-            rpcType: endpoint.rpcType,
-            configs: [],
-          })) || [],
+
+            return results;
+        });
+    } catch (error) {
+        const {message} = error as Error;
+        throw new Error(`Failed to allocate keys: ${message}`);
+    }
+
+    const suppliers: Supplier[] = [];
+
+    for (const { addressGroup, slots, keys } of allocation) {
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i]!;
+            const stakeAmount = slots[i]!.toString();
+
+            const svcConfigs = addressGroup.addressGroupServices ?? [];
+            const supplierServices = svcConfigs.map(cfg => {
+                const svc = services.find(s => s.serviceId === cfg.serviceId)!;
+                const revShare = getRevShare(cfg, key.address);
+                revShare.push({
+                    address: stakeDistribution.delegatorAddress,
+                    revSharePercentage: stakeDistribution.revSharePercentage,
+                });
+                const ownerPct =
+                    100 - revShare.reduce((sum, r) => sum + r.revSharePercentage, 0);
+                revShare.push({
+                    address: stakeDistribution.ownerAddress,
+                    revSharePercentage: ownerPct,
+                });
+
+                return {
+                    serviceId: cfg.serviceId,
+                    revShare,
+                    endpoints: svc.endpoints.map(ep => ({
+                        url: getEndpointInterpolatedUrl(ep, {
+                            sid: svc.serviceId,
+                            rm: addressGroup.relayMiner.identity,
+                            region: addressGroup.relayMiner.region.urlValue,
+                            domain: addressGroup.relayMiner.domain,
+                        }),
+                        rpcType: ep.rpcType,
+                        configs: [],
+                    })),
+                };
+            });
+
+            suppliers.push({
+                operatorAddress: key.address,
+                stakeAmount,
+                services: supplierServices,
+            });
         }
-      }) || [],
-    })),
-  }));
+    }
 
-  const newKeys = newSuppliersDistributionWithKeys.reduce((keys, item) => keys.concat(item.keys), [] as CreateKey[]);
+    return suppliers;
+}
 
-  await insertMany(newKeys);
+export async function releaseDeliveredSuppliers(addresses: string[], requestingDelegator: string) {
+  return markAvailable(addresses, requestingDelegator);
+}
 
-  return newCompleteSuppliersDistribution.reduce((suppliers, distribution) => {
-    return suppliers.concat(distribution.suppliers);
-  }, [] as Supplier[]);
+export async function stakeDeliveredSuppliers(addresses: string[], requestingDelegator: string) {
+    return markStaked(addresses, requestingDelegator);
 }

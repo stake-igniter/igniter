@@ -11,6 +11,7 @@ import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/c
 import {Transaction} from "@/db/schema";
 import React from "react";
 import AvatarByString from '@igniter/ui/components/AvatarByString'
+import {SupplierStake} from "@/lib/models/Transactions";
 
 export interface ReviewStepProps {
     amount: number;
@@ -18,11 +19,12 @@ export interface ReviewStepProps {
     errorMessage?: string;
     ownerAddress: string;
     onStakeCompleted: (status: StakingProcessStatus, transaction?: Transaction) => void;
+    onSuppliersReceived: (suppliers: SupplierStake[]) => void;
     onBack: () => void;
     onClose: () => void;
 }
 
-export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddress, errorMessage, onBack, onClose}: Readonly<ReviewStepProps>) {
+export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddress, errorMessage, onSuppliersReceived, onBack, onClose}: Readonly<ReviewStepProps>) {
     const [isShowingTransactionDetails, setIsShowingTransactionDetails] = useState<boolean>(false);
     const applicationSettings = useApplicationSettings();
 
@@ -232,6 +234,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
               ownerAddress={ownerAddress}
               offer={selectedOffer}
               onStakeCompleted={onStakeCompleted}
+              onSuppliersReceived={onSuppliersReceived}
             />
         </div>
     );

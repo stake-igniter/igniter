@@ -12,6 +12,7 @@ import {getCurrentUser} from "@/lib/utils/actions";
 import urlJoin from "url-join";
 import { getServerApolloClient } from '@igniter/ui/graphql/server'
 import { indexerStatusDocument } from '@igniter/graphql'
+import {env} from "@/config/env";
 
 const UrlSchema = z.string().url("Please enter a valid URL").min(1, "URL is required")
 
@@ -108,7 +109,7 @@ export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: s
   }
 
   const supplierParams = await supplierParamsResponse.json();
-  const minStake = parseFloat(supplierParams.params.min_stake.amount) / 1e6;
+  const minStake = (parseFloat(supplierParams.params.min_stake.amount) + env.MINIMUM_STAKE_BUFFER) / 1e6;
 
   const nodeInfoUrl = urlJoin(url, "cosmos/base/tendermint/v1beta1/node_info");
   const nodeInfoResponse = await fetch(nodeInfoUrl);

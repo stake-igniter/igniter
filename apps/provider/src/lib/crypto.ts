@@ -60,8 +60,7 @@ export async function verifySignature(
 }
 
 export async function getCompressedPublicKeyFromAppIdentity() : Promise<Buffer> {
-  const appIdentity = process.env.APP_IDENTITY!;
-  const privateKeyBytes = Buffer.from(appIdentity, 'hex');
+  const privateKeyBytes = Buffer.from(process.env.APP_IDENTITY!, 'hex');
   const wallet = await DirectSecp256k1Wallet.fromKey(privateKeyBytes);
   const [account] = await wallet.getAccounts();
 

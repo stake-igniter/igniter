@@ -7,15 +7,21 @@ import {
     DialogFooter,
     DialogTitle,
 } from "./dialog";
-
+import {LoaderIcon} from "../assets";
 
 export interface AbortConfirmationDialogProps {
     isOpen: boolean;
     onResponse: (abort: boolean) => void;
     type?: 'stake' | 'migration' | 'import' | 'export';
+    isLoading?: boolean;
 }
 
-export function AbortConfirmationDialog({ isOpen, onResponse, type = 'stake' }: Readonly<AbortConfirmationDialogProps>) {
+export function AbortConfirmationDialog({ 
+    isOpen, 
+    onResponse, 
+    type = 'stake', 
+    isLoading = false 
+}: Readonly<AbortConfirmationDialogProps>) {
     const typeLabel = type!.slice(0, 1).toUpperCase() + type!.slice(1)
     return (
         <Dialog open={isOpen}>
@@ -41,12 +47,18 @@ export function AbortConfirmationDialog({ isOpen, onResponse, type = 'stake' }: 
                     <Button
                         variant={'secondaryStretch'}
                         onClick={() => onResponse(true)}
+                        disabled={isLoading}
                     >
-                        Abort {typeLabel}
+                        {isLoading ? (
+                            <LoaderIcon />
+                        ) : (
+                            <>Abort {typeLabel}</>
+                        )}
                     </Button>
                     <Button
                         variant={'secondaryStretch'}
                         onClick={() => onResponse(false)}
+                        disabled={isLoading}
                     >
                         Continue {typeLabel}
                     </Button>
