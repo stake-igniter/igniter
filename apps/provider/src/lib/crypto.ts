@@ -2,7 +2,6 @@ import crypto from "crypto";
 import {Secp256k1, Secp256k1Signature, sha256} from '@cosmjs/crypto';
 import {toUtf8} from "@cosmjs/encoding";
 import {DirectSecp256k1Wallet} from "@cosmjs/proto-signing";
-import {env} from "@/config/env";
 
 const algorithm = "aes-256-cbc";
 
@@ -61,7 +60,7 @@ export async function verifySignature(
 }
 
 export async function getCompressedPublicKeyFromAppIdentity() : Promise<Buffer> {
-  const privateKeyBytes = Buffer.from(env.APP_IDENTITY, 'hex');
+  const privateKeyBytes = Buffer.from(process.env.APP_IDENTITY!, 'hex');
   const wallet = await DirectSecp256k1Wallet.fromKey(privateKeyBytes);
   const [account] = await wallet.getAccounts();
 

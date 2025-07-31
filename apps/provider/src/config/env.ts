@@ -9,6 +9,6 @@ export const env = cleanEnv(process.env, {
         desc: 'The user identity of the owner of the provider app. This is expected to be a single valid pokt address.',
     }),
     APP_IDENTITY: str({
-        desc: 'The governance identity of the provider app. This is expected to be a single valid pokt address.',
+        desc: 'The private key for the governance identity of the provider app. This is expected to be a hex string.',
     })
 });
