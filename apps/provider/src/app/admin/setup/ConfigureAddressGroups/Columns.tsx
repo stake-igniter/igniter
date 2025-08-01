@@ -30,11 +30,18 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
 
       return (
         <div className="flex gap-2">
-          {services.map((service) => (
-            <div key={service} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full cursor-pointer">
-              {service}
+          {services.slice(0, 3).map((service) => (
+            <div key={service} className="bg-blue-100 flex items-center px-2 h-[24px] rounded-[4px]">
+              <p className={'text-blue-800 !text-[13px]'}>
+                {service}
+              </p>
             </div>
           ))}
+          {services.length > 3 && (
+            <span className="py-1 rounded-full">
+              + {services.length - 3}
+            </span>
+          )}
         </div>
       );
     },
