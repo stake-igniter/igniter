@@ -247,6 +247,7 @@ export default function TransactionDetail({
                 const tx = transaction.transaction
 
                 return {
+                  id: tx.id,
                   type: tx.type,
                   hash: tx.hash || '',
                   status: tx.status,

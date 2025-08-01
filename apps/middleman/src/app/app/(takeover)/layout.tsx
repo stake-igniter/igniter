@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import "@/app/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/app/theme";
@@ -9,6 +10,15 @@ import {jost, overpass_mono} from "@/styles/layout";
 import PriceWidget from "@/app/components/PriceWidget";
 import {auth} from "@/auth";
 import NotificationsProvider from "@igniter/ui/context/Notifications/index";
+import { GetAppName } from '@/actions/ApplicationSettings'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Stake - ${appName}`,
+  }
+}
 
 export default async function TakeOverLayout({
                                      children,
