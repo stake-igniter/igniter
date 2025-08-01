@@ -28,7 +28,6 @@ import {ChainId} from "@/db/schema";
 const FormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   supportEmail: z.string().email("Invalid email format").optional(),
-  ownerEmail: z.string().email("Invalid email format").optional(),
   rpcUrl: z.string().optional().superRefine(async (url, ctx) => {
     if (!url) {
       return; // Skip validation if empty
@@ -102,7 +101,6 @@ export default function SettingsPage() {
     defaultValues: {
       name: settings?.name || "",
       supportEmail: settings?.supportEmail || "",
-      ownerEmail: settings?.ownerEmail || "",
       rpcUrl: settings?.rpcUrl || "",
       indexerApiUrl: settings?.indexerApiUrl || "",
       chainId: settings?.chainId || "",
@@ -113,7 +111,6 @@ export default function SettingsPage() {
     values: settings ? {
       name: settings.name || "",
       supportEmail: settings.supportEmail || "",
-      ownerEmail: settings.ownerEmail || "",
       rpcUrl: settings.rpcUrl || "",
       indexerApiUrl: settings.indexerApiUrl || "",
       chainId: settings.chainId || "",
@@ -203,19 +200,6 @@ export default function SettingsPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Support Email</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="ownerEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Owner Email</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
