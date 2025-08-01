@@ -23,7 +23,7 @@ const UpdateSettingsSchema = z.object({
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email().optional(),
   fee: z.number()
-    .min(1, "Provider fee must be greater than 0")
+    .min(0, "Provider fee must be greater than or equal to 0")
     .max(100).transform((value) => value.toString()).optional(),
   minimumStake: z.number().optional(),
   rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required").optional(),
