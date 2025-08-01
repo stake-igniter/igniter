@@ -145,10 +145,12 @@ export async function getSupplierStakeConfigurations(
             const supplierServices = svcConfigs.map(cfg => {
                 const svc = services.find(s => s.serviceId === cfg.serviceId)!;
                 const revShare = getRevShare(cfg, key.address);
-                revShare.push({
-                    address: stakeDistribution.delegatorAddress,
-                    revSharePercentage: stakeDistribution.revSharePercentage,
-                });
+                if (stakeDistribution.revSharePercentage > 0) {
+                    revShare.push({
+                        address: stakeDistribution.delegatorAddress,
+                        revSharePercentage: stakeDistribution.revSharePercentage,
+                    });
+                }
                 const ownerPct =
                     100 - revShare.reduce((sum, r) => sum + r.revSharePercentage, 0);
                 revShare.push({

@@ -89,40 +89,42 @@ export function StakeSuccessStep({amount, selectedOffer, transaction, onClose}: 
                         {/*</div>*/}
                     </div>
                     <div className="flex flex-col p-0 rounded-[8px] border border-[var(--black-dividers)]">
-                        <span
-                            className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
-                            <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
-                                <span>
-                                    Service Fee
+                        {applicationSettings?.fee && applicationSettings?.fee > 0 ? (
+                            <span
+                                className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
+                                <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
+                                    <span>
+                                        Service Fee
+                                    </span>
+                                    <QuickInfoPopOverIcon
+                                        title="Service Fee"
+                                        description="The % of the rewards that this website retain for handling the service."
+                                        url={''}
+                                    />
                                 </span>
-                                <QuickInfoPopOverIcon
-                                    title="Service Fee"
-                                    description="The % of the rewards that this website retain for handling the service."
-                                    url={''}
-                                />
+                                <span className="text-[14px] text-[var(--color-white-1)]">
+                                    {applicationSettings?.fee}%
+                                </span>
                             </span>
-                            <span className="text-[14px] text-[var(--color-white-1)]">
-                                {applicationSettings?.fee}%
-                            </span>
-                        </span>
-                        <span
-                            className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
-                        <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
-                        <span>
-                            Network Fee
-                        </span>
-                        <QuickInfoPopOverIcon
-                            title="Network Fee"
-                            description="The amount of $POKT that will be charged as a network fee per transaction."
-                            url={''}
-                        />
-                        </span>
-                        <span className="flex flex-row gap-2">
-                            <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                              <Amount value={totalNetworkFee} />
-                            </span>
-                            </span>
-                        </span>
+                        ) : null}
+                        {/*<span*/}
+                        {/*    className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">*/}
+                        {/*    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">*/}
+                        {/*        <span>*/}
+                        {/*            Network Fee*/}
+                        {/*        </span>*/}
+                        {/*        <QuickInfoPopOverIcon*/}
+                        {/*            title="Network Fee"*/}
+                        {/*            description="The amount of $POKT that will be charged as a network fee per transaction."*/}
+                        {/*            url={''}*/}
+                        {/*        />*/}
+                        {/*    </span>*/}
+                        {/*    <span className="flex flex-row gap-2">*/}
+                        {/*        <span className="font-mono text-[14px] text-[var(--color-white-1)]">*/}
+                        {/*          <Amount value={totalNetworkFee} />*/}
+                        {/*        </span>*/}
+                        {/*    </span>*/}
+                        {/*</span>*/}
                         <span
                             className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                         <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
