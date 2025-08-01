@@ -40,13 +40,14 @@ export default function ServicesTable() {
           id: 'actions',
           header: '',
           cell: ({ row }) => (
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-3 justify-end">
                   <Button
                       disabled={isLoading}
                       variant="ghost"
                       size="icon"
                       onClick={() => setUpdateService(row.original)}
                       title="Edit Region"
+                      className={'h-4 w-4'}
                   >
                       <PencilIcon className="h-4 w-4" />
                   </Button>
@@ -56,6 +57,7 @@ export default function ServicesTable() {
                       size="icon"
                       onClick={() => setServiceToDelete(row.original)}
                       title="Delete Region"
+                      className={'h-4 w-4'}
                   >
                       <Trash2Icon className="h-4 w-4 text-red-500" />
                   </Button>
@@ -98,7 +100,7 @@ export default function ServicesTable() {
           service={updateService}
         />
       )}
-      <div className="py-2 max-h-[500px] min-h-[300px] overflow-y-scroll scrollbar-hidden">
+      <div className="py-2 overflow-y-scroll scrollbar-hidden">
         {content}
       </div>
       {serviceToDelete && (
