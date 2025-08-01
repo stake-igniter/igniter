@@ -1,5 +1,16 @@
+import type { Metadata } from "next";
 import React from 'react'
 import CurrentUser from '@/components/CurrentUser'
+import { GetAppName } from '@/actions/ApplicationSettings'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Sign In - ${appName}`,
+    description: "Light up your earnings with Igniter",
+  }
+}
 
 export default function Landing() {
   return (

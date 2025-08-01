@@ -13,6 +13,8 @@ import urlJoin from 'url-join'
 import { getServerApolloClient } from '@igniter/ui/graphql/server'
 import { indexerStatusDocument } from '@igniter/graphql'
 import {env} from "@/config/env";
+import { revalidateTag, unstable_cache } from 'next/cache'
+import { getShortAddress } from '@igniter/ui/lib/utils'
 
 const UrlSchema = z.string().url("Please enter a valid URL").min(1, "URL is required")
 
@@ -41,8 +43,33 @@ const CreateSettingsSchema = z.object({
   updatedAtHeight: z.string(),
 })
 
+const getAppName = unstable_cache(
+  async () => {
+    const appSettings = await fetchApplicationSettings();
+
+    return appSettings.name;
+  },
+  undefined,
+  {tags: ['appName']}
+)
+
+export async function GetAppName() {
+  let appName = await getAppName();
+
+  if (!appName) {
+    appName = await fetchApplicationSettings().then(appSettings => appSettings.name)
+  }
+
+  return appName || 'Stake Igniter';
+}
+
 export async function getApplicationSettings() {
-  return await fetchApplicationSettings();
+  const applicationSettings = await fetchApplicationSettings();
+
+  return  {
+    ...applicationSettings,
+    appIdentity: getShortAddress(applicationSettings.appIdentity, 10),
+  };
 }
 
 function ValidateWithSchema(schema: z.ZodSchema, data: Partial<ApplicationSettings>) {
@@ -80,6 +107,8 @@ export async function UpsertApplicationSettings(
       updatedBy: userIdentity,
     });
   }
+
+  revalidateTag('appName');
 }
 
 export async function completeSetup() {
