@@ -82,7 +82,7 @@ const FormSchema = z.object({
   fee: z.coerce
     .number()
     .int("Service fee must be a whole number")
-    .min(1, "Service fee must be greater than 0")
+    .min(0, "Service fee must be greater than or equal to 0")
     .max(100),
   delegatorRewardsAddress: z.string().refine(
     (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,
@@ -130,7 +130,7 @@ export default function SettingsPage() {
       appIdentity: settings.appIdentity || "",
       updatedAtHeight: settings.updatedAtHeight || "",
       delegatorRewardsAddress: settings.delegatorRewardsAddress || "",
-      fee: Number(settings.fee || '1'),
+      fee: (settings.fee && settings.fee) || 0,
     } : undefined,
   });
 
@@ -246,7 +246,7 @@ export default function SettingsPage() {
                           <div className="flex items-center">
                             <Input
                               {...field}
-                              min={1}
+                              min={0}
                               max={100}
                               type="number"
                               className="flex-grow"

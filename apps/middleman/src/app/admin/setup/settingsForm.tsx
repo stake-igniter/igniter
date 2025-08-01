@@ -32,7 +32,7 @@ export const formSchema = z.object({
   fee: z.coerce
     .number()
     .int("Service fee must be a whole number")
-    .min(1, "Service fee must be greater than 0")
+    .min(0, "Service fee must be greater or equal to 0")
     .max(100),
   delegatorRewardsAddress: z.string().refine(
     (value) => value.toLowerCase().startsWith('pokt') && value.length === 43,

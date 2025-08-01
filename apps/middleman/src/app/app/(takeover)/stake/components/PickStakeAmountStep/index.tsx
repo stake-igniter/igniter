@@ -89,22 +89,23 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, ownerAddre
                   amount={selectedAmount}
                   onMaxSelected={() => setSelectedAmount(Math.floor(balance / minimumStake) * minimumStake)}
                 />
-                <div
-                  className="flex flex-row items-center justify-between border border-[--black-dividers] rounded-[8px] p-4">
-                <span className="flex flex-row items-center gap-2">
-                    <span>
-                        Service Fee
+                  {applicationSettings?.fee && applicationSettings?.fee > 0 ? (
+                      <div className="flex flex-row items-center justify-between border border-[--black-dividers] rounded-[8px] p-4">
+                    <span className="flex flex-row items-center gap-2">
+                        <span>
+                            Service Fee
+                        </span>
+                        <QuickInfoPopOverIcon
+                            title="Service Fee"
+                            description="The % of the rewards that this website retain for handling the service."
+                            url={''}
+                        />
                     </span>
-                    <QuickInfoPopOverIcon
-                      title="Service Fee"
-                      description="The % of the rewards that this website retain for handling the service."
-                      url={''}
-                    />
-                </span>
-                  {applicationSettings?.fee && (
-                    <span className="text-[14px] text-[var(--color-white-1)]">{Number(applicationSettings?.fee).toFixed(0)}%</span>
-                  )}
-                </div>
+                          {applicationSettings?.fee && (
+                              <span className="text-[14px] text-[var(--color-white-1)]">{Number(applicationSettings?.fee).toFixed(0)}%</span>
+                          )}
+                      </div>
+                  ) : null}
               </>
             )}
 
