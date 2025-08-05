@@ -13,7 +13,6 @@ import urlJoin from "url-join";
 import { getServerApolloClient } from '@igniter/ui/graphql/server'
 import { indexerStatusDocument } from '@igniter/graphql'
 import {env} from "@/config/env";
-import { getShortAddress } from '@igniter/ui/lib/utils'
 import { revalidateTag, unstable_cache } from 'next/cache'
 
 const UrlSchema = z.string().url("Please enter a valid URL").min(1, "URL is required")
@@ -59,11 +58,7 @@ export async function GetAppName() {
 }
 
 export async function GetApplicationSettings() {
-  const appSettings = await fetchApplicationSettings();
-  return {
-    ...appSettings,
-    appIdentity: getShortAddress(appSettings.appIdentity, 10),
-  }
+  return await fetchApplicationSettings();
 }
 
 function ValidateWithSchema(schema: z.ZodSchema<any>, data: Partial<ApplicationSettings>) {

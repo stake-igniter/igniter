@@ -9,7 +9,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
     return {
         title: `Regions - ${appName}`,
-        description: "Light up your earnings with Igniter",
     }
 }
 

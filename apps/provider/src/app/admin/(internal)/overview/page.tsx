@@ -19,7 +19,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: `Overview - ${appName}`,
-    description: "Light up your earnings with Igniter",
   }
 }
 
