@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Suspense } from 'react';
 import { GetOwnerAddresses, GetUserNodes } from '@/actions/Nodes'
 import ApolloWrapper from '@igniter/ui/graphql/client'
@@ -5,13 +6,21 @@ import SummaryLoader from '@igniter/ui/components/RewardsSummary/Loader';
 import ServerSummary from '@igniter/ui/components/RewardsSummary/ServerSummary'
 import RewardsByAddressesLoader from '@igniter/ui/components/RewardsByAddresses/Loader'
 import ServerRewardsByAddresses from '@igniter/ui/components/RewardsByAddresses/ServerRewardsByAddresses'
-import { getApplicationSettings } from '@/actions/ApplicationSettings'
+import { getApplicationSettings, GetAppName } from '@/actions/ApplicationSettings'
 import InitializeHeightContext from '@igniter/ui/context/Height/InitializeContext'
 import Link from 'next/link'
 import { Button } from '@igniter/ui/components/button'
 import { clsx } from 'clsx'
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Overview - ${appName}`,
+  }
+}
 
 export default async function Page() {
   const [ownerAddresses, userNodes, applicationSettings] = await Promise.all([

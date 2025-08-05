@@ -16,11 +16,6 @@ import { Toaster } from "@igniter/ui/components/sonner";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
 import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
 
-export const metadata: Metadata = {
-  title: "Igniter",
-  description: "Light up your earnings with Igniter",
-};
-
 const jost = Jost({
   variable: "--font-jost",
   weight: ["400", "600", "500", "700"],

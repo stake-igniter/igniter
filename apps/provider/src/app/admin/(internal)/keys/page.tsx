@@ -1,9 +1,21 @@
+import type { Metadata } from 'next'
 import React from 'react'
 import { ListKeys } from '@/actions/Keys'
 import KeysTable from '@/app/admin/(internal)/keys/table'
 import { ListBasicAddressGroups } from '@/actions/AddressGroups'
 import { Button } from '@igniter/ui/components/button'
 import Link from 'next/link'
+import { GetAppName } from '@/actions/ApplicationSettings'
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Keys - ${appName}`,
+  }
+}
 
 export default async function AddressesPage() {
   const [keys, addressesGroup] = await Promise.all([

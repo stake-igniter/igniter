@@ -1,4 +1,5 @@
-import { getApplicationSettings } from '@/actions/ApplicationSettings'
+import type { Metadata } from 'next'
+import { getApplicationSettings, GetAppName } from '@/actions/ApplicationSettings'
 import InitializeHeightContext from '@igniter/ui/context/Height/InitializeContext'
 import { Suspense } from 'react'
 import SummaryLoader from '@igniter/ui/components/RewardsSummary/Loader'
@@ -9,6 +10,14 @@ import ApolloWrapper from '@igniter/ui/graphql/client'
 import { GetStakedNodesAddress } from '@/actions/Nodes'
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Admin Overview - ${appName}`,
+  }
+}
 
 export default async function Page() {
   const [applicationSettings, stakedNodes] = await Promise.all([

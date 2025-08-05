@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
@@ -14,11 +13,6 @@ import QueryClientProvider from '@/app/context/QueryClientProvider'
 import { auth } from '@/auth'
 import NotificationsProvider from '@igniter/ui/context/Notifications/index'
 import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
-
-export const metadata: Metadata = {
-  title: "Igniter",
-  description: "Light up your earnings with Igniter",
-};
 
 export default async function RootLayout({
   children,

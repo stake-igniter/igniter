@@ -1,5 +1,6 @@
+import type { Metadata } from 'next'
 import ApolloWrapper from '@igniter/ui/graphql/client'
-import { GetApplicationSettings } from '@/actions/ApplicationSettings'
+import { GetAppName, GetApplicationSettings } from '@/actions/ApplicationSettings'
 import InitializeHeightContext from '@igniter/ui/context/Height/InitializeContext'
 import React, { Suspense } from 'react'
 import SummaryLoader from '@igniter/ui/components/RewardsSummary/Loader'
@@ -12,6 +13,14 @@ import Link from 'next/link'
 import { listStakedAddresses } from '@/lib/dal/keys'
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Overview - ${appName}`,
+  }
+}
 
 export default async function Page() {
   const [applicationSettings, addresses, supplierAddresses] = await Promise.all([

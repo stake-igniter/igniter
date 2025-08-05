@@ -1,10 +1,17 @@
-import { getTransactionsByUser } from '@/lib/dal/transaction'
+import type { Metadata } from 'next'
 import TransactionsTable from '@/app/app/(sidebar)/(lists)/transactions/table'
-import {auth} from "@/auth";
-import {redirect} from "next/navigation";
 import {GetUserTransactions} from "@/actions/Transactions";
+import { GetAppName } from '@/actions/ApplicationSettings'
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Transactions - ${appName}`,
+  }
+}
 
 export default async function Page() {
   const transactions = await GetUserTransactions();

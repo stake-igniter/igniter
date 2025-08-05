@@ -1,15 +1,9 @@
-import type { Metadata } from "next";
 import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
 import {WalletConnectionProvider} from "@igniter/ui/context/WalletConnection/index";
 import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
-
-export const metadata: Metadata = {
-  title: "Provider: Stake Igniter",
-  description: "Light up your earnings with Igniter",
-};
 
 const jost = Jost({
   variable: "--font-jost",
