@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const appName = await GetAppName()
 
   return {
-    title: `Addresses Group - ${appName}`,
+    title: `Addresse Group - ${appName}`,
   }
 }
 
