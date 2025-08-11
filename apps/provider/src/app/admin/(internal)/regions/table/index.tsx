@@ -13,7 +13,7 @@ import {AddOrUpdateRegionDialog} from "@/components/AddOrUpdateRegionDialog";
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export default function RegionsTable() {
-    const { data: regions, isLoading: isLoadingRegions, refetch: refetchRegions } = useQuery({
+    const { data: regions, isLoading: isLoadingRegions, refetch: refetchRegions, isError } = useQuery({
         queryKey: ['regions'],
         queryFn: ListRegions,
         refetchInterval: 60000,
@@ -24,12 +24,13 @@ export default function RegionsTable() {
     const [isDeletingRegion, setIsDeletingRegion] = React.useState(false);
     const { addNotification } = useNotifications();
 
-    const isLoading = useMemo(() => {
-        return isLoadingRegions || isDeletingRegion;
-    }, [isLoadingRegions, isDeletingRegion]);
+    const isLoading = isLoadingRegions || isDeletingRegion
 
     const content = (
         <DataTable
+          isLoading={isLoading}
+          isError={isError}
+          refetch={refetchRegions}
             columns={[
                 ...columns,
                 {

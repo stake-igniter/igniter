@@ -28,6 +28,7 @@ interface SortDropdownProps<TData> {
     direction: "asc" | "desc";
   };
   currentDirection?: "asc" | "desc";
+  disabled?: boolean;
 }
 
 export default function SortDropdown<TData>({
@@ -36,10 +37,11 @@ export default function SortDropdown<TData>({
   selectedSort,
   defaultSort,
   currentDirection,
+  disabled
 }: SortDropdownProps<TData>) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger disabled={disabled}>
         <div className="flex items-center gap-2 py-2 px-4">
           <span className="text-sm">
             {selectedSort?.label || defaultSort?.label}

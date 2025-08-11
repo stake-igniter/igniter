@@ -7,24 +7,19 @@ import { useQuery } from '@tanstack/react-query'
 import { DetailItem, useDetailContext } from '@/app/detail/Detail'
 import { useEffect } from 'react'
 
-interface NodesTableProps {
-  initialNodes: Awaited<ReturnType<typeof GetUserNodes>>
-}
 
-export default function NodesTable({initialNodes}: NodesTableProps) {
-  const { data } = useQuery({
+export default function NodesTable() {
+  const { data, isError, isLoading, refetch } = useQuery({
     queryKey: ["nodes"],
     queryFn: GetUserNodes,
-    staleTime: Infinity,
     refetchInterval: 60000,
-    initialData: initialNodes,
   });
   const {items, updateItem} = useDetailContext()
 
   useEffect(() => {
     const updateDetailItem = (item: DetailItem, index: number) => {
       if (item.type === 'node') {
-        const node = data.find((n) => n.id === item.body.id)
+        const node = data?.find((n) => n.id === item.body.id)
 
         if (node) {
           updateItem({
@@ -69,12 +64,12 @@ export default function NodesTable({initialNodes}: NodesTableProps) {
     }
   }, [data])
 
-  const nodes: Array<NodeDetails> = data.map((node) => ({
+  const nodes: Array<NodeDetails> = data?.map((node) => ({
     ...node,
     provider: node.provider ?? null,
     stakeAmount: node.stakeAmount,
     transactions: node.transactionsToNodes.map((transaction) => transaction.transaction),
-  }));
+  })) || [];
 
   return (
     <DataTable
@@ -82,6 +77,9 @@ export default function NodesTable({initialNodes}: NodesTableProps) {
       data={nodes}
       filters={filters}
       sorts={sorts}
+      isLoading={isLoading}
+      isError={isError}
+      refetch={refetch}
     />
   )
 }

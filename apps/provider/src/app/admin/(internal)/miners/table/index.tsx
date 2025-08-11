@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useState} from "react";
+import {useState} from "react";
 import {RelayMiner} from "@/db/schema";
 import {DeleteRelayMiner, ListRelayMiners} from "@/actions/RelayMiners";
 import {Button} from "@igniter/ui/components/button";
@@ -13,10 +13,9 @@ import { Trash2Icon, PencilIcon } from "lucide-react";
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export default function RelayMinersTable() {
-    const {data: relayMiners, refetch: fetchRelayMiners, isLoading: isLoadingRelayMiners} = useQuery({
+    const {data: relayMiners, refetch: fetchRelayMiners, isLoading: isLoadingRelayMiners, isError} = useQuery({
         queryKey: ['relay-miners'],
         queryFn: ListRelayMiners,
-        staleTime: Infinity,
         refetchInterval: 60000,
         initialData: []
     });
@@ -27,17 +26,13 @@ export default function RelayMinersTable() {
     const [relayMinerToDelete, setRelayMinerToDelete] = useState<RelayMiner | null>(null);
     const { addNotification } = useNotifications();
 
-    const isLoading = useMemo(() => {
-        return isLoadingRelayMiners ||
-            isDeletingRelayMiner;
-    }, [isLoadingRelayMiners, isDeletingRelayMiner]);
-
-    useEffect(() => {
-        fetchRelayMiners();
-    }, []);
+    const isLoading = isLoadingRelayMiners || isDeletingRelayMiner;
 
     const content = (
         <DataTable
+          isError={isError}
+          isLoading={isLoading}
+          refetch={fetchRelayMiners}
             columns={[
                 ...columns,
                 {

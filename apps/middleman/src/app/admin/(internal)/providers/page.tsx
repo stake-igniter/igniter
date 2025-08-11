@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import React from 'react'
-import DelegatorsTable from "@/app/admin/(internal)/providers/table";
+import ProvidersTable from "@/app/admin/(internal)/providers/table";
 import { GetAppName } from '@/actions/ApplicationSettings'
 import RefreshProviders from '@/app/admin/(internal)/providers/Refresh'
 
@@ -13,8 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ProvidersPage() {
-
-
   return (
     <div className="flex flex-col gap-10">
       <div className="mx-30 py-10">
@@ -23,7 +21,7 @@ export default function ProvidersPage() {
           <RefreshProviders />
         </div>
         <div className="container mx-auto ">
-          <DelegatorsTable />
+          <ProvidersTable />
         </div>
       </div>
     </div>
