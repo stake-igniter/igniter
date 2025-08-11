@@ -10,7 +10,6 @@ import { getApplicationSettings, GetAppName } from '@/actions/ApplicationSetting
 import InitializeHeightContext from '@igniter/ui/context/Height/InitializeContext'
 import Link from 'next/link'
 import { Button } from '@igniter/ui/components/button'
-import { clsx } from 'clsx'
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +22,46 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
+  return (
+    <>
+      <div className={"border-b-1"}>
+        <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-col">
+              <h1>Overview</h1>
+              <p className="text-muted-foreground">
+                Welcome to your $POKT staking dashboard.
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <div className="flex flex-row gap-3">
+                <Link href="/app/stake">
+                  <Button>Stake</Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className={'flex flex-col p-4 w-full gap-4 md:gap-6 sm:px-3 md:px-6 lg:px-6 xl:px-10'}>
+        <Suspense
+          fallback={(
+            <>
+              <div className={'min-w-[260px]'}>
+                <SummaryLoader />
+              </div>
+              <RewardsByAddressesLoader chartType={'line'} />
+            </>
+          )}
+        >
+          <Rewards />
+        </Suspense>
+      </div>
+    </>
+  )
+}
+
+async function Rewards() {
   const [ownerAddresses, userNodes, applicationSettings] = await Promise.all([
     GetOwnerAddresses(),
     GetUserNodes(),
@@ -46,64 +85,36 @@ export default async function Page() {
   return (
     <ApolloWrapper url={graphqlUrl}>
       <InitializeHeightContext graphQlUrl={graphqlUrl}>
-        <div className={
-          clsx(
-            ownerAddresses.length && "border-b-1"
-          )
-        }>
-          <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
-            <div className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <h1>Overview</h1>
-                <p className="text-muted-foreground">
-                  {
-                    ownerAddresses.length ?
-                      'Welcome to your $POKT staking dashboard.':
-                      `Stake your $POKT to earn and see your rewards here.`
-                  }
-                </p>
-              </div>
-              <div className="flex flex-col">
-                <div className="flex flex-row gap-3">
-                  <Link href="/app/stake">
-                    <Button>Stake</Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className={'min-w-[260px]'}>
+          <Suspense
+            key={ownerAddresses.join(',')}
+            fallback={
+              <SummaryLoader />
+            }
+          >
+            <ServerSummary
+              addresses={ownerAddresses}
+              supplierAddresses={supplierAddresses}
+              isOwners={true}
+              graphQlUrl={graphqlUrl}
+              noDataMessage={'You do not have any stake yet. Stake to start getting rewards.'}
+            />
+          </Suspense>
         </div>
-        <div className={'flex flex-col p-4 w-full gap-4 md:gap-6 sm:px-3 md:px-6 lg:px-6 xl:px-10'}>
-            <div className={'min-w-[260px]'}>
-              <Suspense
-                key={ownerAddresses.join(',')}
-                fallback={
-                  <SummaryLoader />
-                }
-              >
-                <ServerSummary
-                  addresses={ownerAddresses}
-                  supplierAddresses={supplierAddresses}
-                  isOwners={true}
-                  graphQlUrl={graphqlUrl}
-                />
-              </Suspense>
-            </div>
 
-            <Suspense
-              key={ownerAddresses.join(',')}
-              fallback={
-                <RewardsByAddressesLoader chartType={'line'} />
-              }
-            >
-              <ServerRewardsByAddresses
-                addresses={ownerAddresses}
-                supplierAddresses={supplierAddresses}
-                graphQlUrl={graphqlUrl}
-                noDataMessage={'You do not have any stake yet. Stake to start getting rewards'}
-              />
-            </Suspense>
-        </div>
+        <Suspense
+          key={ownerAddresses.join(',')}
+          fallback={
+            <RewardsByAddressesLoader chartType={'line'} />
+          }
+        >
+          <ServerRewardsByAddresses
+            addresses={ownerAddresses}
+            supplierAddresses={supplierAddresses}
+            graphQlUrl={graphqlUrl}
+            noDataMessage={'You do not have any stake yet. Stake to start getting rewards.'}
+          />
+        </Suspense>
       </InitializeHeightContext>
     </ApolloWrapper>
   )

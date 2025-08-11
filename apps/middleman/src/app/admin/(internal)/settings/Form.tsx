@@ -98,7 +98,8 @@ export default function SettingsForm() {
   const {
     data: settings,
     refetch: refetchSettings,
-    isLoading: isLoadingSettings
+    isLoading: isLoadingSettings,
+    isError
   } = useQuery({
     queryKey: ['settings'],
     queryFn: getApplicationSettings,
@@ -191,6 +192,18 @@ export default function SettingsForm() {
           {isLoadingSettings || !settings ? (
             <div className="flex justify-center items-center h-fit">
               <LoaderIcon className="animate-spin" />
+            </div>
+          ) : isError ? (
+            <div className="flex justify-center items-center h-[200px] flex-col">
+              <p className={'!text-[16px] font-medium'}>
+                There was a problem loading the settings.
+              </p>
+              <Button
+                className="mt-4"
+                onClick={() => refetchSettings()}
+              >
+                Retry
+              </Button>
             </div>
           ) : (
             <Form {...form}>

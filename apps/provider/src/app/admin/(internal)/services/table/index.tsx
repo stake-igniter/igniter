@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useState} from "react";
+import {useState} from "react";
 import {Service} from "@/db/schema";
 import {DeleteService, ListServices} from "@/actions/Services";
 import {Button} from "@igniter/ui/components/button";
@@ -12,10 +12,9 @@ import {AddOrUpdateServiceDialog} from "@/components/AddOrUpdateServiceDialog";
 import { useQuery } from '@tanstack/react-query'
 
 export default function ServicesTable() {
-  const {data: services, refetch: refetchServices, isLoading: isLoadingServices} = useQuery({
+  const {data: services, refetch: refetchServices, isLoading: isLoadingServices, isError} = useQuery({
     queryKey: ['services'],
     queryFn: ListServices,
-    staleTime: Infinity,
     refetchInterval: 60000,
     initialData: []
   });
@@ -24,16 +23,13 @@ export default function ServicesTable() {
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [isDeletingService, setIsDeletingService] = useState(false);
 
-  const isLoading = useMemo(() => {
-    return isLoadingServices || isDeletingService;
-  }, [isLoadingServices, isDeletingService])
-
-  useEffect(() => {
-    refetchServices();
-  }, []);
+  const isLoading = isLoadingServices || isDeletingService;
 
   const content = (
     <DataTable
+      isError={isError}
+      isLoading={isLoading}
+      refetch={refetchServices}
       columns={[
         ...columns,
         {

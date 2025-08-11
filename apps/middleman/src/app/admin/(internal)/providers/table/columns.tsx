@@ -48,16 +48,6 @@ export const columns: ColumnDef<Provider>[] = [
     },
   },
   {
-    accessorKey: "visible",
-    header: "Visibility",
-    cell: () => null
-  },
-  {
-    accessorKey: "enabled",
-    header: "Enabled",
-    cell: () => null
-  },
-  {
     header: "enabled",
     cell: ({ row }) => {
       const provider = row.original;

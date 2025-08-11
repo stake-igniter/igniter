@@ -7,24 +7,18 @@ import { useQuery } from '@tanstack/react-query'
 import { GetUserTransactions } from '@/actions/Transactions'
 import { useEffect } from 'react'
 
-interface TransactionsTableProps {
-  initialTransactions: Awaited<ReturnType<typeof GetUserTransactions>>
-}
-
-export default function TransactionsTable({initialTransactions}: TransactionsTableProps) {
-  const { data } = useQuery({
+export default function TransactionsTable() {
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["transactions"],
     queryFn: GetUserTransactions,
-    staleTime: Infinity,
     refetchInterval: 60000,
-    initialData: initialTransactions,
   });
   const {items, updateItem} = useDetailContext()
 
   useEffect(() => {
     const updateTxDetail = (item: DetailItem, index: number) => {
       if (item.type === 'transaction') {
-        const newTx = data.find((tx) => tx.id === item.body.id)
+        const newTx = data?.find((tx) => tx.id === item.body.id)
 
         if (newTx) {
           updateItem({
@@ -64,7 +58,7 @@ export default function TransactionsTable({initialTransactions}: TransactionsTab
     <DataTable
       columns={columns}
       data={
-        data.map((tx) => {
+        data?.map((tx) => {
           const operations = JSON.parse(tx.unsignedPayload).body.messages as Array<Operation>
 
           return {
@@ -91,10 +85,13 @@ export default function TransactionsTable({initialTransactions}: TransactionsTab
             providerFee: tx.providerFee,
             typeProviderFee: tx.typeProviderFee,
           }
-        })
+        }) || []
       }
       filters={filters}
       sorts={sorts}
+      isLoading={isLoading}
+      isError={isError}
+      refetch={refetch}
     />
   )
 }

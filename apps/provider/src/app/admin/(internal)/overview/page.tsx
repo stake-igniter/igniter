@@ -23,6 +23,36 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
+  return (
+    <>
+        <div className="border-b-1">
+          <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
+            <div className="flex flex-row justify-between items-center">
+              <div className="flex flex-col">
+                <h1>Admin Overview</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Suspense
+          fallback={(
+            <>
+              <div className={'flex flex-col p-4 w-full gap-4 md:gap-6 sm:px-3 md:px-6 lg:px-6 xl:px-10'}>
+                <div className={'min-w-[260px]'}>
+                  <SummaryLoader />
+                </div>
+                <RewardsByAddressesLoader chartType={'line'} />
+              </div>
+            </>
+          )}
+        >
+          <Rewards />
+        </Suspense>
+    </>
+  )
+}
+
+async function Rewards() {
   const [applicationSettings, addresses, supplierAddresses] = await Promise.all([
     GetApplicationSettings(),
     getDistinctRevAddresses(),
@@ -104,15 +134,6 @@ export default async function Page() {
   return (
     <ApolloWrapper url={graphqlUrl}>
       <InitializeHeightContext graphQlUrl={graphqlUrl}>
-        <div className="border-b-1">
-          <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
-            <div className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <h1>Admin Overview</h1>
-              </div>
-            </div>
-          </div>
-        </div>
         {rewardsContent}
       </InitializeHeightContext>
     </ApolloWrapper>

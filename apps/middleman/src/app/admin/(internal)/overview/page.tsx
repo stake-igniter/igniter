@@ -20,6 +20,36 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Page() {
+  return (
+    <>
+      <div className="border-b-1">
+        <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-col">
+              <h1>Admin Overview</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className={'flex flex-col p-4 w-full gap-4 md:gap-6 sm:px-3 md:px-6 lg:px-6 xl:px-10'}>
+        <Suspense
+          fallback={(
+            <>
+              <div className={'min-w-[260px]'}>
+                <SummaryLoader />
+              </div>
+              <RewardsByAddressesLoader chartType={'line'} />
+            </>
+          )}
+        >
+          <Rewards />
+        </Suspense>
+      </div>
+    </>
+  )
+}
+
+async function Rewards() {
   const [applicationSettings, stakedNodes] = await Promise.all([
     getApplicationSettings(),
     GetStakedNodesAddress()
@@ -41,45 +71,34 @@ export default async function Page() {
   return (
     <ApolloWrapper url={graphqlUrl}>
       <InitializeHeightContext graphQlUrl={graphqlUrl}>
-        <div className="border-b-1">
-          <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
-            <div className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <h1>Admin Overview</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className={'flex flex-col p-4 w-full gap-4 md:gap-6 sm:px-3 md:px-6 lg:px-6 xl:px-10'}>
-          <div className={'min-w-[260px]'}>
-            <Suspense
-              key={addresses.join(',')}
-              fallback={
-                <SummaryLoader />
-              }
-            >
-              <ServerSummary
-                addresses={addresses}
-                supplierAddresses={stakedNodes}
-                isOwners={false}
-                graphQlUrl={graphqlUrl}
-              />
-            </Suspense>
-          </div>
-
+        <div className={'min-w-[260px]'}>
           <Suspense
             key={addresses.join(',')}
             fallback={
-              <RewardsByAddressesLoader chartType={'line'} />
+              <SummaryLoader />
             }
           >
-            <ServerRewardsByAddresses
+            <ServerSummary
               addresses={addresses}
               supplierAddresses={stakedNodes}
+              isOwners={false}
               graphQlUrl={graphqlUrl}
             />
           </Suspense>
         </div>
+
+        <Suspense
+          key={addresses.join(',')}
+          fallback={
+            <RewardsByAddressesLoader chartType={'line'} />
+          }
+        >
+          <ServerRewardsByAddresses
+            addresses={addresses}
+            supplierAddresses={stakedNodes}
+            graphQlUrl={graphqlUrl}
+          />
+        </Suspense>
       </InitializeHeightContext>
     </ApolloWrapper>
   )
