@@ -114,16 +114,25 @@ To participate in the network, you must submit a Pull Request adding yourself un
 }
 ```
 
-### Example governance JSON for **provider** (in `pocket-beta/provider.json`):
+### Example governance JSON for **provider** (in `pocket/provider.json`):
 
 ```jsonc
-{
-  "role": "provider",
-  "owner_identity": "pokt1abc...",
-  "owner_email": "bob@example.com",
-  "app_identity": "123456abcdef..."
-  // Add any other required metadata...
-}
+ {
+    "name": "<entity-name>",
+    "identity": "<secp256k1-hex-public-key>",
+    "identityHistory": [],
+    "url": "<public-api-url>"
+  },
+```
+
+### Example governance JSON for **middleman** (in `pocket/middleman.json`):
+
+```jsonc
+ {
+    "name": "<entity-name>",
+    "identity": "<secp256k1-hex-public-key>",
+    "identityHistory": []
+  },
 ```
 
 #### Steps:
