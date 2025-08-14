@@ -1,0 +1,41 @@
+services:
+  middleman-migration:
+    image: "ghcr.io/stake-igniter/middleman:0.2.4-rc.0"
+    container_name: middleman-migration
+    restart: on-failure
+    command: [ "pnpm", "--filter=@igniter/middleman", "exec", "drizzle-kit", "migrate" ]
+    networks:
+      - igniter
+    env_file:
+      - .env
+
+  middleman-web:
+    image: "ghcr.io/stake-igniter/middleman:0.2.4-rc.0"
+    container_name: middleman-web
+    networks:
+      - igniter
+    env_file:
+      - .env
+    depends_on:
+      middleman-migration:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:3000:3000"
+
+  middleman-workflows:
+    image: "ghcr.io/stake-igniter/middleman-workflows:0.2.4-rc.0"
+    container_name: middleman-workflows
+    networks:
+      - igniter
+    env_file:
+      - .env
+    depends_on:
+      middleman-migration:
+        condition: service_completed_successfully
+
+networks:
+  # IMPORTANT:
+  # Please make sure you start first docker-compose.yaml at the 'dependencies' folder.
+  igniter:
+    name: igniter
+    external: true

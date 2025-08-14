@@ -1,0 +1,100 @@
+services:
+  postgresql:
+    image: postgres:${POSTGRESQL_VERSION}
+    container_name: postgresql
+    command: "postgres -c config_file=/etc/postgresql/postgresql.conf"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - igniter
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+      - ./postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  temporal:
+    image: temporalio/auto-setup:${TEMPORAL_VERSION}
+    container_name: temporal
+    healthcheck:
+      test: [ "CMD", "tctl", "--address", "temporal:7233", "workflow", "list" ]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      - DB=postgres12_pgx
+      - DB_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PWD=${POSTGRES_PASSWORD}
+      - POSTGRES_SEEDS=postgresql
+      - TEMPORAL_ADDRESS=temporal:7233
+    networks:
+      - igniter
+    ports:
+      - "127.0.0.1:7233:7233"
+
+  temporal-admin-tools:
+    image: temporalio/admin-tools:${TEMPORAL_TOOLS_VERSION}
+    container_name: temporal-admin-tools
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    networks:
+      - igniter
+    stdin_open: true
+    tty: true
+
+  # IMPORTANT:
+  # Please be careful with leave this on, since this example does not implement AUTH, but you can do it following the documentation.
+  # https://docs.temporal.io/references/web-ui-configuration#auth
+  temporal-ui:
+    image: temporalio/ui:${TEMPORAL_UI_VERSION}
+    container_name: temporal-ui
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    networks:
+      - igniter
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  wf-setup:
+    image: temporalio/admin-tools:${TEMPORAL_TOOLS_VERSION}
+    container_name: wf-setup
+    restart: on-failure
+    entrypoint: [ "/home/temporal/initialize.sh" ]
+    networks:
+      - igniter
+    volumes:
+      - ./temporal/initialize.sh:/home/temporal/initialize.sh
+    depends_on:
+      temporal:
+        condition: service_healthy
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+
+volumes:
+  postgresql:
+    name: postgresql
+
+networks:
+  igniter:
+    driver: bridge
+    name: igniter
