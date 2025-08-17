@@ -1,19 +1,23 @@
 "use client";
 
 import { ProviderFee, TransactionStatus, TransactionType } from '@/db/schema'
-import { ActivitySuccessIcon, ActivityWarningIcon, RightArrowIcon, WarningIcon } from '@igniter/ui/assets'
+import {ActivitySuccessIcon, ActivityWarningIcon, CopyIcon, RightArrowIcon, WarningIcon} from '@igniter/ui/assets'
 import { Button } from '@igniter/ui/components/button'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
-import { amountToPokt } from '@igniter/ui/lib/utils'
-import { ColumnDef } from '@tanstack/react-table'
+import {amountToPokt, getShortAddress} from '@igniter/ui/lib/utils'
+import {CellContext, ColumnDef} from '@tanstack/react-table'
 import { Operation, useAddItemToDetail } from '@/app/detail/Detail'
 import Amount from '@igniter/ui/components/Amount'
+import {useCallback} from "react";
+import {toast} from "sonner";
+import {NodeDetails} from "@/app/app/(sidebar)/(lists)/nodes/table/columns";
 
 export type Transaction = {
   id: number;
   type: TransactionType;
   status: TransactionStatus;
   operations: Array<Operation>;
+  executionHeight: string;
   createdAt: Date;
   totalValue: number;
   hash: string,
@@ -67,6 +71,11 @@ export const columns: ColumnDef<Transaction>[] = [
     },
   },
   {
+    id: "height",
+    header: "Height",
+    cell: ({row}) => row.original.executionHeight
+  },
+   {
     accessorKey: "createdAt",
     header: "Created At",
     cell: ({ row }) => {

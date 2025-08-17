@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import TransactionsTable from '@/app/app/(sidebar)/(lists)/transactions/table'
+import TransactionsTable from '@/app/admin/(internal)/transactions/table'
 import { GetAppName } from '@/actions/ApplicationSettings'
 
 export const dynamic = "force-dynamic";

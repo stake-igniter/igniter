@@ -66,6 +66,7 @@ export default function TransactionsTable() {
             type: tx.type,
             status: tx.status,
             createdAt: new Date(tx.createdAt!),
+            executionHeight: `${tx.executionHeight ?? ''}`,
             totalValue: operations.reduce((acc, op) => {
               if (op.typeUrl === MessageType.Send) {
                 return acc + Number(op.value.amount.at(0)?.amount || 0)
@@ -81,7 +82,7 @@ export default function TransactionsTable() {
             hash: tx.hash || '',
             estimatedFee: tx.estimatedFee,
             consumedFee: tx.consumedFee,
-            provider: tx.provider?.name || '',
+            provider: tx.provider?.name || 'Height Pending',
             providerFee: tx.providerFee,
             typeProviderFee: tx.typeProviderFee,
           }
