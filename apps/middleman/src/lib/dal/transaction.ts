@@ -11,13 +11,12 @@ export async function getTransactionsByUser(userIdentity: string) {
   });
 }
 
-export async function getTransactionByHash(hash: string) {
-  return db.query.transactionsTable.findFirst({
-    where: eq(transactionsTable.hash, hash),
-    with: {
-      provider: true,
-    }
-  });
+export async function getTransactions() {
+    return db.query.transactionsTable.findMany({
+        with: {
+            provider: true,
+        }
+    });
 }
 
 export async function insert(transaction: CreateTransaction): Promise<Transaction> {

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
@@ -15,6 +14,7 @@ import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
 import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
+import QuickDetailProvider from "@/app/detail/Detail";
 
 const jost = Jost({
   variable: "--font-jost",
@@ -60,22 +60,24 @@ export default async function RootLayout({
           >
             <CurrencyContextProvider>
               <SidebarProvider className="flex flex-col">
-                <AppTopBar>
-                  <PriceWidget />
-                  <CurrentUser />
-                </AppTopBar>
-                <div className="flex flex-1">
-                  <Sidebar />
-                  <SidebarInset>
-                    <div className={"w-full h-full flex overflow-x-hidden"}>
-                      <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
-                        <RegisterPlugins />
-                        {children}
-                        <Toaster />
-                      </div>
+                <QuickDetailProvider>
+                    <AppTopBar>
+                      <PriceWidget />
+                      <CurrentUser />
+                    </AppTopBar>
+                    <div className="flex flex-1">
+                      <Sidebar />
+                      <SidebarInset>
+                        <div className={"w-full h-full flex overflow-x-hidden"}>
+                          <div className="flex flex-col w-full gap-6 h-[calc(100vh-72px)] overflow-y-scroll scrollbar-hidden">
+                            <RegisterPlugins />
+                            {children}
+                            <Toaster />
+                          </div>
+                        </div>
+                      </SidebarInset>
                     </div>
-                  </SidebarInset>
-                </div>
+                </QuickDetailProvider>
               </SidebarProvider>
             </CurrencyContextProvider>
           </WalletConnectionProvider>
