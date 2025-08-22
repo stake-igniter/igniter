@@ -34,6 +34,8 @@ export async function UpdateDelegatorsFromSource() {
     throw new Error("DELEGATORS_CDN_URL environment variable is not defined");
   }
 
+  console.log(`[Delegators] Starting update from ${delegatorsCdnUrl}`);
+
   try {
     const response = await fetch(delegatorsCdnUrl);
 
@@ -48,6 +50,9 @@ export async function UpdateDelegatorsFromSource() {
     };
 
     const delegatorsFromCdn = (await response.json()) as CdnDelegator[];
+    console.log(
+      `[Delegators] Fetched ${delegatorsFromCdn.length} delegators from CDN`,
+    );
 
     const currentDelegators = await list();
 
@@ -56,6 +61,10 @@ export async function UpdateDelegatorsFromSource() {
     );
 
     const allCdnIdentities = new Set<string>();
+
+    let inserted = 0;
+    let updated = 0;
+    let disabled = 0;
 
     for (const d of delegatorsFromCdn) {
       allCdnIdentities.add(d.identity);
@@ -83,6 +92,7 @@ export async function UpdateDelegatorsFromSource() {
               updatedBy: userIdentity,
             })
             .where(eq(delegatorsTable.id, matchingCurrent.id));
+          updated += 1;
         }
       } else {
         await db.insert(delegatorsTable).values({
@@ -92,6 +102,7 @@ export async function UpdateDelegatorsFromSource() {
           updatedBy: userIdentity,
           enabled: false,
         });
+        inserted += 1;
       }
     }
 
@@ -105,8 +116,13 @@ export async function UpdateDelegatorsFromSource() {
             updatedBy: userIdentity,
           })
           .where(eq(delegatorsTable.identity, delegator.identity));
+        disabled += 1;
       }
     }
+
+    console.log(
+      `[Delegators] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
+    );
 
     return { success: true };
   } catch (error) {
