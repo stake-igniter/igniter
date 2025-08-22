@@ -37,6 +37,8 @@ export async function UpdateProvidersFromSource() {
     throw new Error("PROVIDERS_CDN_URL environment variable is not defined");
   }
 
+  console.log(`[Providers] Starting update from ${providersCdnUrl}`);
+
   try {
     const response = await fetch(providersCdnUrl);
 
@@ -52,6 +54,7 @@ export async function UpdateProvidersFromSource() {
     };
 
     const providersFromCdn = (await response.json()) as CdnProvider[];
+    console.log(`[Providers] Fetched ${providersFromCdn.length} providers from CDN`);
 
     const currentProviders = await list(true);
 
@@ -60,6 +63,10 @@ export async function UpdateProvidersFromSource() {
     );
 
     const allCdnIdentities = new Set<string>();
+
+    let inserted = 0;
+    let updated = 0;
+    let disabled = 0;
 
     for (const p of providersFromCdn) {
       allCdnIdentities.add(p.identity);
@@ -89,6 +96,7 @@ export async function UpdateProvidersFromSource() {
               updatedBy: userIdentity,
             })
             .where(eq(providersTable.id, matchingCurrent.id));
+          updated += 1;
         }
       } else {
         await db.insert(providersTable).values({
@@ -100,6 +108,7 @@ export async function UpdateProvidersFromSource() {
           createdBy: userIdentity,
           updatedBy: userIdentity,
         });
+        inserted += 1;
       }
     }
 
@@ -114,8 +123,13 @@ export async function UpdateProvidersFromSource() {
             updatedBy: userIdentity,
           })
           .where(eq(providersTable.identity, provider.identity));
+        disabled += 1;
       }
     }
+
+    console.log(
+      `[Providers] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
+    );
 
     return { success: true };
   } catch (error) {
