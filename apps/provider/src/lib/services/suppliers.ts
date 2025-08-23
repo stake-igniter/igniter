@@ -153,10 +153,13 @@ export async function getSupplierStakeConfigurations(
                 }
                 const ownerPct =
                     100 - revShare.reduce((sum, r) => sum + r.revSharePercentage, 0);
-                revShare.push({
-                    address: stakeDistribution.ownerAddress,
-                    revSharePercentage: ownerPct,
-                });
+
+                if (ownerPct > 0) {
+                    revShare.push({
+                        address: stakeDistribution.ownerAddress,
+                        revSharePercentage: ownerPct,
+                    });
+                }
 
                 return {
                     serviceId: cfg.serviceId,
