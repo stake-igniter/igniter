@@ -11,12 +11,12 @@ export default function ProvidersPage() {
   const queryClient = useQueryClient();
   const [isUpdatingProviders, setIsUpdatingProviders] = React.useState(false);
 
-  const reloadDelegators = async () => {
+  const reloadProviders = async () => {
       // TODO: Error handling and display
       try {
         setIsUpdatingProviders(true);
         await UpdateProvidersFromSource();
-        await queryClient.invalidateQueries({ queryKey: ['delegators'] });
+        await queryClient.invalidateQueries({ queryKey: ['providers'] });
       } catch (error) {
         console.error("Failed to update providers from source:", error);
       } finally {
@@ -31,7 +31,7 @@ export default function ProvidersPage() {
           <h1>Providers</h1>
           <Button
             variant={"outline"}
-            onClick={reloadDelegators}
+            onClick={reloadProviders}
             disabled={isUpdatingProviders}
           >
             {isUpdatingProviders ? (
