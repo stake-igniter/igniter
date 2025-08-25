@@ -7,21 +7,24 @@ import DataTable from '@igniter/ui/components/DataTable/index'
 import {columns, getFilters, sorts} from './columns'
 import { ListBasicAddressGroups } from '@/actions/AddressGroups'
 
-interface KeysTableProps {
-  initialKeys: Awaited<ReturnType<typeof ListKeys>>
-  initialAddressesGroup: Awaited<ReturnType<typeof ListBasicAddressGroups>>
-}
-
-export default function KeysTable({initialKeys, initialAddressesGroup}: KeysTableProps) {
-  const {data} = useQuery({
+export default function KeysTable() {
+  const {data, isLoading, isError, refetch} = useQuery({
     queryKey: ['keys'],
-    queryFn: ListKeys,
-    staleTime: Infinity,
+    queryFn: async () => {
+      const [keys, addressesGroup] = await Promise.all([
+        ListKeys(),
+        ListBasicAddressGroups(),
+      ]);
+
+      return {
+        keys,
+        addressesGroup
+      }
+    },
     refetchInterval: 60000,
-    initialData: initialKeys
   })
 
-  const keys: Array<Key> = data.map((key) => ({
+  const keys: Array<Key> = data?.keys?.map((key) => ({
     id: key.id,
     address: key.address,
     addressGroup: key.addressGroup!,
@@ -29,14 +32,17 @@ export default function KeysTable({initialKeys, initialAddressesGroup}: KeysTabl
     state: key.state,
     createdAt: new Date(key.createdAt!),
     delegator: key.delegator,
-  }))
+  })) || []
 
   return (
     <DataTable
       columns={columns}
       data={keys}
-      filters={getFilters(initialAddressesGroup)}
+      filters={getFilters(data?.addressesGroup || [])}
       sorts={sorts}
+      isLoading={isLoading}
+      isError={isError}
+      refetch={refetch}
     />
   )
 }

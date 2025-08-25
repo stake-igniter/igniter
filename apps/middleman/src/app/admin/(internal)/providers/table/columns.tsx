@@ -36,6 +36,16 @@ export const columns: ColumnDef<Provider>[] = [
     },
   },
   {
+    accessorKey: "visible",
+    header: "Visibility",
+    cell: () => null
+  },
+  {
+    accessorKey: "enabled",
+    header: "Enabled",
+    cell: () => null
+  },
+  {
     accessorKey: "updatedAt",
     header: "Updated At",
     cell: ({ row }) => {
@@ -46,16 +56,6 @@ export const columns: ColumnDef<Provider>[] = [
         </span>
       );
     },
-  },
-  {
-    accessorKey: "visible",
-    header: "Visibility",
-    cell: () => null
-  },
-  {
-    accessorKey: "enabled",
-    header: "Enabled",
-    cell: () => null
   },
   {
     header: "enabled",

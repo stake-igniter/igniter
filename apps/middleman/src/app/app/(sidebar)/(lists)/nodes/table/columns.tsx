@@ -15,36 +15,45 @@ import {
   getShortAddress,
   roundAndSeparate,
 } from "@igniter/ui/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import {CellContext, ColumnDef} from "@tanstack/react-table";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { useAddItemToDetail } from '@/app/detail/Detail'
 
 export type NodeDetails = NodeWithDetails & {
+  height: number;
   transactions: Transaction[];
+};
+
+const createAddressCellRenderer = (attribute: keyof Pick<NodeDetails, 'address' | 'ownerAddress'>) => ({ row }: CellContext<NodeDetails, unknown>) => {
+      const address = row.getValue(attribute) as string;
+
+      const onClickCopy = useCallback(() => {
+        navigator.clipboard.writeText(address).then(() => {
+          toast.success("Address copied to clipboard");
+        });
+      }, [address]);
+
+      return (
+          <div className="flex items-center gap-2">
+          <span className="font-mono text-slightly-muted-foreground flex justify-center items-center gap-2 text-pink-1 font-medium">
+            {getShortAddress(address, 5)}
+            <CopyIcon onClick={onClickCopy} className="cursor-pointer" />
+          </span>
+          </div>
+      );
 };
 
 export const columns: ColumnDef<NodeDetails>[] = [
   {
     accessorKey: "address",
     header: "Address",
-    cell: ({ row }) => {
-      const address = row.getValue("address") as string;
-
-      const onClickCopy = useCallback(() => {
-        navigator.clipboard.writeText(address);
-        toast.success("Address copied to clipboard");
-      }, [address]);
-
-      return (
-        <div className="flex items-center gap-2">
-          <span className="font-mono text-slightly-muted-foreground flex justify-center items-center gap-2 text-pink-1 font-medium">
-            {getShortAddress(address, 5)}
-            <CopyIcon onClick={onClickCopy} className="cursor-pointer" />
-          </span>
-        </div>
-      );
-    },
+    cell: createAddressCellRenderer('address'),
+  },
+  {
+    accessorKey: "ownerAddress",
+    header: "Owner",
+    cell: createAddressCellRenderer('ownerAddress'),
   },
   {
     accessorKey: "provider",
@@ -59,10 +68,38 @@ export const columns: ColumnDef<NodeDetails>[] = [
         </div>
       );
     },
-    filterFn: (row, columnId, value) => {
+    filterFn: (row, _columnId, value) => {
       const provider = row.getValue("provider") as Provider;
       return provider.name.toLowerCase().includes(value.toLowerCase());
     },
+  },
+  {
+    id: "height",
+    header: "Height",
+    accessorFn: (node) => {
+      const stakeTxs = node.transactions
+        ?.filter((tx) => tx.type === "Stake");
+
+      if (!stakeTxs || stakeTxs.length === 0) return undefined;
+
+      const mostRecentStake = stakeTxs
+        .slice()
+        .sort((a, b) =>
+          new Date(b.createdAt!).getTime() -
+          new Date(a.createdAt!).getTime()
+        )[0];
+
+      return mostRecentStake?.executionHeight;
+    },
+    cell: ({ getValue }) => {
+      const height = getValue<number | undefined>();
+      return (
+        <span className="font-mono flex justify-end">
+          {height ?? "-"}
+        </span>
+      );
+    },
+    sortingFn: "basic",
   },
   {
     accessorKey: "status",
@@ -84,7 +121,6 @@ export const columns: ColumnDef<NodeDetails>[] = [
 
       return (
         <div className="flex items-baseline gap-3 font-mono justify-end">
-          {/* Is this currency field  ? */}
           <span>{roundAndSeparate(stakeAmount)}</span>
           <span className="text-muted-foreground">$POKT</span>
         </div>
@@ -98,10 +134,21 @@ export const columns: ColumnDef<NodeDetails>[] = [
       const balance = row.getValue("balance") as number;
       return (
         <div className="flex items-baseline gap-3 font-mono justify-end">
-          {/* Is this currency field  ? */}
           <span>{roundAndSeparate(amountToPokt(balance), 2)}</span>
           <span className="text-muted-foreground">$POKT</span>
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: "Created At",
+    cell: ({ row }) => {
+      const createdAt = new Date(row.getValue("createdAt"));
+      return (
+          <span className="font-mono text-slightly-muted-foreground flex justify-center gap-2">
+          {createdAt.toLocaleString()}
+        </span>
       );
     },
   },
@@ -184,8 +231,8 @@ export const filters: FilterGroup<NodeDetails>[] = [
 export const sorts: SortOption<NodeDetails>[][] = [
   [
     {
-      label: "Most Recent",
-      column: "createdAt",
+      label: "Height",
+      column: "height",
       direction: "desc",
       isDefault: true,
     },

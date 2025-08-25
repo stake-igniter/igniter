@@ -1,6 +1,5 @@
 'use client';
 
-import {useEffect} from "react";
 import DataTable from "@igniter/ui/components/DataTable/index";
 import {columns, filters, sorts} from "./columns";
 import {
@@ -9,18 +8,12 @@ import {
 import {useQuery} from "@tanstack/react-query";
 
 export default function DelegatorsTable() {
-  const {data: delegators, refetch: fetchDelegators} = useQuery({
+  const {data: delegators, isError, isLoading, refetch} = useQuery({
     queryKey: ['delegators'],
     queryFn: ListDelegators,
-    staleTime: Infinity,
     refetchInterval: 60000,
     initialData: []
   });
-
-  useEffect(() => {
-    // TODO: Error handle
-    fetchDelegators();
-  }, []);
 
   const content = (
     <DataTable
@@ -28,6 +21,9 @@ export default function DelegatorsTable() {
       data={delegators}
       filters={filters}
       sorts={sorts}
+      isLoading={isLoading}
+      isError={isError}
+      refetch={refetch}
     />
   );
 

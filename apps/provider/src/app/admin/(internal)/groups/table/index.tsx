@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useMemo, useState} from "react";
+import {useState} from "react";
 import {AddressGroup, AddressGroupWithDetails} from "@/db/schema";
 import {DeleteAddressGroup, ListAddressGroups} from "@/actions/AddressGroups";
 import {Button} from "@igniter/ui/components/button";
@@ -13,10 +13,9 @@ import { Trash2Icon, PencilIcon } from "lucide-react";
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export default function AddressGroupsTable() {
-  const {data: addressGroups, refetch: fetchAddressGroups, isLoading: isLoadingAddressGroups} = useQuery({
+  const {data: addressGroups, refetch: fetchAddressGroups, isLoading: isLoadingAddressGroups, isError} = useQuery({
     queryKey: ['groups'],
     queryFn: ListAddressGroups,
-    staleTime: Infinity,
     refetchInterval: 60000,
     initialData: []
   });
@@ -27,17 +26,13 @@ export default function AddressGroupsTable() {
   const [addressGroupToDelete, setAddressGroupToDelete] = useState<AddressGroup | null>(null);
   const { addNotification } = useNotifications();
 
-  const isLoading = useMemo(() => {
-    return isLoadingAddressGroups ||
-      isDeletingAddressGroup;
-  }, [isLoadingAddressGroups, isDeletingAddressGroup]);
-
-  useEffect(() => {
-    fetchAddressGroups();
-  }, []);
+  const isLoading = isLoadingAddressGroups || isDeletingAddressGroup
 
   const content = (
     <DataTable
+      isError={isError}
+      isLoading={isLoading}
+      refetch={fetchAddressGroups}
       columns={[
         ...columns,
         {

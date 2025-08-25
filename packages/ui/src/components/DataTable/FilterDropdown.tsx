@@ -22,13 +22,15 @@ interface FilterDropdownProps<TData> {
   columnFilters: ColumnFiltersState;
   table: Table<TData>;
   defaultLabel: string;
+  disabled?: boolean;
 }
 
 export default function FilterDropdown<TData>({
-                                                filterGroup,
-                                                columnFilters,
-                                                table,
-                                                defaultLabel,
+  filterGroup,
+  columnFilters,
+  table,
+  defaultLabel,
+  disabled
                                               }: FilterDropdownProps<TData>) {
   const isFilterActive = (filterValue: string | number | boolean) => {
     return columnFilters.some((activeFilter) => {
@@ -48,7 +50,7 @@ export default function FilterDropdown<TData>({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger disabled={disabled}>
         <div className="flex items-center gap-2 py-2 px-4">
           <span className="text-sm">{activeFilterLabel}</span>
         </div>

@@ -1,5 +1,6 @@
+import type { Metadata } from 'next'
 import ApolloWrapper from '@igniter/ui/graphql/client'
-import { GetApplicationSettings } from '@/actions/ApplicationSettings'
+import { GetAppName, GetApplicationSettings } from '@/actions/ApplicationSettings'
 import InitializeHeightContext from '@igniter/ui/context/Height/InitializeContext'
 import React, { Suspense } from 'react'
 import SummaryLoader from '@igniter/ui/components/RewardsSummary/Loader'
@@ -13,7 +14,45 @@ import { listStakedAddresses } from '@/lib/dal/keys'
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Overview - ${appName}`,
+  }
+}
+
 export default async function Page() {
+  return (
+    <>
+        <div className="border-b-1">
+          <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
+            <div className="flex flex-row justify-between items-center">
+              <div className="flex flex-col">
+                <h1>Admin Overview</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <Suspense
+          fallback={(
+            <>
+              <div className={'flex flex-col p-4 w-full gap-4 md:gap-6 sm:px-3 md:px-6 lg:px-6 xl:px-10'}>
+                <div className={'min-w-[260px]'}>
+                  <SummaryLoader />
+                </div>
+                <RewardsByAddressesLoader chartType={'line'} />
+              </div>
+            </>
+          )}
+        >
+          <Rewards />
+        </Suspense>
+    </>
+  )
+}
+
+async function Rewards() {
   const [applicationSettings, addresses, supplierAddresses] = await Promise.all([
     GetApplicationSettings(),
     getDistinctRevAddresses(),
@@ -95,15 +134,6 @@ export default async function Page() {
   return (
     <ApolloWrapper url={graphqlUrl}>
       <InitializeHeightContext graphQlUrl={graphqlUrl}>
-        <div className="border-b-1">
-          <div className="px-5 sm:px-3 md:px-6 lg:px-6 xl:px-10 py-10">
-            <div className="flex flex-row justify-between items-center">
-              <div className="flex flex-col">
-                <h1>Admin Overview</h1>
-              </div>
-            </div>
-          </div>
-        </div>
         {rewardsContent}
       </InitializeHeightContext>
     </ApolloWrapper>
