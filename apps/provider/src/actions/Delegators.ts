@@ -55,70 +55,78 @@ export async function UpdateDelegatorsFromSource() {
     );
 
     const currentDelegators = await list();
-
     const currentDelegatorsMap = new Map(
       currentDelegators.map((d) => [d.identity, d]),
     );
 
     const allCdnIdentities = new Set<string>();
-
-    let inserted = 0;
-    let updated = 0;
-    let disabled = 0;
-
     for (const d of delegatorsFromCdn) {
       allCdnIdentities.add(d.identity);
       d.identityHistory.forEach((h) => allCdnIdentities.add(h));
     }
 
-    for (const cdnDelegator of delegatorsFromCdn) {
-      const possibleIds = [cdnDelegator.identity, ...cdnDelegator.identityHistory];
+    const { inserted, updated, disabled } = await db.transaction(
+      async (tx) => {
+        let inserted = 0;
+        let updated = 0;
+        let disabled = 0;
 
-      const matchingCurrent =
-        possibleIds.map((id) => currentDelegatorsMap.get(id)).find(Boolean) ??
-        null;
+        for (const cdnDelegator of delegatorsFromCdn) {
+          const possibleIds = [
+            cdnDelegator.identity,
+            ...cdnDelegator.identityHistory,
+          ];
 
-      if (matchingCurrent) {
-        const shouldUpdateIdentity =
-          matchingCurrent.identity !== cdnDelegator.identity;
-        const shouldUpdateName = matchingCurrent.name !== cdnDelegator.name;
+          const matchingCurrent =
+            possibleIds.map((id) => currentDelegatorsMap.get(id)).find(Boolean) ??
+            null;
 
-        if (shouldUpdateIdentity || shouldUpdateName) {
-          await db
-            .update(delegatorsTable)
-            .set({
-              identity: cdnDelegator.identity,
+          if (matchingCurrent) {
+            const shouldUpdateIdentity =
+              matchingCurrent.identity !== cdnDelegator.identity;
+            const shouldUpdateName =
+              matchingCurrent.name !== cdnDelegator.name;
+
+            if (shouldUpdateIdentity || shouldUpdateName) {
+              await tx
+                .update(delegatorsTable)
+                .set({
+                  identity: cdnDelegator.identity,
+                  name: cdnDelegator.name,
+                  updatedBy: userIdentity,
+                })
+                .where(eq(delegatorsTable.id, matchingCurrent.id));
+              updated += 1;
+            }
+          } else {
+            await tx.insert(delegatorsTable).values({
               name: cdnDelegator.name,
+              identity: cdnDelegator.identity,
+              createdBy: userIdentity,
               updatedBy: userIdentity,
-            })
-            .where(eq(delegatorsTable.id, matchingCurrent.id));
-          updated += 1;
+              enabled: false,
+            });
+            inserted += 1;
+          }
         }
-      } else {
-        await db.insert(delegatorsTable).values({
-          name: cdnDelegator.name,
-          identity: cdnDelegator.identity,
-          createdBy: userIdentity,
-          updatedBy: userIdentity,
-          enabled: false,
-        });
-        inserted += 1;
-      }
-    }
 
-    for (const delegator of currentDelegators) {
-      if (!allCdnIdentities.has(delegator.identity) && delegator.enabled) {
-        await db
-          .update(delegatorsTable)
-          .set({
-            enabled: false,
-            updatedAt: new Date(),
-            updatedBy: userIdentity,
-          })
-          .where(eq(delegatorsTable.identity, delegator.identity));
-        disabled += 1;
-      }
-    }
+        for (const delegator of currentDelegators) {
+          if (!allCdnIdentities.has(delegator.identity) && delegator.enabled) {
+            await tx
+              .update(delegatorsTable)
+              .set({
+                enabled: false,
+                updatedAt: new Date(),
+                updatedBy: userIdentity,
+              })
+              .where(eq(delegatorsTable.identity, delegator.identity));
+            disabled += 1;
+          }
+        }
+
+        return { inserted, updated, disabled };
+      },
+    );
 
     console.log(
       `[Delegators] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
