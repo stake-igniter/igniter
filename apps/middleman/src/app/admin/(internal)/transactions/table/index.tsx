@@ -4,12 +4,12 @@ import { columns, filters, sorts } from './columns'
 import { DetailItem, Operation, useDetailContext } from '@/app/detail/Detail'
 import { MessageType } from '@/lib/constants'
 import { useQuery } from '@tanstack/react-query'
-import {GetTransactions, GetUserTransactions} from '@/actions/Transactions'
+import {GetTransactions} from '@/actions/Transactions'
 import { useEffect } from 'react'
 
 export default function TransactionsTable() {
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["transactions"],
+    queryKey: ["admin-transactions"],
     queryFn: GetTransactions,
     refetchInterval: 60000,
   });
