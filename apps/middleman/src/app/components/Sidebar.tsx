@@ -44,6 +44,11 @@ const adminRoutes = [
     icon: ProvidersDark,
   },
   {
+    title: "Transactions",
+    url: "/admin/transactions",
+    icon: ActivityDark,
+  },
+  {
     title: "Settings",
     url: "/admin/settings",
     icon: SettingsDark,
