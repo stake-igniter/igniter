@@ -138,7 +138,6 @@ export async function UpdateProvidersFromSource() {
         return { inserted, updated, disabled };
       },
     );
-
     console.log(
       `[Providers] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
     );

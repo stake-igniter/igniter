@@ -132,6 +132,10 @@ export async function UpdateDelegatorsFromSource() {
       `[Delegators] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
     );
 
+    console.log(
+      `[Delegators] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
+    );
+
     return { success: true };
   } catch (error) {
     console.error("Error updating delegators:", error);
