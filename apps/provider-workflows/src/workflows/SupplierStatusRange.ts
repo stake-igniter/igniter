@@ -57,7 +57,6 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
     rows.map(r => limit(() =>
       upsertSupplierStatus({
         address: r.address,
-        state: r.state,
         height: input.height,
       })
     ))

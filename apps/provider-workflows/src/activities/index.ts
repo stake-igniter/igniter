@@ -19,7 +19,6 @@ export type LoadKeysInRangeResult = Array<{ id: number; address: string, state: 
 
 export type UpsertSupplierStatusParams = {
   address: string;
-  state: KeyState;
   height: number;
 }
 
