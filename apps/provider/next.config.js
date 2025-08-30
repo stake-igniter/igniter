@@ -1,27 +1,26 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
-  experimental: {
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
   },
+  transpilePackages: ['@igniter/logger', '@igniter/db'],
   webpack: (config) => {
     config.module.rules.push({
       test: /\.svg$/,
-      use: ["@svgr/webpack"],
-    });
+      use: ['@svgr/webpack'],
+    })
 
-    config.resolve.fallback = { fs: false };
+    config.resolve.fallback = { fs: false }
 
-    return config;
+    return config
   },
-  output: "standalone",
-};
+  output: 'standalone',
+}
 
-export default nextConfig;
+export default nextConfig

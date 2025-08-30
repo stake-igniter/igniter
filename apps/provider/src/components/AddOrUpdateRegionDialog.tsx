@@ -21,7 +21,7 @@ import {
 } from "@igniter/ui/components/dialog";
 import React, { useCallback, useState } from "react";
 import { LoaderIcon } from "@igniter/ui/assets";
-import { Region } from "@/db/schema";
+import type { Region } from "@igniter/db/provider/schema";
 import { CreateRegion, UpdateRegion } from "@/actions/Regions";
 
 const CreateOrUpdateRegionSchema = z.object({

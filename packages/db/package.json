@@ -8,10 +8,20 @@
       "require": "./dist/src/connection.js",
       "types": "./dist/src/connection.d.ts"
     },
-    "./provider": {
-      "import": "./dist/src/provider/index.js",
-      "require": "./dist/src/provider/index.js",
-      "types": "./dist/src/provider/index.d.ts"
+    "./provider/connection": {
+      "import": "./dist/src/provider/connection.js",
+      "require": "./dist/src/provider/connection.js",
+      "types": "./dist/src/provider/connection.d.ts"
+    },
+    "./provider/enums": {
+      "import": "./dist/src/provider/schema/enums.js",
+      "require": "./dist/src/provider/schema/enums.js",
+      "types": "./dist/src/provider/schema/enums.d.ts"
+    },
+    "./provider/schema": {
+      "import": "./dist/src/provider/schema/index.js",
+      "require": "./dist/src/provider/schema/index.js",
+      "types": "./dist/src/provider/schema/index.d.ts"
     },
     "./middleman": {
       "import": "./dist/src/middleman/index.js",
@@ -20,13 +30,15 @@
     }
   },
   "scripts": {
-    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
+    "clean": "rm -rf ./dist",
+    "build": "pnpm run clean && tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@igniter/logger": "workspace:*",
     "@igniter/commons": "workspace:*",
+    "@igniter/logger": "workspace:*",
+    "@igniter/pocket": "workspace:*",
     "drizzle-orm": "0.44.1",
     "pg": "8.14.0"
   },

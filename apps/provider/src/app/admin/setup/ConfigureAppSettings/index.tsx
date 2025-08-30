@@ -14,7 +14,7 @@ import {
 import { Input } from "@igniter/ui/components/input";
 import React, {useMemo, useRef, useState} from "react";
 import { UpsertApplicationSettings } from "@/actions/ApplicationSettings";
-import {ApplicationSettings} from "@/db/schema";
+import type {ApplicationSettings} from "@igniter/db/provider/schema";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;

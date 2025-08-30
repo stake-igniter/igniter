@@ -1,25 +1,36 @@
-import { db } from "@/db";
-import {
+import type {
   AddressGroup,
-  addressGroupTable,
+  AddressGroupService,
   AddressGroupWithDetails,
-  CreateAddressGroup,
-  AddressGroupService, addressGroupServicesTable, keysTable, relayMinersTable
-} from "@/db/schema";
-import {eq, sql, and} from "drizzle-orm";
+  InsertAddressGroup,
+} from '@igniter/db/provider/schema'
+
+import {
+  and,
+  eq,
+  sql,
+} from 'drizzle-orm'
+import { getDbClient } from '@/db'
+import {
+  addressGroupServicesTable,
+  addressGroupTable,
+  keysTable,
+  relayMinersTable,
+} from '@igniter/db/provider/schema'
 
 export async function insert(
-  addressGroup: CreateAddressGroup,
-  services: Omit<AddressGroupService, "addressGroupId" | "service">[]
+  addressGroup: InsertAddressGroup,
+  services: Omit<AddressGroupService, 'addressGroupId' | 'service'>[],
 ): Promise<AddressGroup> {
-  return db.transaction(async (tx) => {
+  const dbClient = getDbClient()
+  return dbClient.db.transaction(async (tx) => {
     const [insertedGroup] = await tx
       .insert(addressGroupTable)
       .values(addressGroup)
-      .returning();
+      .returning()
 
     if (!insertedGroup) {
-      throw new Error("Failed to insert address group");
+      throw new Error('Failed to insert address group')
     }
 
     if (services.length > 0) {
@@ -29,34 +40,35 @@ export async function insert(
         addSupplierShare: s.addSupplierShare ?? false,
         supplierShare: s.supplierShare ?? null,
         revShare: s.revShare ?? [], // revShare is JSON‐typed, defaults to [] if undefined
-      }));
+      }))
 
-      await tx.insert(addressGroupServicesTable).values(toInsert);
+      await tx.insert(addressGroupServicesTable).values(toInsert)
     }
 
-    return insertedGroup;
-  });
+    return insertedGroup
+  })
 }
 
 export async function update(
   id: number,
   addressGroupUpdates: Partial<AddressGroup>,
-  services: Omit<AddressGroupService, "addressGroupId" | "service">[]
+  services: Omit<AddressGroupService, 'addressGroupId' | 'service'>[],
 ): Promise<AddressGroup> {
-  return db.transaction(async (tx) => {
+  const dbClient = getDbClient()
+  return dbClient.db.transaction(async (tx) => {
     const [updatedGroup] = await tx
       .update(addressGroupTable)
       .set(addressGroupUpdates)
       .where(sql`${addressGroupTable.id} = ${id}`)
-      .returning();
+      .returning()
 
     if (!updatedGroup) {
-      throw new Error("Failed to update the address group");
+      throw new Error('Failed to update the address group')
     }
 
     await tx
       .delete(addressGroupServicesTable)
-      .where(sql`${addressGroupServicesTable.addressGroupId} = ${id}`);
+      .where(sql`${addressGroupServicesTable.addressGroupId} = ${id}`)
 
     if (services.length > 0) {
       const toInsert = services.map((s) => ({
@@ -65,47 +77,48 @@ export async function update(
         addSupplierShare: s.addSupplierShare ?? false,
         supplierShare: s.supplierShare ?? null,
         revShare: s.revShare ?? [],
-      }));
-      await tx.insert(addressGroupServicesTable).values(toInsert);
+      }))
+      await tx.insert(addressGroupServicesTable).values(toInsert)
     }
 
-    return updatedGroup;
-  });
+    return updatedGroup
+  })
 }
 
 export async function remove(id: number): Promise<AddressGroup> {
-  return db.transaction(async (tx) => {
+  const dbClient = getDbClient()
+  return dbClient.db.transaction(async (tx) => {
     await tx
       .delete(addressGroupServicesTable)
-      .where(sql`${addressGroupServicesTable.addressGroupId} = ${id}`);
+      .where(sql`${addressGroupServicesTable.addressGroupId} = ${id}`)
 
     const [deletedGroup] = await tx
       .delete(addressGroupTable)
       .where(sql`${addressGroupTable.id} = ${id}`)
-      .returning();
+      .returning()
 
     if (!deletedGroup) {
-      throw new Error("Failed to delete address group");
+      throw new Error('Failed to delete address group')
     }
 
-    return deletedGroup;
-  });
+    return deletedGroup
+  })
 }
 
 export async function list(
-    priv?: boolean,
-    region?: number,
+  priv?: boolean,
+  region?: number,
 ): Promise<AddressGroupWithDetails[]> {
-  const filters = [];
+  const filters = []
 
   if (region) {
-    filters.push(eq(relayMinersTable.regionId, region));
+    filters.push(eq(relayMinersTable.regionId, region))
   }
   if (priv !== undefined) {
-    filters.push(eq(addressGroupTable.private, priv));
+    filters.push(eq(addressGroupTable.private, priv))
   }
-
-  return db.query.addressGroupTable.findMany({
+  const dbClient = getDbClient()
+  return dbClient.db.query.addressGroupTable.findMany({
     ...(filters.length > 0 && { where: and(...filters) }),
     columns: {
       id: true,
@@ -129,19 +142,19 @@ export async function list(
           createdAt: true,
           updatedAt: true,
           createdBy: true,
-          updatedBy: true
+          updatedBy: true,
         },
         with: {
           region: true,
-        }
+        },
       },
       addressGroupServices: {
         with: {
           service: {
             columns: {
               name: true,
-            }
-          }
+            },
+          },
         },
       },
     },
@@ -154,13 +167,14 @@ export async function list(
         WHERE ${keysTable}."address_group_id" = ${addressGroupTable.id}
         ) AS INTEGER
         )
-      `.as("keys_count"),
+      `.as('keys_count'),
     },
     orderBy: addressGroupTable.name,
-  });
+  })
 }
 
 
 export async function simpleList() {
-  return db.query.addressGroupTable.findMany()
+  const dbClient = getDbClient()
+  return dbClient.db.query.addressGroupTable.findMany()
 }

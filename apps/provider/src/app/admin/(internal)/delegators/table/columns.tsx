@@ -1,25 +1,28 @@
-"use client"
+'use client'
 
-import { ColumnDef } from '@igniter/ui/components/table';
-import {Delegator, KeyState} from "@/db/schema";
-import {CopyIcon} from "@igniter/ui/assets";
-import {useState} from "react";
-import {UpdateDelegator} from "@/actions/Delegators";
-import {Button} from "@igniter/ui/components/button";
-import {FilterGroup, SortOption} from "@igniter/ui/components/DataTable/index";
+import type { Delegator } from '@igniter/db/provider/schema'
+import { ColumnDef } from '@igniter/ui/components/table'
+import { CopyIcon } from '@igniter/ui/assets'
+import { useState } from 'react'
+import { UpdateDelegator } from '@/actions/Delegators'
+import { Button } from '@igniter/ui/components/button'
+import {
+  FilterGroup,
+  SortOption,
+} from '@igniter/ui/components/DataTable/index'
 
 export const columns: ColumnDef<Delegator>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: 'name',
+    header: 'Name',
   },
   {
-    accessorKey: "identity",
-    header: "Identity",
+    accessorKey: 'identity',
+    header: 'Identity',
     cell: ({ row }) => {
 
-      const identity = row.original.identity;
-      const shortenedIdentity = `${identity.slice(0, 6)}...${identity.slice(-6)}`;
+      const identity = row.original.identity
+      const shortenedIdentity = `${identity.slice(0, 6)}...${identity.slice(-6)}`
 
       return (
         <div className="flex items-center space-x-2">
@@ -29,43 +32,43 @@ export const columns: ColumnDef<Delegator>[] = [
             className="p-1 rounded"
             title="Copy to clipboard"
           >
-            <CopyIcon />
+            <CopyIcon/>
           </button>
         </div>
-      );
+      )
     },
   },
   {
-    accessorKey: "createdAt",
-    header: "Created At",
+    accessorKey: 'createdAt',
+    header: 'Created At',
     cell: ({ row }) => {
-      const createdAt = new Date(row.getValue("createdAt"));
+      const createdAt = new Date(row.getValue('createdAt'))
       return (
         <span className="font-mono text-slightly-muted-foreground flex justify-center gap-2">
           {createdAt.toLocaleString()}
         </span>
-      );
+      )
     },
   },
   {
-    accessorKey: "enabled",
-    header: "Enabled",
+    accessorKey: 'enabled',
+    header: 'Enabled',
     cell: ({ row }) => {
-      const delegator = row.original;
-      const [isEnabled, setIsEnabled] = useState(delegator.enabled);
-      const [isUpdating, setUpdating] = useState(false);
+      const delegator = row.original
+      const [isEnabled, setIsEnabled] = useState(delegator.enabled)
+      const [isUpdating, setUpdating] = useState(false)
 
       const handleToggle = async () => {
-        setUpdating(true);
+        setUpdating(true)
         try {
-          await UpdateDelegator(delegator.identity, { enabled: !isEnabled });
-          setIsEnabled(!isEnabled);
+          await UpdateDelegator(delegator.identity, { enabled: !isEnabled })
+          setIsEnabled(!isEnabled)
         } catch (error) {
-          console.error('Error updating delegator status:', error);
+          console.error('Error updating delegator status:', error)
         } finally {
-          setUpdating(false);
+          setUpdating(false)
         }
-      };
+      }
 
       if (isUpdating) return (
         <div className="flex items-center justify-end px-4">
@@ -75,39 +78,39 @@ export const columns: ColumnDef<Delegator>[] = [
 
       return (
         <div className="flex items-center justify-end px-4">
-         <Button
-           className="bg-slate-2 border-0"
-           variant={"outline"}
-           onClick={handleToggle}
-         >
-           {isEnabled ? 'Disable' : 'Enable'}
-         </Button>
+          <Button
+            className="bg-slate-2 border-0"
+            variant={'outline'}
+            onClick={handleToggle}
+          >
+            {isEnabled ? 'Disable' : 'Enable'}
+          </Button>
         </div>
-      );
+      )
     },
   },
-];
+]
 
 export const sorts: Array<Array<SortOption<Delegator>>> = [
   [
     {
-      label: "Most Recent",
-      column: "createdAt",
-      direction: "desc",
+      label: 'Most Recent',
+      column: 'createdAt',
+      direction: 'desc',
       isDefault: true,
     },
   ],
-];
+]
 
 export const filters: Array<FilterGroup<Delegator>> = [
   {
-    group: "state",
+    group: 'state',
     items: [
-      [{label: "All", value: "", column: "enabled", isDefault: true}],
+      [{ label: 'All', value: '', column: 'enabled', isDefault: true }],
       [
-        {label: "Enabled", value: true, column: "enabled"},
-        {label: "Disabled", value: false, column: "enabled"}
+        { label: 'Enabled', value: true, column: 'enabled' },
+        { label: 'Disabled', value: false, column: 'enabled' },
       ],
-    ]
+    ],
   },
-];
+]

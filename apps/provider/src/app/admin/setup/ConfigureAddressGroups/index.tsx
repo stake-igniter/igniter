@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useMemo, useState} from "react";
-import {AddressGroup, AddressGroupWithDetails, Service} from "@/db/schema";
+import type {AddressGroup, AddressGroupWithDetails, Service} from "@igniter/db/provider/schema";
 import {DeleteAddressGroup, ListAddressGroups} from "@/actions/AddressGroups";
 import {Button} from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";

@@ -5,7 +5,7 @@ import {CheckIcon, LoaderIcon} from "@igniter/ui/assets";
 import { defineStepper } from "@stepperize/react";
 import React, {useEffect} from "react";
 import { cn } from "@igniter/ui/lib/utils";
-import { ApplicationSettings } from "@/db/schema";
+import type { ApplicationSettings } from "@igniter/db/provider/schema";
 import { completeSetup, GetApplicationSettings } from "@/actions/ApplicationSettings";
 import ConfigureAppSettings from "./ConfigureAppSettings";
 import ConfigureAddressGroup from "./ConfigureAddressGroups";

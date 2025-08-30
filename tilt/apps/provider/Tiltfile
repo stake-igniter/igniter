@@ -3,10 +3,18 @@ custom_build(
     command='./tilt/docker/build.sh provider',
     dir='../../../',
     deps=['../../../apps/provider', '../../../packages'],
-    ignore=['node_modules', '**/node_modules', 'packages/**/node_modules', 'apps/**/node_modules'],
+    ignore=['node_modules', '**/node_modules', 'packages/**/node_modules', 'apps/**/node_modules',  'apps/**/node_modules/dist', 'packages/**/dist'],
     live_update=[
       sync('../../../apps/provider', '/app/apps/provider'),
       sync('../../../packages', '/app/packages'),
+      # only trigger db, since db import all the other packages and will build all the tree
+      run(
+        'pnpm exec turbo run build --filter="@igniter/db"',
+        trigger=[
+          '../../../packages'
+        ]
+      ),
+      run('echo "last update is: $(date)" > /app/apps/provider/src/trigger.update')
     ]
 )
 

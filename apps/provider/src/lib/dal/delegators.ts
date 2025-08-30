@@ -1,9 +1,11 @@
-import { db } from "@/db";
-import {Delegator, delegatorsTable} from "@/db/schema";
+import { getDbClient } from "@/db";
+import type {Delegator} from "@igniter/db/provider/schema";
+import {delegatorsTable} from "@igniter/db/provider/schema";
 import {sql} from "drizzle-orm";
 
 export async function getDelegatorByIdentity(identity: string) {
-  return db.query.delegatorsTable.findFirst({
+  const dbClient = getDbClient()
+  return dbClient.db.query.delegatorsTable.findFirst({
     where: (delegators, { and, eq }) =>
       and(
         eq(delegators.identity, identity),
@@ -14,7 +16,8 @@ export async function getDelegatorByIdentity(identity: string) {
 
 
 export async function disableAll(disabledBy: string) {
-  return db.transaction(async (tx) => {
+  const dbClient = getDbClient()
+  return dbClient.db.transaction(async (tx) => {
     const updatedDelegators = await tx
       .update(delegatorsTable)
       .set({
@@ -32,7 +35,8 @@ export async function disableAll(disabledBy: string) {
 }
 
 export async function enableAll(enabledBy: string) {
-  return db.transaction(async (tx) => {
+  const dbClient = getDbClient()
+  return dbClient.db.transaction(async (tx) => {
     const updatedDelegators = await tx
       .update(delegatorsTable)
       .set({
@@ -50,7 +54,8 @@ export async function enableAll(enabledBy: string) {
 }
 
 export async function list() {
-  return db.query.delegatorsTable.findMany();
+  const dbClient = getDbClient()
+  return dbClient.db.query.delegatorsTable.findMany();
 }
 
 
@@ -58,7 +63,8 @@ export async function update(
   identity: string,
   delegatorUpdates: Partial<Delegator>,
 ): Promise<Delegator> {
-  const [updatedDelegator] = await db
+  const dbClient = getDbClient()
+  const [updatedDelegator] = await dbClient.db
     .update(delegatorsTable)
     .set(delegatorUpdates)
     .where(sql`${delegatorsTable.identity} = ${identity}`)

@@ -1,31 +1,33 @@
-"use client"
+'use client'
 
-import { ColumnDef } from '@igniter/ui/components/table';
-import {AddressGroup, AddressGroupWithDetails, RelayMiner, Service} from "@/db/schema";
-import {Region, RegionDisplay} from "@/lib/models/commons";
+import { ColumnDef } from '@igniter/ui/components/table'
+import {
+  AddressGroupWithDetails,
+  RelayMiner,
+} from '@igniter/db/provider/schema'
 
 export const columns: ColumnDef<AddressGroupWithDetails>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: 'name',
+    header: 'Name',
   },
   {
-    accessorKey: "relayMiner",
-    header: "Relay Miner",
+    accessorKey: 'relayMiner',
+    header: 'Relay Miner',
     cell: ({ row }) => {
-      const rm = row.getValue("relayMiner") as RelayMiner;
-      return `${rm.name} (${rm.identity})` || '-';
+      const rm = row.getValue('relayMiner') as RelayMiner
+      return `${rm.name} (${rm.identity})` || '-'
     },
   },
   {
-    accessorKey: "addressGroupServices",
-    header: "Services",
+    accessorKey: 'addressGroupServices',
+    header: 'Services',
     cell: ({ row }) => {
-      const addressGroupServices = row.getValue("addressGroupServices") as AddressGroupWithDetails["addressGroupServices"];
-      const services  = addressGroupServices.map((as) => as.serviceId);
+      const addressGroupServices = row.getValue('addressGroupServices') as AddressGroupWithDetails['addressGroupServices']
+      const services = addressGroupServices.map((as) => as.serviceId)
 
       if (!services || services.length === 0) {
-        return "-";
+        return '-'
       }
 
       return (
@@ -43,19 +45,19 @@ export const columns: ColumnDef<AddressGroupWithDetails>[] = [
             </span>
           )}
         </div>
-      );
+      )
     },
   },
   {
-    accessorKey: "linkedAddresses",
-    header: "Linked Addresses",
+    accessorKey: 'linkedAddresses',
+    header: 'Linked Addresses',
     cell: ({ row }) => {
-      const linkedAddresses = row.getValue("linkedAddresses") as string[]
-      return linkedAddresses && linkedAddresses.length > 0 ? `${linkedAddresses.length} Linked Addresses` : "No Linked Addresses";
-    }
+      const linkedAddresses = row.getValue('linkedAddresses') as string[]
+      return linkedAddresses && linkedAddresses.length > 0 ? `${linkedAddresses.length} Linked Addresses` : 'No Linked Addresses'
+    },
   },
   {
-    accessorKey: "private",
-    header: "Private",
+    accessorKey: 'private',
+    header: 'Private',
   },
-];
+]

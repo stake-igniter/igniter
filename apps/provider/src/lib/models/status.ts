@@ -1,4 +1,4 @@
-import { ProviderFee } from '@/db/schema';
+import type { ProviderFee } from '@igniter/db/provider/schema';
 
 export interface StatusRequest {}
 

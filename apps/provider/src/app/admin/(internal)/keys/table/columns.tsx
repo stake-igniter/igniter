@@ -1,5 +1,5 @@
 import { ColumnDef } from "@igniter/ui/components/table";
-import { KeyState } from '@/db/schema'
+import { KeyState } from '@igniter/db/provider/enums'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
 import Address from '@igniter/ui/components/Address'
 import { ListBasicAddressGroups } from '@/actions/AddressGroups'
@@ -122,7 +122,7 @@ export function getFilters(addressesGroup: Awaited<ReturnType<typeof ListBasicAd
      group: 'addressGroup',
      items: [
        [{label: "All Address Groups", value: "", column: "addressGroup", isDefault: true}],
-       (addressesGroup.map((addressGroup) => ({
+       (addressesGroup.map((addressGroup: { name: any; id: any; }) => ({
          label: addressGroup.name,
          value: addressGroup.id,
          column: "addressGroup"

@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useState} from "react";
-import {Service} from "@/db/schema";
+import type {Service} from "@igniter/db/provider/schema";
 import {DeleteService, ListServices} from "@/actions/Services";
 import {Button} from "@igniter/ui/components/button";
 import {DataTable} from "@/components/DataTable";
