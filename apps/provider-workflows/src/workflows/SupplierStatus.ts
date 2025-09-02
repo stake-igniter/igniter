@@ -2,6 +2,7 @@ import * as wf from '@temporalio/workflow'
 import {
   log,
   proxyActivities,
+  WorkflowError,
 } from '@temporalio/workflow'
 import {
   delegatorActivities,
@@ -75,7 +76,7 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
   log.debug('Preparing to trigger child workflows', { height, minId, maxId })
   const ranges = makeRangesBySize(minId, maxId, shardCount)
 
-  const limitChildren = pLimit(50)
+  const limitChildren = pLimit(10)
 
   // Schedule ALL children, but only `maxChildConcurrency` run at once.
   const childPromises = ranges.map(({ minId, maxId }) =>
@@ -88,7 +89,7 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
           minId,
           maxId,
           pageSize: 200,
-          concurrency: 50,
+          concurrency: 10,
         }],
         parentClosePolicy: 'ABANDON', // they will keep running if the father timeout
         workflowId: `SSR-${height}-${minId}-${maxId}`,
@@ -97,7 +98,11 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
   )
 
   // Drain all children with bounded concurrency
-  await Promise.allSettled(childPromises)
+  const r = await Promise.allSettled(childPromises)
+  const allFailed = r.every(r => r.status === 'rejected')
+  if (allFailed) {
+    throw new WorkflowError('All activities failed')
+  }
 
   log.debug('Completed SupplierStatus', { height, minId, maxId })
   return { height, minId, maxId }

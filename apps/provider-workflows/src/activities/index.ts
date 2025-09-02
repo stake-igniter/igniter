@@ -85,29 +85,41 @@ export const delegatorActivities = (dal: DAL, pocketRpcClient: PocketBlockchain)
 
     // Determine the key state
     if (!supplier) {
-      // if no supplier then check if the current key state is available, leave as is, if not, then set to unstaked
-      update.state = key.state === KeyState.Imported ? KeyState.Available : key.state;
+      switch (key.state) {
+        case KeyState.Imported:
+          update.state = KeyState.Available
+          break
+        case KeyState.Unstaking:
+          update.state = KeyState.Unstaked
+          break
+        default:
+          update.state = key.state
+      }
     } else {
-      const { unstakeSessionEndHeight } = supplier;
+      const { ownerAddress, stake, unstakeSessionEndHeight, services } = supplier;
 
       // Supplier is present, determine state based on unstakeSessionEndHeight
       if (unstakeSessionEndHeight === 0) {
         update.state = KeyState.Staked;
-      } else if (unstakeSessionEndHeight >= params.height) {
+      } else if (params.height >= unstakeSessionEndHeight) {
         update.state = KeyState.Unstaked;
       } else {
         update.state = KeyState.Unstaking;
       }
-    }
 
-    if (supplier && (update.state === KeyState.Unstaking || update.state === KeyState.Staked)) {
-      update.stakeOwner = supplier.ownerAddress
-      update.stakeAmountUpokt = BigInt(supplier.stake ? supplier.stake.amount : '0')
-      if(key.state === KeyState.Imported) {
-        // means the key is imported and is already staked, let's set it to the owner address
-        update.ownerAddress = supplier.ownerAddress
+      if (update.state === KeyState.Unstaking || update.state === KeyState.Staked) {
+        update.stakeOwner = ownerAddress
+        update.stakeAmountUpokt = BigInt(stake ? stake.amount : '0')
+        update.services = services || []
+
+        if(key.state === KeyState.Imported) {
+          // means the key is imported and is already staked, let's set it to the owner address
+          update.ownerAddress = supplier.ownerAddress
+        }
       }
     }
+
+
 
     log.debug('Updating supplier', { params, update }) //NOTE: adding the update could result in an error due to BIGINT
     await dal.keys.updateKey(params.address, update, params.height)

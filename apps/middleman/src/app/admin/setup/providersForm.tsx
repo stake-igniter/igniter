@@ -44,7 +44,10 @@ const ProvidersForm: React.FC<ProvidersFormProps> = ({
   async function updateProvidersList() {
     try {
       setIsLoading(true)
-      const providersList = await UpdateProvidersFromSource()
+      const { success, error, data: providersList } = await UpdateProvidersFromSource()
+      if(!success) throw new Error(
+        error || "Failed to load providers list"
+      )
       setProviders(providersList)
       if (!providers.length) {
         form.setValue('providers', providersList.map((provider) => provider.identity))

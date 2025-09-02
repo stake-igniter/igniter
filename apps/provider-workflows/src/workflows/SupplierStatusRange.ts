@@ -1,6 +1,7 @@
 import {
   log,
   proxyActivities,
+  WorkflowError,
 } from '@temporalio/workflow'
 import {
   delegatorActivities,
@@ -38,9 +39,9 @@ type SupplierStatusByRange = {
 export async function SupplierStatusByRange(input: SupplierStatusByRange): Promise<void> {
   const { loadKeysInRange, upsertSupplierStatus } =
     proxyActivities<ReturnType<typeof delegatorActivities>>({
-      startToCloseTimeout: '30s',
+      startToCloseTimeout: '10s',
       retry: {
-        maximumAttempts: 3,
+        maximumAttempts: 10,
       },
     })
 
@@ -53,7 +54,7 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
     return
   }
 
-  await Promise.allSettled(
+  const r = await Promise.allSettled(
     rows.map(r => limit(() =>
       upsertSupplierStatus({
         address: r.address,
@@ -61,4 +62,9 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
       })
     ))
   );
+
+  const allFailed = r.every(r => r.status === 'rejected');
+  if (allFailed) {
+    throw new WorkflowError('All activities failed');
+  }
 }

@@ -10,6 +10,7 @@
       "dependsOn": ["clean", "^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "cache": false,
       "env": [
         "POSTGRES_URL",
         "TEMPORAL_URL",
