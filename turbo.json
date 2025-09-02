@@ -3,10 +3,14 @@
   "ui": "tui",
   "envMode": "loose",
   "tasks": {
+    "clean": {
+      "cache": false
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["clean", "^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "cache": false,
       "env": [
         "POSTGRES_URL",
         "TEMPORAL_URL",
@@ -26,8 +30,7 @@
     "dev": {
       "dependsOn": ["^build"],
       "cache": false,
-      "persistent": true,
-      "dependsOn": ["build"]
+      "persistent": true
     }
   }
 }

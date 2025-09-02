@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import { Service } from "@/db/schema";
+import type { Service } from "@igniter/db/provider/schema";
 
 export const columns: ColumnDef<Service>[] = [
   {

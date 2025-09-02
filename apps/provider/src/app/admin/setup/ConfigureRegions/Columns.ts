@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import { Region } from "@/db/schema";
+import type { Region } from "@igniter/db/provider/schema";
 
 export const columns: ColumnDef<Region>[] = [
   {

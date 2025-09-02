@@ -26,7 +26,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {InfoIcon, LoaderIcon} from "@igniter/ui/assets";
 import urlJoin from "url-join";
 import {CreateService, UpdateService, GetByServiceId} from "@/actions/Services";
-import {ApplicationSettings, Service} from "@/db/schema";
+import type {ApplicationSettings, Service} from "@igniter/db/provider/schema";
 import {GetApplicationSettings} from "@/actions/ApplicationSettings";
 import {Region} from "@/lib/models/commons";
 

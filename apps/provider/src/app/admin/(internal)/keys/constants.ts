@@ -1,4 +1,4 @@
-import {KeyState} from "@/db/schema";
+import {KeyState} from "@igniter/db/provider/enums";
 
 export const KeyStateLabels: Record<KeyState, string> = {
   [KeyState.Available]: 'Available',

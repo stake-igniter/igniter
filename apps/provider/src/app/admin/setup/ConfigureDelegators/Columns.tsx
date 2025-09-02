@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import { Delegator } from "@/db/schema";
+import type { Delegator } from "@igniter/db/provider/schema";
 import React, { useState } from "react";
 import {UpdateDelegator} from "@/actions/Delegators";
 import {Switch} from "@igniter/ui/components/switch";

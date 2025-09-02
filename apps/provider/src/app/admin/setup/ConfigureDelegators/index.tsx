@@ -5,7 +5,7 @@ import {Button} from "@igniter/ui/components/button";
 import {DataTable} from "@/components/DataTable";
 import {columns} from "./Columns";
 import {LoaderIcon} from "@igniter/ui/assets";
-import {Delegator} from "@/db/schema";
+import type {Delegator} from "@igniter/db/provider/schema";
 import {
   DisableAllDelegators,
   EnableAllDelegators,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { Region } from "@/db/schema";
+import type { Region } from "@igniter/db/provider/schema";
 import { DeleteRegion, ListRegions } from "@/actions/Regions";
 import { Button } from "@igniter/ui/components/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";

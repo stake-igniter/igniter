@@ -3,7 +3,7 @@ import * as schema from './schema'
 import { setup } from '@/connection'
 import { DBClient } from '@/types'
 
-export const getDb = async (logger: Logger): Promise<DBClient> => {
+export const getDb = async (logger: Logger): Promise<DBClient<typeof schema>> => {
   if ((globalThis as any).dbClient) {
     return (globalThis as any).dbClient
   }

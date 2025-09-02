@@ -25,10 +25,10 @@ import {
   CreateAddressGroup,
   UpdateAddressGroup,
 } from "@/actions/AddressGroups";
-import {
+import type {
   AddressGroupWithDetails,
   Service,
-} from "@/db/schema";
+} from "@igniter/db/provider/schema";
 import { Combobox } from "./Combobox";
 import { getEndpointInterpolatedUrl } from "@/lib/models/supplier";
 import {Switch} from "@igniter/ui/components/switch";

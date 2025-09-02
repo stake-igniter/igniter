@@ -1,4 +1,4 @@
-import {AddressGroupService} from "@/db/schema";
+import type {AddressGroupService} from "@igniter/db/provider/schema";
 
 export function getRevShare(addressGroupService: AddressGroupService, operatorAddress: string) {
   const revShare = addressGroupService.revShare.map(({address, share}) => ({

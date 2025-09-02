@@ -22,7 +22,7 @@ const updateProvidersSchema = z.object({
   }),
 });
 
-export async function UpdateProvidersFromSource() {
+export async function UpdateProvidersFromSource(): Promise<{ success: boolean, error?: string, data: Provider[] }> {
   const [userIdentity, appSettings] = await Promise.all([
     getCurrentUserIdentity(),
     getApplicationSettings(),
@@ -142,11 +142,12 @@ export async function UpdateProvidersFromSource() {
       `[Providers] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
     );
 
-    return { success: true };
+    return { success: true, data: currentProviders };
   } catch (error) {
     console.error("Error updating providers:", error);
     return {
       success: false,
+      data: [],
       error: error instanceof Error ? error.message : "Unknown error occurred",
     };
   }

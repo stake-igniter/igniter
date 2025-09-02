@@ -1,9 +1,20 @@
-import { db } from "@/db";
-import {CreateKey, Key, keysTable, KeyState} from "@/db/schema";
-import {PgTransaction} from 'drizzle-orm/pg-core';
-import {and, eq, count, inArray, sql, ExtractTablesWithRelations} from "drizzle-orm";
-import {NodePgQueryResultHKT} from "drizzle-orm/node-postgres";
-import * as schema from "@/db/schema";
+import type {
+  InsertKey,
+  Key,
+} from '@igniter/db/provider/schema'
+import * as schema from '@igniter/db/provider/schema'
+import { getDbClient } from '@/db'
+import { KeyState } from '@igniter/db/provider/enums'
+import { PgTransaction } from 'drizzle-orm/pg-core'
+import {
+  and,
+  count,
+  eq,
+  inArray,
+} from 'drizzle-orm'
+import { NodePgQueryResultHKT } from 'drizzle-orm/node-postgres'
+
+const { keysTable } = schema
 
 /**
  * Inserts multiple keys into the database using a transaction.
@@ -11,27 +22,29 @@ import * as schema from "@/db/schema";
  * @param keys - Array of keys to insert
  * @returns The inserted keys
  */
-export async function insertMany(keys: CreateKey[]): Promise<CreateKey[]> {
-  const existingKey = await db.query.keysTable.findFirst({
-    where: ((keysTable, {inArray}) => inArray(keysTable.address, keys.map(k => k.address)))
+export async function insertMany(keys: InsertKey[]): Promise<InsertKey[]> {
+  const dbClient = getDbClient()
+  const existingKey = await dbClient.db.query.keysTable.findFirst({
+    where: ((keysTable, { inArray }) => inArray(keysTable.address, keys.map(k => k.address))),
   })
 
+  // why not just "ignore" them or return them instead.
   if (existingKey) {
-    throw new Error("There are keys that already exists")
+    throw new Error('There are keys that already exists')
   }
 
-  return db.transaction(async (tx) => {
+  return dbClient.db.transaction(async (tx) => {
     const insertedKeys = await tx
       .insert(keysTable)
       .values(keys)
-      .returning();
+      .returning()
 
     if (!insertedKeys.length || insertedKeys.length !== keys.length) {
-      throw new Error("Failed to insert all keys");
+      throw new Error('Failed to insert all keys')
     }
 
-    return insertedKeys;
-  });
+    return insertedKeys
+  })
 }
 
 /**
@@ -43,7 +56,8 @@ export async function insertMany(keys: CreateKey[]): Promise<CreateKey[]> {
  * @returns The number of keys that were updated
  */
 export async function markAvailable(addresses: string[], delegatorIdentity: string) {
-  return db.update(keysTable)
+  const dbClient = getDbClient()
+  return dbClient.db.update(keysTable)
     .set({
       state: KeyState.Available,
       deliveredAt: null,
@@ -54,71 +68,75 @@ export async function markAvailable(addresses: string[], delegatorIdentity: stri
       and(
         inArray(keysTable.address, addresses),
         eq(keysTable.deliveredTo, delegatorIdentity),
-        eq(keysTable.state, KeyState.Delivered)
-      )
+        eq(keysTable.state, KeyState.Delivered),
+      ),
     )
-    .returning({ address: keysTable.address });
+    .returning({ address: keysTable.address })
 }
 
 export async function listKeysWithPk() {
-  return db.query.keysTable.findMany({
+  const dbClient = getDbClient()
+  return dbClient.db.query.keysTable.findMany({
     columns: {
       privateKey: false,
     },
     with: {
       addressGroup: true,
-      delegator: true
-    }
+      delegator: true,
+    },
   })
 }
 
 export async function countPrivateKeysByAddressGroup(addressGroupId: number, state?: KeyState) {
-  const filters = [];
+  const dbClient = getDbClient()
+  const filters = []
 
   if (addressGroupId) {
-    filters.push(eq(keysTable.addressGroupId, addressGroupId));
+    filters.push(eq(keysTable.addressGroupId, addressGroupId))
   }
 
   if (state) {
-    filters.push(eq(keysTable.state, state));
+    filters.push(eq(keysTable.state, state))
   }
 
-  const [result] = await db.select({
-    count: count()
+  const [result] = await dbClient.db.select({
+    count: count(),
   })
     .from(keysTable)
-    .where(filters.length > 0 ? and(...filters) : undefined);
+    .where(filters.length > 0 ? and(...filters) : undefined)
 
-  return Number(result?.count || 0);
+  return Number(result?.count || 0)
 }
 
 
 export async function listPrivateKeysByAddressGroup(addressGroupId: number, state?: KeyState) {
-  const filters = [];
+  const dbClient = getDbClient()
+  const filters = []
 
   if (addressGroupId) {
-    filters.push(eq(keysTable.addressGroupId, addressGroupId));
+    filters.push(eq(keysTable.addressGroupId, addressGroupId))
   }
 
   if (state) {
-    filters.push(eq(keysTable.state, state));
+    filters.push(eq(keysTable.state, state))
   }
 
-  return db.query.keysTable.findMany({
+  return dbClient.db.query.keysTable.findMany({
     ...(filters.length > 0 && { where: and(...filters) }),
     columns: {
-      privateKey: true
+      privateKey: true,
     },
-  });
+  })
 }
 
 // TODO: when we manage the state of the keys we must add a state filter to only query the staked keys
-export async function listStakedAddresses(){
-  return await db.query.keysTable.findMany({
+export async function listStakedAddresses() {
+  const dbClient = getDbClient()
+  return await dbClient.db.query.keysTable.findMany({
     columns: {
-      address: true
+      address: true,
     },
-  }).then(keys => keys.map(key => key.address));
+  }).then(keys => keys.map(key => key.address))
 }
 
 
@@ -127,21 +145,21 @@ export async function listStakedAddresses(){
  * skipping those already locked by concurrent txns.
  */
 export async function lockAvailableKeys(
-    tx: PgTransaction<NodePgQueryResultHKT, typeof schema>,
-    addressGroupId: number,
-    count: number
+  tx: PgTransaction<NodePgQueryResultHKT, typeof schema>,
+  addressGroupId: number,
+  count: number,
 ): Promise<Key[]> {
   return tx
-      .select()
-      .from(keysTable)
-      .where(
-          and(
-              eq(keysTable.addressGroupId, addressGroupId),
-              eq(keysTable.state, KeyState.Available),
-          )
-      )
-      .limit(count)
-      .for('update', { skipLocked: true });
+    .select()
+    .from(keysTable)
+    .where(
+      and(
+        eq(keysTable.addressGroupId, addressGroupId),
+        eq(keysTable.state, KeyState.Available),
+      ),
+    )
+    .limit(count)
+    .for('update', { skipLocked: true })
 }
 
 /**
@@ -149,53 +167,54 @@ export async function lockAvailableKeys(
  * Returns the updated rows.
  */
 export async function markKeysDelivered(
-    tx: PgTransaction<NodePgQueryResultHKT>,
-    keyIds: number[],
-    deliveredTo: string,
-    ownerAddress: string,
+  tx: PgTransaction<NodePgQueryResultHKT>,
+  keyIds: number[],
+  deliveredTo: string,
+  ownerAddress: string,
 ): Promise<Key[]> {
-  if (!keyIds.length) return [];
+  if (!keyIds.length) return []
   return tx
-      .update(keysTable)
-      .set({
-        state: KeyState.Delivered,
-        deliveredTo,
-        deliveredAt: new Date(),
-        ownerAddress,
-      })
-      .where(inArray(keysTable.id, keyIds))
-      .returning();
+    .update(keysTable)
+    .set({
+      state: KeyState.Delivered,
+      deliveredTo,
+      deliveredAt: new Date(),
+      ownerAddress,
+    })
+    .where(inArray(keysTable.id, keyIds))
+    .returning()
 }
 
 export async function markStaked(addresses: string[], delegatorIdentity: string) {
-  return db.update(keysTable)
-      .set({
-        state: KeyState.Staked,
-      })
-      .where(
-          and(
-              inArray(keysTable.address, addresses),
-              eq(keysTable.deliveredTo, delegatorIdentity),
-              eq(keysTable.state, KeyState.Delivered)
-          )
-      )
-      .returning({ address: keysTable.address });
+  const dbClient = getDbClient()
+  return dbClient.db.update(keysTable)
+    .set({
+      state: KeyState.Staked,
+    })
+    .where(
+      and(
+        inArray(keysTable.address, addresses),
+        eq(keysTable.deliveredTo, delegatorIdentity),
+        eq(keysTable.state, KeyState.Delivered),
+      ),
+    )
+    .returning({ address: keysTable.address })
 }
 
 /**
  * INSERT new keys, returning the full rows
  */
 export async function insertNewKeys(
-    tx: PgTransaction<NodePgQueryResultHKT>,
-    newKeys: CreateKey[]
+  tx: PgTransaction<NodePgQueryResultHKT>,
+  newKeys: InsertKey[],
 ): Promise<Key[]> {
-  if (!newKeys.length) return [];
+  if (!newKeys.length) return []
   const inserted = await tx
-      .insert(keysTable)
-      .values(newKeys)
-      .returning();
+    .insert(keysTable)
+    .values(newKeys)
+    .returning()
   if (inserted.length !== newKeys.length) {
-    throw new Error("Failed to insert all new keys");
+    throw new Error('Failed to insert all new keys')
   }
-  return inserted;
+  return inserted
 }

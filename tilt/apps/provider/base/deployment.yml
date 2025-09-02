@@ -26,18 +26,36 @@ spec:
               SELECT 'CREATE DATABASE "$DB_NAME"'
               WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\gexec
               EOF
+              echo "🛠️ Database creation '$DB_NAME' done!";
           envFrom:
             - secretRef:
                 name: postgres-provider-connection
         - name: db-migrations
           image: localhost:5001/provider
-          command: [ "pnpm", "--filter=@igniter/provider", "exec", "drizzle-kit", "migrate" ]
+          workingDir: "/app"
+          command: [ "pnpm", "run", "provider:migration:migrate" ]
           envFrom:
             - secretRef:
                 name: postgres-provider-connection
       containers:
         - name: provider
           image: localhost:5001/provider
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 5
           ports:
             - containerPort: 3001
           envFrom:

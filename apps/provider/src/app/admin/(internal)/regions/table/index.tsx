@@ -8,7 +8,7 @@ import {DeleteRegion, ListRegions} from "@/actions/Regions";
 import {Button} from "@igniter/ui/components/button";
 import { Trash2Icon, PencilIcon } from "lucide-react";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import {Region} from "@/db/schema";
+import type {Region} from "@igniter/db/provider/schema";
 import {AddOrUpdateRegionDialog} from "@/components/AddOrUpdateRegionDialog";
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
 

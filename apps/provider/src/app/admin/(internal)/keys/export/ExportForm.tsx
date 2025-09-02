@@ -11,7 +11,7 @@ import {LoaderIcon} from '@igniter/ui/assets'
 import {toCurrencyFormat} from '@igniter/ui/lib/utils'
 import {CountKeysByAddressGroupAndState, GetKeysByAddressGroupAndState} from '@/actions/Keys'
 import {KeyStateLabels} from "@/app/admin/(internal)/keys/constants";
-import {KeyState} from "@/db/schema";
+import type {KeyState} from "@igniter/db/provider/enums";
 
 const exportToJson = (jsonData: object, name: string) => {
   const jsonString = JSON.stringify(jsonData, null, 2);

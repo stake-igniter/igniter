@@ -9,7 +9,7 @@ import {columns} from "./Columns";
 import {AddOrUpdateRelayMinerDialog} from "@/components/AddOrUpdateRelayMinerDialog";
 import {LoaderIcon} from "@igniter/ui/assets";
 import {Trash2Icon, PencilIcon} from 'lucide-react';
-import {RelayMinerWithDetails} from "@/db/schema";
+import type {RelayMinerWithDetails} from "@igniter/db/provider/schema";
 
 export interface ConfigureRelayMinersProp {
   goNext: () => void;

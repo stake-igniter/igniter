@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import { SiwpMessage } from "@poktscan/vault-siwp";
 import {createUser, getUser} from "./lib/dal/users";
 import authConfig from "./auth.config";
-import {User} from "@/db/schema";
+import type {User} from "@igniter/db/provider/schema";
 
 const authConfigResult = NextAuth({
   ...authConfig,

@@ -1,10 +1,10 @@
 "use server";
 
-import type {CreateService, Service} from "@/db/schema";
+import type {InsertService, Service} from "@igniter/db/provider/schema";
 import {insert, list, remove, update} from "@/lib/dal/services";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
-export async function CreateService(service: Omit<CreateService, 'createdBy' | 'updatedBy'>) {
+export async function CreateService(service: Omit<InsertService, 'createdBy' | 'updatedBy'>) {
   const userIdentity = await getCurrentUserIdentity();
   return insert({
     ...service,

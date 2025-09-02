@@ -23,9 +23,12 @@ RUN pnpm install
 # Copy the remaining application files
 COPY out/provider/full .
 
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy the provider drizzle file to run the migration.
+COPY provider.drizzle.config.ts .
+
+ENV TURBO_TELEMETRY_DISABLED=1
 
 WORKDIR /app/apps/provider
 
 # Start the development server
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "exec", "turbo", "run", "dev", "--filter=@igniter/provider"]
