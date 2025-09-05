@@ -1,10 +1,10 @@
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin'
-import { QueryGetSupplierResponse } from '@/proto/generated/pocket/supplier/query'
-import { StargateClient } from '@cosmjs/stargate'
-import { Comet38Client } from '@cosmjs/tendermint-rpc'
-import { Supplier } from '@/proto/generated/pocket/shared/supplier'
+import { Supplier } from '@pocket/proto/generated/pocket/shared/supplier'
 
-export { SupplierServiceConfig, RPCType } from '@/proto/generated/pocket/shared/service'
+export {
+  SupplierServiceConfig,
+  RPCType,
+} from '@pocket/proto/generated/pocket/shared/service'
 
 export interface PocketExtension {
   readonly bank: {

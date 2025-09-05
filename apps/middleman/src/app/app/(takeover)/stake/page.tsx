@@ -8,7 +8,7 @@ import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {StakeSuccessStep} from "@/app/app/(takeover)/stake/components/StakeSuccessStep";
 import {useRouter} from "next/navigation";
 import {AbortConfirmationDialog} from '@igniter/ui/components/AbortConfirmationDialog'
-import { Transaction } from '@/db/schema'
+import { Transaction } from '@igniter/db/middleman/schema'
 import {allStagesSucceeded, getFailedStage} from "@/app/app/(takeover)/stake/utils";
 import {StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
 import { useWalletConnection } from '@igniter/ui/context/WalletConnection/index'

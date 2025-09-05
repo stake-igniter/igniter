@@ -1,6 +1,7 @@
 "use client";
 
-import {NodeWithDetails, NodeStatus, Provider, Transaction} from '@/db/schema'
+import {NodeWithDetails, Provider, Transaction} from '@igniter/db/middleman/schema'
+import {NodeStatus} from '@igniter/db/middleman/enums'
 import {
   CopyIcon,
   RightArrowIcon,

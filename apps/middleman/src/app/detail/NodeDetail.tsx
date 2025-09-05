@@ -1,4 +1,4 @@
-import { NodeStatus } from '@/db/schema'
+import { NodeStatus } from '@igniter/db/middleman/enums'
 import Amount from '@igniter/ui/components/Amount'
 import React, { useState } from 'react'
 import { clsx } from 'clsx'

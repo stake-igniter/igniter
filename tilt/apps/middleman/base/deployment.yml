@@ -26,18 +26,28 @@ spec:
               SELECT 'CREATE DATABASE "$DB_NAME"'
               WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$DB_NAME')\gexec
               EOF
+              echo "🛠️ Database creation '$DB_NAME' done!";
           envFrom:
             - secretRef:
                 name: postgres-middleman-connection
         - name: db-migrations
           image: localhost:5001/middleman
-          command: ["pnpm", "--filter=@igniter/middleman", "exec", "drizzle-kit", "migrate"]
+          workingDir: "/app"
+          command: [ "pnpm", "run", "middleman:migration:migrate" ]
           envFrom:
             - secretRef:
                 name: postgres-middleman-connection
       containers:
         - name: middleman
           image: localhost:5001/middleman
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 30
           ports:
             - containerPort: 3000
           envFrom:

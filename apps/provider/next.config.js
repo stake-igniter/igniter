@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url) // Get the file's absolute path
+const __dirname = path.dirname(__filename) // Get the directory name of the file
 
 const nextConfig = {
   turbopack: {
@@ -9,6 +14,7 @@ const nextConfig = {
       },
     },
   },
+  outputFileTracingRoot: path.join(__dirname, '..', '..'),
   transpilePackages: ['@igniter/logger', '@igniter/db'],
   webpack: (config) => {
     config.module.rules.push({

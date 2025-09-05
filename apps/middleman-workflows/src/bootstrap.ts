@@ -11,8 +11,8 @@ const ScheduledWorkflowConfig: Record<
   ScheduledWorkflowType,
   { interval: string }
 > = {
-  [ScheduledWorkflowType.ProviderStatus]: { interval: "10m" },
-  [ScheduledWorkflowType.ExecutePendingTransaction]: { interval: "2m" },
+  [ScheduledWorkflowType.ProviderStatus]: { interval: "1m" },
+  [ScheduledWorkflowType.ExecutePendingTransaction]: { interval: "30s" },
 };
 
 async function bootstrapNamespace() {

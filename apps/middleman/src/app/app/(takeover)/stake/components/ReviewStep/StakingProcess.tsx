@@ -12,7 +12,7 @@ import {
 import {useEffect, useState} from "react";
 import {CheckSuccess, LoaderIcon, XIcon} from "@igniter/ui/assets";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {Transaction as DbTransaction} from "@/db/schema";
+import {Transaction as DbTransaction} from "@igniter/db/middleman/schema";
 import {requestSuppliers} from "@/lib/services/provider";
 import {SignedTransaction, SupplierStake, TransactionMessage,} from "@/lib/models/Transactions";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";

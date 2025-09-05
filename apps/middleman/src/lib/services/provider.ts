@@ -1,6 +1,6 @@
 import { StakeDistributionOffer } from "@/lib/models/StakeDistributionOffer";
 import {SupplierStake} from "@/lib/models/Transactions";
-import {ApplicationSettings} from "@/db/schema";
+import {ApplicationSettings} from "@igniter/db/middleman/schema";
 
 export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, ownerAddress: string, region: string = ''): Promise<SupplierStake[]> {
     try {

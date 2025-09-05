@@ -5,8 +5,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 import { getApplicationSettings } from '@/actions/ApplicationSettings'
-import {providersTable} from "@/db/schema";
-import {db} from "@/db";
+import {providersTable} from "@igniter/db/middleman/schema";
+import { getDb} from "@/db";
 import {eq} from "drizzle-orm";
 
 export interface Provider {
@@ -69,7 +69,7 @@ export async function UpdateProvidersFromSource(): Promise<{ success: boolean, e
       p.identityHistory.forEach((h) => allCdnIdentities.add(h));
     }
 
-    const { inserted, updated, disabled } = await db.transaction(
+    const { inserted, updated, disabled } = await getDb().transaction(
       async (tx) => {
         let inserted = 0;
         let updated = 0;

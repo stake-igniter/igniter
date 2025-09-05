@@ -12,20 +12,20 @@ import {
   QueryBalanceRequest,
   QueryClientImpl as BankQueryClientImpl,
   QuerySpendableBalanceByDenomRequest,
-} from '@/proto/generated/cosmos/bank/v1beta1/query'
+} from '@pocket/proto/generated/cosmos/bank/v1beta1/query'
 import { Buffer } from 'buffer'
 import {
   QueryClientImpl as SupplierQueryClientImpl,
   QueryGetSupplierRequest,
   QueryGetSupplierResponse,
-} from '@/proto/generated/pocket/supplier/query'
+} from '@pocket/proto/generated/pocket/supplier/query'
 import {
   PocketExtension,
   SendTransactionResult,
   TransactionResult,
-} from '@/types'
-import { Coin } from '@/proto/generated/cosmos/base/v1beta1/coin'
-import { Supplier } from '@/proto/generated/pocket/shared/supplier'
+} from '@pocket/types'
+import { Coin } from '@pocket/proto/generated/cosmos/base/v1beta1/coin'
+import { Supplier } from '@pocket/proto/generated/pocket/shared/supplier'
 
 export * from './types'
 

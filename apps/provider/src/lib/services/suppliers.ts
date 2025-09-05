@@ -4,7 +4,7 @@ import {list as listServices} from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
 import {insertNewKeys, lockAvailableKeys, markAvailable, markKeysDelivered, markStaked} from "@/lib/dal/keys";
 import {getRevShare} from "@/lib/utils/services";
-import {db} from "@/db";
+import {getDb} from "@/db";
 
 type KeyDistributionItem = { numberOfKeys: number[] };
 
@@ -93,7 +93,7 @@ export async function getSupplierStakeConfigurations(
     }[];
 
     try {
-        allocation = await db.transaction(async (tx) => {
+        allocation = await getDb().transaction(async (tx) => {
             const results  = [];
 
             for (const { addressGroup, slots } of slotsByGroup) {
