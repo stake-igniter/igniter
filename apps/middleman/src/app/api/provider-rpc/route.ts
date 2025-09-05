@@ -1,7 +1,7 @@
 import {z} from "zod";
 import urlJoin from 'url-join';
 import {GetProviderByIdentity} from "@/actions/Providers";
-import {Provider} from "@/db/schema";
+import {Provider} from "@igniter/db/middleman/schema";
 import {signPayload} from "@/lib/crypto";
 import {getApplicationSettings} from "@/lib/dal/applicationSettings";
 import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "@/lib/constants";

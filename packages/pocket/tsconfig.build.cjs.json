@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/cjs",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "paths": {
+      "@pocket/*": ["src/*"]
+    },
+    "sourceMap": true,
+    "declaration": true,
+    "declarationDir": "./dist/types",
+    "noEmit": false
+  },
+  "include": ["src"]
+}

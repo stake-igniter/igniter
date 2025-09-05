@@ -1,6 +1,6 @@
 "use client";
 
-import { ProviderFee, TransactionStatus, TransactionType } from '@/db/schema'
+import { ProviderFee, TransactionStatus, TransactionType } from '@igniter/db/middleman/enums'
 import {ActivitySuccessIcon, ActivityWarningIcon, CopyIcon, RightArrowIcon, WarningIcon} from '@igniter/ui/assets'
 import { Button } from '@igniter/ui/components/button'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'

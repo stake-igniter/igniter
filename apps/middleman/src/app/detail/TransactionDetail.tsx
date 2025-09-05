@@ -1,4 +1,4 @@
-import { ProviderFee, TransactionStatus, TransactionType } from '@/db/schema'
+import { ProviderFee, TransactionStatus, TransactionType } from '@igniter/db/middleman/enums'
 import { clsx } from 'clsx'
 import { DrawerDescription, DrawerHeader, DrawerTitle } from '@igniter/ui/components/drawer'
 import { amountToPokt, toCompactFormat, toDateFormat } from '@igniter/ui/lib/utils'
@@ -14,6 +14,9 @@ import Address from '@igniter/ui/components/Address'
 import { Operation, SendOperation, TransactionDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
 import { MessageType } from '@/lib/constants'
 import { GetNode } from '@/actions/Nodes'
+import {
+  TransactionsToNodesWithDetails,
+} from '@igniter/db/middleman/schema'
 
 function ActionButton({children}: React.PropsWithChildren) {
   return (
@@ -243,7 +246,7 @@ export default function TransactionDetail({
               address: node.address,
               ownerAddress: node.ownerAddress,
               status: node.status,
-              transactions: node.transactionsToNodes.map((transaction) => {
+              transactions: node.transactionsToNodes.map((transaction: TransactionsToNodesWithDetails) => {
                 const tx = transaction.transaction
 
                 return {

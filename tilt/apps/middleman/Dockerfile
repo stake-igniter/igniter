@@ -25,9 +25,12 @@ RUN pnpm install
 # Copy the remaining application files
 COPY out/middleman/full .
 
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy the middleman drizzle file to run the migration.
+COPY middleman.drizzle.config.ts .
+
+ENV TURBO_TELEMETRY_DISABLED=1
 
 WORKDIR /app/apps/middleman
 
 # Start the development server
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "exec", "turbo", "run", "dev", "--filter=@igniter/middleman"]

@@ -23,7 +23,8 @@
     "postcss": "8",
     "react": "19.0.0",
     "tailwindcss": "4.0.4",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "@igniter/pocket": "workspace:*"
   },
   "dependencies": {
     "@apollo/client": "~3.13.8",

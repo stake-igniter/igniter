@@ -6,10 +6,10 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@pocket/*": ["src/*"]
     },
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "types": ["node"]
   },
   "include": ["src"],

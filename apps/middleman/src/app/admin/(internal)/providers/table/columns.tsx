@@ -3,7 +3,7 @@
 import { ColumnDef } from '@igniter/ui/components/table';
 import {CopyIcon} from "@igniter/ui/assets";
 import {FilterGroup, SortOption} from "@igniter/ui/components/DataTable/index";
-import {Provider} from "@/db/schema";
+import {Provider} from "@igniter/db/middleman/schema";
 import {useState} from "react";
 import {UpdateEnabled, UpdateVisibility} from "@/actions/Providers";
 import {Button} from "@igniter/ui/components/button";

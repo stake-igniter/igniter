@@ -22,7 +22,7 @@ import {
   ValidateIndexerUrl,
 } from '@/actions/ApplicationSettings'
 import { LoaderIcon } from "@igniter/ui/assets";
-import {ChainId} from "@/db/schema";
+import {ChainId} from "@igniter/db/middleman/enums";
 
 const FormSchema = z.object({
   name: z.string().min(1, "Name is required"),

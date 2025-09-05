@@ -16,7 +16,7 @@ import { Input } from "@igniter/ui/components/input";
 import { Textarea } from "@igniter/ui/components/textarea";
 import React, {useMemo, useRef, useState} from "react";
 import { UpsertApplicationSettings } from "@/actions/ApplicationSettings";
-import {ApplicationSettings} from "@/db/schema";
+import {ApplicationSettings} from "@igniter/db/middleman/schema";
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 interface FormProps {

@@ -5,7 +5,7 @@ import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
 import { amountToPokt, toCompactFormat, toDateFormat } from '@igniter/ui/lib/utils'
-import {Transaction} from "@/db/schema";
+import {Transaction} from "@igniter/db/middleman/schema";
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
 import {CaretSmallIcon, CornerIcon, LoaderIcon} from "@igniter/ui/assets";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";

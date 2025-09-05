@@ -19,7 +19,8 @@ import {
   RetrieveIndexerNetwork,
   UpsertApplicationSettings,
 } from '@/actions/ApplicationSettings'
-import { ApplicationSettings, ChainId } from "@/db/schema";
+import { ApplicationSettings } from "@igniter/db/middleman/schema";
+import { ChainId } from "@igniter/db/middleman/enums";
 
 interface FormProps {
   defaultValues: Partial<ApplicationSettings>;

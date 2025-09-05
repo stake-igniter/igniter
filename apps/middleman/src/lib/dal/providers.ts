@@ -1,12 +1,12 @@
 import "server-only";
-import { db } from "@/db";
-import { Provider, providersTable } from "@/db/schema";
+import { getDb } from "@/db";
+import { Provider, providersTable } from "@igniter/db/middleman/schema";
 import {and, eq, sql} from "drizzle-orm";
 
 export async function upsertProviders(
   providers: Pick<Provider, "name" | "identity" | "url" | "enabled" | "visible" | "createdBy" | "updatedBy">[],
 ) {
-  return db
+  return getDb()
     .insert(providersTable)
     .values(providers)
     .onConflictDoUpdate({
@@ -25,7 +25,7 @@ export async function list(all?: boolean) : Promise<Provider[]> {
     filters.push(eq(providersTable.visible, true));
   }
 
-  const providers = await db.query.providersTable.findMany({
+  const providers = await getDb().query.providersTable.findMany({
     ...(filters.length > 0 && { where: and(...filters) }),
   });
 
@@ -37,7 +37,7 @@ export async function list(all?: boolean) : Promise<Provider[]> {
 }
 
 export async function getByIdentity(identity: string) {
-  return db.query.providersTable.findFirst({
+  return getDb().query.providersTable.findFirst({
     where: (providers, {eq, and}) => {
       return and(
         eq(providers.identity, identity),
@@ -52,7 +52,7 @@ export async function update(
   identity: string,
   providerUpdates: Partial<Provider>,
 ): Promise<Provider> {
-  const [updatedProvider] = await db
+  const [updatedProvider] = await getDb()
     .update(providersTable)
     .set(providerUpdates)
     .where(sql`${providersTable.identity} = ${identity}`)

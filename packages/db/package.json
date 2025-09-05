@@ -23,15 +23,25 @@
       "require": "./dist/src/provider/schema/index.js",
       "types": "./dist/src/provider/schema/index.d.ts"
     },
-    "./middleman": {
-      "import": "./dist/src/middleman/index.js",
-      "require": "./dist/src/middleman/index.js",
-      "types": "./dist/src/middleman/index.d.ts"
+    "./middleman/connection": {
+      "import": "./dist/src/middleman/connection.js",
+      "require": "./dist/src/middleman/connection.js",
+      "types": "./dist/src/middleman/connection.d.ts"
+    },
+    "./middleman/enums": {
+      "import": "./dist/src/middleman/schema/enums.js",
+      "require": "./dist/src/middleman/schema/enums.js",
+      "types": "./dist/src/middleman/schema/enums.d.ts"
+    },
+    "./middleman/schema": {
+      "import": "./dist/src/middleman/schema/index.js",
+      "require": "./dist/src/middleman/schema/index.js",
+      "types": "./dist/src/middleman/schema/index.d.ts"
     }
   },
   "scripts": {
     "clean": "rm -rf ./dist",
-    "build": "pnpm run clean && tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
+    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit"
   },

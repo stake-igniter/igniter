@@ -12,6 +12,7 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "cache": false,
       "env": [
+        "PROVIDERS_CDN_URL",
         "POSTGRES_URL",
         "TEMPORAL_URL",
         "TEMPORAL_NAMESPACE",
@@ -28,7 +29,7 @@
       "dependsOn": ["^check-types"]
     },
     "dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["build"],
       "cache": false,
       "persistent": true
     }

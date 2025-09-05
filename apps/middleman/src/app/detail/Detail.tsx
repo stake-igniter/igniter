@@ -1,7 +1,17 @@
 'use client'
 
-import React, { createContext, useContext, useState } from 'react'
-import {NodeStatus, Provider, ProviderFee, TransactionStatus, TransactionType} from '@/db/schema'
+import React, {
+  createContext,
+  useContext,
+  useState,
+} from 'react'
+import {
+  NodeStatus,
+  ProviderFee,
+  TransactionStatus,
+  TransactionType,
+} from '@igniter/db/middleman/enums'
+import { Provider } from '@igniter/db/middleman/schema'
 import DetailResolver from '@/app/detail/DetailResolver'
 import { MessageType } from '@/lib/constants'
 
@@ -99,12 +109,14 @@ interface DetailContextProps {
 }
 
 const DetailContext = createContext<DetailContextProps>({
-  addItem: () => {},
-  updateItem: () => {},
-  items: []
+  addItem: () => {
+  },
+  updateItem: () => {
+  },
+  items: [],
 })
 
-export default function QuickDetailProvider({children}: React.PropsWithChildren) {
+export default function QuickDetailProvider({ children }: React.PropsWithChildren) {
   const [items, setItems] = useState<Array<DetailItem | Promise<DetailItem>>>([])
 
   const addItem = (item: DetailItem | Promise<DetailItem>) => {

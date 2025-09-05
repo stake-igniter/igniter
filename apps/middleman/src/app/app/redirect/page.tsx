@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { UserRole } from "@/db/schema";
+import { UserRole } from "@igniter/db/middleman/enums";
 import { getApplicationSettings } from "@/lib/dal/applicationSettings";
 
 export const dynamic = "force-dynamic";

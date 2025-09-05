@@ -5,7 +5,7 @@ import {CheckIcon, LoaderIcon} from "@igniter/ui/assets";
 import { defineStepper } from "@stepperize/react";
 import React, {useEffect} from "react";
 import { cn } from "@igniter/ui/lib/utils";
-import { ApplicationSettings } from "@/db/schema";
+import { ApplicationSettings } from "@igniter/db/middleman/schema";
 import {completeSetup, getApplicationSettings} from "@/actions/ApplicationSettings";
 import ApplicationSettingsForm from "./settingsForm";
 import { Provider } from "@/actions/Providers";
@@ -14,6 +14,7 @@ import BlockchainFormComponent from '@/app/admin/setup/blockchainFrom'
 
 interface StepperProps {
   providers: Provider[];
+  settings: Partial<ApplicationSettings>;
 }
 
 const { useStepper, steps, utils } = defineStepper(

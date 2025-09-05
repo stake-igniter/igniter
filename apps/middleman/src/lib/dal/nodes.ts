@@ -1,10 +1,13 @@
 import "server-only";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import {desc, eq, sql} from 'drizzle-orm'
-import {nodesTable} from "@/db/schema";
+import {
+  nodesTable,
+  NodeWithDetails,
+} from '@igniter/db/middleman/schema'
 
 export async function getNodesByUser(userIdentity: string) {
-  return db.query.nodesTable.findMany({
+  return getDb().query.nodesTable.findMany({
     where: eq(nodesTable.createdBy, userIdentity),
     with: {
       provider: true,
@@ -20,8 +23,8 @@ export async function getNodesByUser(userIdentity: string) {
   });
 }
 
-export async function getNode(address: string) {
-  return db.query.nodesTable.findFirst({
+export async function getNode(address: string): Promise<NodeWithDetails | undefined> {
+  return getDb().query.nodesTable.findFirst({
     where: eq(nodesTable.address, address),
     with: {
       provider: true,
@@ -38,7 +41,7 @@ export async function getNode(address: string) {
 }
 
 export async function getOwnerAddressesByUser(userIdentity: string) {
-  const result = await db.execute(
+  const result = await getDb().execute(
     sql`
     SELECT DISTINCT ${nodesTable.ownerAddress}
     FROM ${nodesTable}
@@ -51,7 +54,7 @@ export async function getOwnerAddressesByUser(userIdentity: string) {
 
 // TODO: filter for staked nodes only when we handle this state
 export async function getStakedNodesAddress() {
-  return await db.query.nodesTable.findMany({
+  return await getDb().query.nodesTable.findMany({
     columns: {
       address: true,
     }
