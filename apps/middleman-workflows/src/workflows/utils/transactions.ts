@@ -1,4 +1,4 @@
-import {Transaction} from "@/lib/db/schema";
+import type {Transaction} from "@igniter/db/middleman/schema";
 import {SEND_TYPE_URL, STAKE_TYPE_URL} from "@/lib/constants";
 
 export interface NewStake {

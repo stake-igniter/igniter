@@ -3,7 +3,14 @@ custom_build(
     command='./tilt/docker/build.sh provider-workflows',
     dir='../../../',
     deps=['../../../apps/provider-workflows', '../../../packages'],
-    ignore=['node_modules', '**/node_modules', 'packages/**/node_modules', 'apps/**/node_modules'],
+    ignore=[
+      'node_modules',
+      '**/node_modules',
+      'packages/**/node_modules',
+      'apps/**/node_modules',
+      'apps/**/dist',
+      'packages/**/dist'
+    ],
     live_update=[
       sync('../../../apps/provider-workflows', '/app/apps/provider-workflows'),
       sync('../../../packages', '/app/packages'),

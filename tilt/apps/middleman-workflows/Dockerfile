@@ -28,4 +28,4 @@ COPY out/middleman-workflows/full .
 WORKDIR /app/apps/middleman-workflows
 
 # Start the development server
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "exec", "turbo", "run", "dev", "--filter=@igniter/middleman-workflows"]

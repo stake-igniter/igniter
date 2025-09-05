@@ -1,0 +1,1 @@
+ALTER TABLE "nodes" ADD COLUMN "lastUpdatedHeight" integer DEFAULT 0;

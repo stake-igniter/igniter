@@ -1,5 +1,7 @@
 import { pgEnum } from 'drizzle-orm/pg-core'
-import { enumToPgEnum } from '@/commons'
+// do not use @/commons since then drizzle kit is not able to find it
+// noinspection ES6PreferShortImport
+import { enumToPgEnum } from '../../commons'
 
 /**
  * Enumeration for defining different user roles within the application.

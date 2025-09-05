@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: middleman-workflows-config
 data:
+  NODE_ENV: "development"
+  LOG_LEVEL: "debug"
   TEMPORAL_URL: "REPLACE_IN_ENVIRONMENT"
   TEMPORAL_NAMESPACE: "REPLACE_IN_ENVIRONMENT"
   TEMPORAL_TASK_QUEUE: "REPLACE_IN_ENVIRONMENT"
