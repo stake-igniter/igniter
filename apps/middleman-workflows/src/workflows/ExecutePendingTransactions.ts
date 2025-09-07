@@ -1,5 +1,5 @@
 import {proxyActivities, WorkflowIdReusePolicy} from "@temporalio/workflow";
-import { delegatorActivities } from "../activities";
+import { delegatorActivities } from '@/activities';
 import {executeChild} from "@temporalio/workflow";
 
 export interface ExecutePendingTransactionsArgs {}

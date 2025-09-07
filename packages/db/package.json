@@ -41,7 +41,7 @@
   },
   "scripts": {
     "clean": "rm -rf ./dist",
-    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json",
+    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json --verbose",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit"
   },

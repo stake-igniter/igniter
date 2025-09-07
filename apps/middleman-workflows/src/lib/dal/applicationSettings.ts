@@ -1,5 +1,25 @@
-import { db } from "@/lib/db";
+import type { Logger } from '@igniter/logger'
+import type { DBClient } from '@igniter/db/connection'
+import * as schema from '@igniter/db/middleman/schema'
 
-export async function getApplicationSettingsFromDatabase() {
-  return db.query.applicationSettingsTable.findFirst();
+
+export default class ApplicationSettings {
+  logger: Logger
+
+  dbClient: DBClient<typeof schema>
+
+  /**
+   * Constructs a new instance of the class.
+   *
+   * @param {DBClient<typeof schema>} dbClient - The database client instance used for database operations.
+   * @param {Logger} logger - The logger instance used for logging activities in the application.
+   */
+  constructor(dbClient: DBClient<typeof schema>, logger: Logger) {
+    this.logger = logger
+    this.dbClient = dbClient
+  }
+
+  async getFirst() {
+    return this.dbClient.db.query.applicationSettingsTable.findFirst();
+  }
 }

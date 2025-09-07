@@ -17,8 +17,8 @@ const ScheduledWorkflowConfig: Record<
   ScheduledWorkflowType,
   { interval: string }
 > = {
-  [ScheduledWorkflowType.SupplierStatus]: { interval: '10m' },
-  [ScheduledWorkflowType.SupplierRemediation]: { interval: '2m' },
+  [ScheduledWorkflowType.SupplierStatus]: { interval: '2m' },
+  [ScheduledWorkflowType.SupplierRemediation]: { interval: '10s' },
 }
 
 async function bootstrapNamespace(client: Client, config: TemporalConfig, logger: Logger) {

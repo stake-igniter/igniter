@@ -1,6 +1,7 @@
 import {
   bigint,
   integer,
+  json,
   pgTable,
   primaryKey,
   timestamp,
@@ -25,11 +26,13 @@ export const nodesTable = pgTable('nodes', {
   ownerAddress: varchar({ length: 255 }).notNull(),
   status: nodeStatusEnum().notNull(),
   stakeAmount: varchar().notNull(),
-  balance: bigint({ mode: 'number' }).notNull(),
+  balance: bigint({ mode: 'bigint' }).notNull(),
   providerId: varchar().references(() => providersTable.identity),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow(),
   createdBy: varchar().references(() => usersTable.identity).notNull(),
+  // metadata coming from the blockchain
+  lastUpdatedHeight: integer().default(0), // prevent updating this record with values of a lower height
 })
 
 export type Node = typeof nodesTable.$inferSelect;

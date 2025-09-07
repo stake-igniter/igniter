@@ -57,9 +57,6 @@ importers:
       '@igniter/logger':
         specifier: workspace:*
         version: link:../../packages/logger
-      '@igniter/pocket':
-        specifier: workspace:*
-        version: link:../../packages/pocket
       '@igniter/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -187,6 +184,18 @@ importers:
       '@cosmjs/stargate':
         specifier: ^0.33.1
         version: 0.33.1(bufferutil@4.0.9)
+      '@igniter/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@igniter/logger':
+        specifier: workspace:*
+        version: link:../../packages/logger
+      '@igniter/pocket':
+        specifier: workspace:*
+        version: link:../../packages/pocket
+      '@igniter/temporal':
+        specifier: workspace:*
+        version: link:../../packages/temporal
       '@pokt-foundation/pocketjs-provider':
         specifier: 2.2.1
         version: 2.2.1
@@ -210,7 +219,7 @@ importers:
         version: 1.11.7
       '@temporalio/worker':
         specifier: 1.11.7
-        version: 1.11.7(@swc/helpers@0.5.15)(esbuild@0.25.9)
+        version: 1.11.7(@swc/helpers@0.5.15)
       '@temporalio/workflow':
         specifier: 1.11.7
         version: 1.11.7
@@ -229,12 +238,15 @@ importers:
       long:
         specifier: 5.3.1
         version: 5.3.1
+      p-limit:
+        specifier: 7.1.0
+        version: 7.1.0
       pg:
         specifier: ^8.14.0
         version: 8.14.0
       url-join:
-        specifier: ^5.0.0
-        version: 5.0.0
+        specifier: ^4.0.1
+        version: 4.0.1
     devDependencies:
       '@igniter/eslint-config':
         specifier: workspace:*
@@ -245,9 +257,9 @@ importers:
       '@types/pg':
         specifier: ^8.11.11
         version: 8.11.11
-      drizzle-kit:
-        specifier: 0.31.4
-        version: 0.31.4
+      '@types/url-join':
+        specifier: ^4.0.1
+        version: 4.0.3
       nodemon:
         specifier: ^3.1.9
         version: 3.1.10
@@ -428,7 +440,7 @@ importers:
         version: 1.11.7
       '@temporalio/worker':
         specifier: 1.11.7
-        version: 1.11.7(@swc/helpers@0.5.15)
+        version: 1.11.7(@swc/helpers@0.5.15)(esbuild@0.25.9)
       '@temporalio/workflow':
         specifier: 1.11.7
         version: 1.11.7
@@ -4410,6 +4422,9 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
+
+  '@types/url-join@4.0.3':
+    resolution: {integrity: sha512-3l1qMm3wqO0iyC5gkADzT95UVW7C/XXcdvUcShOideKF0ddgVRErEQQJXBd2kvQm+aSgqhBGHGB38TgMeT57Ww==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -9320,6 +9335,9 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  url-join@4.0.1:
+    resolution: {integrity: sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==}
 
   url-join@5.0.0:
     resolution: {integrity: sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==}
@@ -14662,6 +14680,8 @@ snapshots:
 
   '@types/trusted-types@2.0.7':
     optional: true
+
+  '@types/url-join@4.0.3': {}
 
   '@types/ws@8.18.1':
     dependencies:
@@ -20711,6 +20731,8 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  url-join@4.0.1: {}
 
   url-join@5.0.0: {}
 

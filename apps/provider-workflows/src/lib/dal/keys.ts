@@ -95,7 +95,7 @@ export default class Keys {
     )
 
     return this.dbClient.db
-      .select({ id: keysTable.id, address: keysTable.address, state: keysTable.state })
+      .select({ id: keysTable.id, address: keysTable.address })
       .from(keysTable)
       .where(where)
       .orderBy(asc(keysTable.id))

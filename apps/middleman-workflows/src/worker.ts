@@ -1,48 +1,92 @@
-import { NativeConnection, Worker } from "@temporalio/worker";
-import { delegatorActivities } from "./activities";
-import bootstrap from "./bootstrap";
-import {Blockchain} from "@/lib/blockchain";
+import { delegatorActivities } from './activities'
+import bootstrap from './bootstrap'
+import {
+  getLogger,
+  Logger,
+} from '@igniter/logger'
+import { PocketBlockchain } from '@igniter/pocket'
+import { getDb } from '@igniter/db/middleman/connection'
+import schema from '@igniter/db/middleman/schema'
+import { getWorker } from '@igniter/temporal'
+import DAL from '@/lib/dal/DAL'
+import { ProviderService } from '@/lib/provider'
 
-export async function setupTemporalWorker() {
-  const TEMPORAL_URL = process.env.TEMPORAL_URL || "localhost:7233";
+const logger = getLogger()
 
-  const connection = await NativeConnection.connect({
-    address: TEMPORAL_URL,
-  });
+export const registerGracefulShutdown = (
+  disconnect: () => Promise<void>,
+  logger: Logger,
+  graceTimeoutMs = 10_000,
+) => {
+  let shuttingDown = false
 
-  const NAMESPACE = process.env.TEMPORAL_NAMESPACE || "middleman";
-  const TASK_QUEUE = process.env.TEMPORAL_TASK_QUEUE || "middleman-operations";
-  const POCKET_RPC = process.env.POKT_RPC_URL || '';
+  const signals = ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGUSR2'] as const
 
-  if (!POCKET_RPC) {
-    throw new Error("POKT_RPC_URL environment variable is not defined.");
+  const shutdown = async (signal: string) => {
+    if (shuttingDown) {
+      logger.warn('Shutdown already in progress...')
+      return
+    }
+
+    shuttingDown = true
+    logger.info({ signal }, 'Received shutdown signal, attempting graceful shutdown...')
+
+    const timeout = setTimeout(() => {
+      logger.error({ timeout: graceTimeoutMs }, 'Grace period exceeded. Forcing exit.')
+      process.exit(1)
+    }, graceTimeoutMs)
+
+    try {
+      await disconnect()
+      clearTimeout(timeout)
+      logger.info('Graceful shutdown complete. Exiting.')
+      process.exit(0)
+    } catch (err) {
+      logger.error({ err }, 'Error during shutdown. Forcing exit.')
+      process.exit(1)
+    }
   }
 
-  await bootstrap();
-
-  const blockchainProvider = new Blockchain(POCKET_RPC);
-
-  const shutdownGraceTime = 2500;
-
-  const worker = await Worker.create({
-    connection,
-    namespace: NAMESPACE,
-    taskQueue: TASK_QUEUE,
-    workflowsPath: require.resolve("./workflows"),
-    activities: delegatorActivities(blockchainProvider),
-    shutdownGraceTime,
-  });
-
-  process.on("SIGHUP", function () {
-    console.log("Received SIGHUP, shutting down gracefully...");
-    worker.shutdown();
-    setTimeout(() => {
-      console.log("Forcefully shutting down...");
-      process.kill(process.pid, "SIGTERM");
-    }, shutdownGraceTime);
-  })
-
-  await worker.run();
+  for (const signal of signals) {
+    process.on(signal, () => shutdown(signal))
+  }
 }
 
-setupTemporalWorker().catch((err) => console.log(err));
+export async function setupTemporalWorker() {
+  const POCKET_RPC = process.env.POKT_RPC_URL || ''
+
+  if (!POCKET_RPC) {
+    throw new Error('POKT_RPC_URL environment variable is not defined.')
+  }
+
+  // This will attempt to connect which will fail if the rpc is not available or the right one.
+  const blockchainProvider = await PocketBlockchain.setup(POCKET_RPC)
+
+  const dbClient = getDb<typeof schema>(logger)
+
+  const dal = new DAL(dbClient, logger)
+
+  const providerService = new ProviderService(dal.appSettings, logger)
+
+  const shutdownGraceTime = 2500
+
+  const { worker, disconnect } = await getWorker(logger, {
+    workflowsPath: require.resolve('./workflows'),
+    activities: delegatorActivities(dal, blockchainProvider, providerService),
+    shutdownGraceTime,
+  })
+
+  await bootstrap(logger)
+
+  registerGracefulShutdown(disconnect, logger, shutdownGraceTime)
+
+  await worker.run()
+}
+
+setupTemporalWorker().then(() => {
+  logger.info('Worker stopped')
+  process.exit(0)
+}).catch((err) => {
+  logger.error('failed setting up the worker', { err })
+  process.exit(1)
+})
