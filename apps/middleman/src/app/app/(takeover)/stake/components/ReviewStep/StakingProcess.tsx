@@ -83,6 +83,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region, o
           return {
             typeUrl: '/cosmos.bank.v1beta1.MsgSend',
             body: {
+              fromAddress: ownerAddress,
               toAddress: supplier.operatorAddress,
               amount: (offer.operationalFundsAmount * 1e6).toString(),
             },

@@ -100,23 +100,34 @@ export async function CreateStakeTransaction(request: CreateStakeTransactionRequ
 }
 
 export async function CreateSignedMemo(request: CreateSignedMemoRequest): Promise<SignedMemo> {
-  const signedMemoPayload: SignedMemoPayload = {
-    t: new Date().toISOString(),
-    a: request.settings.delegatorRewardsAddress!,
-    f: request.settings.fee?.toString() ?? '',
-  }
+  try {
+      console.log('Creating signed memo');
+      const signedMemoPayload: SignedMemoPayload = {
+          t: new Date().toISOString(),
+          a: request.settings.delegatorRewardsAddress!,
+          f: request.settings.fee?.toString() ?? '',
+      }
 
-  const canonicalPayload = JSON.stringify(
-    Object.fromEntries(Object.entries(signedMemoPayload).sort()),
-  )
+      console.log('Constructing canonical payload: ', signedMemoPayload);
+      const canonicalPayload = JSON.stringify(
+          Object.fromEntries(Object.entries(signedMemoPayload).sort()),
+      )
 
-  const signature = await signPayload(JSON.stringify(canonicalPayload))
+      console.log('Creating signature');
+      const signature = await signPayload(JSON.stringify(canonicalPayload))
+      console.log('Signature created');
 
-  const publicKey = await getCompressedPublicKeyFromAppIdentity()
+      console.log('Getting public key');
+      const publicKey = await getCompressedPublicKeyFromAppIdentity()
 
-  return {
-    ...signedMemoPayload,
-    s: signature.toString('base64url'),
-    p: publicKey.toString('base64url'),
+      console.log('Signed memo created successfully: ', signedMemoPayload);
+      return {
+          ...signedMemoPayload,
+          s: signature.toString('base64url'),
+          p: publicKey.toString('base64url'),
+      }
+  } catch (error) {
+      console.error('Error creating signed memo:', error)
+      throw error
   }
 }

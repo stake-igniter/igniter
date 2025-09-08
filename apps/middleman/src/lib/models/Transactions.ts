@@ -21,6 +21,7 @@ export interface StakeTransactionSignaturePayload extends SupplierStake{
 }
 
 export interface OperationalFundsTransactionSignaturePayload {
+    fromAddress: string;
     toAddress: string;
     amount: string;
 }

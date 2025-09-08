@@ -13,12 +13,6 @@ export enum PocketMethod {
   ACCOUNTS = "pokt_accounts",
 }
 
-export enum PocketNetworkTransactionTypes {
-  NodeStake = "node_stake",
-  NodeUnstake = "node_unstake",
-  Send = "send",
-}
-
 export class PocketWalletConnection implements WalletConnection {
   isConnected: boolean;
   connectedIdentity?: string | undefined;

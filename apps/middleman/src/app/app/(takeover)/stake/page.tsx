@@ -56,6 +56,7 @@ export default function StakePage() {
     };
 
     useEffect(() => {
+        console.log('StakePage: isConnected: ', isConnected);
         if (isConnected) {
           setOwnerAddress(
             connectedIdentities!.length > 1 ?

@@ -19,7 +19,7 @@
     "@igniter/graphql": "workspace:*",
     "@igniter/logger": "workspace:*",
     "@igniter/ui": "workspace:*",
-    "@poktscan/vault-siwp": "github:trustsoothe/vault-siwp#shannon",
+    "@poktscan/vault-siwp": "github:trustsoothe/vault-siwp#shannon-adr36",
     "@stepperize/react": "5.0.1",
     "@svgr/webpack": "8.1.0",
     "@tanstack/react-query": "^5.76.1",

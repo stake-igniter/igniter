@@ -2,8 +2,8 @@
 
 import {createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {PocketWalletConnection} from "./PocketWalletConnection";
-import { PocketMorseWalletConnection } from './PocketMorseWalletConnection'
-import {SignedMemo, SignedTransaction, TransactionMessage} from "../../lib/models/Transactions";
+import {SignedMemo, SignedTransaction, TransactionMessage} from "../../lib/models";
+import {KeplrWalletConnection} from "./KeplrWalletConnection";
 
 export interface Provider {
   send: (method: string, params?: any[]) => Promise<any>;
@@ -106,7 +106,7 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
   const [allConnectedIdentities, setAllConnectedIdentities] = useState<Array<string>>([]);
   const [connectedProvider, setConnectedProvider] = useState<Provider | undefined>(undefined);
 
-  const pocketConnection  = useMemo(() => new PocketWalletConnection(), [protocol]);
+  const pocketConnection  = useMemo(() => new KeplrWalletConnection(), [protocol]);
 
   const connect = useCallback(async (provider?: Provider) => {
     try {
@@ -131,21 +131,24 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
   }, []);
 
   const reconnect = useCallback(async (address: string) => {
+      console.log('called reconnect with address: ', address);
     const reconnected = await pocketConnection.reconnect(address);
 
+      if (!reconnected) {
+          //   if (onDisconnect) {
+          //     onDisconnect();
+          //     return false;
+          //   } else {
+          throw new Error('Failed to reconnect');
+          // }
+      }
+
+    console.log('reconnected?', reconnected);
+    console.log('pocketConnection.isConnected', pocketConnection.isConnected);
     setIsConnected(pocketConnection.isConnected);
     setConnectedIdentity(pocketConnection.connectedIdentity);
     setConnectedProvider(pocketConnection.provider);
     setAllConnectedIdentities(pocketConnection.connectedIdentities ?? []);
-
-    if (!reconnected) {
-    //   if (onDisconnect) {
-    //     onDisconnect();
-    //     return false;
-    //   } else {
-      throw new Error('Failed to reconnect');
-      // }
-    }
 
     return true;
   }, [onDisconnect]);

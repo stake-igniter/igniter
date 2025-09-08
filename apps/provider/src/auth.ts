@@ -38,7 +38,7 @@ const authConfigResult = NextAuth({
 
           const nextAuthUrl = new URL(process.env.AUTH_URL ?? "");
 
-          const result = await siwp.verify({
+          const result = await siwp.verifyAdr36({
             signature: (credentials?.signature as string) || "",
             domain: nextAuthUrl.host,
             publicKey: (credentials?.publicKey as string) || "",

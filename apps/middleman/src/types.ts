@@ -3,6 +3,7 @@ import { User } from "./db/schema";
 declare global {
   interface Window {
     pocketNetwork: any;
+    keplr: any;
   }
 }
 

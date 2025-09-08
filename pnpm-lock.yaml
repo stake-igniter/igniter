@@ -42,27 +42,27 @@ importers:
       '@cosmjs/proto-signing':
         specifier: ^0.33.1
         version: 0.33.1
+      '@cosmjs/stargate':
+        specifier: ^0.33.1
+        version: 0.33.1(bufferutil@4.0.9)
       '@hookform/resolvers':
         specifier: 4.1.3
         version: 4.1.3(react-hook-form@7.54.2(react@19.0.0))
-      '@igniter/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@igniter/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
       '@igniter/graphql':
         specifier: workspace:*
         version: link:../../packages/graphql
-      '@igniter/logger':
+      '@igniter/pocket':
         specifier: workspace:*
-        version: link:../../packages/logger
+        version: link:../../packages/pocket
       '@igniter/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@poktscan/vault-siwp':
-        specifier: github:trustsoothe/vault-siwp#shannon
-        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/6abbf451fd4a0b71dce77e09c05f5892fdad2f4b
+        specifier: github:trustsoothe/vault-siwp#b08c22fd085a2f9f2f57e028208d9233f3a71e93
+        version: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/b08c22fd085a2f9f2f57e028208d9233f3a71e93
       '@radix-ui/react-slot':
         specifier: 1.1.1
         version: 1.1.1(@types/react@19.0.8)(react@19.0.0)
@@ -109,11 +109,11 @@ importers:
         specifier: 0.456.0
         version: 0.456.0(react@19.0.0)
       next:
-        specifier: 15.5.2
-        version: 15.5.2(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 15.3.3
+        version: 15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next-auth:
         specifier: 5.0.0-beta.28
-        version: 5.0.0-beta.28(next@15.5.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+        version: 5.0.0-beta.28(next@15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       next-themes:
         specifier: 0.4.3
         version: 0.4.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -160,6 +160,9 @@ importers:
       '@types/react-dom':
         specifier: 19.0.3
         version: 19.0.3(@types/react@19.0.8)
+      drizzle-kit:
+        specifier: 0.31.4
+        version: 0.31.4
       postcss:
         specifier: '8'
         version: 8.4.47
@@ -184,18 +187,6 @@ importers:
       '@cosmjs/stargate':
         specifier: ^0.33.1
         version: 0.33.1(bufferutil@4.0.9)
-      '@igniter/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@igniter/logger':
-        specifier: workspace:*
-        version: link:../../packages/logger
-      '@igniter/pocket':
-        specifier: workspace:*
-        version: link:../../packages/pocket
-      '@igniter/temporal':
-        specifier: workspace:*
-        version: link:../../packages/temporal
       '@pokt-foundation/pocketjs-provider':
         specifier: 2.2.1
         version: 2.2.1
@@ -219,7 +210,7 @@ importers:
         version: 1.11.7
       '@temporalio/worker':
         specifier: 1.11.7
-        version: 1.11.7(@swc/helpers@0.5.15)
+        version: 1.11.7(@swc/helpers@0.5.15)(esbuild@0.25.9)
       '@temporalio/workflow':
         specifier: 1.11.7
         version: 1.11.7
@@ -238,15 +229,12 @@ importers:
       long:
         specifier: 5.3.1
         version: 5.3.1
-      p-limit:
-        specifier: 7.1.0
-        version: 7.1.0
       pg:
         specifier: ^8.14.0
         version: 8.14.0
       url-join:
-        specifier: ^4.0.1
-        version: 4.0.1
+        specifier: ^5.0.0
+        version: 5.0.0
     devDependencies:
       '@igniter/eslint-config':
         specifier: workspace:*
@@ -257,9 +245,9 @@ importers:
       '@types/pg':
         specifier: ^8.11.11
         version: 8.11.11
-      '@types/url-join':
-        specifier: ^4.0.1
-        version: 4.0.3
+      drizzle-kit:
+        specifier: 0.31.4
+        version: 0.31.4
       nodemon:
         specifier: ^3.1.9
         version: 3.1.10
@@ -343,7 +331,7 @@ importers:
         version: 15.5.2(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next-auth:
         specifier: 5.0.0-beta.28
-        version: 5.0.0-beta.28(next@15.5.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+        version: 5.0.0-beta.28(next@15.5.2(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       next-themes:
         specifier: 0.4.3
         version: 0.4.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -668,7 +656,7 @@ importers:
         version: 1.11.7
       '@temporalio/worker':
         specifier: ^1.11.7
-        version: 1.11.7(@swc/helpers@0.5.15)
+        version: 1.11.7(@swc/helpers@0.5.15)(esbuild@0.25.9)
     devDependencies:
       '@igniter/eslint-config':
         specifier: workspace:*
@@ -686,16 +674,28 @@ importers:
     dependencies:
       '@apollo/client':
         specifier: ~3.13.8
-        version: 3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@apollo/client-integration-nextjs':
         specifier: ~0.12.2
-        version: 0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(next@15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        version: 0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(next@15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@bufbuild/protobuf':
+        specifier: 2.7.0
+        version: 2.7.0
+      '@cosmjs/proto-signing':
+        specifier: ^0.33.1
+        version: 0.33.1
+      '@cosmjs/stargate':
+        specifier: ^0.33.1
+        version: 0.33.1(bufferutil@4.0.9)
       '@hookform/resolvers':
         specifier: ^4.1.3
         version: 4.1.3(react-hook-form@7.54.2(react@19.0.0))
       '@igniter/graphql':
         specifier: workspace:*
         version: link:../graphql
+      '@igniter/pocket':
+        specifier: workspace:*
+        version: link:../pocket
       '@mui/system':
         specifier: ^5.14.11
         version: 5.17.1(@emotion/react@11.14.0(@types/react@19.0.8)(react@19.0.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.0.8)(react@19.0.0))(@types/react@19.0.8)(react@19.0.0))(@types/react@19.0.8)(react@19.0.0)
@@ -767,7 +767,7 @@ importers:
         version: 16.11.0
       graphql-ws:
         specifier: ^6.0.5
-        version: 6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9))
+        version: 6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9))
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -823,9 +823,6 @@ importers:
       '@igniter/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
-      '@igniter/pocket':
-        specifier: workspace:*
-        version: link:../pocket
       '@igniter/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -3286,6 +3283,10 @@ packages:
     resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/6abbf451fd4a0b71dce77e09c05f5892fdad2f4b}
     version: 0.0.1
 
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/b08c22fd085a2f9f2f57e028208d9233f3a71e93':
+    resolution: {tarball: https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/b08c22fd085a2f9f2f57e028208d9233f3a71e93}
+    version: 0.0.1
+
   '@protobufjs/aspromise@1.1.2':
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
 
@@ -4422,9 +4423,6 @@ packages:
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
-
-  '@types/url-join@4.0.3':
-    resolution: {integrity: sha512-3l1qMm3wqO0iyC5gkADzT95UVW7C/XXcdvUcShOideKF0ddgVRErEQQJXBd2kvQm+aSgqhBGHGB38TgMeT57Ww==}
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -9336,9 +9334,6 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  url-join@4.0.1:
-    resolution: {integrity: sha512-jk1+QP6ZJqyOiuEI9AEWQfju/nB2Pw466kbA0LEZljHwKeMgd9WrAEgEGxjPDD2+TNbbb37rTyhEfrCXfuKXnA==}
-
   url-join@5.0.0:
     resolution: {integrity: sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -9699,10 +9694,10 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
 
-  '@apollo/client-integration-nextjs@0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(next@15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@apollo/client-integration-nextjs@0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(next@15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@apollo/client': 3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@apollo/client-react-streaming': 0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@apollo/client': 3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@apollo/client-react-streaming': 0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       next: 15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
     transitivePeerDependencies:
@@ -9710,9 +9705,9 @@ snapshots:
       - graphql
       - react-dom
 
-  '@apollo/client-react-streaming@0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@apollo/client-react-streaming@0.12.2(@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@types/react@19.0.8)(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@apollo/client': 3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@apollo/client': 3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@types/react-dom': 19.0.3(@types/react@19.0.8)
       '@wry/equality': 0.5.7
       graphql: 16.11.0
@@ -9722,7 +9717,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@apollo/client@3.13.8(@types/react@19.0.8)(graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)))(graphql@16.11.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.11.0)
       '@wry/caches': 1.0.1
@@ -9739,7 +9734,7 @@ snapshots:
       tslib: 2.8.1
       zen-observable-ts: 1.2.5
     optionalDependencies:
-      graphql-ws: 6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9))
+      graphql-ws: 6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9))
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
     transitivePeerDependencies:
@@ -11449,7 +11444,7 @@ snapshots:
       '@babel/parser': 7.26.7
       '@babel/template': 7.25.9
       '@babel/types': 7.26.7
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -11522,7 +11517,7 @@ snapshots:
   '@cosmjs/socket@0.33.1(bufferutil@4.0.9)':
     dependencies:
       '@cosmjs/stream': 0.33.1
-      isomorphic-ws: 4.0.1(ws@7.5.10)
+      isomorphic-ws: 4.0.1(ws@7.5.10(bufferutil@4.0.9))
       ws: 7.5.10(bufferutil@4.0.9)
       xstream: 11.14.0
     transitivePeerDependencies:
@@ -13317,6 +13312,16 @@ snapshots:
       hex-lite: 1.5.0
       valid-url: 1.0.9
 
+  '@poktscan/vault-siwp@https://codeload.github.com/trustsoothe/vault-siwp/tar.gz/b08c22fd085a2f9f2f57e028208d9233f3a71e93':
+    dependencies:
+      '@cosmjs/amino': 0.33.1
+      '@cosmjs/encoding': 0.33.1
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.2
+      apg-js: 4.4.0
+      hex-lite: 1.5.0
+      valid-url: 1.0.9
+
   '@protobufjs/aspromise@1.1.2': {}
 
   '@protobufjs/base64@1.1.2': {}
@@ -14438,31 +14443,6 @@ snapshots:
       long: 5.3.1
       protobufjs: 7.4.0
 
-  '@temporalio/worker@1.11.7(@swc/helpers@0.5.15)':
-    dependencies:
-      '@swc/core': 1.10.16(@swc/helpers@0.5.15)
-      '@temporalio/activity': 1.11.7
-      '@temporalio/client': 1.11.7
-      '@temporalio/common': 1.11.7
-      '@temporalio/core-bridge': 1.11.7
-      '@temporalio/proto': 1.11.7
-      '@temporalio/workflow': 1.11.7
-      abort-controller: 3.0.0
-      heap-js: 2.6.0
-      memfs: 4.17.0
-      rxjs: 7.8.1
-      source-map: 0.7.4
-      source-map-loader: 4.0.2(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)))
-      supports-color: 8.1.1
-      swc-loader: 0.2.6(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)))
-      unionfs: 4.5.4
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
-    transitivePeerDependencies:
-      - '@swc/helpers'
-      - esbuild
-      - uglify-js
-      - webpack-cli
-
   '@temporalio/worker@1.11.7(@swc/helpers@0.5.15)(esbuild@0.25.9)':
     dependencies:
       '@swc/core': 1.10.16(@swc/helpers@0.5.15)
@@ -14680,8 +14660,6 @@ snapshots:
 
   '@types/trusted-types@2.0.7':
     optional: true
-
-  '@types/url-join@4.0.3': {}
 
   '@types/ws@8.18.1':
     dependencies:
@@ -16034,6 +16012,10 @@ snapshots:
       ms: 2.1.3
     optional: true
 
+  debug@4.4.0:
+    dependencies:
+      ms: 2.1.3
+
   debug@4.4.0(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
@@ -17048,7 +17030,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -17161,6 +17143,12 @@ snapshots:
     dependencies:
       graphql: 16.11.0
       tslib: 2.8.1
+
+  graphql-ws@6.0.6(graphql@16.11.0)(ws@7.5.10(bufferutil@4.0.9)):
+    dependencies:
+      graphql: 16.11.0
+    optionalDependencies:
+      ws: 7.5.10(bufferutil@4.0.9)
 
   graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.0(bufferutil@4.0.9)):
     dependencies:
@@ -17278,14 +17266,14 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
   https-proxy-agent@7.0.6:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.0
     transitivePeerDependencies:
       - supports-color
 
@@ -17627,7 +17615,7 @@ snapshots:
       - expo
       - react-native
 
-  isomorphic-ws@4.0.1(ws@7.5.10):
+  isomorphic-ws@4.0.1(ws@7.5.10(bufferutil@4.0.9)):
     dependencies:
       ws: 7.5.10(bufferutil@4.0.9)
 
@@ -18512,7 +18500,13 @@ snapshots:
 
   netmask@2.0.2: {}
 
-  next-auth@5.0.0-beta.28(next@15.5.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
+  next-auth@5.0.0-beta.28(next@15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
+    dependencies:
+      '@auth/core': 0.39.1
+      next: 15.3.3(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react: 19.0.0
+
+  next-auth@5.0.0-beta.28(next@15.5.2(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
     dependencies:
       '@auth/core': 0.39.1
       next: 15.5.2(@babel/core@7.26.7)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -18533,7 +18527,7 @@ snapshots:
       postcss: 8.4.31
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      styled-jsx: 5.1.6(@babel/core@7.26.7)(react@19.0.0)
+      styled-jsx: 5.1.6(react@19.0.0)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.3.3
       '@next/swc-darwin-x64': 15.3.3
@@ -18874,7 +18868,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.0
       get-uri: 6.0.4
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
@@ -19257,7 +19251,7 @@ snapshots:
   proxy-agent@6.5.0:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.0
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.6
       lru-cache: 7.18.3
@@ -20005,7 +19999,7 @@ snapshots:
   socks-proxy-agent@8.0.5:
     dependencies:
       agent-base: 7.1.3
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.0
       socks: 2.8.3
     transitivePeerDependencies:
       - supports-color
@@ -20031,12 +20025,6 @@ snapshots:
       iconv-lite: 0.6.3
       source-map-js: 1.2.1
       webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.25.9)
-
-  source-map-loader@4.0.2(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))):
-    dependencies:
-      iconv-lite: 0.6.3
-      source-map-js: 1.2.1
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
 
   source-map-support@0.5.21:
     dependencies:
@@ -20219,6 +20207,11 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.26.7
 
+  styled-jsx@5.1.6(react@19.0.0):
+    dependencies:
+      client-only: 0.0.1
+      react: 19.0.0
+
   stylis@4.2.0: {}
 
   sucrase@3.35.0:
@@ -20284,12 +20277,6 @@ snapshots:
       '@swc/core': 1.10.16(@swc/helpers@0.5.15)
       '@swc/counter': 0.1.3
       webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.25.9)
-
-  swc-loader@0.2.6(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))):
-    dependencies:
-      '@swc/core': 1.10.16(@swc/helpers@0.5.15)
-      '@swc/counter': 0.1.3
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
 
   symbol-observable@2.0.3: {}
 
@@ -20359,17 +20346,6 @@ snapshots:
     optionalDependencies:
       '@swc/core': 1.10.16(@swc/helpers@0.5.15)
       esbuild: 0.25.9
-
-  terser-webpack-plugin@5.3.11(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.25
-      jest-worker: 27.5.1
-      schema-utils: 4.3.0
-      serialize-javascript: 6.0.2
-      terser: 5.39.0
-      webpack: 5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))
-    optionalDependencies:
-      '@swc/core': 1.10.16(@swc/helpers@0.5.15)
 
   terser@5.39.0:
     dependencies:
@@ -20732,8 +20708,6 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  url-join@4.0.1: {}
-
   url-join@5.0.0: {}
 
   urlpattern-polyfill@10.1.0: {}
@@ -20832,36 +20806,6 @@ snapshots:
   webidl-conversions@7.0.0: {}
 
   webpack-sources@3.2.3: {}
-
-  webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)):
-    dependencies:
-      '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.6
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/wasm-edit': 1.14.1
-      '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.14.0
-      browserslist: 4.24.4
-      chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.18.1
-      es-module-lexer: 1.6.0
-      eslint-scope: 5.1.1
-      events: 3.3.0
-      glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.11
-      json-parse-even-better-errors: 2.3.1
-      loader-runner: 4.3.0
-      mime-types: 2.1.35
-      neo-async: 2.6.2
-      schema-utils: 4.3.0
-      tapable: 2.2.1
-      terser-webpack-plugin: 5.3.11(@swc/core@1.10.16(@swc/helpers@0.5.15))(webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15)))
-      watchpack: 2.4.2
-      webpack-sources: 3.2.3
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - uglify-js
 
   webpack@5.98.0(@swc/core@1.10.16(@swc/helpers@0.5.15))(esbuild@0.25.9):
     dependencies:
