@@ -27,6 +27,9 @@
     "@igniter/pocket": "workspace:*"
   },
   "dependencies": {
+    "@bufbuild/protobuf": "2.7.0",
+    "@cosmjs/stargate": "^0.33.1",
+    "@cosmjs/proto-signing": "^0.33.1",
     "@apollo/client": "~3.13.8",
     "@igniter/graphql": "workspace:*",
     "@apollo/client-integration-nextjs": "~0.12.2",

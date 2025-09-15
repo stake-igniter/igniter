@@ -6,7 +6,7 @@ import {
 } from '@igniter/ui/context/WalletConnection/index'
 import { signOut } from 'next-auth/react'
 
-export function WalletConnectionProvider(props: WalletConnectionProviderProps) {
+export default function WalletConnectionProvider(props: WalletConnectionProviderProps) {
   return (
     <UiWalletConnectionProvider
       {...props}

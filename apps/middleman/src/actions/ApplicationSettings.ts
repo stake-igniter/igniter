@@ -49,27 +49,33 @@ const CreateSettingsSchema = z.object({
   updatedAtHeight: z.string(),
 })
 
-const getAppName = unstable_cache(
-  async () => {
-    const appSettings = await fetchApplicationSettings()
+const appSettingsCacheTag = 'appSettings';
 
-    return appSettings.name
+const getAppSettings = unstable_cache(
+  async () => {
+    return await fetchApplicationSettings()
   },
   undefined,
-  { tags: ['appName'] },
+  {
+    tags: [appSettingsCacheTag],
+  },
 )
 
 export async function GetAppName() {
-  let appName = await getAppName()
+  let appSettings = await getAppSettings()
 
-  if (!appName) {
-    appName = await fetchApplicationSettings().then(appSettings => appSettings.name)
+  if (!appSettings) {
+    appSettings = await fetchApplicationSettings()
   }
 
-  return appName || 'Stake Igniter'
+  return appSettings?.name || 'Stake Igniter'
 }
 
 export async function getApplicationSettings() {
+  const appSettings = await getAppSettings()
+
+  if (appSettings) return appSettings
+
   return await fetchApplicationSettings()
 }
 
@@ -109,7 +115,7 @@ export async function UpsertApplicationSettings(
     })
   }
 
-  revalidateTag('appName')
+  revalidateTag(appSettingsCacheTag)
 }
 
 export async function completeSetup() {

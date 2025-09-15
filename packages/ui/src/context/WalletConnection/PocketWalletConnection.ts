@@ -1,5 +1,5 @@
-import {ProviderInfo, WalletConnection} from "@igniter/ui/context/WalletConnection/index";
-import {Provider} from "./";
+import type {Provider, ProviderInfo} from "./";
+import { WalletConnection, WalletSettings } from './WalletConnection'
 import {SignedMemo, SignedTransaction, TransactionMessage} from "../../lib/models";
 
 export enum PocketMethod {
@@ -19,22 +19,26 @@ export enum PocketNetworkTransactionTypes {
   Send = "send",
 }
 
-export class PocketWalletConnection implements WalletConnection {
+export class PocketWalletConnection extends WalletConnection {
+  name = PocketWalletConnection.name;
   isConnected: boolean;
   connectedIdentity?: string | undefined;
   connectedIdentities?: Array<string> | undefined;
-  private _provider?: Provider;
 
-  constructor() {
+  constructor(provider: Provider, settings: WalletSettings) {
+    super(provider, settings)
     this.isConnected = false;
   }
 
-  connect = async (provider?: Provider): Promise<Array<string>> => {
-    this._provider = provider ?? window.pocketShannon;
+  connect = async (): Promise<Array<string>> => {
     try {
       const connectedIdentities: Array<string> = await this.provider.send(
         PocketMethod.REQUEST_ACCOUNTS
       );
+
+      if (connectedIdentities.length === 1) {
+        this.connectedIdentity = connectedIdentities[0];
+      }
 
       this.isConnected = true;
       this.connectedIdentities = connectedIdentities;
@@ -106,7 +110,7 @@ export class PocketWalletConnection implements WalletConnection {
         PocketMethod.BALANCE,
         [{ address }]
       );
-      return balance;
+      return balance / 1e6;
     } catch (err) {
       console.error(err);
       throw err;
@@ -135,7 +139,7 @@ export class PocketWalletConnection implements WalletConnection {
     }
   }
 
-  getAvailableProviders = async (): Promise<ProviderInfo[]> => {
+  static async getAvailableProviders(): Promise<ProviderInfo[]> {
     return new Promise<ProviderInfo[]>((resolve) => {
       const detectedProviders: ProviderInfo[] = [];
 
@@ -194,6 +198,10 @@ export class PocketWalletConnection implements WalletConnection {
   }
 
   get provider() {
-    return this._provider ?? window.pocketShannon;
+    if (!this._provider) {
+      throw new Error('Provider not found');
+    }
+
+    return this._provider;
   }
 }

@@ -72,6 +72,8 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region, o
             typeUrl: '/pocket.supplier.MsgStakeSupplier',
             body: {
               ...supplier,
+              // owner can't no longer change the services, not even in the first stake
+              services: [],
               stakeAmount: (Number(supplier.stakeAmount) * 1e6).toString(),
               ownerAddress: ownerAddress,
               signer: ownerAddress,
@@ -83,6 +85,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region, o
           return {
             typeUrl: '/cosmos.bank.v1beta1.MsgSend',
             body: {
+              fromAddress: ownerAddress,
               toAddress: supplier.operatorAddress,
               amount: (offer.operationalFundsAmount * 1e6).toString(),
             },

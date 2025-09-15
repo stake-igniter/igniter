@@ -1,5 +1,6 @@
 "use client";
 
+import type { ProviderInfoWithConnection } from '../../context/WalletConnection'
 import {Button} from "@igniter/ui/components/button";
 import {
     Dialog,
@@ -20,7 +21,7 @@ import { Checkbox } from '../checkbox'
 import AvatarByString from "../AvatarByString";
 
 export interface WalletPickerProps {
-    onWalletSelect?: (provider: Provider) => void;
+    onWalletSelect?: (provider: ProviderInfoWithConnection) => void;
 }
 
 export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
@@ -42,9 +43,7 @@ export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
             try {
                 const providers = await getAvailableProviders();
                 const walletPickerItems = providers.map((provider) => ({
-                    name: provider.name,
-                    icon: provider.icon,
-                    provider: provider.provider!,
+                    ...provider,
                     onSelect: onWalletSelect,
                 }));
 
@@ -56,12 +55,11 @@ export function WalletPicker({ onWalletSelect }: Readonly<WalletPickerProps>) {
         })();
     }, [getAvailableProviders]);
 
-    const onSelectProvider = async (provider: Provider) => {
+    const onSelectProvider = async (provider: ProviderInfoWithConnection) => {
         const connectedIdentities = await connect(provider);
 
         if (connectedIdentities.length === 1) {
             setOpen(false)
-            connectIdentity(connectedIdentities.at(0)!)
         } else {
             setStatus('account')
         }

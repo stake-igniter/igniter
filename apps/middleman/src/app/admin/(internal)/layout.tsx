@@ -2,14 +2,13 @@ import { Jost, Overpass_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import "@/app/globals.css";
 import { ThemeProvider } from "@/app/theme";
-import { WalletConnectionProvider } from "@/app/context/WalletConnectionProvider";
+import WalletConnectionProvider from "@/app/context/WalletConnection/Provider";
 import { ApplicationSettingsProvider } from "@/app/context/ApplicationSettings";
 import { SidebarInset, SidebarProvider } from "@igniter/ui/components/sidebar";
 import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
 import PriceWidget from "@/app/components/PriceWidget";
 import CurrentUser from "@/app/components/CurrentUser";
 import { CurrencyContextProvider } from "@igniter/ui/context/currency";
-import { auth } from "@/auth";
 import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
@@ -37,8 +36,6 @@ export default async function RootLayout({
                                          }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-
   return (
     <html
       lang="en"
@@ -55,9 +52,7 @@ export default async function RootLayout({
         disableTransitionOnChange
       >
         <ApplicationSettingsProvider>
-          <WalletConnectionProvider
-            expectedIdentity={session?.user?.identity}
-          >
+          <WalletConnectionProvider>
             <CurrencyContextProvider>
               <SidebarProvider className="flex flex-col">
                 <QuickDetailProvider>

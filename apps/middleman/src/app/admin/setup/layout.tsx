@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/app/theme";
-import { WalletConnectionProvider } from "@/app/context/WalletConnectionProvider";
+import WalletConnectionProvider from "@/app/context/WalletConnection/Provider";
 import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
 import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
 import CurrentUser from "@/app/components/CurrentUser";
