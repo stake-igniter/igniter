@@ -9,11 +9,11 @@ import {
   makeAuthInfoBytes,
   makeSignDoc
 } from '@cosmjs/proto-signing'
-import {MsgStakeSupplier, MsgUnstakeSupplier} from "../../proto/generated/pocket/supplier/tx";
-import { AuthInfo, TxBody, TxRaw } from '../../proto/generated/cosmos/tx/v1beta1/tx'
-import {PubKey} from "../../proto/generated/cosmos/crypto/secp256k1/keys";
-import {MsgSend} from "../../proto/generated/cosmos/bank/v1beta1/tx";
-import {Coin} from "../../proto/generated/cosmos/base/v1beta1/coin";
+import {MsgStakeSupplier, MsgUnstakeSupplier} from "@igniter/pocket/proto/pocket/supplier/tx";
+import { AuthInfo, TxBody, TxRaw } from '@igniter/pocket/proto/cosmos/tx/v1beta1/tx'
+import {PubKey} from "@igniter/pocket/proto/cosmos/crypto/secp256k1/keys";
+import {MsgSend} from "@igniter/pocket/proto/cosmos/bank/v1beta1/tx";
+import {Coin} from "@igniter/pocket/proto/cosmos/base/v1beta1/coin";
 import { WalletConnection, WalletSettings } from './WalletConnection'
 
 export type AccountSequenceRawBody = {

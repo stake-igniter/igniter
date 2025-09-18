@@ -32,6 +32,7 @@ export interface WalletConnectionStatic {
 
 export interface WalletConnectionContext {
   isConnected: boolean;
+  expectedChainId: string;
   connectedIdentity?: string;
   connectedIdentities?: Array<string>;
   connect(providerInfo: ProviderInfoWithConnection): Promise<Array<string>>;
@@ -53,6 +54,7 @@ export interface WalletConnectionContext {
 
 export const WalletConnectionContext = createContext<WalletConnectionContext>({
   isConnected: false,
+  expectedChainId: '',
   connect: async () => {
     console.warn('Method not implemented: connect. Something is wrong with the wallet connection provider.');
     return [];
@@ -213,8 +215,6 @@ export const WalletConnectionProvider = ({
 
     setAccountListener(connection.provider!)
 
-    console.log(reconnected)
-
     if (!reconnected) {
     //   if (onDisconnect) {
     //     onDisconnect();
@@ -337,6 +337,7 @@ export const WalletConnectionProvider = ({
       {
         isConnected,
         connectedIdentity,
+        expectedChainId: settings.chainId,
         connectedIdentities: allConnectedIdentities,
         connect,
         reconnect,

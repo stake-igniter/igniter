@@ -84,7 +84,7 @@ export class PocketWalletConnection extends WalletConnection {
     try {
       return await this.provider.send(
         PocketMethod.CHAIN,
-      );
+      ).then((res) => res.chain);
     } catch (err) {
       console.error(err);
       throw err;
