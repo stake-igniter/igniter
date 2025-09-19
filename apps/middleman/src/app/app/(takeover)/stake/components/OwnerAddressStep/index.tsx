@@ -35,7 +35,7 @@ export default function OwnerAddressStep({onClose, onOwnerAddressSelected, selec
     Promise.all(
       connectedIdentities!.map((address) => {
         return getBalance(address).then((balance) => {
-          return {address, balance,}
+          return {address, balance}
         })
       })
     ).then((balances) => {
