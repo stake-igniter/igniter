@@ -36,7 +36,7 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, ownerAddre
       (async () => {
         try {
           const balance = await getBalance(ownerAddress);
-          setBalance(balance / 1e6);
+          setBalance(balance);
         } catch {
           console.log('An error occurred while getting the balance from your connected wallet.');
         }

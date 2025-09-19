@@ -50,11 +50,24 @@ const authConfigResult = NextAuth({
           console.log('Domain:', nextAuthUrl.host)
           console.log('Public Key:', credentials?.publicKey)
 
-          const result = await siwp.verify({
-            signature: (credentials?.signature as string) || '',
-            domain: nextAuthUrl.host,
-            publicKey: (credentials?.publicKey as string) || '',
-          })
+          const results = await Promise.allSettled([
+            siwp.verifyERC4361({
+              signature: (credentials?.signature as string) || '',
+              domain: nextAuthUrl.host,
+              publicKey: (credentials?.publicKey as string) || '',
+            }),
+            siwp.verifyAdr36({
+              signature: (credentials?.signature as string) || '',
+              domain: nextAuthUrl.host,
+              publicKey: (credentials?.publicKey as string) || '',
+            }),
+          ])
+
+          if (results.every((result) => result.status === 'rejected')) {
+            throw (results.at(0) as  PromiseRejectedResult).reason
+          }
+
+          const result = results.find(result => result.status === 'fulfilled')!.value
 
           let user
 

@@ -1,9 +1,12 @@
 "use client";
 
-import {createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {PocketWalletConnection} from "./PocketWalletConnection";
-import { PocketMorseWalletConnection } from './PocketMorseWalletConnection'
+import type { WalletConnection, WalletSettings } from './WalletConnection';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import {SignedMemo, SignedTransaction, TransactionMessage} from "../../lib/models/Transactions";
+import { PROVIDER_COOKIE_KEY, WALLET_COOKIE_KEY } from './constants';
+import { KeplrWalletConnection } from './KeplrWalletConnection';
+import {PocketWalletConnection} from "./PocketWalletConnection";
+import { setCookie } from '../../lib/cookies'
 
 export interface Provider {
   send: (method: string, params?: any[]) => Promise<any>;
@@ -12,18 +15,27 @@ export interface Provider {
 }
 
 export interface ProviderInfo {
+  name: string;
+  provider: Provider;
   uuid?: string;
-  name?: string;
   icon?: string;
   rdns?: string;
-  provider?: Provider;
+}
+export interface ProviderInfoWithConnection extends ProviderInfo {
+  connection: WalletConnectionStatic;
 }
 
-export interface WalletConnection {
+export interface WalletConnectionStatic {
+  new (provider: Provider, settings: {apiUrl: string, chainId: string}): WalletConnection;
+  getAvailableProviders(): Promise<ProviderInfo[]>;
+}
+
+export interface WalletConnectionContext {
   isConnected: boolean;
+  expectedChainId: string;
   connectedIdentity?: string;
   connectedIdentities?: Array<string>;
-  connect(provider: Provider): Promise<Array<string>>;
+  connect(providerInfo: ProviderInfoWithConnection): Promise<Array<string>>;
   connectIdentity(address: string): void;
   clearConnectedIdentity(): void;
   getChain(): Promise<string>;
@@ -31,13 +43,18 @@ export interface WalletConnection {
   getBalance(address: string): Promise<number>;
   switchChain(chain: string): Promise<void>;
   signMessage(message: string, address: string): Promise<string>;
-  getAvailableProviders(): Promise<ProviderInfo[]>;
+  getAvailableProviders(): Promise<ProviderInfoWithConnection[]>;
   signTransaction(messages: TransactionMessage[], signer?: string, memo?: SignedMemo): Promise<SignedTransaction>;
-  reconnect(address: string): Promise<boolean>;
+  reconnect(
+    address: string,
+    wallet: string,
+    provider: string
+  ): Promise<boolean>;
 }
 
-export const WalletConnectionContext = createContext<WalletConnection>({
+export const WalletConnectionContext = createContext<WalletConnectionContext>({
   isConnected: false,
+  expectedChainId: '',
   connect: async () => {
     console.warn('Method not implemented: connect. Something is wrong with the wallet connection provider.');
     return [];
@@ -67,11 +84,15 @@ export const WalletConnectionContext = createContext<WalletConnection>({
     console.warn('Method not implemented: signMessage. Something is wrong with the wallet connection provider.');
     return '';
   },
-  getAvailableProviders: async (): Promise<ProviderInfo[]> => {
+  getAvailableProviders: async (): Promise<ProviderInfoWithConnection[]> => {
     console.warn('Method not implemented: getProvidersInfo. Something is wrong with the wallet connection provider.');
     return [];
   },
-  reconnect: async (address: string)=> {
+  reconnect: async (
+    address: string,
+    wallet: string,
+    provider: string
+  )=> {
     console.warn('Method not implemented: reconnect. Something is wrong with the wallet connection provider.');
     return false;
   },
@@ -88,8 +109,12 @@ export const WalletConnectionContext = createContext<WalletConnection>({
 });
 
 export interface WalletConnectionProviderProps {
-  protocol?: 'shannon' | 'morse',
-  expectedIdentity?: string,
+  expectedConnection?: {
+    identity: string
+    provider: string
+    wallet: string
+  },
+  settings: WalletSettings
   children: ReactNode
   onDisconnect?: () => void
 }
@@ -100,66 +125,25 @@ export interface WalletConnectionProviderProps {
  * @param reconnect
  * @constructor
  */
-export const WalletConnectionProvider = ({  protocol = 'shannon', children, expectedIdentity, onDisconnect }: WalletConnectionProviderProps) => {
+export const WalletConnectionProvider = ({
+  children,
+  onDisconnect,
+  expectedConnection,
+  settings,
+}: WalletConnectionProviderProps) => {
   const [isConnected, setIsConnected] = useState(false);
   const [connectedIdentity, setConnectedIdentity] = useState<string | undefined>(undefined);
   const [allConnectedIdentities, setAllConnectedIdentities] = useState<Array<string>>([]);
-  const [connectedProvider, setConnectedProvider] = useState<Provider | undefined>(undefined);
+  const removeAccountListenerRef = useRef<(() => void) | null>(null);
 
-  const pocketConnection  = useMemo(() => new PocketWalletConnection(), [protocol]);
+  const [connection, setConnection] = useState<WalletConnection | null>(null)
 
-  const connect = useCallback(async (provider?: Provider) => {
-    try {
-      const connectedIdentities = await pocketConnection.connect(provider);
-
-      setAllConnectedIdentities(connectedIdentities);
-      setConnectedProvider(provider)
-      setIsConnected(pocketConnection.isConnected);
-
-      if (connectedIdentities.length === 1) {
-        setConnectedIdentity(pocketConnection.connectedIdentity);
+  const setAccountListener = (provider: Provider) => {
+    if (provider.addListener) {
+      if (removeAccountListenerRef.current) {
+        removeAccountListenerRef.current();
       }
 
-      return connectedIdentities
-    } catch (error) {
-      console.error(error);
-      setIsConnected(pocketConnection.isConnected);
-      setConnectedIdentity(pocketConnection.connectedIdentity);
-    }
-
-    return []
-  }, []);
-
-  const reconnect = useCallback(async (address: string) => {
-    const reconnected = await pocketConnection.reconnect(address);
-
-    setIsConnected(pocketConnection.isConnected);
-    setConnectedIdentity(pocketConnection.connectedIdentity);
-    setConnectedProvider(pocketConnection.provider);
-    setAllConnectedIdentities(pocketConnection.connectedIdentities ?? []);
-
-    if (!reconnected) {
-    //   if (onDisconnect) {
-    //     onDisconnect();
-    //     return false;
-    //   } else {
-      throw new Error('Failed to reconnect');
-      // }
-    }
-
-    return true;
-  }, [onDisconnect]);
-
-  useEffect(() => {
-    if (expectedIdentity) {
-      (async () => {
-        await reconnect(expectedIdentity);
-      })();
-    }
-  }, [expectedIdentity]);
-
-  useEffect(() => {
-    if (connectedProvider &&  connectedProvider.addListener) {
       const listener = (addresses: Array<string>) => {
         if (connectedIdentity && onDisconnect && !addresses.includes(connectedIdentity)) {
           onDisconnect()
@@ -168,40 +152,204 @@ export const WalletConnectionProvider = ({  protocol = 'shannon', children, expe
         }
       }
 
-      connectedProvider.addListener('accountsChanged', listener);
+      provider.addListener('accountsChanged', listener);
 
-      return () => {
-        connectedProvider.removeListener!('accountsChanged', listener);
+      removeAccountListenerRef.current = () => {
+        provider.removeListener!('accountsChanged', listener);
       }
     }
-  }, [connectedProvider, connectedIdentity, onDisconnect])
+  }
+
+  const connect = useCallback(async (
+    providerInfo: ProviderInfoWithConnection
+  ) => {
+    try {
+      const connection = new providerInfo.connection(providerInfo.provider, settings)
+      const connectedIdentities = await connection.connect();
+
+      setAllConnectedIdentities(connectedIdentities);
+      setIsConnected(connection.isConnected);
+      setConnection(connection);
+      setCookie(WALLET_COOKIE_KEY, providerInfo.connection.name)
+      setCookie(PROVIDER_COOKIE_KEY, providerInfo.name)
+      setAccountListener(providerInfo.provider)
+
+      if (connectedIdentities.length === 1) {
+        setConnectedIdentity(connection.connectedIdentity);
+      }
+
+      return connectedIdentities
+    } catch (error) {
+      console.error(error);
+    }
+
+    return []
+  }, [settings]);
+
+  const reconnect = useCallback(async (
+    address: string,
+    wallet: string,
+    provider: string
+  ) => {
+    let connection: WalletConnection | undefined
+
+    const providers = await getAvailableProviders()
+
+    for (const providerInfo of providers) {
+      if (providerInfo.name === provider && providerInfo.connection.name === wallet) {
+        connection = new providerInfo.connection(providerInfo.provider, settings)
+
+        break;
+      }
+    }
+
+    if (!connection) {
+      throw new Error('Failed to reconnect')
+    }
+
+    const reconnected = await connection.reconnect(address);
+
+    setIsConnected(connection.isConnected);
+    setConnectedIdentity(connection.connectedIdentity);
+    setAllConnectedIdentities(connection.connectedIdentities ?? []);
+
+    setAccountListener(connection.provider!)
+
+    if (!reconnected) {
+    //   if (onDisconnect) {
+    //     onDisconnect();
+    //     return false;
+    //   } else {
+      throw new Error('Failed to reconnect');
+      // }
+    } else {
+      setConnection(connection)
+    }
+
+    return true;
+  }, [onDisconnect, settings]);
+
+  const getAvailableProviders = useCallback(async (): Promise<Array<ProviderInfoWithConnection>> => {
+    const [sootheProviders, keplrProviders] = await Promise.all([
+      PocketWalletConnection.getAvailableProviders(),
+      KeplrWalletConnection.getAvailableProviders()
+    ])
+
+    return [
+      ...sootheProviders.map((provider) => ({
+        ...provider,
+        connection: PocketWalletConnection,
+      })),
+      ...keplrProviders.map((provider) => ({
+        ...provider,
+        connection: KeplrWalletConnection,
+      }))
+    ]
+  }, [])
+
+  useEffect(() => {
+    if (expectedConnection) {
+      const { identity, provider, wallet } = expectedConnection;
+      if (identity && provider && wallet) {
+        (async () => {
+          await reconnect(identity, wallet, provider);
+        })();
+      }
+    }
+  }, [expectedConnection?.wallet, expectedConnection?.provider, expectedConnection?.identity]);
+
+  useEffect(() => {
+    return () => {
+      if (removeAccountListenerRef.current) {
+        removeAccountListenerRef.current();
+        removeAccountListenerRef.current = null;
+      }
+    }
+  }, [])
 
   const connectIdentity = useCallback(async (address: string) => {
-    pocketConnection.connectIdentity(address)
-    setConnectedIdentity(pocketConnection.connectedIdentity);
-    setIsConnected(!!pocketConnection.connectedIdentity);
-  }, [pocketConnection])
+    if (!connection) {
+      throw new Error('Wallet connection not initialized')
+    }
+
+    connection.connectIdentity(address)
+    setConnectedIdentity(connection.connectedIdentity);
+    setIsConnected(!!connection.connectedIdentity);
+  }, [connection])
+
+  const getChain = useCallback(async () => {
+    if (!connection) {
+      throw new Error('Wallet connection not initialized')
+    }
+
+    return await connection.getChain();
+  }, [connection])
+
+  const getPublicKey = useCallback(async (address: string) => {
+    if (!connection) {
+      throw new Error('Wallet connection not initialized')
+    }
+
+    return await connection.getPublicKey(address);
+  }, [connection])
+
+  const getBalance = useCallback(async (address: string) => {
+    if (!connection) {
+      throw new Error('Wallet connection not initialized')
+    }
+
+    return await connection.getBalance(address);
+  }, [connection])
+
+  const switchChain = useCallback(async (chain: string) => {
+    if (!connection) {
+      throw new Error('Wallet connection not initialized')
+    }
+
+    return await connection.switchChain(chain);
+  }, [connection])
+
+  const signMessage = useCallback(async (message: string, address: string) => {
+    if (!connection) {
+      throw new Error('Wallet connection not initialized')
+    }
+
+    return await connection.signMessage(message, address);
+  }, [connection])
+
+  const signTransaction = useCallback(async (messages: TransactionMessage[], signer?: string, memo?: SignedMemo) => {
+    if (!connection) {
+      throw new Error('Wallet connection not initialized')
+    }
+
+    return await connection.signTransaction(messages, signer, memo);
+  }, [connection])
+
+  const clearConnectedIdentity = useCallback(() => {
+    if (connection) {
+      connection.clearConnectedIdentity();
+    }
+    setConnectedIdentity(undefined);
+  }, [connection])
 
   return (
     <WalletConnectionContext.Provider value={
       {
         isConnected,
         connectedIdentity,
+        expectedChainId: settings.chainId,
         connectedIdentities: allConnectedIdentities,
         connect,
         reconnect,
         connectIdentity,
-        getChain: pocketConnection.getChain,
-        getPublicKey: pocketConnection.getPublicKey,
-        getBalance: pocketConnection.getBalance,
-        switchChain: pocketConnection.switchChain,
-        signMessage: pocketConnection.signMessage,
-        getAvailableProviders: pocketConnection.getAvailableProviders,
-        signTransaction: pocketConnection.signTransaction,
-        clearConnectedIdentity() {
-          pocketConnection.clearConnectedIdentity()
-          setConnectedIdentity(undefined)
-        }
+        getChain,
+        getPublicKey,
+        getBalance,
+        switchChain,
+        signMessage,
+        getAvailableProviders,
+        signTransaction,
+        clearConnectedIdentity,
       }
     }>
       {children}

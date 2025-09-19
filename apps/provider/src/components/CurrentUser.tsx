@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect} from "react";
+import React from "react";
 import {getCsrfToken, signIn, useSession, signOut} from "next-auth/react";
 import Link from 'next/link';
 import { usePathname } from "next/navigation";
@@ -12,7 +12,6 @@ import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {DropdownMenuItem, DropdownMenuSeparator} from "@igniter/ui/components/dropdown-menu";
 import {Routes} from "@/lib/route-constants";
 import {LoaderIcon} from "@igniter/ui/assets";
-import { getShortAddress } from '@igniter/ui/lib/utils'
 
 export default function CurrentUser() {
   const currentPath = usePathname();
@@ -20,17 +19,16 @@ export default function CurrentUser() {
   const applicationSettings = useApplicationSettings();
 
   const {
-    isConnected,
-    connectedIdentity,
-    connect,
     getChain,
-    getPublicKey,
     switchChain,
-    signMessage,
     clearConnectedIdentity
   } = useWalletConnection();
 
-  const authenticateUser = async (address: string) => {
+  const authenticateUser = async (
+    message: SiwpMessage,
+    signature: string,
+    publicKey: string,
+  ) => {
     try {
       if (status === 'loading') {
         return;
@@ -46,22 +44,6 @@ export default function CurrentUser() {
         return;
       }
 
-      const message = new SiwpMessage({
-        domain: window.location.host,
-        address,
-        statement: "Sign in to Igniter",
-        uri: window.location.origin,
-        version: "1",
-        chainId: applicationSettings?.chainId,
-        nonce: await getCsrfToken(),
-      });
-
-      const signature = await signMessage(message.prepareMessage(), address);
-      const publicKey = await getPublicKey(address);
-
-      // TODO: save key in a constants file
-      localStorage.setItem('last-signed-in-identity', getShortAddress(address));
-
       await signIn("siwp", {
         message: JSON.stringify(message),
         signature,
@@ -76,14 +58,6 @@ export default function CurrentUser() {
       }
     }
   };
-
-  useEffect(() => {
-    (async () => {
-      if (isConnected && connectedIdentity && applicationSettings) {
-        await authenticateUser(connectedIdentity);
-      }
-    })();
-  }, [isConnected, connectedIdentity, applicationSettings, status]);
 
   const isLanding = currentPath === Routes.root;
   const isApp = currentPath.startsWith(Routes.appRoot);
@@ -126,6 +100,9 @@ export default function CurrentUser() {
   }
 
   return (
-      <WalletPicker onWalletSelect={connect} />
+    <WalletPicker
+      onSignIn={authenticateUser}
+      getCsrfToken={getCsrfToken}
+    />
   );
 }

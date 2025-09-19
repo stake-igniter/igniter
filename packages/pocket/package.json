@@ -10,6 +10,12 @@
       "require": "./dist/cjs/src/index.js",
       "default": "./dist/cjs/src/index.js",
       "import": "./dist/cjs/src/index.js"
+    },
+    "./proto/*": {
+      "types": "./dist/types/src/proto/generated/*.d.ts",
+      "require": "./dist/cjs/src/proto/generated/*.js",
+      "default": "./dist/cjs/src/proto/generated/*.js",
+      "import": "./dist/cjs/src/proto/generated/*.js"
     }
   },
   "types": "./dist/types/src/index.d.ts",

@@ -2,15 +2,16 @@ import type { Metadata } from 'next'
 import "@/app/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/app/theme";
-import { WalletConnectionProvider } from "@/app/context/WalletConnectionProvider";
+import WalletConnectionProvider from "@/app/context/WalletConnection/Provider";
 import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
 import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
 import CurrentUser from "@/app/components/CurrentUser";
 import {jost, overpass_mono} from "@/styles/layout";
 import PriceWidget from "@/app/components/PriceWidget";
-import {auth} from "@/auth";
 import NotificationsProvider from "@igniter/ui/context/Notifications/index";
 import { GetAppName } from '@/actions/ApplicationSettings'
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const appName = await GetAppName()
@@ -25,7 +26,6 @@ export default async function TakeOverLayout({
                                    }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
   return (
     <html
       lang="en"
@@ -41,10 +41,7 @@ export default async function TakeOverLayout({
         disableTransitionOnChange
       >
         <ApplicationSettingsProvider>
-          <WalletConnectionProvider
-            protocol={'shannon'}
-            expectedIdentity={session?.user?.identity}
-          >
+          <WalletConnectionProvider>
             <AppTopBar>
               <PriceWidget />
               <CurrentUser />
