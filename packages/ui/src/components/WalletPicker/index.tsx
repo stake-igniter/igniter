@@ -259,6 +259,7 @@ function EnsureExpectedChainStep({
     )
 
     const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+    const nextTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const loadWalletCurrentChain = () => {
         setStatus('loading-current-chain')
@@ -271,7 +272,7 @@ function EnsureExpectedChainStep({
             timeoutRef.current = setTimeout(() => {
                 if (chain === expectedChainId) {
                     setStatus('success-switch-chain')
-                    setTimeout(onNext, 1500)
+                    nextTimeoutRef.current = setTimeout(onNext, 1500)
                 } else {
                     setStatus('waiting-switch-chain')
                 }
@@ -290,6 +291,11 @@ function EnsureExpectedChainStep({
                 clearTimeout(timeoutRef.current)
                 timeoutRef.current = null
             }
+
+            if (nextTimeoutRef.current) {
+              clearTimeout(nextTimeoutRef.current)
+              nextTimeoutRef.current = null
+            }
         }
     }, [])
 
@@ -297,7 +303,7 @@ function EnsureExpectedChainStep({
         setStatus('loading-switch-chain')
         switchChain(expectedChainId).then(() => {
             setStatus('success-switch-chain')
-            setTimeout(onNext, 1500)
+          nextTimeoutRef.current = setTimeout(onNext, 1500)
         }).catch(() => {
             setStatus('error-switch-chain')
         })
