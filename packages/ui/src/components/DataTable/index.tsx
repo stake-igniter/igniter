@@ -1,4 +1,5 @@
 "use client";
+import type { CsvColumnDef } from '../../lib/csv'
 import React from "react";
 import {
   ColumnDef,
@@ -18,12 +19,12 @@ import {
   TableCell,
   TableRow,
 } from "@igniter/ui/components/table";
-
 import FilterDropdown from "./FilterDropdown";
 import SortDropdown from "./SortDropdown";
 import Pagination from "./Pagination";
 import { Skeleton } from '../skeleton'
 import { Button } from '../button'
+import ExportButton from '../ExportButton'
 
 export interface FilterItem<TData> {
   label: string;
@@ -44,18 +45,19 @@ export interface SortOption<TData> {
   isDefault?: boolean;
 }
 
-export interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+export interface DataTableProps<TData extends object, TValue> {
+  columns: (ColumnDef<TData, TValue> & CsvColumnDef<TData>)[];
   data: TData[];
   filters: FilterGroup<TData>[];
   sorts: SortOption<TData>[][];
   isLoading?: boolean;
   skeletonRows?: number;
   isError?: boolean
+  csvFilename?: string
   refetch?: () => void
 }
 
-export default function DataTable<TData, TValue>({
+export default function DataTable<TData extends object, TValue>({
   columns,
   data,
   filters,
@@ -64,6 +66,7 @@ export default function DataTable<TData, TValue>({
   skeletonRows = 6,
   isError,
   refetch,
+  csvFilename,
 }: DataTableProps<TData, TValue>) {
   const defaultSort = sorts.flat().find((sort) => sort.isDefault);
 
@@ -179,6 +182,15 @@ export default function DataTable<TData, TValue>({
               />
             )
           }
+          {csvFilename && (
+            <ExportButton
+              columns={columns}
+              rows={data}
+              useUtc={false}
+              disabled={isLoading || isError || data.length === 0}
+              fileNameKey={csvFilename}
+            />
+          )}
         </div>
       </div>
 
