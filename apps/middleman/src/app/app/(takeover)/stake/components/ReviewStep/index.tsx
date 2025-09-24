@@ -43,6 +43,8 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
         return prospectTransactions.length * 2;
     }, [prospectTransactions])
 
+    const nodes = applicationSettings?.minimumStake ? amount / applicationSettings.minimumStake : 0;
+
     return (
         <div
             className="flex flex-col w-[480px] border-x border-b border-[--balck-deviders] bg-[--black-1] p-[33px] rounded-b-[12px] gap-8">
@@ -149,6 +151,16 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
             </div>
 
             <div key="stake-details" className="flex flex-col p-0 rounded-[8px] border border-[var(--black-dividers)]">
+                <div className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
+                    <span className="text-[14px] text-[var(--color-white-3)]">
+                        Nodes
+                    </span>
+                    <span className="flex flex-row gap-1">
+                        <span className={'text-[14px] font-mono text-[var(--color-white-1)]'}>
+                            {nodes}
+                        </span>
+                    </span>
+                </div>
                 <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                     <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
                         <span>

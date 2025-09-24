@@ -9,6 +9,7 @@ import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
+import { toCurrencyFormat } from '@igniter/ui/lib/utils'
 
 
 export interface PickStakeAmountStepProps {
@@ -54,7 +55,7 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, ownerAddre
             className="flex flex-col w-[480px] border-x border-b border-[--balck-deviders] bg-[--black-1] p-[33px] rounded-b-[12px] gap-8">
             <ActivityHeader
                 title="Stake"
-                subtitle="Use the slider below to pick an amount to stake."
+                subtitle={`Use the slider below to pick an amount to stake. The minimum stake is ${toCurrencyFormat(minimumStake)} $POKT.`}
                 onClose={onClose}
                 onBack={onBack}
             />
@@ -87,6 +88,7 @@ export function PickStakeAmountStep({onAmountSelected, defaultAmount, ownerAddre
                 <AmountDisplay
                   balance={balance}
                   amount={selectedAmount}
+                  minimumStake={minimumStake}
                   onMaxSelected={() => setSelectedAmount(Math.floor(balance / minimumStake) * minimumStake)}
                 />
                   {applicationSettings?.fee && applicationSettings?.fee > 0 ? (
