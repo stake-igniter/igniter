@@ -43,17 +43,25 @@ export const convertRowToString = <T extends object>(
 export interface ClientExportOptions<T extends object> {
   columns: Array<CsvColumnDef<T>>
   fileNameKey: string
-  rows: Array<T>
+  rows: Array<T> | (() => Array<T>)
   useUtc: boolean
 }
 
 export const exportToCsvFromClient = <T extends object>({
   columns,
   fileNameKey,
-  rows,
+  rows: rowsProp,
   useUtc
 }: ClientExportOptions<T>) => {
   let rowsDataString = ''
+
+  let rows: Array<T>
+
+  if (typeof rowsProp === 'function') {
+    rows = rowsProp()
+  } else {
+    rows = rowsProp
+  }
 
   rows.forEach(
     (item: T) => (rowsDataString += convertRowToString<T>(columns,item))

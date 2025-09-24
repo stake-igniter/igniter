@@ -91,7 +91,7 @@ export const columns: (ColumnDef<Transaction> & CsvColumnDef<Transaction>)[] = [
   },
   {
     accessorKey: "totalValue",
-    header: "Total Value",
+    header: "Total Value (POKT)",
     cell: ({ row }) => {
       const totalValue = row.getValue("totalValue") as number;
       return (

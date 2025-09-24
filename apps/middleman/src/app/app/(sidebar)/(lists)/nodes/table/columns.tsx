@@ -122,7 +122,7 @@ export const columns: (ColumnDef<NodeDetails> & CsvColumnDef<NodeDetails>)[] = [
   },
   {
     accessorKey: "balance",
-    header: "Balance",
+    header: "Balance (POKT)",
     cell: ({ row }) => {
       const balance = row.getValue("balance") as number;
       return (
@@ -202,6 +202,18 @@ export const filters: FilterGroup<NodeDetails>[] = [
         {
           label: "All Nodes",
           value: "",
+          column: "status",
+          isDefault: true,
+        },
+        {
+          label: "Staked",
+          value: "staked",
+          column: "status",
+          isDefault: true,
+        },
+        {
+          label: "Unstaking",
+          value: "unstaking",
           column: "status",
           isDefault: true,
         },

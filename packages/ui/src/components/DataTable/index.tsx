@@ -25,6 +25,7 @@ import Pagination from "./Pagination";
 import { Skeleton } from '../skeleton'
 import { Button } from '../button'
 import ExportButton from '../ExportButton'
+import RowsPerPage from './RowsPerPage'
 
 export interface FilterItem<TData> {
   label: string;
@@ -89,14 +90,23 @@ export default function DataTable<TData extends object, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    autoResetPageIndex: true,
+    initialState: {
+      pagination: {
+        pageSize: 25,
+        pageIndex: 0,
+      },
+    },
     state: {
       columnFilters,
       sorting,
     },
   });
 
+  const tableState = table.getState();
+
   const totalPages = table.getPageCount();
-  const currentPage = table.getState().pagination.pageIndex;
+  const currentPage = tableState.pagination.pageIndex;
 
   const defaultFilters = filters.flatMap((filterGroup) =>
     filterGroup.items.flatMap((filter) => filter.find((f) => f.isDefault) || [])
@@ -160,6 +170,15 @@ export default function DataTable<TData extends object, TValue>({
     <div>
       <div className="flex items-center justify-end space-x-2 pb-6">
         <div className="flex items-center gap-2">
+          {csvFilename && (
+            <ExportButton
+              columns={columns}
+              rows={() => table.getPrePaginationRowModel().rows.map(r => r.original)}
+              useUtc={false}
+              disabled={isLoading || isError || data.length === 0}
+              fileNameKey={csvFilename}
+            />
+          )}
           {filters.map((filterGroup, groupIndex) => (
             <FilterDropdown
               key={groupIndex}
@@ -182,15 +201,6 @@ export default function DataTable<TData extends object, TValue>({
               />
             )
           }
-          {csvFilename && (
-            <ExportButton
-              columns={columns}
-              rows={data}
-              useUtc={false}
-              disabled={isLoading || isError || data.length === 0}
-              fileNameKey={csvFilename}
-            />
-          )}
         </div>
       </div>
 
@@ -200,12 +210,22 @@ export default function DataTable<TData extends object, TValue>({
         </TableBody>
       </Table>
 
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={(pageIndex) => table.setPageIndex(pageIndex)}
-        disabled={isLoading || isError}
-      />
+      <div className="flex items-center justify-end space-x-2 pb-6">
+        <div className="flex items-center gap-2">
+          <RowsPerPage
+            currentPageSize={tableState.pagination.pageSize}
+            totalRows={table.getPrePaginationRowModel().rows.length}
+            onPageSizeChange={(pageSize) => table.setPageSize(pageSize)}
+            disabled={isLoading || isError}
+          />
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={(pageIndex) => table.setPageIndex(pageIndex)}
+            disabled={isLoading || isError}
+          />
+        </div>
+      </div>
     </div>
   );
 }
