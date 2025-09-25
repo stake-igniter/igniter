@@ -34,6 +34,7 @@ export interface StakingProcessProps {
   region?: string;
   onStakeCompleted: (result: StakingProcessStatus, transaction?: DbTransaction) => void;
   onSuppliersReceived: (suppliers: SupplierStake[]) => void;
+  disabled?: boolean
 }
 
 enum StakingProcessStep {
@@ -43,7 +44,7 @@ enum StakingProcessStep {
   Completed
 }
 
-export function StakingProcess({offer, onStakeCompleted, ownerAddress, region, onSuppliersReceived}: Readonly<StakingProcessProps>) {
+export function StakingProcess({offer, onStakeCompleted, ownerAddress, region, onSuppliersReceived, disabled}: Readonly<StakingProcessProps>) {
   const [open, setOpen] = useState(false);
   const [isCancellable, setIsCancellable] = useState<boolean>(true);
   const [stakingStatus, setStakingStatus] = useState<StakingProcessStatus>({
@@ -276,7 +277,7 @@ export function StakingProcess({offer, onStakeCompleted, ownerAddress, region, o
   return (
     <Dialog open={open} onOpenChange={handleOpenChanged}>
       <DialogTrigger asChild>
-        <Button>Stake</Button>
+        <Button disabled={disabled}>Stake</Button>
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(event) => event.preventDefault()}

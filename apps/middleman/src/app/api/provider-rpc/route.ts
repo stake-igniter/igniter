@@ -12,7 +12,8 @@ export async function POST(request: Request) {
   const schema = z.object({
     provider: z.string(),
     path: z.string(),
-    data: z.any()
+    data: z.any(),
+    simulate: z.boolean().optional()
   });
 
   let validatedData: z.infer<typeof schema>;

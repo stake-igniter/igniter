@@ -1,6 +1,13 @@
 'use client';
 
+import type { SupplierStake, TransactionMessage } from '@/lib/models/Transactions'
+import { useQuery } from '@tanstack/react-query'
 import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
+import { useWalletConnection } from '@igniter/ui/context/WalletConnection/index'
+import { Skeleton } from '@igniter/ui/components/skeleton'
+import { Button } from '@igniter/ui/components/button'
+import { GetSupplierStakingFee, SimulateFee } from '@/actions/Blockchain'
+import { requestSuppliers } from '@/lib/services/provider'
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import { getShortAddress, toCurrencyFormat } from '@igniter/ui/lib/utils'
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
@@ -11,7 +18,130 @@ import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/c
 import {Transaction} from "@igniter/db/middleman/schema";
 import React from "react";
 import AvatarByString from '@igniter/ui/components/AvatarByString'
-import {SupplierStake} from "@/lib/models/Transactions";
+
+function useSimulateFee(
+  selectedOffer: StakeDistributionOffer,
+  ownerAddress: string,
+) {
+    const {getPublicKey} = useWalletConnection()
+    const settings = useApplicationSettings();
+
+    return useQuery({
+        queryKey: ['simulate-fee', selectedOffer, ownerAddress],
+        queryFn: async () => {
+            const pubKey = await getPublicKey(ownerAddress)
+
+            const suppliers = await requestSuppliers(
+              selectedOffer,
+              settings!,
+              ownerAddress,
+              undefined,
+              true
+            );
+
+            const messages: Array<TransactionMessage> = []
+
+            for (const supplier of suppliers) {
+                messages.push(
+                  {
+                      typeUrl: '/pocket.supplier.MsgStakeSupplier',
+                      body: {
+                          ...supplier,
+                          // owner can't no longer change the services, not even in the first stake
+                          services: [],
+                          stakeAmount: (Number(supplier.stakeAmount) * 1e6).toString(),
+                          ownerAddress: ownerAddress,
+                          signer: ownerAddress,
+                      }
+                  },
+                  {
+                      typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+                      body: {
+                          // @ts-ignore
+                          fromAddress: ownerAddress,
+                          toAddress: supplier.operatorAddress,
+                          amount: (selectedOffer.operationalFundsAmount * 1e6).toString(),
+                      },
+                  }
+                )
+            }
+
+            return await SimulateFee({
+                messages,
+                signerPubKey: pubKey,
+            })
+        }
+    })
+}
+
+function useStakeSupplierFee() {
+    return useQuery({
+        queryKey: ['stake-supplier-fee'],
+        queryFn: GetSupplierStakingFee,
+    })
+}
+
+function useBalance(ownerAddress: string) {
+    const {getBalance} = useWalletConnection()
+
+    return useQuery({
+        queryKey: ['balance', ownerAddress],
+        queryFn: () => {
+            return getBalance(ownerAddress)
+        },
+    })
+}
+
+function useBalanceAndNetworkFee(
+  selectedOffer: StakeDistributionOffer,
+  ownerAddress: string,
+  amount: number,
+) {
+    const {
+        data: simulateFee,
+        isLoading: isLoadingSimulateFee,
+        isError: errorSimulateFee,
+        refetch: refetchSimulateFee,
+    } = useSimulateFee(selectedOffer, ownerAddress)
+    const {
+        data: stakeSupplierFee,
+        isLoading: isLoadingStakeSupplierFee,
+        isError: errorStakeSupplierFee,
+        refetch: refetchStakeSupplierFee,
+    } = useStakeSupplierFee()
+    const {
+        data: balance,
+        isError: errorBalance,
+        isLoading: isLoadingBalance,
+        refetch: refetchBalance,
+    } = useBalance(ownerAddress)
+
+
+    const suppliersToBeStaked = selectedOffer.stakeDistribution.reduce((acc, stakeDistribution) => acc + stakeDistribution.qty, 0)
+    const totalNetworkFee = (simulateFee?.fee || 0) + (stakeSupplierFee || 0) * suppliersToBeStaked
+
+    const balanceCoversTotal = (balance || 0) > amount + totalNetworkFee
+
+    return {
+        isLoadingFee: isLoadingSimulateFee || isLoadingStakeSupplierFee,
+        errorFee: errorSimulateFee || errorStakeSupplierFee,
+        refetchFee: () => {
+            if (errorSimulateFee) {
+                refetchSimulateFee()
+            }
+
+            if (errorStakeSupplierFee) {
+                refetchStakeSupplierFee()
+            }
+        },
+        networkFee: totalNetworkFee,
+        balance: balance || 0,
+        isLoadingBalance,
+        errorBalance,
+        refetchBalance,
+        balanceCoversTotal,
+    }
+}
 
 export interface ReviewStepProps {
     amount: number;
@@ -25,6 +155,22 @@ export interface ReviewStepProps {
 }
 
 export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddress, errorMessage, onSuppliersReceived, onBack, onClose}: Readonly<ReviewStepProps>) {
+    const {
+        isLoadingFee,
+        errorFee,
+        networkFee,
+        refetchFee,
+        balance,
+        isLoadingBalance,
+        errorBalance,
+        refetchBalance,
+        balanceCoversTotal
+    } = useBalanceAndNetworkFee(
+      selectedOffer,
+      ownerAddress,
+      amount,
+    )
+
     const [isShowingTransactionDetails, setIsShowingTransactionDetails] = useState<boolean>(false);
     const applicationSettings = useApplicationSettings();
 
@@ -33,11 +179,6 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
             return [...txs, ...Array.from({length: stakeDistribution.qty}, () => stakeDistribution.amount)];
         }, []);
     }, [selectedOffer]);
-
-    // TODO: Add way to get fee before signing transaction
-    const totalNetworkFee = useMemo(() => {
-        return prospectTransactions.length * 0.01;
-    }, [prospectTransactions]);
 
     const totalTransactionsToSign = useMemo(() => {
         return prospectTransactions.length * 2;
@@ -62,7 +203,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                     </span>
                     <span className="flex flex-row items-center gap-2">
                         <span className="font-mono text-[20px] text-[var(--color-white-1)]">
-                            {toCurrencyFormat(amount)}
+                            {toCurrencyFormat(amount, 2, 2)}
                         </span>
                         <span className="font-mono text-[20px] text-[var(--color-white-3)]">
                             $POKT
@@ -108,26 +249,32 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                         </span>
                     </span>
                 ) : null}
-                {/*<span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">*/}
-                {/*    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">*/}
-                {/*        <span>*/}
-                {/*            Network Fee*/}
-                {/*        </span>*/}
-                {/*        <QuickInfoPopOverIcon*/}
-                {/*            title="Network Fee"*/}
-                {/*            description="The amount of $POKT that will be charged as a network fee per transaction."*/}
-                {/*            url={''}*/}
-                {/*        />*/}
-                {/*    </span>*/}
-                {/*    <span className="flex flex-row gap-2">*/}
-                {/*        <span className="font-mono text-[14px] text-[var(--color-white-1)]">*/}
-                {/*            {totalNetworkFee}*/}
-                {/*        </span>*/}
-                {/*        <span className="font-mono text-[14px] text-[var(--color-white-3)]">*/}
-                {/*            $POKT*/}
-                {/*        </span>*/}
-                {/*    </span>*/}
-                {/*</span>*/}
+                <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
+                    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
+                        <span>
+                            Network Fee
+                        </span>
+                        <QuickInfoPopOverIcon
+                            title="Network Fee"
+                            description="The amount of $POKT that will be charged as a network fee per transaction."
+                            url={''}
+                        />
+                    </span>
+                    {isLoadingFee ? (
+                      <Skeleton className="w-[100px] h-5 bg-gray-700" />
+                    ) : errorFee ? (
+                      <span className={'text-sm'}>Failed to fetch <Button onClick={refetchFee} className={'ml-1 h-[30px]'}>Retry</Button></span>
+                    ): (
+                      <span className="flex flex-row gap-2">
+                        <span className="font-mono text-[14px] text-[var(--color-white-1)]">
+                            {toCurrencyFormat(networkFee, 6, 2)}
+                        </span>
+                        <span className="font-mono text-[14px] text-[var(--color-white-3)]">
+                            $POKT
+                        </span>
+                    </span>
+                    )}
+                </span>
                 <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
                     <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
                         <span>
@@ -148,7 +295,71 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                         </span>
                     </span>
                 </span>
+                <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
+                    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
+                        <span>
+                            Total
+                        </span>
+                        <QuickInfoPopOverIcon
+                          title="Total"
+                          description="The amount of $POKT that you will spend staking your nodes."
+                          url={''}
+                        />
+                    </span>
+                    {isLoadingFee ? (
+                      <Skeleton className="w-[100px] h-5 bg-gray-700" />
+                    ) : errorFee ? (
+                        <span className={'text-sm'}>Failed to fetch <Button onClick={refetchFee} className={'ml-1 h-[30px]'}>Retry</Button></span>
+                    ): (
+                      <span className="flex flex-row gap-2">
+                        <span className="font-mono text-[14px] text-[var(--color-white-1)]">
+                            {toCurrencyFormat(networkFee + amount, 6, 2)}
+                        </span>
+                        <span className="font-mono text-[14px] text-[var(--color-white-3)]">
+                            $POKT
+                        </span>
+                    </span>
+                    )}
+                </span>
+                <span className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
+                    <span className="flex flex-row items-center gap-2 text-[14px] text-[var(--color-white-3)]">
+                        <span>
+                            Balance
+                        </span>
+                        <QuickInfoPopOverIcon
+                          title="Balance"
+                          description="The amount of $POKT that you have available."
+                          url={''}
+                        />
+                    </span>
+                    {isLoadingBalance ? (
+                      <Skeleton className="w-[100px] h-5 bg-gray-700" />
+                    ) : errorBalance ? (
+                        <span className={'text-sm'}>Failed to fetch <Button onClick={() => refetchBalance()} className={'ml-1 h-[30px]'}>Retry</Button></span>
+                    ): (
+                      <span className="flex flex-row gap-2">
+                        <span className="font-mono text-[14px] text-[var(--color-white-1)]">
+                            {toCurrencyFormat(balance, 6, 2)}
+                        </span>
+                        <span className="font-mono text-[14px] text-[var(--color-white-3)]">
+                            $POKT
+                        </span>
+                    </span>
+                    )}
+                </span>
             </div>
+
+            {!balanceCoversTotal && !!balance && !!networkFee && (
+              <div className="flex flex-col bg-[#f4424257] p-0 rounded-[8px]">
+                <span className="text-[14px] font-medium text-[var(--color-white-1)] p-[11px_16px]">
+                    Oops. It looks like you don't have enough $POKT to cover the total amount of stake.
+                    <br/>
+                    <br/>
+                     You won't be able to stake your nodes until you have enough $POKT to cover the total amount of stake.
+                </span>
+              </div>
+            )}
+
 
             <div key="stake-details" className="flex flex-col p-0 rounded-[8px] border border-[var(--black-dividers)]">
                 <div className="flex flex-row items-center justify-between px-4 py-3 border-b border-[var(--black-dividers)]">
@@ -245,6 +456,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
             </div>
 
             <StakingProcess
+              disabled={isLoadingFee || errorFee || isLoadingBalance || errorBalance || !balanceCoversTotal}
               ownerAddress={ownerAddress}
               offer={selectedOffer}
               onStakeCompleted={onStakeCompleted}

@@ -2,7 +2,7 @@ import { StakeDistributionOffer } from "@/lib/models/StakeDistributionOffer";
 import {SupplierStake} from "@/lib/models/Transactions";
 import {ApplicationSettings} from "@igniter/db/middleman/schema";
 
-export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, ownerAddress: string, region: string = ''): Promise<SupplierStake[]> {
+export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, ownerAddress: string, region: string = '', simulate = false): Promise<SupplierStake[]> {
     try {
         const response = await fetch("/api/provider-rpc", {
             method: "POST",
@@ -18,6 +18,7 @@ export async function requestSuppliers(stakeOffer: StakeDistributionOffer, setti
                     revSharePercentage: Number(settings.fee),
                     items: stakeOffer.stakeDistribution,
                     ownerAddress,
+                    simulate
                 },
             }),
         });
