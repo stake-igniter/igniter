@@ -93,6 +93,7 @@ export default function TransactionsTable() {
             isLoading={isLoading}
             isError={isError}
             refetch={refetch}
+            csvFilename={'transactions'}
         />
     )
 }

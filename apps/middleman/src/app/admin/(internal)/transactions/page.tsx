@@ -14,11 +14,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   return (
-    <>
+    <div className={'mx-30 py-10'}>
       <h1>Transactions</h1>
       <div className="container mx-auto ">
         <TransactionsTable />
       </div>
-    </>
+    </div>
   );
 }

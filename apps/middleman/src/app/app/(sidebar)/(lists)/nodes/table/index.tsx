@@ -7,6 +7,21 @@ import { useQuery } from '@tanstack/react-query'
 import { DetailItem, useDetailContext } from '@/app/detail/Detail'
 import { useEffect } from 'react'
 
+const getHeight = (transactions: NodeDetails['transactions']) => {
+  const stakeTxs = transactions
+    ?.filter((tx) => tx.type === "Stake");
+
+  if (!stakeTxs || stakeTxs.length === 0) return undefined;
+
+  const mostRecentStake = stakeTxs
+    .slice()
+    .sort((a, b) =>
+      new Date(b.createdAt!).getTime() -
+      new Date(a.createdAt!).getTime()
+    )[0];
+
+  return mostRecentStake?.executionHeight;
+}
 
 export default function NodesTable() {
   const { data, isError, isLoading, refetch } = useQuery({
@@ -31,7 +46,7 @@ export default function NodesTable() {
               status:  node.status,
               provider: node.provider || null,
               stakeAmount: Number(node.stakeAmount),
-              operationalFundsAmount: node.balance,
+              operationalFundsAmount: Number(node.balance.toString()),
               transactions: node.transactionsToNodes.map((transaction) => transaction.transaction).map(t => ({
                 id: t.id,
                 type: t.type,
@@ -64,12 +79,16 @@ export default function NodesTable() {
     }
   }, [data])
 
-  const nodes: Array<NodeDetails> = data?.map((node) => ({
-    ...node,
-    provider: node.provider ?? null,
-    stakeAmount: node.stakeAmount,
-    transactions: node.transactionsToNodes.map((transaction) => transaction.transaction),
-  })) || [];
+  const nodes: Array<NodeDetails> = data?.map((node) => {
+    const transactions = node.transactionsToNodes.map((transaction) => transaction.transaction)
+    return {
+      ...node,
+      provider: node.provider ?? null,
+      stakeAmount: node.stakeAmount,
+      transactions,
+      height: getHeight(transactions) || 0,
+    }
+  }) || [];
 
   return (
     <DataTable
@@ -80,6 +99,7 @@ export default function NodesTable() {
       isLoading={isLoading}
       isError={isError}
       refetch={refetch}
+      csvFilename={'nodes'}
     />
   )
 }

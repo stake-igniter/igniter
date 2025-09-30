@@ -1,5 +1,6 @@
 "use client";
 
+import type { CsvColumnDef } from '@igniter/ui/lib/csv'
 import {NodeWithDetails, Provider, Transaction} from '@igniter/db/middleman/schema'
 import {NodeStatus} from '@igniter/db/middleman/enums'
 import {
@@ -45,16 +46,18 @@ const createAddressCellRenderer = (attribute: keyof Pick<NodeDetails, 'address' 
       );
 };
 
-export const columns: ColumnDef<NodeDetails>[] = [
+export const columns: (ColumnDef<NodeDetails> & CsvColumnDef<NodeDetails>)[] = [
   {
     accessorKey: "address",
     header: "Address",
     cell: createAddressCellRenderer('address'),
+    csvFormatterFn: (item: NodeDetails) => item.address,
   },
   {
     accessorKey: "ownerAddress",
     header: "Owner",
     cell: createAddressCellRenderer('ownerAddress'),
+    csvFormatterFn: (item: NodeDetails) => item.ownerAddress,
   },
   {
     accessorKey: "provider",
@@ -73,30 +76,17 @@ export const columns: ColumnDef<NodeDetails>[] = [
       const provider = row.getValue("provider") as Provider;
       return provider.name.toLowerCase().includes(value.toLowerCase());
     },
+    csvFormatterFn: (item: NodeDetails) => item.provider?.name || "Imported Node",
   },
   {
     id: "height",
     header: "Height",
-    accessorFn: (node) => {
-      const stakeTxs = node.transactions
-        ?.filter((tx) => tx.type === "Stake");
-
-      if (!stakeTxs || stakeTxs.length === 0) return undefined;
-
-      const mostRecentStake = stakeTxs
-        .slice()
-        .sort((a, b) =>
-          new Date(b.createdAt!).getTime() -
-          new Date(a.createdAt!).getTime()
-        )[0];
-
-      return mostRecentStake?.executionHeight;
-    },
-    cell: ({ getValue }) => {
-      const height = getValue<number | undefined>();
+    accessorKey: "height",
+    csvFormatterFn: (item: NodeDetails) => item.height.toString(),
+    cell: ({ row }) => {
       return (
         <span className="font-mono flex justify-end">
-          {height ?? "-"}
+          {row.original.height ?? "-"}
         </span>
       );
     },
@@ -113,10 +103,11 @@ export const columns: ColumnDef<NodeDetails>[] = [
         </span>
       );
     },
+    csvFormatterFn: (item: NodeDetails) => item.status.charAt(0).toUpperCase() + item.status.slice(1),
   },
   {
     accessorKey: "stakeAmount",
-    header: "Stake Amount",
+    header: "Stake Amount (POKT)",
     cell: ({ row }) => {
       const stakeAmount = amountToPokt(row.getValue("stakeAmount")) as number;
 
@@ -127,10 +118,11 @@ export const columns: ColumnDef<NodeDetails>[] = [
         </div>
       );
     },
+    csvFormatterFn: (item: NodeDetails) => amountToPokt(item.stakeAmount).toString(),
   },
   {
     accessorKey: "balance",
-    header: "Balance",
+    header: "Balance (POKT)",
     cell: ({ row }) => {
       const balance = row.getValue("balance") as number;
       return (
@@ -140,6 +132,7 @@ export const columns: ColumnDef<NodeDetails>[] = [
         </div>
       );
     },
+    csvFormatterFn: (item: NodeDetails) => amountToPokt(item.balance.toString()).toString(),
   },
   {
     accessorKey: "createdAt",
@@ -152,6 +145,7 @@ export const columns: ColumnDef<NodeDetails>[] = [
         </span>
       );
     },
+    csvFormatterFn: (item: NodeDetails) => new Date(item.createdAt).toLocaleString(),
   },
   {
     id: "actions",
@@ -173,7 +167,7 @@ export const columns: ColumnDef<NodeDetails>[] = [
                   ownerAddress: node.ownerAddress,
                   status: node.status,
                   stakeAmount: Number(node.stakeAmount),
-                  operationalFundsAmount: node.balance,
+                  operationalFundsAmount: Number(node.balance.toString()),
                   provider: node.provider,
                   transactions: node.transactions.map(t => ({
                     id: t.id,
@@ -208,6 +202,18 @@ export const filters: FilterGroup<NodeDetails>[] = [
         {
           label: "All Nodes",
           value: "",
+          column: "status",
+          isDefault: true,
+        },
+        {
+          label: "Staked",
+          value: "staked",
+          column: "status",
+          isDefault: true,
+        },
+        {
+          label: "Unstaking",
+          value: "unstaking",
           column: "status",
           isDefault: true,
         },

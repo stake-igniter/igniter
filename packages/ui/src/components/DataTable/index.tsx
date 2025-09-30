@@ -1,4 +1,5 @@
 "use client";
+import type { CsvColumnDef } from '../../lib/csv'
 import React from "react";
 import {
   ColumnDef,
@@ -18,12 +19,13 @@ import {
   TableCell,
   TableRow,
 } from "@igniter/ui/components/table";
-
 import FilterDropdown from "./FilterDropdown";
 import SortDropdown from "./SortDropdown";
 import Pagination from "./Pagination";
 import { Skeleton } from '../skeleton'
 import { Button } from '../button'
+import ExportButton from '../ExportButton'
+import RowsPerPage from './RowsPerPage'
 
 export interface FilterItem<TData> {
   label: string;
@@ -44,18 +46,19 @@ export interface SortOption<TData> {
   isDefault?: boolean;
 }
 
-export interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+export interface DataTableProps<TData extends object, TValue> {
+  columns: (ColumnDef<TData, TValue> & CsvColumnDef<TData>)[];
   data: TData[];
   filters: FilterGroup<TData>[];
   sorts: SortOption<TData>[][];
   isLoading?: boolean;
   skeletonRows?: number;
   isError?: boolean
+  csvFilename?: string
   refetch?: () => void
 }
 
-export default function DataTable<TData, TValue>({
+export default function DataTable<TData extends object, TValue>({
   columns,
   data,
   filters,
@@ -64,6 +67,7 @@ export default function DataTable<TData, TValue>({
   skeletonRows = 6,
   isError,
   refetch,
+  csvFilename,
 }: DataTableProps<TData, TValue>) {
   const defaultSort = sorts.flat().find((sort) => sort.isDefault);
 
@@ -86,14 +90,23 @@ export default function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    autoResetPageIndex: true,
+    initialState: {
+      pagination: {
+        pageSize: 25,
+        pageIndex: 0,
+      },
+    },
     state: {
       columnFilters,
       sorting,
     },
   });
 
+  const tableState = table.getState();
+
   const totalPages = table.getPageCount();
-  const currentPage = table.getState().pagination.pageIndex;
+  const currentPage = tableState.pagination.pageIndex;
 
   const defaultFilters = filters.flatMap((filterGroup) =>
     filterGroup.items.flatMap((filter) => filter.find((f) => f.isDefault) || [])
@@ -157,6 +170,15 @@ export default function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center justify-end space-x-2 pb-6">
         <div className="flex items-center gap-2">
+          {csvFilename && (
+            <ExportButton
+              columns={columns}
+              rows={() => table.getPrePaginationRowModel().rows.map(r => r.original)}
+              useUtc={false}
+              disabled={isLoading || isError || data.length === 0}
+              fileNameKey={csvFilename}
+            />
+          )}
           {filters.map((filterGroup, groupIndex) => (
             <FilterDropdown
               key={groupIndex}
@@ -188,12 +210,22 @@ export default function DataTable<TData, TValue>({
         </TableBody>
       </Table>
 
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={(pageIndex) => table.setPageIndex(pageIndex)}
-        disabled={isLoading || isError}
-      />
+      <div className="flex items-center justify-end space-x-2 pb-6">
+        <div className="flex items-center gap-2">
+          <RowsPerPage
+            currentPageSize={tableState.pagination.pageSize}
+            totalRows={table.getPrePaginationRowModel().rows.length}
+            onPageSizeChange={(pageSize) => table.setPageSize(pageSize)}
+            disabled={isLoading || isError}
+          />
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={(pageIndex) => table.setPageIndex(pageIndex)}
+            disabled={isLoading || isError}
+          />
+        </div>
+      </div>
     </div>
   );
 }

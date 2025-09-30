@@ -129,10 +129,10 @@ export async function listPrivateKeysByAddressGroup(addressGroupId: number, stat
   })
 }
 
-// TODO: when we manage the state of the keys we must add a state filter to only query the staked keys
 export async function listStakedAddresses() {
   const dbClient = getDbClient()
   return await dbClient.db.query.keysTable.findMany({
+    where: ((keysTable, { eq }) => eq(keysTable.state, KeyState.Staked)),
     columns: {
       address: true,
     },
@@ -155,7 +155,7 @@ export async function lockAvailableKeys(
     .where(
       and(
         eq(keysTable.addressGroupId, addressGroupId),
-        eq(keysTable.state, KeyState.Available),
+        eq(keysTable.state, KeyState.Staked),
       ),
     )
     .limit(count)

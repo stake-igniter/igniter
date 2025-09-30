@@ -1,16 +1,14 @@
 "use client";
 
+import type { CsvColumnDef } from '@igniter/ui/lib/csv'
 import { ProviderFee, TransactionStatus, TransactionType } from '@igniter/db/middleman/enums'
 import {ActivitySuccessIcon, ActivityWarningIcon, CopyIcon, RightArrowIcon, WarningIcon} from '@igniter/ui/assets'
 import { Button } from '@igniter/ui/components/button'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
-import {amountToPokt, getShortAddress} from '@igniter/ui/lib/utils'
-import {CellContext, ColumnDef} from '@tanstack/react-table'
+import { amountToPokt } from '@igniter/ui/lib/utils'
+import { ColumnDef } from '@tanstack/react-table'
 import { Operation, useAddItemToDetail } from '@/app/detail/Detail'
 import Amount from '@igniter/ui/components/Amount'
-import {useCallback} from "react";
-import {toast} from "sonner";
-import {NodeDetails} from "@/app/app/(sidebar)/(lists)/nodes/table/columns";
 
 export type Transaction = {
   id: number;
@@ -28,7 +26,7 @@ export type Transaction = {
   typeProviderFee?: ProviderFee | null,
 };
 
-export const columns: ColumnDef<Transaction>[] = [
+export const columns: (ColumnDef<Transaction> & CsvColumnDef<Transaction>)[] = [
   {
     accessorKey: "type",
     header: "Type",
@@ -55,6 +53,7 @@ export const columns: ColumnDef<Transaction>[] = [
       const rowValue = row.getValue(columnId);
       return rowValue === value;
     },
+    csvFormatterFn: (item) => item.type.charAt(0).toUpperCase() + item.type.slice(1)
   },
   {
     accessorKey: "status",
@@ -69,11 +68,13 @@ export const columns: ColumnDef<Transaction>[] = [
         </div>
       );
     },
+    csvFormatterFn: ({status}) => status.charAt(0).toUpperCase() + status.slice(1),
   },
   {
     id: "height",
     header: "Height",
-    cell: ({row}) => row.original.executionHeight
+    cell: ({row}) => row.original.executionHeight,
+    csvFormatterFn: (item) => item.executionHeight.toString(),
   },
    {
     accessorKey: "createdAt",
@@ -86,10 +87,11 @@ export const columns: ColumnDef<Transaction>[] = [
         </span>
       );
     },
+     csvFormatterFn: (item) => new Date(item.createdAt).toLocaleString(),
   },
   {
     accessorKey: "totalValue",
-    header: "Total Value",
+    header: "Total Value (POKT)",
     cell: ({ row }) => {
       const totalValue = row.getValue("totalValue") as number;
       return (
@@ -98,6 +100,7 @@ export const columns: ColumnDef<Transaction>[] = [
         </div>
       );
     },
+    csvFormatterFn: item => amountToPokt(item.totalValue.toString()).toString(),
   },
   {
     id: "actions",
