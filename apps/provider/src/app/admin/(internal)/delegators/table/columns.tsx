@@ -41,6 +41,9 @@ export const columns: ColumnDef<Delegator>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Created At',
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const createdAt = new Date(row.getValue('createdAt'))
       return (
@@ -51,8 +54,7 @@ export const columns: ColumnDef<Delegator>[] = [
     },
   },
   {
-    accessorKey: 'enabled',
-    header: 'Enabled',
+    id: 'enabled',
     cell: ({ row }) => {
       const delegator = row.original
       const [isEnabled, setIsEnabled] = useState(delegator.enabled)

@@ -17,9 +17,7 @@ export default async function Page() {
   return (
     <>
       <h1>Nodes</h1>
-      <div className="container mx-auto ">
-        <NodesTable />
-      </div>
+      <NodesTable />
     </>
   );
 }

@@ -111,11 +111,11 @@ export const addressGroupServicesTable = pgTable(
   {
     addressGroupId: integer('address_group_id')
       .notNull()
-      .references(() => addressGroupTable.id),
+      .references(() => addressGroupTable.id, { onDelete: 'cascade' }),
 
     serviceId: varchar('service_id')
       .notNull()
-      .references(() => servicesTable.serviceId),
+      .references(() => servicesTable.serviceId, { onDelete: 'cascade' }),
 
     addSupplierShare: boolean().notNull().default(false),
 

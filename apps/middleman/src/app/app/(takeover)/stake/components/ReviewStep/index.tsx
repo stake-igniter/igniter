@@ -118,9 +118,11 @@ function useBalanceAndNetworkFee(
 
 
     const suppliersToBeStaked = selectedOffer.stakeDistribution.reduce((acc, stakeDistribution) => acc + stakeDistribution.qty, 0)
+    const operationalFunds = suppliersToBeStaked * selectedOffer.operationalFundsAmount
+
     const totalNetworkFee = (simulateFee?.fee || 0) + (stakeSupplierFee || 0) * suppliersToBeStaked
 
-    const balanceCoversTotal = (balance || 0) > amount + totalNetworkFee
+    const balanceCoversTotal = (balance || 0) > amount + totalNetworkFee + operationalFunds
 
     return {
         isLoadingFee: isLoadingSimulateFee || isLoadingStakeSupplierFee,
@@ -185,6 +187,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
     }, [prospectTransactions])
 
     const nodes = applicationSettings?.minimumStake ? amount / applicationSettings.minimumStake : 0;
+    const operationalFunds = nodes * selectedOffer.operationalFundsAmount;
 
     return (
         <div
@@ -288,7 +291,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                     </span>
                     <span className="flex flex-row gap-2">
                         <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                            {toCurrencyFormat(prospectTransactions.length * selectedOffer.operationalFundsAmount, 2, 2)}
+                            {toCurrencyFormat(operationalFunds, 2, 2)}
                         </span>
                         <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                             $POKT
@@ -313,7 +316,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                     ): (
                       <span className="flex flex-row gap-2">
                         <span className="font-mono text-[14px] text-[var(--color-white-1)]">
-                            {toCurrencyFormat(networkFee + amount, 6, 2)}
+                            {toCurrencyFormat(networkFee + amount + operationalFunds, 6, 2)}
                         </span>
                         <span className="font-mono text-[14px] text-[var(--color-white-3)]">
                             $POKT

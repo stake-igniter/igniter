@@ -79,6 +79,9 @@ export const columns: (ColumnDef<Transaction> & CsvColumnDef<Transaction>)[] = [
     {
         accessorKey: "createdAt",
         header: "Created At",
+        meta: {
+            headerAlign: 'center'
+        },
         cell: ({ row }) => {
             const createdAt = new Date(row.getValue("createdAt"));
             return (
@@ -91,7 +94,10 @@ export const columns: (ColumnDef<Transaction> & CsvColumnDef<Transaction>)[] = [
     },
     {
         accessorKey: "totalValue",
-        header: "Total Value (POKT)",
+        header: "Total POKT",
+        meta: {
+            headerAlign: 'right'
+        },
         cell: ({ row }) => {
             const totalValue = row.getValue("totalValue") as number;
             return (

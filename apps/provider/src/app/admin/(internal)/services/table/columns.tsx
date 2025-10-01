@@ -11,6 +11,9 @@ export const columns: ColumnDef<Service>[] = [
   {
     accessorKey: "endpoints",
     header: "Protocols",
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const endpoints = row.getValue("endpoints") as Service["endpoints"];
 
@@ -19,7 +22,7 @@ export const columns: ColumnDef<Service>[] = [
       }
 
       return (
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-center">
           {endpoints.map((endpoint, index) => (
             <div key={`protocol-${endpoint.rpcType}-${index}`} title={endpoint.url} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full cursor-pointer">
               {endpoint.rpcType}
@@ -32,6 +35,9 @@ export const columns: ColumnDef<Service>[] = [
   {
     accessorKey: "updatedAt",
     header: "Updated At",
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const updatedAt = new Date(row.getValue("updatedAt"));
       return (

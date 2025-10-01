@@ -11,7 +11,7 @@ export default function ExportButton<T extends object>({ disabled, ...props }: E
     <Button
       variant={'outline'}
       disabled={disabled}
-      className={'h-[38px] w-20'}
+      className={'h-9 w-20'}
       onClick={() => exportToCsvFromClient(props)}
     >
       <HardDriveDownload />

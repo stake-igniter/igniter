@@ -34,8 +34,9 @@ export default function RegionsTable() {
             columns={[
                 ...columns,
                 {
-                    accessorKey: "actions",
-                    header: "Actions",
+                    accessorKey: '',
+                    header: '',
+                    id: "actions",
                     cell: ({ row }) => {
                         const region = row.original;
 

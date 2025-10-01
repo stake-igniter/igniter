@@ -68,6 +68,9 @@ export const columns: Array<ColumnDef<Key>> = [
   {
     accessorKey: "state",
     header: "State",
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const status = row.getValue("state") as KeyState;
       return (
@@ -80,6 +83,9 @@ export const columns: Array<ColumnDef<Key>> = [
   {
     accessorKey: "delegator",
     header: "Delivered To",
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const delegator = row.getValue("delegator") as Key['delegator'];
 
@@ -93,6 +99,9 @@ export const columns: Array<ColumnDef<Key>> = [
   {
     accessorKey: "createdAt",
     header: "Created At",
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const createdAt = new Date(row.getValue("createdAt"));
       return (

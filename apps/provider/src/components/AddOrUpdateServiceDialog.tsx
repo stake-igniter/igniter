@@ -152,14 +152,6 @@ export function AddOrUpdateServiceDialog({
     })();
   }, []);
 
-  const handleCancel = useCallback(() => {
-    if (serviceOnChain) {
-      setIsCanceling(true);
-    } else {
-      onClose?.(false);
-    }
-  }, [serviceOnChain, setIsCanceling, onClose]);
-
   const form = useForm<z.infer<typeof CreateServiceFormSchema>>({
     resolver: zodResolver(CreateServiceFormSchema),
     defaultValues: {
@@ -168,6 +160,16 @@ export function AddOrUpdateServiceDialog({
       endpoints: service?.endpoints ?? [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }],
     },
   });
+
+  const {isDirty} = form.formState
+
+  const handleCancel = useCallback(() => {
+    if (serviceOnChain && isDirty) {
+      setIsCanceling(true);
+    } else {
+      onClose?.(false);
+    }
+  }, [isDirty, serviceOnChain, setIsCanceling, onClose]);
 
   const serviceId = form.watch('serviceId');
 
@@ -525,16 +527,10 @@ export function AddOrUpdateServiceDialog({
             </div>
           </div>
         )}
-        {isCreatingService && (
+        {(isCreatingService || isUpdatingService) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-background animate-fade-in z-10">
             <LoaderIcon className="animate-spin" />
-            <p className="mt-4">Adding &#34;{serviceOnChain?.name}&#34;</p>
-          </div>
-        )}
-        {isUpdatingService && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background animate-fade-in z-10">
-            <LoaderIcon className="animate-spin" />
-            <p className="mt-4">Updating &#34;{serviceOnChain?.name}&#34;</p>
+            <p className="mt-4">Saving &#34;{serviceOnChain?.name}&#34;</p>
           </div>
         )}
       </DialogContent>

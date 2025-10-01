@@ -82,6 +82,9 @@ export const columns: (ColumnDef<NodeDetails> & CsvColumnDef<NodeDetails>)[] = [
     id: "height",
     header: "Height",
     accessorKey: "height",
+    meta: {
+      headerAlign: 'right'
+    },
     csvFormatterFn: (item: NodeDetails) => item.height.toString(),
     cell: ({ row }) => {
       return (
@@ -95,6 +98,9 @@ export const columns: (ColumnDef<NodeDetails> & CsvColumnDef<NodeDetails>)[] = [
   {
     accessorKey: "status",
     header: "Status",
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const status = row.getValue("status") as NodeStatus;
       return (
@@ -108,6 +114,9 @@ export const columns: (ColumnDef<NodeDetails> & CsvColumnDef<NodeDetails>)[] = [
   {
     accessorKey: "stakeAmount",
     header: "Stake Amount (POKT)",
+    meta: {
+      headerAlign: 'right'
+    },
     cell: ({ row }) => {
       const stakeAmount = amountToPokt(row.getValue("stakeAmount")) as number;
 
@@ -123,6 +132,9 @@ export const columns: (ColumnDef<NodeDetails> & CsvColumnDef<NodeDetails>)[] = [
   {
     accessorKey: "balance",
     header: "Balance (POKT)",
+    meta: {
+      headerAlign: 'right'
+    },
     cell: ({ row }) => {
       const balance = row.getValue("balance") as number;
       return (
@@ -137,6 +149,9 @@ export const columns: (ColumnDef<NodeDetails> & CsvColumnDef<NodeDetails>)[] = [
   {
     accessorKey: "createdAt",
     header: "Created At",
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const createdAt = new Date(row.getValue("createdAt"));
       return (

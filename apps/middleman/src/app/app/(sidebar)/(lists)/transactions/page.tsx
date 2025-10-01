@@ -16,9 +16,7 @@ export default async function Page() {
   return (
     <>
       <h1>Transactions</h1>
-      <div className="container mx-auto ">
-        <TransactionsTable />
-      </div>
+      <TransactionsTable />
     </>
   );
 }
