@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import React from 'react'
-import NodesTable from '@/app/app/(sidebar)/(lists)/nodes/table'
+import NodesTable from '@/app/app/(lists)/nodes/table'
 import { GetAppName } from '@/actions/ApplicationSettings'
 
 export const dynamic = "force-dynamic";

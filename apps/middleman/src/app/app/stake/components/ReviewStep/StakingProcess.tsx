@@ -18,8 +18,8 @@ import {SignedTransaction, SupplierStake, TransactionMessage,} from "@/lib/model
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {CreateSignedMemo, CreateStakeTransaction} from "@/actions/Stake";
-import {StageStatus} from "@/app/app/(takeover)/stake/types";
-import {stageFailed, stageSucceeded} from "@/app/app/(takeover)/stake/utils";
+import {StageStatus} from "@/app/app/stake/types";
+import {stageFailed, stageSucceeded} from "@/app/app/stake/utils";
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
 
 export interface StakingProcessStatus {

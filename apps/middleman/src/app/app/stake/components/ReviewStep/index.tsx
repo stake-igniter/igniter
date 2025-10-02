@@ -14,7 +14,7 @@ import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon"
 import {CaretSmallIcon, CornerIcon} from "@igniter/ui/assets";
 import {useMemo, useState} from "react"
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
-import {StakingProcess, StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
+import {StakingProcess, StakingProcessStatus} from "@/app/app/stake/components/ReviewStep/StakingProcess";
 import {Transaction} from "@igniter/db/middleman/schema";
 import React from "react";
 import AvatarByString from '@igniter/ui/components/AvatarByString'

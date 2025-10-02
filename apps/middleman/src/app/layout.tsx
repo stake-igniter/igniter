@@ -9,7 +9,6 @@ import { AppTopBar } from "@igniter/ui/components/AppTopBar/index";
 import PriceWidget from "@/app/components/PriceWidget";
 import CurrentUser from "@/app/components/CurrentUser";
 import { CurrencyContextProvider } from "@igniter/ui/context/currency";
-import { auth } from "@/auth";
 import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
 import QuickDetailProvider from '@/app/detail/Detail'

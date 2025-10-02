@@ -1,5 +1,5 @@
-import {StageStatus} from "@/app/app/(takeover)/stake/types";
-import {StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
+import {StageStatus} from "@/app/app/stake/types";
+import {StakingProcessStatus} from "@/app/app/stake/components/ReviewStep/StakingProcess";
 
 export function stageSucceeded(stage: StageStatus) {
   return stage === 'success';
