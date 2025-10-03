@@ -154,7 +154,7 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
         if (amount < settings?.minimumStake) {
           update.remediationHistory = addOrUpdateRemediationHistory(
             {
-              message: `The operational funds for this supplier (used to submit claim and proof transactions) are below the providers desired threshold (${settings?.minimumStake} uPokt)`,
+              message: `The stake for this supplier is below the providers desired threshold (${settings?.minimumStake} uPokt)`,
               reason: RemediationHistoryEntryReason.SupplierStakeTooLow,
               timestamp: Date.now(),
             },

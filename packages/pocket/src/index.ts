@@ -364,7 +364,7 @@ export class PocketBlockchain {
           transactionHash: e.txId,
           success: false,
           message: 'Transaction timed out. This does not indicate a failure.',
-          code: 42,
+          code: 42, // Timeout Transaction error code. See: https://github.com/cosmos/cosmos-sdk/blob/main/types/errors/errors.go
         }
       }
 

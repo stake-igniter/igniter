@@ -110,18 +110,8 @@ export default class Keys {
     const rows = await this.dbClient.db
       .select({
         total: sql<number>`count(*)::int`.as('total'),
-        minId: sql<number | null>`min(
-        ${schema.keysTable.id}
-        )
-        :
-        :
-        int`.as('minId'),
-        maxId: sql<number | null>`max(
-        ${keysTable.id}
-        )
-        :
-        :
-        int`.as('maxId'),
+        minId: sql<number | null>`min(${schema.keysTable.id})::int`.as('minId'),
+        maxId: sql<number | null>`max(${keysTable.id})::int`.as('maxId'),
       })
       .from(keysTable)
 

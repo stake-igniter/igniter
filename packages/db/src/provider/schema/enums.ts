@@ -148,6 +148,8 @@ export enum RemediationHistoryEntryReason {
  * These statuses can be used to identify the result of a transaction operation,
  * including success, various errors, or specific system-level issues.
  *
+ * See: https://github.com/cosmos/cosmos-sdk/blob/main/types/errors/errors.go
+ *
  * Enum values include:
  * - Success: Indicates the transaction was processed successfully.
  * - TxDecode: Error related to decoding the transaction.
@@ -233,6 +235,6 @@ export enum TransactionResult {
   NotFound = 38,
   IO = 39,
   AppConfig = 40,
-  InvalidGasLimit = 4,
+  InvalidGasLimit = 41,
   TxTimeout = 42,
 }
