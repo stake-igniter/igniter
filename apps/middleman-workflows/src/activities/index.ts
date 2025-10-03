@@ -341,7 +341,7 @@ export const delegatorActivities = (dal: DAL, pocketRpcClient: PocketBlockchain,
 
       const addresses = newlyStakedNodes.map(({ address }) => address)
 
-      await providerService.markStaked(addresses, provider)
+      await providerService.markOwnerStaked(addresses, provider)
 
       return {
         success: true,

@@ -16,6 +16,7 @@
     "@igniter/temporal": "workspace:*",
     "@igniter/commons": "workspace:*",
     "@igniter/pocket": "workspace:*",
+    "@igniter/domain": "workspace:*",
     "@pokt-foundation/pocketjs-provider": "2.2.1",
     "@pokt-foundation/pocketjs-signer": "2.2.1",
     "@pokt-foundation/pocketjs-transaction-builder": "2.2.1",

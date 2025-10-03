@@ -39,14 +39,16 @@ export const applicationSettingsTable = pgTable('application_settings', {
   ownerEmail: varchar({ length: 255 }),
   chainId: chainIdEnum().notNull(),
   minimumStake: integer().notNull(),
+  initialOperationalFunds: integer().default(5),
+  minimumOperationalFunds: integer().default(2),
   isBootstrapped: boolean().notNull(),
   rpcUrl: varchar().notNull(),
   indexerApiUrl: varchar(),
   updatedAtHeight: varchar(),
   createdAt: timestamp().defaultNow(),
   createdBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
-  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
   updatedBy: varchar({ length: 255 }).references(() => usersTable.identity).notNull(),
+  updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
 })
 
 /**

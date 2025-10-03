@@ -19,9 +19,14 @@ import {Dialog, DialogContent, DialogFooter, DialogTitle,} from "@igniter/ui/com
 import {
   getDefaultUrlWithSchemeByRpcType,
   getEndpointInterpolatedUrl,
-  PROTOCOL_DEFAULT_TYPE,
-  RPCType
-} from "@/lib/models/supplier";
+} from "@igniter/domain/provider/utils";
+import {
+    PROTOCOL_DEFAULT_TYPE,
+} from '@igniter/domain/provider/constants';
+import {
+    RPCType,
+    ServiceRevenueShare,
+} from '@igniter/pocket';
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {InfoIcon, LoaderIcon} from "@igniter/ui/assets";
 import urlJoin from "url-join";
@@ -40,7 +45,7 @@ interface ServiceOnChain {
 const endpointSchema = z.object({
   url: z.string(),
   rpcType: z.nativeEnum(RPCType).default(PROTOCOL_DEFAULT_TYPE),
-}).transform(data => ({
+}).transform((data: ServiceRevenueShare) => ({
   ...data,
   url: data.url || getDefaultUrlWithSchemeByRpcType(data.rpcType)
 }));
@@ -382,8 +387,8 @@ export function AddOrUpdateServiceDialog({
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {Object.values(RPCType).map((type) => (
-                                      <SelectItem key={type} value={type}>
+                                    {Object.values(RPCType).map((type: RPCType) => (
+                                      <SelectItem key={`type-${type}`} value={type}>
                                         {type}
                                       </SelectItem>
                                     ))}

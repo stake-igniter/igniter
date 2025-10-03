@@ -1,8 +1,13 @@
 import {
+  BroadcastTxError,
+  calculateFee,
+  GasPrice,
   ProtobufRpcClient,
   QueryClient,
-  StargateClient,
+  SigningStargateClient,
+  StargateClient, TimeoutError,
 } from '@cosmjs/stargate'
+import {DirectSecp256k1Wallet, GeneratedType, Registry} from '@cosmjs/proto-signing'
 import {
   Comet38Client,
   connectComet,
@@ -17,7 +22,6 @@ import { Buffer } from 'buffer'
 import {
   QueryClientImpl as SupplierQueryClientImpl,
   QueryGetSupplierRequest,
-  QueryGetSupplierResponse,
 } from '@pocket/proto/generated/pocket/supplier/query'
 import {
   PocketExtension,
@@ -26,6 +30,9 @@ import {
 } from '@pocket/types'
 import { Coin } from '@pocket/proto/generated/cosmos/base/v1beta1/coin'
 import { Supplier } from '@pocket/proto/generated/pocket/shared/supplier'
+import {StakeSupplierParams} from "@pocket/types";
+import {MsgStakeSupplier} from "@pocket/proto/generated/pocket/supplier/tx";
+import {isValidPrivateKey} from "@pocket/utils";
 
 export * from './types'
 
@@ -125,16 +132,19 @@ export default function getQueryClient(cometClient: Comet38Client, height?: numb
 export class PocketBlockchain {
   protected readonly rpcUrl: string
   protected readonly denom: string
+  protected readonly gasPrice?: GasPrice
   protected stargateClient: StargateClient | undefined
   protected cometClient: Comet38Client | undefined
 
   /**
    * @param rpcUrl bech32 Cosmos SDK RPC endpoint, e.g. https://rpc.cosmos.network
-   * @param denom  staking token denom, e.g. "uatom" or "upokt"
+   * @param denom  staking token denom, e.g. "upokt"
+   * @param gasPrice
    */
-  private constructor(rpcUrl: string, denom: string = 'upokt') {
+  private constructor(rpcUrl: string, denom: string = 'upokt', gasPrice = 0.001) {
     this.rpcUrl = rpcUrl
     this.denom = denom
+    this.gasPrice = GasPrice.fromString(`${gasPrice}${denom}`)
   }
 
   /**
@@ -142,10 +152,11 @@ export class PocketBlockchain {
    *
    * @param {string} rpcUrl - The RPC URL for the blockchain connection.
    * @param {string} [denom='upokt'] - The denomination to be used, defaults to 'upokt'.
+   * @param gasPrice
    * @return {Promise<Blockchain>} A promise that resolves to an instance of the Blockchain class.
    */
-  static async setup(rpcUrl: string, denom: string = 'upokt') {
-    const blockchain = new PocketBlockchain(rpcUrl, denom)
+  static async setup(rpcUrl: string, denom: string = 'upokt', gasPrice = 0.001) {
+    const blockchain = new PocketBlockchain(rpcUrl, denom, gasPrice)
     await blockchain.connect()
     return blockchain
   }
@@ -292,5 +303,87 @@ export class PocketBlockchain {
       }
       throw e
     }
+  }
+
+  async stakeSupplier(params: StakeSupplierParams): Promise<SendTransactionResult> {
+    const { signerPrivateKey, signer, ...value } = params
+
+    if (!isValidPrivateKey(signerPrivateKey)) throw new Error('Invalid secp256k1 private key')
+    if (!signer) throw new Error('`signer` (bech32) is required')
+
+    const pkBytes = Uint8Array.from(Buffer.from(signerPrivateKey, 'hex'))
+    const wallet = await DirectSecp256k1Wallet.fromKey(pkBytes, 'pokt')
+    const typeUrl = '/pocket.shared.v1.MsgStakeSupplier'
+
+    try {
+      const [account] = await wallet.getAccounts()
+      if (account && account?.address !== signer) {
+        throw new Error(`Signer address mismatch. Wallet=${account?.address} provided=${signer}`)
+      }
+
+      const registry = new Registry([
+        [typeUrl, MsgStakeSupplier as unknown as GeneratedType],
+      ])
+
+      const signingClient = await this.getSigningClient(wallet, registry)
+
+      const comet = await this.getCometClient()
+      const q = getQueryClient(comet)
+      const spendable = await q.bank.spendableBalanceByDenom(signer, this.denom)
+      const spendableAmt = BigInt(spendable.amount || '0')
+
+      const msg = { typeUrl, value: { signer, ...value } as MsgStakeSupplier }
+      const gasUsed = await signingClient.simulate(signer, [msg], '')
+      const gasLimit = Math.ceil(gasUsed * 1.5)
+      const fee = this.gasPrice
+        ? calculateFee(gasLimit, this.gasPrice)
+        : { amount: [], gas: gasLimit.toString() }
+
+      // TODO: Create signed memo
+      const currentHeight = await this.getHeight();
+      const result = await signingClient.signAndBroadcast(signer, [msg], fee, '', BigInt(currentHeight + 5))
+
+      return {
+        transactionHash: result.transactionHash,
+        code: result.code,
+        message: result.rawLog,
+        success: true,
+      }
+    } catch (e) {
+      if (e instanceof BroadcastTxError) {
+        return {
+          transactionHash: '',
+          success: false,
+          code: e.code,
+          message: e.log,
+        }
+      }
+
+      if (e instanceof TimeoutError) {
+        return {
+          transactionHash: e.txId,
+          success: false,
+          message: 'Transaction timed out. This does not indicate a failure.',
+          code: 42,
+        }
+      }
+
+      return {
+        transactionHash: '',
+        success: false,
+        message: 'An unknown error occurred. The system will not try again automatically.',
+      }
+    }
+  }
+
+  private async getSigningClient(
+    wallet: DirectSecp256k1Wallet,
+    registry: Registry,
+  ): Promise<SigningStargateClient> {
+    const comet = await this.getCometClient()
+    return await SigningStargateClient.createWithSigner(comet, wallet, {
+      registry,
+      gasPrice: this.gasPrice,
+    })
   }
 }

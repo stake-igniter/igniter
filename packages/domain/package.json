@@ -1,0 +1,54 @@
+{
+  "name": "@igniter/domain",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./provider/utils": {
+      "import": "./dist/src/provider/utils/index.js",
+      "require": "./dist/src/provider/utils/index.js",
+      "types": "./dist/src/provider/utils/index.d.ts"
+    },
+    "./provider/operations": {
+      "import": "./dist/src/provider/operations/index.js",
+      "require": "./dist/src/provider/operations/index.js",
+      "types": "./dist/src/provider/operations/index.d.ts"
+    },
+    "./provider/models": {
+      "import": "./dist/src/provider/models/index.js",
+      "require": "./dist/src/provider/models/index.js",
+      "types": "./dist/src/provider/models/index.d.ts"
+    },
+    "./provider/errors": {
+      "import": "./dist/src/provider/errors/index.js",
+      "require": "./dist/src/provider/errors/index.js",
+      "types": "./dist/src/provider/errors/index.d.ts"
+    },
+    "./provider/constants": {
+      "import": "./dist/src/provider/constants.js",
+      "require": "./dist/src/provider/constants.js",
+      "types": "./dist/src/provider/constants.d.ts"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "build": "tsc --project ./tsconfig.json && tsc-alias -p ./tsconfig.json --verbose",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit",
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "@igniter/commons": "workspace:*",
+    "@igniter/db": "workspace:*",
+    "@igniter/logger": "workspace:*",
+    "@igniter/pocket": "workspace:*",
+    "microdiff": "^1.5.0"
+  },
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.1.3",
+    "ts-jest": "^29.4.4",
+    "tsc-alias": "^1.8.15"
+  }
+}

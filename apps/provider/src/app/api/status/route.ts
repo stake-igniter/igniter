@@ -6,7 +6,7 @@ import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/u
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
 import type {AddressGroupWithDetails} from "@igniter/db/provider/schema";
 import {ProviderFee} from "@igniter/db/provider/enums";
-import {getRevShare} from "@/lib/utils/services";
+import {getRevShare} from "@igniter/domain/provider/utils";
 
 async function getUniqueRegions(): Promise<string[]> {
   const regions = await listRegions();
