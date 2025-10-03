@@ -2,6 +2,7 @@
 
 import { ColumnDef } from '@igniter/ui/components/table';
 import type { Service } from "@igniter/db/provider/schema";
+import { labelByRpcType } from '@/lib/constants'
 
 export const columns: ColumnDef<Service>[] = [
   {
@@ -25,7 +26,7 @@ export const columns: ColumnDef<Service>[] = [
         <div className="flex gap-2 justify-center">
           {endpoints.map((endpoint, index) => (
             <div key={`protocol-${endpoint.rpcType}-${index}`} title={endpoint.url} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full cursor-pointer">
-              {endpoint.rpcType}
+              {labelByRpcType[endpoint.rpcType.toString()] || endpoint.rpcType}
             </div>
           ))}
         </div>
