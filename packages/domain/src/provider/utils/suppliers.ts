@@ -96,7 +96,9 @@ export function getSupplierActiveServices(
       h.deactivationHeight !== 0 && h.deactivationHeight <= currentHeight
 
     if (willActivate && !removedBeforeActivation) {
-      if (h.service) result.add(h.service)
+      if (h.service) {
+        result.add(h.service)
+      }
     }
   })
 

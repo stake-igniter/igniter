@@ -125,7 +125,13 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
         }
       }
 
-      if (update.state === KeyState.Staked && key.delegatorRewardsAddress && supplier.services.length === 0 && supplier.serviceConfigHistory?.length === 0) {
+      const isOwnerInitialStakeRemediationNeeded =
+        update.state === KeyState.Staked &&
+        key.delegatorRewardsAddress && // We can only remediate if the key has a delegator rewards address
+        supplier.services.length === 0 && // The supplier is staked without active services
+        supplier.serviceConfigHistory?.length === 0 // There are no pending activations or deactivations, this supplier is pristine
+
+      if (isOwnerInitialStakeRemediationNeeded) {
         update.remediationHistory = addOrUpdateRemediationHistory(
           {
             message: 'The supplier is not configured with any services.',
@@ -169,7 +175,7 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
 
       const remediationReasons = update.remediationHistory?.map((rh) => rh.reason);
 
-      // Only set the state to attention needed if the key is staked and the initial owner stake has been remediated. Otherwise it will remain staked.
+      // Only set the state to attention needed if the key is staked and the initial owner stake has been remediated. Otherwise, it will remain staked.
       if (remediationReasons?.length && !remediationReasons.includes(RemediationHistoryEntryReason.OwnerInitialStake)) {
         update.state = KeyState.AttentionNeeded
       }
