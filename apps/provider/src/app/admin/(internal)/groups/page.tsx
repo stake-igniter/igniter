@@ -8,21 +8,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const appName = await GetAppName()
 
   return {
-    title: `Addresse Group - ${appName}`,
+    title: `Addresses Group - ${appName}`,
   }
 }
 
 export default function GroupsPage() {
   return (
     <div className="flex flex-col gap-10">
-      <div className="mx-30 py-10">
+      <div className="mx-30 pt-10">
         <div className={'flex flex-row items-center gap-4'}>
           <h1>Address Groups</h1>
           <AddNewAddressGroup />
         </div>
-        <div className="container mx-auto ">
-          <AddressGroupsTable />
-        </div>
+        <AddressGroupsTable />
       </div>
     </div>
   )

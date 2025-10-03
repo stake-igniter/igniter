@@ -5,10 +5,10 @@ import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
 import {toCurrencyFormat} from "@igniter/ui/lib/utils";
-import {ProviderOfferItem} from "@/app/app/(takeover)/stake/components/PickOfferStep/ProviderOfferItem";
+import {ProviderOfferItem} from "@/app/app/stake/components/PickOfferStep/ProviderOfferItem";
 import {CaretIcon} from "@igniter/ui/assets";
 import {CalculateStakeDistribution} from "@/actions/Stake";
-import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
+import {ActivityContentLoading} from "@/app/app/stake/components/ActivityContentLoading";
 
 export interface PickOfferStepProps {
     amount: number;

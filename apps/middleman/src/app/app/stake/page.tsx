@@ -1,22 +1,23 @@
 "use client";
 
 import {useCallback, useEffect, useState} from 'react'
-import {PickStakeAmountStep} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep";
-import {PickOfferStep} from "@/app/app/(takeover)/stake/components/PickOfferStep";
-import {ReviewStep} from "@/app/app/(takeover)/stake/components/ReviewStep";
+import {PickStakeAmountStep} from "@/app/app/stake/components/PickStakeAmountStep";
+import {PickOfferStep} from "@/app/app/stake/components/PickOfferStep";
+import {ReviewStep} from "@/app/app/stake/components/ReviewStep";
 import {StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {StakeSuccessStep} from "@/app/app/(takeover)/stake/components/StakeSuccessStep";
+import {StakeSuccessStep} from "@/app/app/stake/components/StakeSuccessStep";
 import {useRouter} from "next/navigation";
 import {AbortConfirmationDialog} from '@igniter/ui/components/AbortConfirmationDialog'
 import { Transaction } from '@igniter/db/middleman/schema'
-import {allStagesSucceeded, getFailedStage} from "@/app/app/(takeover)/stake/utils";
-import {StakingProcessStatus} from "@/app/app/(takeover)/stake/components/ReviewStep/StakingProcess";
+import {allStagesSucceeded, getFailedStage} from "@/app/app/stake/utils";
+import {StakingProcessStatus} from "@/app/app/stake/components/ReviewStep/StakingProcess";
 import { useWalletConnection } from '@igniter/ui/context/WalletConnection/index'
-import OwnerAddressStep from '@/app/app/(takeover)/stake/components/OwnerAddressStep'
-import Loading from '@/app/app/(takeover)/stake/components/Loading'
+import OwnerAddressStep from '@/app/app/stake/components/OwnerAddressStep'
+import Loading from '@/app/app/stake/components/Loading'
 import {SupplierStake} from "@/lib/models/Transactions";
 import {releaseSuppliers} from "@/lib/services/provider";
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
+import OverrideSidebar from '@igniter/ui/components/OverrideSidebar'
 
 
 enum StakeActivitySteps {
@@ -116,6 +117,7 @@ export default function StakePage() {
 
     return (
         <>
+          <OverrideSidebar>
             <div className="flex flex-row justify-center w-full">
                 {step === StakeActivitySteps.OwnerAddress && (
                   <OwnerAddressStep
@@ -190,6 +192,7 @@ export default function StakePage() {
                     />
                 )}
             </div>
+          </OverrideSidebar>
             <AbortConfirmationDialog
                 isOpen={isAbortDialogOpen}
                 isLoading={isAborting}

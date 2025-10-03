@@ -1,6 +1,7 @@
 "use client";
 import type { CsvColumnDef } from '../../lib/csv'
 import React from "react";
+import { clsx } from 'clsx'
 import {
   ColumnDef,
   getCoreRowModel,
@@ -18,6 +19,8 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  TableHead,
+  TableHeader,
 } from "@igniter/ui/components/table";
 import FilterDropdown from "./FilterDropdown";
 import SortDropdown from "./SortDropdown";
@@ -55,7 +58,8 @@ export interface DataTableProps<TData extends object, TValue> {
   skeletonRows?: number;
   isError?: boolean
   csvFilename?: string
-  refetch?: () => void
+  refetch?: () => void,
+  columnVisibility?: Record<string, boolean>
 }
 
 export default function DataTable<TData extends object, TValue>({
@@ -68,6 +72,7 @@ export default function DataTable<TData extends object, TValue>({
   isError,
   refetch,
   csvFilename,
+  columnVisibility,
 }: DataTableProps<TData, TValue>) {
   const defaultSort = sorts.flat().find((sort) => sort.isDefault);
 
@@ -96,6 +101,7 @@ export default function DataTable<TData extends object, TValue>({
         pageSize: 25,
         pageIndex: 0,
       },
+      columnVisibility,
     },
     state: {
       columnFilters,
@@ -204,13 +210,46 @@ export default function DataTable<TData extends object, TValue>({
         </div>
       </div>
 
-      <Table>
+      <Table
+        containerClassName={
+          clsx(
+            (sorts.length > 0 || filters.length > 0 || csvFilename) ? 'max-h-[calc(100dvh-310px)]' : 'max-h-[calc(100dvh-270px)]'
+          )
+        }
+      >
+        {!isError && (
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className={'bg-transparent'}>
+                {headerGroup.headers.map((header) => {
+                  // @ts-ignore
+                  const align = header.column.columnDef.meta?.headerAlign || 'left'
+
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={
+                        clsx(
+                          "text-white px-4",
+                          align === 'center' && 'text-center',
+                          align === 'right' && 'text-right',
+                        )
+                      }
+                    >
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+        )}
         <TableBody>
           {tableBody}
         </TableBody>
       </Table>
 
-      <div className="flex items-center justify-end space-x-2 pb-6">
+      <div className="flex items-center justify-end space-x-2">
         <div className="flex items-center gap-2">
           <RowsPerPage
             currentPageSize={tableState.pagination.pageSize}

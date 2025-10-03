@@ -26,7 +26,7 @@ export default function Pagination({
         <DropdownMenuTrigger disabled={totalPages <= 1 || disabled}>
           <div className="flex items-center gap-2 p-2">
             <span className="text-sm">
-              Page {currentPage + 1} of {totalPages}
+              Page {totalPages === 0 ? 0 : currentPage + 1} of {totalPages}
             </span>
           </div>
         </DropdownMenuTrigger>

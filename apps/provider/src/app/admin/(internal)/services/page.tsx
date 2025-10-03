@@ -16,14 +16,12 @@ export default function ServicesPages() {
   return (
     <div className="flex flex-col gap-10">
 
-      <div className="mx-30 py-10">
+      <div className="mx-30 pt-10">
         <div className={'flex flex-row items-center gap-4'}>
           <h1>Services</h1>
           <AddNewService />
         </div>
-        <div className="container mx-auto ">
-          <ServicesTable />
-        </div>
+        <ServicesTable />
       </div>
     </div>
   )

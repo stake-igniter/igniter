@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { UserRole } from "@igniter/db/middleman/enums";
 import { getApplicationSettings } from "@/lib/dal/applicationSettings";
 import { GetAppName } from '@/actions/ApplicationSettings'
+import OverrideSidebar from '@igniter/ui/components/OverrideSidebar'
 
 export const dynamic = "force-dynamic";
 
@@ -26,14 +27,16 @@ export default async function Page() {
   }
 
   if (settings.isBootstrapped) {
-    return redirect("/admin");
+    return redirect("/admin/overview");
   }
 
   return (
-    <>
-      <div className="p-6">
-        <Stepper settings={settings} providers={[]} />
+    <OverrideSidebar>
+      <div className="flex flex-col w-full gap-6">
+        <div className="p-6">
+          <Stepper settings={settings} providers={[]} />
+        </div>
       </div>
-    </>
+    </OverrideSidebar>
   );
 }

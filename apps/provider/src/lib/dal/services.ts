@@ -2,7 +2,7 @@ import type {
   InsertService,
   Service,
 } from '@igniter/db/provider/schema'
-import { getDb } from '@/db'
+import { getDb, getDbClient } from '@/db'
 import {
   addressGroupServicesTable,
   servicesTable,
@@ -37,16 +37,21 @@ export async function list(serviceIds: string[] = []): Promise<Service[]> {
 }
 
 export async function remove(sId: string): Promise<Service> {
-  const [deletedService] = await getDb()
-    .delete(servicesTable)
-    .where(sql`${servicesTable.serviceId} = ${sId}`)
-    .returning()
+  const dbClient = getDbClient()
+  return dbClient.db.transaction(async (tx) => {
+    await tx.delete(addressGroupServicesTable).where(sql`${addressGroupServicesTable.serviceId} = ${sId}`)
 
-  if (!deletedService) {
-    throw new Error('Failed to delete service')
-  }
+    const [deletedService] = await tx
+       .delete(servicesTable)
+       .where(sql`${servicesTable.serviceId} = ${sId}`)
+       .returning()
 
-  return deletedService
+     if (!deletedService) {
+       throw new Error('Failed to delete service')
+     }
+
+     return deletedService
+  })
 }
 
 export async function update(

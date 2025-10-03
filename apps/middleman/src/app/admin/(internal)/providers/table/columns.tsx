@@ -48,6 +48,9 @@ export const columns: ColumnDef<Provider>[] = [
   {
     accessorKey: "updatedAt",
     header: "Updated At",
+    meta: {
+      headerAlign: "center"
+    },
     cell: ({ row }) => {
       const updatedAt = new Date(row.getValue("updatedAt"));
       return (
@@ -58,7 +61,7 @@ export const columns: ColumnDef<Provider>[] = [
     },
   },
   {
-    header: "enabled",
+    id: "actions",
     cell: ({ row }) => {
       const provider = row.original;
       const [isEnabled, setIsEnabled] = useState(provider.enabled);

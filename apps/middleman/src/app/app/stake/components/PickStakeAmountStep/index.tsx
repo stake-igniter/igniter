@@ -1,16 +1,15 @@
 'use client';
 
 import {useEffect, useMemo, useState} from "react";
-import {AmountPickerSlider} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep/AmountPickerSlider";
-import {AmountDisplay} from "@/app/app/(takeover)/stake/components/PickStakeAmountStep/AmountDisplay";
+import {AmountPickerSlider} from "@/app/app/stake/components/PickStakeAmountStep/AmountPickerSlider";
+import {AmountDisplay} from "@/app/app/stake/components/PickStakeAmountStep/AmountDisplay";
 import {Button} from "@igniter/ui/components/button";
 import {ActivityHeader} from "@igniter/ui/components/ActivityHeader";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
 import {useApplicationSettings} from "@/app/context/ApplicationSettings";
-import {ActivityContentLoading} from "@/app/app/(takeover)/stake/components/ActivityContentLoading";
+import {ActivityContentLoading} from "@/app/app/stake/components/ActivityContentLoading";
 import {QuickInfoPopOverIcon} from "@igniter/ui/components/QuickInfoPopOverIcon";
 import { toCurrencyFormat } from '@igniter/ui/lib/utils'
-
 
 export interface PickStakeAmountStepProps {
     defaultAmount: number;

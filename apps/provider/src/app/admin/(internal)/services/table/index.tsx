@@ -126,6 +126,9 @@ export default function ServicesTable() {
             Are you sure you want to delete the service "{serviceToDelete.name}"?
             This action cannot be undone.
           </p>
+          <p>
+            This will also delete all relations with addresses groups.
+          </p>
         </ConfirmationDialog>
       )}
     </div>

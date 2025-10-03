@@ -40,6 +40,9 @@ export const columns: ColumnDef<RelayMinerWithDetails>[] = [
   {
     accessorKey: 'updatedAt',
     header: 'Updated At',
+    meta: {
+      headerAlign: 'center'
+    },
     cell: ({ row }) => {
       const updatedAt = new Date(row.getValue('updatedAt'))
       return (
