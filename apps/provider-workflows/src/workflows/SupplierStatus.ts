@@ -58,14 +58,13 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
   ])
 
   log.debug('Preparing to trigger child workflows', { height, minId, maxId })
-  const states = [
+  const notInStates = [
     KeyState.Available,
     KeyState.Unstaked,
-    KeyState.Misconfigured,
     KeyState.RemediationFailed,
     KeyState.AttentionNeeded,
   ]
-  const ranges = makeRangesBySize(minId, maxId, shardCount, states)
+  const ranges = makeRangesBySize(minId, maxId, shardCount, notInStates)
 
   const limitChildren = pLimit(10)
 

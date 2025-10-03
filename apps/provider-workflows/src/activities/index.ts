@@ -194,7 +194,7 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
    * @param {RemediateSupplierParams} params - The parameters required for remediating the supplier, including the supplier's address, remediation reasons, and block height.
    * @return {Promise<void>} Resolves when the supplier has been successfully remediated or when no remediation actions are needed.
    */
-  async remediateSupplier(params: RemediateSupplierParams) {
+  async remediateSupplier(params: RemediateSupplierParams): Promise<void> {
     log.info('remediateSupplier: Execution started', {params})
     const [key, supportedServices, balance, supplier]: [KeyWithGroup, Service[], number, Supplier] = await Promise.all([
       dal.keys.loadKey(params.address),

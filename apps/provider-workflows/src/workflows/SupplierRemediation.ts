@@ -54,10 +54,13 @@ export async function SupplierRemediation(input: SupplierRemediationInput): Prom
   ])
 
   log.debug('Preparing to trigger child workflows', { height, minId, maxId })
-  const states = [
-    KeyState.Misconfigured,
+  const notInStates = [
+    KeyState.Available,
+    KeyState.Unstaked,
+    KeyState.RemediationFailed,
+    KeyState.AttentionNeeded,
   ]
-  const ranges = makeRangesBySize(minId, maxId, shardCount, states)
+  const ranges = makeRangesBySize(minId, maxId, shardCount, notInStates)
 
   const limitChildren = pLimit(10)
 

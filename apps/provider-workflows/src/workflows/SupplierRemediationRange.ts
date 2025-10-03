@@ -19,7 +19,7 @@ type SupplierRemediationByRange = {
 /**
  * Handles processing of supplier remediation within a given range by loading keys and updating supplier status.
  *
- * @param {SupplierRemediationByRange} input - The input object containing necessary parameters to perform supplier remediation. Fields include:
+ * @param {SupplierRemediationByRange} input - The input object containing the necessary parameters to perform supplier remediation. Fields include:
  *   - minId: The minimum ID in the range.
  *   - maxId: The maximum ID in the range.
  *   - concurrency: The maximum number of concurrent tasks. Defaults to 50.
@@ -27,6 +27,7 @@ type SupplierRemediationByRange = {
  * @return {Promise<void>} A promise that resolves once the supplier remediation process has completed or rejects in case all operations in the range fail.
  */
 export async function SupplierRemediationByRange(input: SupplierRemediationByRange): Promise<void> {
+  log.info('SupplierRemediationByRange: execution started', { minId: input.minId, maxId: input.maxId })
   const { loadKeysInRange, remediateSupplier } =
     proxyActivities<ReturnType<typeof providerActivities>>({
       startToCloseTimeout: '10s',
@@ -40,7 +41,7 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
   const rows: LoadKeysInRangeResult = await loadKeysInRange(input);
 
   if(rows.length === 0) {
-    log.warn('No rows found for range', { minId: input.minId, maxId: input.maxId })
+    log.warn('SupplierRemediationByRange: No rows found for range', { minId: input.minId, maxId: input.maxId })
     return
   }
 
@@ -56,6 +57,6 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
 
   const allFailed = r.every(r => r.status === 'rejected');
   if (allFailed) {
-    throw new WorkflowError('All activities failed');
+    throw new WorkflowError('All remediateSupplier activities failed.');
   }
 }
