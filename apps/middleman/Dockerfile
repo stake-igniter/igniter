@@ -23,6 +23,9 @@ RUN pnpm install --frozen-lockfile
 # Copy the remaining application files
 COPY out/middleman/full .
 
+# Copy the middleman drizzle file to run the migration.
+COPY middleman.drizzle.config.ts .
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm turbo run build --filter=@igniter/middleman

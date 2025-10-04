@@ -23,6 +23,9 @@ RUN pnpm install --frozen-lockfile
 # Copy the remaining application files
 COPY out/provider/full .
 
+# Copy the provider drizzle file to run the migration.
+COPY provider.drizzle.config.ts .
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm turbo run build --filter=@igniter/provider
