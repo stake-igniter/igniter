@@ -1,10 +1,18 @@
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin'
 import { Supplier } from '@pocket/proto/generated/pocket/shared/supplier'
+import {MsgStakeSupplier} from "@pocket/proto/generated/pocket/supplier/tx";
 
 export {
   SupplierServiceConfig,
+  SupplierEndpoint,
+  ServiceRevenueShare,
+  ConfigOption,
   RPCType,
 } from '@pocket/proto/generated/pocket/shared/service'
+
+export {MsgStakeSupplier} from "@pocket/proto/generated/pocket/supplier/tx";
+
+export { Supplier, ServiceConfigUpdate } from '@pocket/proto/generated/pocket/shared/supplier';
 
 export interface PocketExtension {
   readonly bank: {
@@ -44,6 +52,8 @@ export interface SendTransactionResult {
   success: boolean;
   code?: number;
   message?: string;
+  codespace?: string;
+  isTimeout?: boolean;
 }
 
 export interface TransactionResult {
@@ -55,3 +65,20 @@ export interface TransactionResult {
   success: boolean;
   code: number;
 }
+
+/**
+ * The StakeSupplierParams interface extends the MsgStakeSupplier interface and represents the
+ * parameters required when staking a new supplier. It is extended with the private key of
+ * the signer performing the staking transaction.
+ *
+ *
+ * Properties:
+ * - `signerPrivateKey`: A string representing the private key of the signer. This key is
+ *   used for authorizing the staking operation securely.
+ *
+ * Inherits:
+ * - Extends `MsgStakeSupplier`, which includes additional properties required for staking a supplier.
+ */
+export type StakeSupplierParams = {
+  signerPrivateKey: string;
+} & MsgStakeSupplier;

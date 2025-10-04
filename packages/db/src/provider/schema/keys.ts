@@ -13,6 +13,8 @@ import { SupplierServiceConfig } from '@igniter/pocket'
 import {
   addressStateEnum,
   KeyState,
+  RemediationHistoryEntryReason,
+  TransactionResult,
 } from './enums'
 import { addressGroupTable } from './addressGroup'
 import { delegatorsTable } from './delegator'
@@ -80,32 +82,29 @@ const encryptedText = customType<{ data: string }>({
 })
 
 /**
- * Represents the database table structure for `keys` in the PostgreSQL database.
+ * Represents the `keys` table in the database.
  *
- * This table is used to store information about cryptographic keys, their associated metadata,
- * and related relationships with other tables such as `delegatorsTable` and `addressGroupTable`.
+ * This table stores information related to cryptographic keys and their associated metadata.
  *
- * Fields:
- * - `id`: An auto-generated primary key identifier.
- * - `address`: A unique, non-nullable string representing the key's address.
- * - `publicKey`: A unique, non-nullable string representing the public key, with a maximum length of 66 characters.
- * - `privateKey`: An encrypted, non-nullable text field for storing private keys securely.
- * - `ownerAddress`: A string representing the address of the owner of this key, with a default value of an empty string.
- *   Note: This field is planned to be made non-nullable once data sanitization is complete (see issue #109).
- * - `state`: An enumerated value indicating the state of the key's address, with a non-nullable default state of `KeyState.Available`.
- * - `deliveredAt`: A timestamp indicating when the key was delivered.
- * - `deliveredTo`: A string representing the identity of the delegator to whom the key was delivered.
- *   This field references the `identity` column in the `delegatorsTable`.
- * - `addressGroupId`: An integer referencing the `id` column in the `addressGroupTable` to group addresses.
- * - `createdAt`: A timestamp marking when the record was created. Defaults to the current time.
- * - `updatedAt`: A timestamp marking when the record was last updated. Defaults to the current time and updates automatically.
- * - `lastUpdatedHeight`: An integer tracking the latest update operation's blockchain height, with a default value of 0.
- *   Updates to this field prevent writing records with a lower blockchain height.
- * - `stakeOwner`: A string representing the owner of the stake, with a default value of an empty string.
- * - `stakeAmountUpokt`: A big integer representing the staked amount in uPOKT, with a default value of `0`.
- * - `balanceUpokt`: A big integer representing the account balance in uPOKT, with a default value of `0`.
- * - `services`: A JSON array storing the services configuration (structured as `SupplierServiceConfig[]`),
- *   with a default value of an empty array.
+ * @property {number} id - The primary key for the table. Automatically generated identity column.
+ * @property {string} address - A unique, non-nullable string representing the address associated with the key. Maximum length: 255.
+ * @property {string} publicKey - A unique, non-nullable string representing the public key. Maximum length: 66.
+ * @property {string} privateKey - An encrypted representation of the private key. Non-nullable.
+ * @property {string} [ownerAddress] - An optional string representing the address of the owner. Defaults to an empty string. Will be updated to non-nullable in the future after data sanitization.
+ * @property {KeyState} state - An enumeration representing the state of the address. Defaults to `KeyState.Available`.
+ * @property {RemediationHistoryEntry[]} remediationHistory - JSON field representing the remediation history of the key. Defaults to an empty array.
+ * @property {Date | null} deliveredAt - A timestamp indicating when the key was delivered. Nullable.
+ * @property {string | null} deliveredTo - A foreign key referencing the `identity` column in the `delegators` table, representing the identity of the delegator the key was delivered to. Nullable.
+ * @property {number | null} addressGroupId - A foreign key referencing the `id` column in the `addressGroup` table, representing the ID of the associated address group. Nullable.
+ * @property {number} delegatorRevSharePercentage - An integer indicating the revenue share percentage requested by the intermediary. Defaults to 0.
+ * @property {string} delegatorRewardsAddress - A string representing the address of the intermediary. Defaults to an empty string.
+ * @property {Date} createdAt - A timestamp indicating when this record was created. Defaults to the current timestamp.
+ * @property {Date} updatedAt - A timestamp indicating when this record was last updated. Automatically updates to the current timestamp whenever the record is modified.
+ * @property {number} lastUpdatedHeight - An integer representing the last blockchain height at which this record was updated. Used to prevent updates with lower height values. Defaults to 0.
+ * @property {string} stakeOwner - A string representing the owner of the staked tokens. Defaults to an empty string.
+ * @property {bigint} stakeAmountUpokt - A bigint indicating the amount of tokens staked (in upokt). Defaults to 0n.
+ * @property {bigint} balanceUpokt - A bigint indicating the balance of the address (in upokt). Defaults to 0n.
+ * @property {SupplierServiceConfig[]} services - JSON field representing the supplier service configurations for the key. Defaults to an empty array.
  */
 export const keysTable = pgTable('keys', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -115,9 +114,12 @@ export const keysTable = pgTable('keys', {
   // TODO: make it not null once all data is sanitized. See: https://github.com/stake-igniter/igniter/issues/109
   ownerAddress: varchar({ length: 255 }).default(''),
   state: addressStateEnum().notNull().default(KeyState.Available),
+  remediationHistory: json('remediationHistory').$type<RemediationHistoryEntry[]>().default([]),
   deliveredAt: timestamp(),
   deliveredTo: varchar('delegator_identity').references(() => delegatorsTable.identity),
   addressGroupId: integer('address_group_id').references(() => addressGroupTable.id),
+  delegatorRevSharePercentage: integer().default(0),
+  delegatorRewardsAddress: varchar({ length: 255 }).default(''),
   createdAt: timestamp().defaultNow(),
   updatedAt: timestamp().defaultNow().$onUpdateFn(() => new Date()),
   // metadata coming from the blockchain
@@ -166,3 +168,19 @@ export type Key = typeof keysTable.$inferSelect;
  * property to ensure consistency with the table's schema.
  */
 export type InsertKey = typeof keysTable.$inferInsert;
+
+
+/**
+ * Represents an entry in the remediation history, which tracks specific actions or events occurring
+ * within a remediation process. Each entry includes a descriptive message, a code indicating the type of event,
+ * and a timestamp for when the event occurred.
+ *
+ * @interface RemediationHistoryEntry
+ */
+export interface RemediationHistoryEntry {
+  message: string;
+  reason: RemediationHistoryEntryReason;
+  details?: string;
+  txResult?: TransactionResult;
+  timestamp: number;
+}

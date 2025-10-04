@@ -1,11 +1,11 @@
-import { delegatorActivities } from './activities'
+import { providerActivities } from './activities'
 import {
   getLogger,
   Logger,
 } from '@igniter/logger'
 import { getWorker } from '@igniter/temporal'
 import { getDb } from '@igniter/db/provider/connection'
-import schema from '@igniter/db/provider/schema'
+import * as schema from '@igniter/db/provider/schema'
 import bootstrap from '@/bootstrap'
 import { PocketBlockchain } from '@igniter/pocket'
 import DAL from '@/lib/dal/DAL'
@@ -69,7 +69,7 @@ export async function setupTemporalWorker() {
 
   const { worker, disconnect } = await getWorker(logger, {
     workflowsPath: require.resolve('./workflows'),
-    activities: delegatorActivities(dal, blockchainProvider),
+    activities: providerActivities(dal, blockchainProvider),
     shutdownGraceTime,
   })
 
@@ -84,6 +84,7 @@ setupTemporalWorker().then(() => {
   logger.info('Worker stopped')
   process.exit(0)
 }).catch((err) => {
+  console.error(err);
   logger.error('failed setting up the worker', { err })
   process.exit(1)
 })

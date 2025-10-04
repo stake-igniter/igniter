@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 
 import { cn } from '@igniter/ui/lib/utils';
 import { Button } from "@igniter/ui/components/button"

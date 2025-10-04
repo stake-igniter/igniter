@@ -1,6 +1,6 @@
 {
   "name": "@igniter/provider-workflows",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "license": "UNLICENSED",
   "private": true,
   "main": "./dist/src/worker.js",
@@ -16,6 +16,7 @@
     "@igniter/temporal": "workspace:*",
     "@igniter/commons": "workspace:*",
     "@igniter/pocket": "workspace:*",
+    "@igniter/domain": "workspace:*",
     "@pokt-foundation/pocketjs-provider": "2.2.1",
     "@pokt-foundation/pocketjs-signer": "2.2.1",
     "@pokt-foundation/pocketjs-transaction-builder": "2.2.1",

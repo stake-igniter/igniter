@@ -11,14 +11,13 @@ export async function requestSuppliers(stakeOffer: StakeDistributionOffer, setti
             },
             body: JSON.stringify({
                 provider: stakeOffer.identity,
-                path: "/api/suppliers",
+                path: `/api/suppliers?simulate=${simulate ?? false}`,
                 data: {
                     region,
                     delegatorAddress: settings.delegatorRewardsAddress,
                     revSharePercentage: Number(settings.fee),
                     items: stakeOffer.stakeDistribution,
                     ownerAddress,
-                    simulate
                 },
             }),
         });

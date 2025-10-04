@@ -16,7 +16,6 @@ import { Input } from "@igniter/ui/components/input";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogTitle,
 } from "@igniter/ui/components/dialog";

@@ -1,8 +1,13 @@
 import {
+  BroadcastTxError,
+  calculateFee,
+  GasPrice,
   ProtobufRpcClient,
   QueryClient,
-  StargateClient,
+  SigningStargateClient,
+  StargateClient, TimeoutError,
 } from '@cosmjs/stargate'
+import {DirectSecp256k1Wallet, GeneratedType, Registry} from '@cosmjs/proto-signing'
 import {
   Comet38Client,
   connectComet,
@@ -17,7 +22,6 @@ import { Buffer } from 'buffer'
 import {
   QueryClientImpl as SupplierQueryClientImpl,
   QueryGetSupplierRequest,
-  QueryGetSupplierResponse,
 } from '@pocket/proto/generated/pocket/supplier/query'
 import {
   PocketExtension,
@@ -26,6 +30,10 @@ import {
 } from '@pocket/types'
 import { Coin } from '@pocket/proto/generated/cosmos/base/v1beta1/coin'
 import { Supplier } from '@pocket/proto/generated/pocket/shared/supplier'
+import {StakeSupplierParams} from "@pocket/types";
+import {MsgStakeSupplier} from "@pocket/proto/generated/pocket/supplier/tx";
+import {isValidPrivateKey} from "@pocket/utils";
+import {getLogger, Logger} from '@igniter/logger'
 
 export * from './types'
 
@@ -125,16 +133,21 @@ export default function getQueryClient(cometClient: Comet38Client, height?: numb
 export class PocketBlockchain {
   protected readonly rpcUrl: string
   protected readonly denom: string
+  protected readonly gasPrice?: GasPrice
   protected stargateClient: StargateClient | undefined
   protected cometClient: Comet38Client | undefined
+  protected logger: Logger;
 
   /**
    * @param rpcUrl bech32 Cosmos SDK RPC endpoint, e.g. https://rpc.cosmos.network
-   * @param denom  staking token denom, e.g. "uatom" or "upokt"
+   * @param denom  staking token denom, e.g. "upokt"
+   * @param gasPrice
    */
-  private constructor(rpcUrl: string, denom: string = 'upokt') {
+  private constructor(rpcUrl: string, denom: string = 'upokt', gasPrice = 0.001) {
     this.rpcUrl = rpcUrl
     this.denom = denom
+    this.gasPrice = GasPrice.fromString(`${gasPrice}${denom}`)
+    this.logger = getLogger().child({ service: 'pocket-blockchain' })
   }
 
   /**
@@ -142,10 +155,11 @@ export class PocketBlockchain {
    *
    * @param {string} rpcUrl - The RPC URL for the blockchain connection.
    * @param {string} [denom='upokt'] - The denomination to be used, defaults to 'upokt'.
+   * @param gasPrice
    * @return {Promise<Blockchain>} A promise that resolves to an instance of the Blockchain class.
    */
-  static async setup(rpcUrl: string, denom: string = 'upokt') {
-    const blockchain = new PocketBlockchain(rpcUrl, denom)
+  static async setup(rpcUrl: string, denom: string = 'upokt', gasPrice = 0.001) {
+    const blockchain = new PocketBlockchain(rpcUrl, denom, gasPrice)
     await blockchain.connect()
     return blockchain
   }
@@ -292,5 +306,106 @@ export class PocketBlockchain {
       }
       throw e
     }
+  }
+
+  async stakeSupplier(params: StakeSupplierParams): Promise<SendTransactionResult> {
+    const { signerPrivateKey, signer, ...value } = params
+
+    this.logger.info('stakeSupplier: Execution started', { params: { signer, ...value } })
+
+    if (!isValidPrivateKey(signerPrivateKey)) throw new Error('Invalid secp256k1 private key')
+    if (!signer) throw new Error('`signer` (bech32) is required')
+
+    this.logger.debug('stakeSupplier: Validated params', { params: { signer, ...value } })
+
+    const pkBytes = Uint8Array.from(Buffer.from(signerPrivateKey, 'hex'))
+    const wallet = await DirectSecp256k1Wallet.fromKey(pkBytes, 'pokt')
+    const typeUrl = '/pocket.supplier.MsgStakeSupplier'
+
+    try {
+      const [account] = await wallet.getAccounts()
+
+      this.logger.debug('stakeSupplier: Wallet accounts retrieved');
+
+      if (account && account?.address !== signer) {
+        throw new Error(`Signer address mismatch. Wallet=${account?.address} provided=${signer}`)
+      }
+
+      this.logger.debug('stakeSupplier: Wallet accounts validated');
+
+      const registry = new Registry([
+        [typeUrl, MsgStakeSupplier as unknown as GeneratedType],
+      ])
+
+      const signingClient = await this.getSigningClient(wallet, registry)
+
+      this.logger.debug('stakeSupplier: Signing client created');
+
+      const msg = { typeUrl, value: { signer, ...value } as MsgStakeSupplier }
+      const gasUsed = await signingClient.simulate(signer, [msg], '')
+
+      this.logger.debug('stakeSupplier: Simulated transaction', { gasUsed })
+
+      const gasLimit = Math.ceil(gasUsed * 1.5)
+      const fee = this.gasPrice
+        ? calculateFee(gasLimit, this.gasPrice)
+        : { amount: [], gas: gasLimit.toString() }
+
+    this.logger.debug('stakeSupplier: Calculated fee', { fee })
+
+      // TODO: Create signed memo
+      const currentHeight = await this.getHeight();
+
+      this.logger.debug('stakeSupplier: Current height', { currentHeight })
+
+      const result = await signingClient.signAndBroadcast(signer, [msg], fee, '', BigInt(currentHeight + 5))
+
+      this.logger.info('stakeSupplier: Execution ended. Transaction sent.', { result })
+
+      return {
+        transactionHash: result.transactionHash,
+        code: result.code,
+        message: result.rawLog,
+        success: true,
+      }
+    } catch (e: any) {
+      this.logger.error(`stakeSupplier: An error occurred while trying to execute the transaction: ${JSON.stringify({ code: e.code, message: e.message, log: e.log })}`)
+      if (e instanceof BroadcastTxError) {
+        return {
+          transactionHash: '',
+          success: false,
+          code: e.code,
+          message: e.log,
+        }
+      }
+
+      if (e instanceof TimeoutError) {
+        return {
+          transactionHash: e.txId,
+          success: false,
+          message: 'Transaction timed out. This does not indicate a failure.',
+          code: 42, // Timeout Transaction error code. See: https://github.com/cosmos/cosmos-sdk/blob/main/types/errors/errors.go
+        }
+      }
+
+      this.logger.info('stakeSupplier: Execution ended  in errors.', { error: e })
+
+      return {
+        transactionHash: '',
+        success: false,
+        message: 'An unknown error occurred. The system will not try again automatically.',
+      }
+    }
+  }
+
+  private async getSigningClient(
+    wallet: DirectSecp256k1Wallet,
+    registry: Registry,
+  ): Promise<SigningStargateClient> {
+    const comet = await this.getCometClient()
+    return await SigningStargateClient.createWithSigner(comet, wallet, {
+      registry,
+      gasPrice: this.gasPrice,
+    })
   }
 }

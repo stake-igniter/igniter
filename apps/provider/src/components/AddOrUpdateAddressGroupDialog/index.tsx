@@ -30,7 +30,7 @@ import type {
   Service,
 } from "@igniter/db/provider/schema";
 import { Combobox } from "./Combobox";
-import { getEndpointInterpolatedUrl } from "@/lib/models/supplier";
+import { getEndpointInterpolatedUrl } from "@igniter/domain/provider/utils";
 import {Switch} from "@igniter/ui/components/switch";
 import {Label} from "@igniter/ui/components/label";
 import {useQuery} from "@tanstack/react-query";

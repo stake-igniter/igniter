@@ -19,7 +19,9 @@
     }
   },
   "types": "./dist/types/src/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "clean": "rm -rf ./dist",
     "build": "tsc -p tsconfig.build.cjs.json && tsc-alias -p tsconfig.build.cjs.json --outDir ./dist/cjs --verbose",
@@ -28,18 +30,19 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@igniter/logger": "workspace:*",
-    "@cosmjs/stargate": "^0.33.1",
+    "@bufbuild/protobuf": "2.7.0",
     "@cosmjs/crypto": "^0.33.1",
     "@cosmjs/encoding": "^0.33.1",
-    "cosmjs-types": "0.10.1",
+    "@cosmjs/proto-signing": "^0.33.1",
+    "@cosmjs/stargate": "^0.33.1",
     "@cosmjs/tendermint-rpc": "^0.33.1",
-    "@bufbuild/protobuf": "2.7.0"
+    "@igniter/logger": "workspace:*",
+    "cosmjs-types": "0.10.1"
   },
   "devDependencies": {
     "@igniter/eslint-config": "workspace:*",
     "@igniter/typescript-config": "workspace:*",
-    "tsc-alias": "^1.8.15",
-    "@types/node": "22.14.1"
+    "@types/node": "22.14.1",
+    "tsc-alias": "^1.8.15"
   }
 }

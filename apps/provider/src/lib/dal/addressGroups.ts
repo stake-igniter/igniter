@@ -11,18 +11,20 @@ import {
   sql,
 } from 'drizzle-orm'
 import { getDbClient } from '@/db'
+import * as schema from '@igniter/db/provider/schema'
 import {
   addressGroupServicesTable,
   addressGroupTable,
   keysTable,
   relayMinersTable,
 } from '@igniter/db/provider/schema'
+import {DBClient} from "@igniter/db/connection";
 
 export async function insert(
   addressGroup: InsertAddressGroup,
   services: Omit<AddressGroupService, 'addressGroupId' | 'service'>[],
 ): Promise<AddressGroup> {
-  const dbClient = getDbClient()
+  const dbClient: DBClient<typeof schema> = getDbClient()
   return dbClient.db.transaction(async (tx) => {
     const [insertedGroup] = await tx
       .insert(addressGroupTable)

@@ -1,10 +1,12 @@
-import {getEndpointInterpolatedUrl, Supplier, SupplierStakeRequest} from "@/lib/models/supplier";
+import {SupplierStakeRequest} from "@/lib/models/supplier";
+import {Supplier} from "@igniter/domain/provider/models";
 import {list} from "@/lib/dal/addressGroups";
 import {list as listServices} from '@/lib/dal/services'
 import {createKeys} from "@/lib/services/keys";
 import {insertNewKeys, lockAvailableKeys, markAvailable, markKeysDelivered, markStaked} from "@/lib/dal/keys";
-import {getRevShare} from "@/lib/utils/services";
 import {getDb} from "@/db";
+import {BuildSupplierServiceConfigHandler} from "@igniter/domain/provider/operations";
+import {InsertKey, Key} from "@igniter/db/provider/schema";
 
 type KeyDistributionItem = { numberOfKeys: number[] };
 
@@ -66,6 +68,7 @@ function calculateDistribution(
 export async function getSupplierStakeConfigurations(
     stakeDistribution: SupplierStakeRequest,
     requestingDelegator: string,
+    simulate: boolean = false,
 ): Promise<Supplier[]> {
     const allGroups = await list(undefined, stakeDistribution.region);
     const linked = allGroups.filter(g =>
@@ -99,9 +102,9 @@ export async function getSupplierStakeConfigurations(
             for (const { addressGroup, slots } of slotsByGroup) {
                 const needed = slots.length;
 
-                const avail = await lockAvailableKeys(tx as any, addressGroup.id, needed);
+                const avail = simulate ? [] : await lockAvailableKeys(tx as any, addressGroup.id, needed);
 
-                const reused = await markKeysDelivered(
+                const reused = simulate ? [] : await markKeysDelivered(
                     tx as any,
                     avail.map(k => k.id),
                     requestingDelegator,
@@ -116,8 +119,12 @@ export async function getSupplierStakeConfigurations(
                         willDeliverTo: requestingDelegator,
                         numberOfKeys: toCreate,
                         ownerAddress: stakeDistribution.ownerAddress,
+                        delegatorRevSharePercentage: stakeDistribution.revSharePercentage ?? 0,
+                        delegatorRewardsAddress: stakeDistribution.delegatorAddress,
                     });
-                    created = await insertNewKeys(tx as any, newRows);
+                    created = simulate
+                      ? newRows
+                      : await insertNewKeys(tx as any, newRows);
                 }
 
                 results.push({
@@ -136,45 +143,25 @@ export async function getSupplierStakeConfigurations(
 
     const suppliers: Supplier[] = [];
 
+    const buildSupplierServiceConfigs = new BuildSupplierServiceConfigHandler();
+
+
     for (const { addressGroup, slots, keys } of allocation) {
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i]!;
             const stakeAmount = slots[i]!.toString();
 
-            const svcConfigs = addressGroup.addressGroupServices ?? [];
-            const supplierServices = svcConfigs.map(cfg => {
-                const svc = services.find(s => s.serviceId === cfg.serviceId)!;
-                const revShare = getRevShare(cfg, key.address);
-                if (stakeDistribution.revSharePercentage > 0) {
-                    revShare.push({
-                        address: stakeDistribution.delegatorAddress,
+            const supplierServices = buildSupplierServiceConfigs.execute({
+                services,
+                addressGroup,
+                operatorAddress: key.address,
+                ownerAddress: stakeDistribution.ownerAddress,
+                requestRevShare: [
+                    {
                         revSharePercentage: stakeDistribution.revSharePercentage,
-                    });
-                }
-                const ownerPct =
-                    100 - revShare.reduce((sum, r) => sum + r.revSharePercentage, 0);
-
-                if (ownerPct > 0) {
-                    revShare.push({
-                        address: stakeDistribution.ownerAddress,
-                        revSharePercentage: ownerPct,
-                    });
-                }
-
-                return {
-                    serviceId: cfg.serviceId,
-                    revShare,
-                    endpoints: svc.endpoints.map(ep => ({
-                        url: getEndpointInterpolatedUrl(ep, {
-                            sid: svc.serviceId,
-                            rm: addressGroup.relayMiner.identity,
-                            region: addressGroup.relayMiner.region.urlValue,
-                            domain: addressGroup.relayMiner.domain,
-                        }),
-                        rpcType: ep.rpcType,
-                        configs: [],
-                    })),
-                };
+                        address: stakeDistribution.delegatorAddress,
+                    }
+                ]
             });
 
             suppliers.push({
@@ -192,6 +179,6 @@ export async function releaseDeliveredSuppliers(addresses: string[], requestingD
   return markAvailable(addresses, requestingDelegator);
 }
 
-export async function stakeDeliveredSuppliers(addresses: string[], requestingDelegator: string) {
+export async function markDeliveredSupplierAsStaked(addresses: string[], requestingDelegator: string) {
     return markStaked(addresses, requestingDelegator);
 }

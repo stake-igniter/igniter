@@ -13,7 +13,6 @@ export async function POST(request: Request) {
     provider: z.string(),
     path: z.string(),
     data: z.any(),
-    simulate: z.boolean().optional()
   });
 
   let validatedData: z.infer<typeof schema>;

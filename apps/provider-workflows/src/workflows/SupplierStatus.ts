@@ -5,14 +5,15 @@ import {
   WorkflowError,
 } from '@temporalio/workflow'
 import {
-  delegatorActivities,
-  LoadKeysInRangeParams,
+  providerActivities,
 } from '@/activities'
 import { SupplierStatusByRange } from '@/workflows/SupplierStatusRange'
+import {makeRangesBySize} from "@/lib/utils";
 
 // we built to commonjs and p-limit for esm support
 // @ts-ignore
 import pLimit from 'p-limit'
+import {KeyState} from "@igniter/db/provider/enums";
 
 /**
  * Represents the total number of shards used by the workflow.
@@ -23,23 +24,6 @@ import pLimit from 'p-limit'
  * or configured for the system to function.
  */
 const shardCount = 200
-
-/**
- * Divides a range of IDs into smaller ranges of specified size.
- *
- * @param {number} minId - The starting ID of the range.
- * @param {number} maxId - The ending ID of the range.
- * @param {number} shardSize - The size of each range or shard.
- * @return {Array<LoadKeysInRangeParams>} An array of objects, each representing a range with `startId` and `endId`.
- */
-function makeRangesBySize(minId: number, maxId: number, shardSize: number): Array<LoadKeysInRangeParams> {
-  const ranges: Array<LoadKeysInRangeParams> = []
-  for (let start = minId; start <= maxId; start += shardSize) {
-    const end = Math.min(start + shardSize - 1, maxId)
-    ranges.push({ minId: start, maxId: end })
-  }
-  return ranges
-}
 
 
 /**
@@ -60,7 +44,7 @@ function makeRangesBySize(minId: number, maxId: number, shardSize: number): Arra
  */
 export async function SupplierStatus(): Promise<{ height: number, minId: number, maxId: number }> {
   const { getLatestBlock, getKeysMinAndMax } =
-    proxyActivities<ReturnType<typeof delegatorActivities>>({
+    proxyActivities<ReturnType<typeof providerActivities>>({
       startToCloseTimeout: '120s',
       retry: {
         maximumAttempts: 3,
@@ -74,18 +58,25 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
   ])
 
   log.debug('Preparing to trigger child workflows', { height, minId, maxId })
-  const ranges = makeRangesBySize(minId, maxId, shardCount)
+  const notInStates = [
+    KeyState.Available,
+    KeyState.Unstaked,
+    KeyState.RemediationFailed,
+    KeyState.AttentionNeeded,
+  ]
+  const ranges = makeRangesBySize(minId, maxId, shardCount, notInStates)
 
   const limitChildren = pLimit(10)
 
   // Schedule ALL children, but only `maxChildConcurrency` run at once.
-  const childPromises = ranges.map(({ minId, maxId }) =>
+  const childPromises = ranges.map(({ minId, maxId, states }) =>
     limitChildren(async () => {
       log.debug('Triggering Child Workflow: SupplierStatusByRange', { minId, maxId })
       // Await this child's completion to enforce the concurrency cap
       await wf.startChild<typeof SupplierStatusByRange>('SupplierStatusByRange', {
         args: [{
-          height: height,
+          states,
+          height,
           minId,
           maxId,
           pageSize: 200,

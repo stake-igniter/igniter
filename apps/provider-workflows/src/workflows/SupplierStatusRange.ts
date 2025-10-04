@@ -1,16 +1,10 @@
-import {
-  log,
-  proxyActivities,
-  WorkflowError,
-} from '@temporalio/workflow'
-import {
-  delegatorActivities,
-  LoadKeysInRangeResult,
-} from '@/activities'
+import {log, proxyActivities, WorkflowError,} from '@temporalio/workflow'
+import {LoadKeysInRangeResult, providerActivities,} from '@/activities'
 
 // we built to commonjs and p-limit for esm support
 // @ts-ignore
 import pLimit from 'p-limit'
+import {KeyState} from "@igniter/db/provider/enums";
 
 type SupplierStatusByRange = {
   height: number
@@ -18,6 +12,7 @@ type SupplierStatusByRange = {
   maxId: number
   pageSize: number
   concurrency: number
+  states: KeyState[]
 }
 
 /**
@@ -38,7 +33,7 @@ type SupplierStatusByRange = {
  */
 export async function SupplierStatusByRange(input: SupplierStatusByRange): Promise<void> {
   const { loadKeysInRange, upsertSupplierStatus } =
-    proxyActivities<ReturnType<typeof delegatorActivities>>({
+    proxyActivities<ReturnType<typeof providerActivities>>({
       startToCloseTimeout: '10s',
       retry: {
         maximumAttempts: 10,
@@ -47,7 +42,7 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
 
   const limit = pLimit(input.concurrency ?? 50);
 
-  const rows: LoadKeysInRangeResult = await loadKeysInRange({ minId: input.minId, maxId: input.maxId });
+  const rows: LoadKeysInRangeResult = await loadKeysInRange(input);
 
   if(rows.length === 0) {
     log.warn('No rows found for range', { minId: input.minId, maxId: input.maxId })

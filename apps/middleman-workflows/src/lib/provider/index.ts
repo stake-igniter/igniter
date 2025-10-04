@@ -69,7 +69,7 @@ export class ProviderService {
    * @param provider
    * @returns Result of the staking operation
    */
-  async markStaked(addresses: string[], provider: Provider) {
+  async markOwnerStaked(addresses: string[], provider: Provider) {
     const { identity, signature } = await this.signPayload(JSON.stringify({ addresses }))
 
     try {

@@ -19,9 +19,10 @@ import {Dialog, DialogContent, DialogFooter, DialogTitle,} from "@igniter/ui/com
 import {
   getDefaultUrlWithSchemeByRpcType,
   getEndpointInterpolatedUrl,
-  PROTOCOL_DEFAULT_TYPE,
-  RPCType
-} from "@/lib/models/supplier";
+} from "@igniter/domain/provider/utils";
+import {
+    PROTOCOL_DEFAULT_TYPE as PROTOCOL_DEFAULT_RPC_TYPE,
+} from '@igniter/domain/provider/constants';
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {InfoIcon, LoaderIcon} from "@igniter/ui/assets";
 import urlJoin from "url-join";
@@ -29,6 +30,7 @@ import {CreateService, UpdateService, GetByServiceId} from "@/actions/Services";
 import type {ApplicationSettings, Service} from "@igniter/db/provider/schema";
 import {GetApplicationSettings} from "@/actions/ApplicationSettings";
 import {Region} from "@/lib/models/commons";
+import { labelByRpcType, validRpcTypes as validRpcTypesEnums } from '@/lib/constants'
 
 interface ServiceOnChain {
   serviceId: string;
@@ -37,10 +39,19 @@ interface ServiceOnChain {
   computeUnits: number;
 }
 
+const PROTOCOL_DEFAULT_TYPE = PROTOCOL_DEFAULT_RPC_TYPE.toString();
+
+const validRpcTypes = [
+  validRpcTypesEnums[0].toString(),
+  validRpcTypesEnums[1].toString(),
+  validRpcTypesEnums[2].toString(),
+  validRpcTypesEnums[3].toString(),
+] as const;
+
 const endpointSchema = z.object({
   url: z.string(),
-  rpcType: z.nativeEnum(RPCType).default(PROTOCOL_DEFAULT_TYPE),
-}).transform(data => ({
+  rpcType: z.enum(validRpcTypes).default(PROTOCOL_DEFAULT_TYPE).transform(v => Number(v)),
+}).transform((data) => ({
   ...data,
   url: data.url || getDefaultUrlWithSchemeByRpcType(data.rpcType)
 }));
@@ -70,7 +81,7 @@ export function AddOrUpdateServiceDialog({
                                              onClose,
                                              service,
                                            }: Readonly<AddServiceDialogProps>) {
-  const [endpoints, setEndpoints] = useState<{ url: string; rpcType: RPCType }[]>(
+  const [endpoints, setEndpoints] = useState<{ url: string; rpcType: number }[]>(
     service?.endpoints ?? [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]
   );
 
@@ -214,7 +225,7 @@ export function AddOrUpdateServiceDialog({
   }, [JSON.stringify(endpointsOnForm)]);
 
   const addEndpoint = () => {
-    form.setValue("endpoints", [...endpoints, { url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]);
+    form.setValue("endpoints", [...endpoints, { url: "", rpcType: Number(PROTOCOL_DEFAULT_TYPE) }]);
   };
 
   const removeEndpoint = (index: number) => {
@@ -374,7 +385,7 @@ export function AddOrUpdateServiceDialog({
                               <FormItem>
                                 <Select
                                   onValueChange={field.onChange}
-                                  defaultValue={field.value}
+                                  defaultValue={field.value.toString()}
                                 >
                                   <FormControl>
                                     <SelectTrigger>
@@ -382,9 +393,9 @@ export function AddOrUpdateServiceDialog({
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {Object.values(RPCType).map((type) => (
-                                      <SelectItem key={type} value={type}>
-                                        {type}
+                                    {validRpcTypes.map((type) => (
+                                      <SelectItem key={`type-${type}`} value={type}>
+                                        {labelByRpcType[type] || type}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
