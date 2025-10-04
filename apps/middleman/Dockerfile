@@ -49,7 +49,7 @@ USER nextjs
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/.next/standalone ./
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/.next/static ./apps/middleman/.next/static
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/public ./apps/middleman/public
-COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/drizzle.config.ts ./apps/middleman/drizzle.config.ts
+COPY --from=base --chown=nextjs:nodejs /app/middleman.drizzle.config.ts ./
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/drizzle/ ./apps/middleman/drizzle/
 COPY --from=base --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 
