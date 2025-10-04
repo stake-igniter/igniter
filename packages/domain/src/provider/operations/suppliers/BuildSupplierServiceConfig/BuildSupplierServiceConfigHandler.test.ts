@@ -112,7 +112,7 @@ describe('BuildSupplierServiceConfigHandler', () => {
 
         const [cfg] = handler.execute(input);
 
-        expect(cfg.revShare.some((r: ServiceRevenueShare) => r.revSharePercentage === 0)).toBe(false);
+        expect(cfg?.revShare.some((r: ServiceRevenueShare) => r.revSharePercentage === 0)).toBe(false);
     });
 
     it('throws RevenueShareOverflowError when total revshare exceeds 100', () => {

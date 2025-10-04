@@ -1,5 +1,6 @@
 import {SupplierEndpointInterpolationParams} from "@igniter/domain/provider/models";
-import {RPCType, SupplierEndpoint, Supplier, ServiceConfigUpdate, SupplierServiceConfig} from "@igniter/pocket";
+import {Supplier, ServiceConfigUpdate} from "@igniter/pocket/proto/pocket/shared/supplier";
+import {RPCType, SupplierEndpoint, SupplierServiceConfig} from '@igniter/pocket/proto/pocket/shared/service'
 import {PROTOCOL_DEFAULT_URL} from "@igniter/domain/provider/constants";
 
 export function getSchemeForRpcType(rpcType: RPCType) {
@@ -35,9 +36,9 @@ export function getDefaultUrlWithSchemeByRpcType(rpcType: RPCType) {
     return PROTOCOL_DEFAULT_URL.replace('{scheme}', getSchemeForRpcType(rpcType));
 }
 
-export function getEndpointInterpolatedUrl(endpoint: SupplierEndpoint, params: SupplierEndpointInterpolationParams) {
-    const protocol = getUrlTokenFromRpcType(endpoint.rpcType);
-    const url = endpoint.url || getDefaultUrlWithSchemeByRpcType(endpoint.rpcType);
+export function getEndpointInterpolatedUrl(endpoint: Pick<SupplierEndpoint, 'rpcType' | 'url'>, params: SupplierEndpointInterpolationParams) {
+    const protocol = getUrlTokenFromRpcType(endpoint.rpcType!);
+    const url = endpoint.url || getDefaultUrlWithSchemeByRpcType(endpoint.rpcType!);
 
     const data: Record<string, string> = {
         ...params,

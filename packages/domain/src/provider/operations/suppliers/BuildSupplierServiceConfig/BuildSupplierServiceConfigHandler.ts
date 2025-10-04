@@ -1,6 +1,6 @@
 import {BuildSupplierServiceConfigInput} from '@igniter/domain/provider/operations';
 import {getRevShare, getEndpointInterpolatedUrl} from "@igniter/domain/provider/utils";
-import {SupplierServiceConfig} from "@igniter/pocket";
+import {SupplierServiceConfig} from "@igniter/pocket/proto/pocket/shared/service";
 import {RevenueShareOverflowError} from "@igniter/domain/provider/errors";
 
 export class BuildSupplierServiceConfigHandler {
@@ -36,7 +36,7 @@ export class BuildSupplierServiceConfigHandler {
             return {
                 serviceId: cfg.serviceId,
                 revShare,
-                endpoints: svc.endpoints.map(ep => ({
+                endpoints: svc.endpoints.map((ep) => ({
                     url: getEndpointInterpolatedUrl(ep, {
                         sid: svc.serviceId,
                         rm: addressGroup.relayMiner.identity,
