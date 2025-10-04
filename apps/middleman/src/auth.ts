@@ -1,77 +1,95 @@
-import NextAuth, { type NextAuthResult } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import type { User } from '@igniter/db/middleman/schema'
 
-import {createUser, getUser} from "./lib/dal/users";
-import authConfig from "./auth.config";
-import {User} from "@/db/schema";
-import {SiwpMessage} from "@poktscan/vault-siwp";
+import NextAuth, { type NextAuthResult } from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
+
+import { SiwpMessage } from '@poktscan/vault-siwp'
+
+import {
+  createUser,
+  getUser,
+} from './lib/dal/users'
+import authConfig from './auth.config'
 
 const authConfigResult = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
-      id: "siwp",
-      name: "POKT Morse",
+      id: 'siwp',
+      name: 'POKT Morse',
       credentials: {
         message: {
-          label: "Message",
-          type: "text",
-          placeholder: "0x0",
+          label: 'Message',
+          type: 'text',
+          placeholder: '0x0',
         },
         signature: {
-          label: "Signature",
-          type: "text",
-          placeholder: "0x0",
+          label: 'Signature',
+          type: 'text',
+          placeholder: '0x0',
         },
         publicKey: {
-          label: "Public Key",
-          type: "text",
-          placeholder: "0x0",
+          label: 'Public Key',
+          type: 'text',
+          placeholder: '0x0',
         },
       },
       // @TODO: Remove ts-ignore. Once we learn how to update the User type next-auth expects.
       // @ts-ignore
       authorize: async (credentials, req): Promise<User | null> => {
         try {
-          console.log(credentials?.message);
+          console.log(credentials?.message)
           const siwp = new SiwpMessage(
-            JSON.parse((credentials?.message || "{}") as string)
-          );
+            JSON.parse((credentials?.message || '{}') as string),
+          )
 
-          const nextAuthUrl = new URL(process.env.AUTH_URL ?? "");
+          const nextAuthUrl = new URL(process.env.AUTH_URL ?? '')
 
-          console.log('Verifying signature with:');
-          console.log('Signature:', credentials?.signature);
-          console.log('Domain:', nextAuthUrl.host);
-          console.log('Public Key:', credentials?.publicKey);
+          console.log('Verifying signature with:')
+          console.log('Signature:', credentials?.signature)
+          console.log('Domain:', nextAuthUrl.host)
+          console.log('Public Key:', credentials?.publicKey)
 
-          const result = await siwp.verify({
-            signature: (credentials?.signature as string) || "",
-            domain: nextAuthUrl.host,
-            publicKey: (credentials?.publicKey as string) || "",
-          });
+          const results = await Promise.allSettled([
+            siwp.verifyERC4361({
+              signature: (credentials?.signature as string) || '',
+              domain: nextAuthUrl.host,
+              publicKey: (credentials?.publicKey as string) || '',
+            }),
+            siwp.verifyAdr36({
+              signature: (credentials?.signature as string) || '',
+              domain: nextAuthUrl.host,
+              publicKey: (credentials?.publicKey as string) || '',
+            }),
+          ])
 
-          let user;
+          if (results.every((result) => result.status === 'rejected')) {
+            throw (results.at(0) as  PromiseRejectedResult).reason
+          }
+
+          const result = results.find(result => result.status === 'fulfilled')!.value
+
+          let user
 
           if (result.success) {
-            user = await getUser(siwp.address);
+            user = await getUser(siwp.address)
 
             if (!user) {
-              user = await createUser(siwp.address);
+              user = await createUser(siwp.address)
             }
 
-            return user ?? null;
+            return user ?? null
           }
-          return null;
+          return null
         } catch (error) {
-          console.log(error);
-          return null;
+          console.log(error)
+          return null
         }
       },
     }),
   ],
   pages: {
-    signIn: "/",
+    signIn: '/',
   },
   callbacks: {
     ...authConfig.callbacks,
@@ -79,14 +97,14 @@ const authConfigResult = NextAuth({
       if (user) {
         // @TODO: Remove ts-ignore. Once we learn how to update the User type next-auth expects.
         // @ts-ignore
-        token.user = user;
+        token.user = user
       }
-      return token;
+      return token
     },
   },
-});
+})
 
-export const handlers: NextAuthResult["handlers"] = authConfigResult.handlers;
-export const auth: NextAuthResult["auth"] = authConfigResult.auth;
-export const signIn: NextAuthResult["signIn"] = authConfigResult.signIn;
-export const signOut: NextAuthResult["signOut"] = authConfigResult.signOut;
+export const handlers: NextAuthResult['handlers'] = authConfigResult.handlers
+export const auth: NextAuthResult['auth'] = authConfigResult.auth
+export const signIn: NextAuthResult['signIn'] = authConfigResult.signIn
+export const signOut: NextAuthResult['signOut'] = authConfigResult.signOut

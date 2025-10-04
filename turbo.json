@@ -3,11 +3,16 @@
   "ui": "tui",
   "envMode": "loose",
   "tasks": {
+    "clean": {
+      "cache": false
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["clean", "^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "cache": false,
       "env": [
+        "PROVIDERS_CDN_URL",
         "POSTGRES_URL",
         "TEMPORAL_URL",
         "TEMPORAL_NAMESPACE",
@@ -24,10 +29,9 @@
       "dependsOn": ["^check-types"]
     },
     "dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["build"],
       "cache": false,
-      "persistent": true,
-      "dependsOn": ["build"]
+      "persistent": true
     }
   }
 }

@@ -1,98 +1,134 @@
-"use server";
+'use server'
 
-import {ApplicationSettings, ChainId, UserRole} from "@/db/schema";
+import { ApplicationSettings } from '@igniter/db/middleman/schema'
+import {
+  ChainId,
+  UserRole,
+} from '@igniter/db/middleman/enums'
 import {
   getApplicationSettings as fetchApplicationSettings,
   insertApplicationSettings,
   updateApplicationSettings,
-} from "@/lib/dal/applicationSettings";
-import { redirect } from "next/navigation";
-import { z } from "zod";
-import {getCurrentUser} from "@/lib/utils/actions";
+} from '@/lib/dal/applicationSettings'
+import { redirect } from 'next/navigation'
+import { z } from 'zod'
+import { getCurrentUser } from '@/lib/utils/actions'
 import urlJoin from 'url-join'
 import { getServerApolloClient } from '@igniter/ui/graphql/server'
 import { indexerStatusDocument } from '@igniter/graphql'
-import {env} from "@/config/env";
+import { env } from '@/config/env'
+import {
+  revalidateTag,
+  unstable_cache,
+} from 'next/cache'
 
-const UrlSchema = z.string().url("Please enter a valid URL").min(1, "URL is required")
+const UrlSchema = z.string().url('Please enter a valid URL').min(1, 'URL is required')
 
 const UpdateSettingsSchema = z.object({
   updatedAtHeight: z.string().optional(),
-  appIdentity: z.string().min(1, "App identity is required").optional(),
-  name: z.string().min(1, "Name is required").optional(),
+  appIdentity: z.string().min(1, 'App identity is required').optional(),
+  name: z.string().min(1, 'Name is required').optional(),
   supportEmail: z.string().email().optional(),
   ownerEmail: z.string().email().optional(),
   fee: z.number()
-    .min(0, "Provider fee must be greater than or equal to 0")
+    .min(0, 'Provider fee must be greater than or equal to 0')
     .max(100).transform((value) => value.toString()).optional(),
   minimumStake: z.number().optional(),
-  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required").optional(),
+  rpcUrl: z.string().url('Please enter a valid URL').min(1, 'URL is required').optional(),
   indexerApiUrl: UrlSchema.optional(),
-  delegatorRewardsAddress: z.string().min(1, "Delegator rewards address is required").optional(),
+  delegatorRewardsAddress: z.string().min(1, 'Delegator rewards address is required').optional(),
   privacyPolicy: z.string().optional(),
-});
+})
 
 const CreateSettingsSchema = z.object({
   minimumStake: z.number().min(1),
-  rpcUrl: z.string().url("Please enter a valid URL").min(1, "URL is required"),
+  rpcUrl: z.string().url('Please enter a valid URL').min(1, 'URL is required'),
   indexerApiUrl: UrlSchema,
-  appIdentity: z.string().min(1, "App identity is required"),
+  appIdentity: z.string().min(1, 'App identity is required'),
   chainId: z.nativeEnum(ChainId),
   updatedAtHeight: z.string(),
 })
 
+const appSettingsCacheTag = 'appSettings';
+
+const getAppSettings = unstable_cache(
+  async () => {
+    return await fetchApplicationSettings()
+  },
+  undefined,
+  {
+    tags: [appSettingsCacheTag],
+  },
+)
+
+export async function GetAppName() {
+  let appSettings = await getAppSettings()
+
+  if (!appSettings) {
+    appSettings = await fetchApplicationSettings()
+  }
+
+  return appSettings?.name || 'Stake Igniter'
+}
+
 export async function getApplicationSettings() {
-  return await fetchApplicationSettings();
+  const appSettings = await getAppSettings()
+
+  if (appSettings) return appSettings
+
+  return await fetchApplicationSettings()
 }
 
 function ValidateWithSchema(schema: z.ZodSchema, data: Partial<ApplicationSettings>) {
-  const validation = schema.safeParse(data);
+  const validation = schema.safeParse(data)
 
   if (!validation.success) {
-    throw new Error(validation.error.message);
+    throw new Error(validation.error.message)
   }
 
-  return validation;
+  return validation
 }
 
 export async function UpsertApplicationSettings(
   values: Partial<ApplicationSettings>,
-  isUpdate: boolean
+  isUpdate: boolean,
 ) {
-  const user = await getCurrentUser();
-  const userIdentity= user.identity;
+  const user = await getCurrentUser()
+  const userIdentity = user.identity
 
   if (user.role !== UserRole.Owner) {
     // TODO: Allow for more granular changes when actual `Admin` users are allowed.
-    throw new Error("Unauthorized");
+    throw new Error('Unauthorized')
   }
 
-  const validatedFields = ValidateWithSchema(isUpdate ? UpdateSettingsSchema : CreateSettingsSchema, values);
+  const validatedFields = ValidateWithSchema(isUpdate ? UpdateSettingsSchema : CreateSettingsSchema, values)
   if (isUpdate) {
     await updateApplicationSettings({
       ...validatedFields.data,
       updatedBy: userIdentity,
-    });
+    })
   } else {
     await insertApplicationSettings({
       ...validatedFields.data,
       createdBy: userIdentity,
       updatedBy: userIdentity,
-    });
+    })
   }
+
+  revalidateTag(appSettingsCacheTag)
 }
 
 export async function completeSetup() {
-  const user = await getCurrentUser();
-  const userIdentity= user.identity;
+  const user = await getCurrentUser()
+  const userIdentity = user.identity
 
   if (user.role !== UserRole.Owner) {
     // TODO: Allow for more granular changes when actual `Admin` users are allowed.
-    throw new Error("Unauthorized");
+    throw new Error('Unauthorized')
   }
 
-  await updateApplicationSettings({ isBootstrapped: true, updatedBy: userIdentity });
-  return redirect("/admin");
+  await updateApplicationSettings({ isBootstrapped: true, updatedBy: userIdentity })
+  return redirect('/admin')
 }
 
 export interface BlockchainSettingsResponse {
@@ -103,46 +139,46 @@ export interface BlockchainSettingsResponse {
   minStake?: number;
 }
 
-export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: string | null) : Promise<BlockchainSettingsResponse> {
-  const errors: string[] = [];
-  const supplierParamsUrl = urlJoin(url, "pokt-network/poktroll/supplier/params");
-  const supplierParamsResponse = await fetch(supplierParamsUrl);
+export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: string | null): Promise<BlockchainSettingsResponse> {
+  const errors: string[] = []
+  const supplierParamsUrl = urlJoin(url, 'pokt-network/poktroll/supplier/params')
+  const supplierParamsResponse = await fetch(supplierParamsUrl)
 
   if (!supplierParamsResponse.ok) {
-    throw new Error("Failed to fetch supplier params");
+    throw new Error('Failed to fetch supplier params')
   }
 
-  const supplierParams = await supplierParamsResponse.json();
-  const minStake = (parseFloat(supplierParams.params.min_stake.amount) + env.MINIMUM_STAKE_BUFFER) / 1e6;
+  const supplierParams = await supplierParamsResponse.json()
+  const minStake = (parseFloat(supplierParams.params.min_stake.amount) + env.MINIMUM_STAKE_BUFFER) / 1e6
 
-  const nodeInfoUrl = urlJoin(url, "cosmos/base/tendermint/v1beta1/node_info");
-  const nodeInfoResponse = await fetch(nodeInfoUrl);
+  const nodeInfoUrl = urlJoin(url, 'cosmos/base/tendermint/v1beta1/node_info')
+  const nodeInfoResponse = await fetch(nodeInfoUrl)
 
   if (!nodeInfoResponse.ok) {
-    throw new Error("Failed to fetch node info");
+    throw new Error('Failed to fetch node info')
   }
 
-  const nodeInfo = await nodeInfoResponse.json();
-  const network = nodeInfo.default_node_info.network;
+  const nodeInfo = await nodeInfoResponse.json()
+  const network = nodeInfo.default_node_info.network
 
-  const statusUrl = urlJoin(url, "cosmos/base/node/v1beta1/status");
-  const statusResponse = await fetch(statusUrl);
+  const statusUrl = urlJoin(url, 'cosmos/base/node/v1beta1/status')
+  const statusResponse = await fetch(statusUrl)
 
   if (!statusResponse.ok) {
-    throw new Error("Failed to fetch chain status (height)");
+    throw new Error('Failed to fetch chain status (height)')
   }
 
-  const statusResult = await statusResponse.json();
-  const newHeightStr: string = statusResult.height;
-  const newHeight = parseInt(newHeightStr, 10);
+  const statusResult = await statusResponse.json()
+  const newHeightStr: string = statusResult.height
+  const newHeight = parseInt(newHeightStr, 10)
 
   if (updatedAtHeight) {
     if (Number(newHeight) < Number(updatedAtHeight)) {
-      errors.push(`Retrieved height (${newHeight}) is lower than the current stored height (${updatedAtHeight}).`);
+      errors.push(`Retrieved height (${newHeight}) is lower than the current stored height (${updatedAtHeight}).`)
       return {
         success: false,
         errors,
-      };
+      }
     }
   }
 
@@ -158,7 +194,7 @@ export async function RetrieveBlockchainSettings(url: string, updatedAtHeight: s
 export async function RetrieveIndexerNetwork(url: string) {
   const client = getServerApolloClient(url)
 
-  const {data} = await client.query({
+  const { data } = await client.query({
     query: indexerStatusDocument,
   })
 
@@ -166,41 +202,41 @@ export async function RetrieveIndexerNetwork(url: string) {
 }
 
 export async function ValidateBlockchainRPC(url: string) {
-  const currentSettings = await getApplicationSettings();
-  const {success, network, errors} = await RetrieveBlockchainSettings(url, currentSettings.updatedAtHeight);
+  const currentSettings = await getApplicationSettings()
+  const { success, network, errors } = await RetrieveBlockchainSettings(url, currentSettings.updatedAtHeight)
   if (!success) {
     return {
       success: false,
       errors,
-    };
+    }
   }
 
   if (network !== currentSettings.chainId) {
     return {
       success: false,
-      errors: ["Chain does not match the current configured chain"],
-    };
+      errors: ['Chain does not match the current configured chain'],
+    }
   }
 
   return {
     success: true,
-  };
+  }
 }
 
 export async function ValidateIndexerUrl(url: string) {
   const [currentSettings, indexerNetwork] = await Promise.all([
     getApplicationSettings(),
     RetrieveIndexerNetwork(url),
-  ]);
+  ])
 
   if (currentSettings.chainId !== indexerNetwork) {
     return {
       success: false,
-      errors: ["Chain does not match the current configured chain"],
-    };
+      errors: ['Chain does not match the current configured chain'],
+    }
   }
 
   return {
-   success: true,
+    success: true,
   }
 }

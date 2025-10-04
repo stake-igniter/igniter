@@ -11,20 +11,22 @@ interface PaginationProps {
   totalPages: number;
   currentPage: number;
   onPageChange: (pageIndex: number) => void;
+  disabled?: boolean;
 }
 
 export default function Pagination({
   totalPages,
   currentPage,
   onPageChange,
+  disabled,
 }: PaginationProps) {
   return (
     <div className="flex items-center justify-end space-x-2 py-4">
       <DropdownMenu>
-        <DropdownMenuTrigger disabled={totalPages <= 1}>
+        <DropdownMenuTrigger disabled={totalPages <= 1 || disabled}>
           <div className="flex items-center gap-2 p-2">
             <span className="text-sm">
-              Page {currentPage + 1} of {totalPages}
+              Page {totalPages === 0 ? 0 : currentPage + 1} of {totalPages}
             </span>
           </div>
         </DropdownMenuTrigger>

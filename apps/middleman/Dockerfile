@@ -23,6 +23,9 @@ RUN pnpm install --frozen-lockfile
 # Copy the remaining application files
 COPY out/middleman/full .
 
+# Copy the middleman drizzle file to run the migration.
+COPY middleman.drizzle.config.ts .
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm turbo run build --filter=@igniter/middleman
@@ -49,7 +52,7 @@ USER nextjs
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/.next/standalone ./
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/.next/static ./apps/middleman/.next/static
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/public ./apps/middleman/public
-COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/drizzle.config.ts ./apps/middleman/drizzle.config.ts
+COPY --from=base --chown=nextjs:nodejs /app/middleman.drizzle.config.ts ./
 COPY --from=base --chown=nextjs:nodejs /app/apps/middleman/drizzle/ ./apps/middleman/drizzle/
 COPY --from=base --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 

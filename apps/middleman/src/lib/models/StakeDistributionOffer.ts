@@ -1,4 +1,4 @@
-import {ProviderFee} from "@/db/schema";
+import {ProviderFee} from "@igniter/db/middleman/enums";
 
 export interface StakeDistributionOffer {
     id: number;

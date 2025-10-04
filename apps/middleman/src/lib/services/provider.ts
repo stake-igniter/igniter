@@ -1,8 +1,8 @@
 import { StakeDistributionOffer } from "@/lib/models/StakeDistributionOffer";
 import {SupplierStake} from "@/lib/models/Transactions";
-import {ApplicationSettings} from "@/db/schema";
+import {ApplicationSettings} from "@igniter/db/middleman/schema";
 
-export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, ownerAddress: string, region: string = ''): Promise<SupplierStake[]> {
+export async function requestSuppliers(stakeOffer: StakeDistributionOffer, settings: ApplicationSettings, ownerAddress: string, region: string = '', simulate = false): Promise<SupplierStake[]> {
     try {
         const response = await fetch("/api/provider-rpc", {
             method: "POST",
@@ -11,7 +11,7 @@ export async function requestSuppliers(stakeOffer: StakeDistributionOffer, setti
             },
             body: JSON.stringify({
                 provider: stakeOffer.identity,
-                path: "/api/suppliers",
+                path: `/api/suppliers?simulate=${simulate ?? false}`,
                 data: {
                     region,
                     delegatorAddress: settings.delegatorRewardsAddress,

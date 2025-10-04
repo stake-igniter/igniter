@@ -1,59 +1,62 @@
-import "server-only";
-import { db } from "@/db";
-import {
+import type {
   ApplicationSettings,
-  applicationSettingsTable,
-  ChainId, CreateApplicationSettings,
-} from "@/db/schema";
-import { eq } from "drizzle-orm";
-import {getCompressedPublicKeyFromAppIdentity} from "@/lib/crypto";
-import {env} from "@/config/env";
+  InsertApplicationSettings,
+} from '@igniter/db/provider/schema'
+import 'server-only'
+import { getDbClient } from '@/db'
+import { ChainId } from '@igniter/db/provider/enums'
+import { applicationSettingsTable } from '@igniter/db/provider/schema'
+import { eq } from 'drizzle-orm'
+import { getCompressedPublicKeyFromAppIdentity } from '@/lib/crypto'
+import { env } from '@/config/env'
 
 const defaultSettings: ApplicationSettings = {
   id: 0,
-  name: "",
-  indexerApiUrl: "",
-  appIdentity: "",
-  supportEmail: "",
-  ownerIdentity: "",
-  ownerEmail: "",
-  rpcUrl: "",
+  name: '',
+  indexerApiUrl: '',
+  appIdentity: '',
+  supportEmail: '',
+  ownerIdentity: '',
+  ownerEmail: '',
+  rpcUrl: '',
   chainId: ChainId.Pocket,
   minimumStake: 0,
   isBootstrapped: false,
-  createdBy: "",
-  updatedBy: "",
-  updatedAtHeight: "",
+  createdBy: '',
+  updatedBy: '',
+  updatedAtHeight: '',
   createdAt: new Date(),
   updatedAt: new Date(),
-};
+}
 
 export async function getApplicationSettings(): Promise<ApplicationSettings> {
-  const dbSettings = await getApplicationSettingsFromDatabase();
-  const appIdentity = await getCompressedPublicKeyFromAppIdentity();
+  const dbSettings = await getApplicationSettingsFromDatabase()
+  const appIdentity = await getCompressedPublicKeyFromAppIdentity()
 
   const envSettings = {
     chainId: process.env.CHAIN_ID as ChainId,
     ownerIdentity: env.OWNER_IDENTITY,
     ownerEmail: process.env.OWNER_EMAIL!,
     appIdentity: appIdentity.toString('hex'),
-  };
+  }
 
   return {
     ...defaultSettings,
     ...envSettings,
     ...(dbSettings ?? {}),
-  };
+  }
 }
 
 export async function getApplicationSettingsFromDatabase() {
-  return db.query.applicationSettingsTable.findFirst();
+  const dbClient = getDbClient()
+  return dbClient.db.query.applicationSettingsTable.findFirst()
 }
 
 export async function insertApplicationSettings(
-  settings: Omit<CreateApplicationSettings, 'ownerIdentity' | 'isBootstrapped'>
+  settings: Omit<InsertApplicationSettings, 'ownerIdentity' | 'isBootstrapped'>,
 ): Promise<ApplicationSettings> {
-  const insertedSettings = await db
+  const dbClient = getDbClient()
+  const insertedSettings = await dbClient.db
     .insert(applicationSettingsTable)
     .values({
       ...settings,
@@ -61,37 +64,38 @@ export async function insertApplicationSettings(
       isBootstrapped: false,
     })
     .returning()
-    .then((res) => res[0]);
+    .then((res) => res[0])
 
   if (!insertedSettings) {
-    throw new Error("Failed to insert application settings");
+    throw new Error('Failed to insert application settings')
   }
 
-  return insertedSettings;
+  return insertedSettings
 }
 
 export async function updateApplicationSettings(
-  settings: Partial<ApplicationSettings>
+  settings: Partial<ApplicationSettings>,
 ): Promise<ApplicationSettings> {
-  const existingSettings = await getApplicationSettingsFromDatabase();
+  const existingSettings = await getApplicationSettingsFromDatabase()
   if (!existingSettings?.id) {
-    throw new Error("No existing settings found to update");
+    throw new Error('No existing settings found to update')
   }
-  const updatedSettings = await db
+  const dbClient = getDbClient()
+  const updatedSettings = await dbClient.db
     .update(applicationSettingsTable)
     .set(settings)
     .where(eq(applicationSettingsTable.id, existingSettings.id))
     .returning()
-    .then((res) => res[0]);
+    .then((res) => res[0])
 
   if (!updatedSettings) {
-    throw new Error("Failed to update application settings");
+    throw new Error('Failed to update application settings')
   }
 
-  return updatedSettings;
+  return updatedSettings
 }
 
 export async function isAppBootstrapped() {
-  const settings = await getApplicationSettingsFromDatabase();
-  return settings?.isBootstrapped ?? false;
+  const settings = await getApplicationSettingsFromDatabase()
+  return settings?.isBootstrapped ?? false
 }

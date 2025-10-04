@@ -7,6 +7,7 @@ import { Duration } from '@temporalio/common'
 import { Logger } from '@igniter/logger'
 import Long from 'long'
 import { Client } from '@temporalio/client'
+import {RemediationHistoryEntryReason} from "@igniter/db/provider/enums";
 
 enum ScheduledWorkflowType {
   SupplierStatus = 'SupplierStatus',
@@ -17,8 +18,8 @@ const ScheduledWorkflowConfig: Record<
   ScheduledWorkflowType,
   { interval: string }
 > = {
-  [ScheduledWorkflowType.SupplierStatus]: { interval: '10m' },
-  [ScheduledWorkflowType.SupplierRemediation]: { interval: '2m' },
+  [ScheduledWorkflowType.SupplierStatus]: { interval: '2m' },
+  [ScheduledWorkflowType.SupplierRemediation]: { interval: '10s' },
 }
 
 async function bootstrapNamespace(client: Client, config: TemporalConfig, logger: Logger) {
@@ -67,11 +68,21 @@ async function bootstrapScheduledWorkflows(client: Client, config: TemporalConfi
     } catch (error: unknown) {
       try {
         logger.warn({ workflowType }, `Scheduled workflow does not exist. Registering...`)
+
+        const defaultArgsByType: Record<ScheduledWorkflowType, any[]> = {
+          [ScheduledWorkflowType.SupplierStatus]: [], // no args
+          [ScheduledWorkflowType.SupplierRemediation]: [{
+            // TODO: Add other default automatic remediation as we progress. Initially, we'll only support stake completion.
+            reasons: [RemediationHistoryEntryReason.OwnerInitialStake]
+          }],
+        }
+
         await client.schedule.create({
           action: {
             type: 'startWorkflow',
             workflowType,
             taskQueue: config.taskQueue!,
+            args: defaultArgsByType[workflowType],
           },
           scheduleId: `${workflowType}-scheduled`,
           spec: {

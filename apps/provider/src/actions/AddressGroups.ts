@@ -2,13 +2,13 @@
 
 import type {
     AddressGroup,
-    CreateAddressGroup,
+    InsertAddressGroup,
     AddressGroupService,
-} from "@/db/schema";
+} from "@igniter/db/provider/schema";
 import { insert, list, remove, simpleList, update } from '@/lib/dal/addressGroups'
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 
-export async function CreateAddressGroup(addressGroup: Omit<CreateAddressGroup, 'createdBy' | 'updatedBy'>, services: Omit<AddressGroupService, 'addressGroupId' | 'service'>[]) {
+export async function CreateAddressGroup(addressGroup: Omit<InsertAddressGroup, 'createdBy' | 'updatedBy'>, services: Omit<AddressGroupService, 'addressGroupId' | 'service'>[]) {
   const identity = await getCurrentUserIdentity();
   return insert(
     {

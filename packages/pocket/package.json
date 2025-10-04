@@ -1,0 +1,48 @@
+{
+  "name": "@igniter/pocket",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "./dist/cjs/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types/src/index.d.ts",
+      "require": "./dist/cjs/src/index.js",
+      "default": "./dist/cjs/src/index.js",
+      "import": "./dist/cjs/src/index.js"
+    },
+    "./proto/*": {
+      "types": "./dist/types/src/proto/generated/*.d.ts",
+      "require": "./dist/cjs/src/proto/generated/*.js",
+      "default": "./dist/cjs/src/proto/generated/*.js",
+      "import": "./dist/cjs/src/proto/generated/*.js"
+    }
+  },
+  "types": "./dist/types/src/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "build": "tsc -p tsconfig.build.cjs.json && tsc-alias -p tsconfig.build.cjs.json --outDir ./dist/cjs --verbose",
+    "typecheck": "tsc -p tsconfig.dev.json --noEmit",
+    "lint": "eslint . --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "2.7.0",
+    "@cosmjs/crypto": "^0.33.1",
+    "@cosmjs/encoding": "^0.33.1",
+    "@cosmjs/proto-signing": "^0.33.1",
+    "@cosmjs/stargate": "^0.33.1",
+    "@cosmjs/tendermint-rpc": "^0.33.1",
+    "@igniter/logger": "workspace:*",
+    "cosmjs-types": "0.10.1"
+  },
+  "devDependencies": {
+    "@igniter/eslint-config": "workspace:*",
+    "@igniter/typescript-config": "workspace:*",
+    "@types/node": "22.14.1",
+    "tsc-alias": "^1.8.15"
+  }
+}

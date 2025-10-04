@@ -1,13 +1,31 @@
-"use server";
+'use server'
 
-import {getApplicationSettings} from "@/actions/ApplicationSettings";
-import {ListProviders} from "@/actions/Providers";
-import {StakeDistributionItem, StakeDistributionOffer} from "@/lib/models/StakeDistributionOffer";
-import {SignedMemo, SignedMemoPayload, SignedTransaction} from '@igniter/ui/models';
-import {ApplicationSettings, CreateTransaction, ProviderFee, TransactionStatus, TransactionType} from "@/db/schema";
-import {insert} from "@/lib/dal/transaction";
-import {getCurrentUserIdentity} from "@/lib/utils/actions";
-import {getCompressedPublicKeyFromAppIdentity, signPayload} from "@/lib/crypto";
+import { getApplicationSettings } from '@/actions/ApplicationSettings'
+import { ListProviders } from '@/actions/Providers'
+import {
+  StakeDistributionItem,
+  StakeDistributionOffer,
+} from '@/lib/models/StakeDistributionOffer'
+import {
+  SignedMemo,
+  SignedMemoPayload,
+  SignedTransaction,
+} from '@igniter/ui/models'
+import {
+  ApplicationSettings,
+  InsertTransaction,
+} from '@igniter/db/middleman/schema'
+import {
+  ProviderFee,
+  TransactionStatus,
+  TransactionType,
+} from '@igniter/db/middleman/enums'
+import { insert } from '@/lib/dal/transaction'
+import { getCurrentUserIdentity } from '@/lib/utils/actions'
+import {
+  getCompressedPublicKeyFromAppIdentity,
+  signPayload,
+} from '@/lib/crypto'
 
 export interface CreateStakeTransactionRequest {
   offer: StakeDistributionOffer;
@@ -19,31 +37,31 @@ export interface CreateSignedMemoRequest {
 }
 
 export async function CalculateStakeDistribution(stakeAmount: number): Promise<StakeDistributionOffer[]> {
-  const applicationSettings = await getApplicationSettings();
-  const providers = await ListProviders();
+  const applicationSettings = await getApplicationSettings()
+  const providers = await ListProviders()
 
-  const availableNodeSizes = [applicationSettings.minimumStake];
+  const availableNodeSizes = [applicationSettings.minimumStake]
 
   return providers.map(provider => {
-    let distribution: StakeDistributionItem[] = [];
+    let distribution: StakeDistributionItem[] = []
 
     if (provider.enabled && provider.operationalFunds && provider.minimumStake) {
-      const allowedSizes = availableNodeSizes.filter(amount => amount >= provider.minimumStake);
+      const allowedSizes = availableNodeSizes.filter(amount => amount >= provider.minimumStake)
 
-      let remaining = stakeAmount;
+      let remaining = stakeAmount
 
       distribution = allowedSizes.reduce((acc: StakeDistributionItem[], nodeAmount: number) => {
-        if (remaining <= 0) return acc;
-        const qty = Math.floor(remaining / nodeAmount);
+        if (remaining <= 0) return acc
+        const qty = Math.floor(remaining / nodeAmount)
         if (qty > 0) {
-          acc.push({ amount: nodeAmount, qty });
-          remaining -= qty * nodeAmount;
+          acc.push({ amount: nodeAmount, qty })
+          remaining -= qty * nodeAmount
         }
-        return acc;
-      }, []);
+        return acc
+      }, [])
 
       if (remaining !== 0) {
-        distribution = [];
+        distribution = []
       }
     }
 
@@ -56,15 +74,15 @@ export async function CalculateStakeDistribution(stakeAmount: number): Promise<S
       regions: provider.regions || [],
       rewards: 'N/A',
       operationalFundsAmount: provider.operationalFunds,
-      stakeDistribution: distribution
-    };
-  });
+      stakeDistribution: distribution,
+    }
+  })
 }
 
 export async function CreateStakeTransaction(request: CreateStakeTransactionRequest) {
-  const userIdentity = await getCurrentUserIdentity();
+  const userIdentity = await getCurrentUserIdentity()
 
-  const creatingTransaction: CreateTransaction = {
+  const creatingTransaction: InsertTransaction = {
     type: TransactionType.Stake,
     status: TransactionStatus.Pending,
     signedPayload: request.transaction.signedPayload,
@@ -76,29 +94,29 @@ export async function CreateStakeTransaction(request: CreateStakeTransactionRequ
     consumedFee: 0,
     typeProviderFee: request.offer.feeType,
     createdBy: userIdentity,
-  };
+  }
 
-  return insert(creatingTransaction);
+  return insert(creatingTransaction)
 }
 
-export async function CreateSignedMemo(request: CreateSignedMemoRequest) : Promise<SignedMemo> {
+export async function CreateSignedMemo(request: CreateSignedMemoRequest): Promise<SignedMemo> {
   const signedMemoPayload: SignedMemoPayload = {
     t: new Date().toISOString(),
     a: request.settings.delegatorRewardsAddress!,
     f: request.settings.fee?.toString() ?? '',
-  };
+  }
 
   const canonicalPayload = JSON.stringify(
-    Object.fromEntries(Object.entries(signedMemoPayload).sort())
-  );
+    Object.fromEntries(Object.entries(signedMemoPayload).sort()),
+  )
 
-  const signature = await signPayload(JSON.stringify(canonicalPayload));
+  const signature = await signPayload(JSON.stringify(canonicalPayload))
 
-  const publicKey = await getCompressedPublicKeyFromAppIdentity();
+  const publicKey = await getCompressedPublicKeyFromAppIdentity()
 
   return {
     ...signedMemoPayload,
     s: signature.toString('base64url'),
     p: publicKey.toString('base64url'),
-  };
+  }
 }

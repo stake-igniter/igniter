@@ -1,11 +1,19 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { getLogger } from '@igniter/logger'
+import { getDb as getDbConnection } from '@igniter/db/provider/connection'
+import schema from '@igniter/db/provider/schema'
+import { DBClient } from '@igniter/db/connection'
 
-import * as schema from './schema';
+const logger = getLogger()
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('localhost') ? false : { rejectUnauthorized: false },
-});
+let dbClient: DBClient<typeof schema>
 
-export const db = drizzle<typeof schema>(pool, { schema });
+export const getDbClient = () => {
+  if (dbClient) {
+    return dbClient
+  }
+
+  dbClient = getDbConnection(logger)
+  return dbClient
+}
+
+export const getDb = () => getDbClient().db

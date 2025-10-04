@@ -1,7 +1,7 @@
 'use client';
 
-import {useEffect, useMemo, useState} from "react";
-import {Service} from "@/db/schema";
+import {useState} from "react";
+import type {Service} from "@igniter/db/provider/schema";
 import {DeleteService, ListServices} from "@/actions/Services";
 import {Button} from "@igniter/ui/components/button";
 import { Trash2Icon, PencilIcon } from "lucide-react";
@@ -12,10 +12,9 @@ import {AddOrUpdateServiceDialog} from "@/components/AddOrUpdateServiceDialog";
 import { useQuery } from '@tanstack/react-query'
 
 export default function ServicesTable() {
-  const {data: services, refetch: refetchServices, isLoading: isLoadingServices} = useQuery({
+  const {data: services, refetch: refetchServices, isLoading: isLoadingServices, isError} = useQuery({
     queryKey: ['services'],
     queryFn: ListServices,
-    staleTime: Infinity,
     refetchInterval: 60000,
     initialData: []
   });
@@ -24,29 +23,27 @@ export default function ServicesTable() {
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [isDeletingService, setIsDeletingService] = useState(false);
 
-  const isLoading = useMemo(() => {
-    return isLoadingServices || isDeletingService;
-  }, [isLoadingServices, isDeletingService])
-
-  useEffect(() => {
-    refetchServices();
-  }, []);
+  const isLoading = isLoadingServices || isDeletingService;
 
   const content = (
     <DataTable
+      isError={isError}
+      isLoading={isLoading}
+      refetch={refetchServices}
       columns={[
         ...columns,
         {
           id: 'actions',
           header: '',
           cell: ({ row }) => (
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-3 justify-end">
                   <Button
                       disabled={isLoading}
                       variant="ghost"
                       size="icon"
                       onClick={() => setUpdateService(row.original)}
                       title="Edit Region"
+                      className={'h-4 w-4'}
                   >
                       <PencilIcon className="h-4 w-4" />
                   </Button>
@@ -56,6 +53,7 @@ export default function ServicesTable() {
                       size="icon"
                       onClick={() => setServiceToDelete(row.original)}
                       title="Delete Region"
+                      className={'h-4 w-4'}
                   >
                       <Trash2Icon className="h-4 w-4 text-red-500" />
                   </Button>
@@ -98,7 +96,7 @@ export default function ServicesTable() {
           service={updateService}
         />
       )}
-      <div className="py-2 max-h-[500px] min-h-[300px] overflow-y-scroll scrollbar-hidden">
+      <div className="py-2 overflow-y-scroll scrollbar-hidden">
         {content}
       </div>
       {serviceToDelete && (
@@ -127,6 +125,9 @@ export default function ServicesTable() {
           <p>
             Are you sure you want to delete the service "{serviceToDelete.name}"?
             This action cannot be undone.
+          </p>
+          <p>
+            This will also delete all relations with addresses groups.
           </p>
         </ConfirmationDialog>
       )}

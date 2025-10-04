@@ -1,5 +1,5 @@
 import { proxyActivities } from "@temporalio/workflow";
-import { delegatorActivities } from "../activities";
+import { delegatorActivities } from '@/activities';
 
 export interface ProviderStatusArgs {}
 

@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import { getApplicationSettings } from "@/actions/ApplicationSettings";
-import {ApplicationSettings} from "@/db/schema";
+import {ApplicationSettings} from "@igniter/db/middleman/schema";
 
 const ApplicationSettingsContext = createContext<ApplicationSettings | undefined>(undefined);
 

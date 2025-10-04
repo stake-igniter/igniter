@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from '@igniter/ui/components/table';
-import {RelayMinerWithDetails, Region} from "@/db/schema";
+import type {RelayMinerWithDetails, Region} from "@igniter/db/provider/schema";
 
 export const columns: ColumnDef<RelayMinerWithDetails>[] = [
   {

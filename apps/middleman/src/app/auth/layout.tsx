@@ -2,8 +2,7 @@
 import "@/app/globals.css";
 import {SessionProvider} from "next-auth/react";
 import {Jost, Overpass_Mono} from "next/font/google";
-import {auth} from "@/auth";
-import {WalletConnectionProvider} from "@igniter/ui/context/WalletConnection/index";
+import WalletConnectionProvider from "@/app/context/WalletConnection/Provider";
 import { ThemeProvider } from "@/app/theme";
 
 const jost = Jost({
@@ -22,13 +21,11 @@ const overpass_mono = Overpass_Mono({
   display: "swap",
 });
 
-export default async function AuthLayout({
+export default function AuthLayout({
                                      children,
                                    }: Readonly<{
   children: React.ReactNode;
 }>) {
-   const session = await auth();
-
    return (
      <html
        lang="en"
@@ -43,9 +40,7 @@ export default async function AuthLayout({
          enableSystem
          disableTransitionOnChange
        >
-         <WalletConnectionProvider
-           expectedIdentity={session?.user?.identity}
-         >
+         <WalletConnectionProvider>
           <div className="flex flex-col items-center justify-center w-full h-dvh">
             {children}
           </div>

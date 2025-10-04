@@ -1,10 +1,11 @@
 import "server-only";
-import { db } from "@/db";
+import { getDb } from "@/db";
 import {
   ApplicationSettings,
   applicationSettingsTable,
-  ChainId, CreateApplicationSettings,
-} from "@/db/schema";
+  InsertApplicationSettings,
+} from "@igniter/db/middleman/schema";
+import {ChainId} from '@igniter/db/middleman/enums'
 import { eq } from "drizzle-orm";
 import {getCompressedPublicKeyFromAppIdentity} from "@/lib/crypto";
 import {env} from "@/config/env";
@@ -50,13 +51,13 @@ export async function getApplicationSettings(): Promise<ApplicationSettings> {
 }
 
 export async function getApplicationSettingsFromDatabase() {
-  return db.query.applicationSettingsTable.findFirst();
+  return getDb().query.applicationSettingsTable.findFirst();
 }
 
 export async function insertApplicationSettings(
-  settings: Omit<CreateApplicationSettings, 'ownerIdentity' | 'isBootstrapped'>,
+  settings: Omit<InsertApplicationSettings, 'ownerIdentity' | 'isBootstrapped'>,
 ): Promise<ApplicationSettings> {
-  const insertedSettings = await db
+  const insertedSettings = await getDb()
     .insert(applicationSettingsTable)
     .values({
       ...settings,
@@ -82,7 +83,7 @@ export async function updateApplicationSettings(
     throw new Error("No existing settings found to update");
   }
 
-  const updatedSettings = await db
+  const updatedSettings = await getDb()
     .update(applicationSettingsTable)
     .set(settings)
     .where(eq(applicationSettingsTable.id, existingSettings.id))

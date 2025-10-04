@@ -5,8 +5,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {getCurrentUserIdentity} from "@/lib/utils/actions";
 import { getApplicationSettings } from '@/actions/ApplicationSettings'
-import {providersTable} from "@/db/schema";
-import {db} from "@/db";
+import {providersTable} from "@igniter/db/middleman/schema";
+import { getDb} from "@/db";
 import {eq} from "drizzle-orm";
 
 export interface Provider {
@@ -22,7 +22,7 @@ const updateProvidersSchema = z.object({
   }),
 });
 
-export async function UpdateProvidersFromSource() {
+export async function UpdateProvidersFromSource(): Promise<{ success: boolean, error?: string, data: Provider[] }> {
   const [userIdentity, appSettings] = await Promise.all([
     getCurrentUserIdentity(),
     getApplicationSettings(),
@@ -54,88 +54,100 @@ export async function UpdateProvidersFromSource() {
     };
 
     const providersFromCdn = (await response.json()) as CdnProvider[];
-    console.log(`[Providers] Fetched ${providersFromCdn.length} providers from CDN`);
+    console.log(
+      `[Providers] Fetched ${providersFromCdn.length} providers from CDN`,
+    );
 
     const currentProviders = await list(true);
-
     const currentProvidersMap = new Map(
       currentProviders.map((p) => [p.identity, p]),
     );
 
     const allCdnIdentities = new Set<string>();
-
-    let inserted = 0;
-    let updated = 0;
-    let disabled = 0;
-
     for (const p of providersFromCdn) {
       allCdnIdentities.add(p.identity);
       p.identityHistory.forEach((h) => allCdnIdentities.add(h));
     }
 
-    for (const cdnProvider of providersFromCdn) {
-      const possibleIds = [cdnProvider.identity, ...cdnProvider.identityHistory];
+    const { inserted, updated, disabled } = await getDb().transaction(
+      async (tx) => {
+        let inserted = 0;
+        let updated = 0;
+        let disabled = 0;
 
-      const matchingCurrent =
-        possibleIds.map((id) => currentProvidersMap.get(id)).find(Boolean) ??
-        null;
+        for (const cdnProvider of providersFromCdn) {
+          const possibleIds = [
+            cdnProvider.identity,
+            ...cdnProvider.identityHistory,
+          ];
 
-      if (matchingCurrent) {
-        const shouldUpdateIdentity =
-          matchingCurrent.identity !== cdnProvider.identity;
-        const shouldUpdateName = matchingCurrent.name !== cdnProvider.name;
-        const shouldUpdateUrl = matchingCurrent.url !== cdnProvider.url;
+          const matchingCurrent =
+            possibleIds.map((id) => currentProvidersMap.get(id)).find(Boolean) ??
+            null;
 
-        if (shouldUpdateIdentity || shouldUpdateName || shouldUpdateUrl) {
-          await db
-            .update(providersTable)
-            .set({
-              identity: cdnProvider.identity,
+          if (matchingCurrent) {
+            const shouldUpdateIdentity =
+              matchingCurrent.identity !== cdnProvider.identity;
+            const shouldUpdateName = matchingCurrent.name !== cdnProvider.name;
+            const shouldUpdateUrl = matchingCurrent.url !== cdnProvider.url;
+
+            if (shouldUpdateIdentity || shouldUpdateName || shouldUpdateUrl) {
+              await tx
+                .update(providersTable)
+                .set({
+                  identity: cdnProvider.identity,
+                  name: cdnProvider.name,
+                  url: cdnProvider.url,
+                  updatedBy: userIdentity,
+                })
+                .where(eq(providersTable.id, matchingCurrent.id));
+              updated += 1;
+            }
+          } else {
+            await tx.insert(providersTable).values({
               name: cdnProvider.name,
+              identity: cdnProvider.identity,
               url: cdnProvider.url,
+              enabled: false,
+              visible: false,
+              createdBy: userIdentity,
               updatedBy: userIdentity,
-            })
-            .where(eq(providersTable.id, matchingCurrent.id));
-          updated += 1;
+            });
+            inserted += 1;
+          }
         }
-      } else {
-        await db.insert(providersTable).values({
-          name: cdnProvider.name,
-          identity: cdnProvider.identity,
-          url: cdnProvider.url,
-          enabled: false,
-          visible: false,
-          createdBy: userIdentity,
-          updatedBy: userIdentity,
-        });
-        inserted += 1;
-      }
-    }
 
-    for (const provider of currentProviders) {
-      if (!allCdnIdentities.has(provider.identity) && (provider.enabled || provider.visible)) {
-        await db
-          .update(providersTable)
-          .set({
-            enabled: false,
-            visible: false,
-            updatedAt: new Date(),
-            updatedBy: userIdentity,
-          })
-          .where(eq(providersTable.identity, provider.identity));
-        disabled += 1;
-      }
-    }
+        for (const provider of currentProviders) {
+          if (
+            !allCdnIdentities.has(provider.identity) &&
+            (provider.enabled || provider.visible)
+          ) {
+            await tx
+              .update(providersTable)
+              .set({
+                enabled: false,
+                visible: false,
+                updatedAt: new Date(),
+                updatedBy: userIdentity,
+              })
+              .where(eq(providersTable.identity, provider.identity));
+            disabled += 1;
+          }
+        }
 
+        return { inserted, updated, disabled };
+      },
+    );
     console.log(
       `[Providers] Done. Inserted: ${inserted}, Updated: ${updated}, Disabled: ${disabled}`,
     );
 
-    return { success: true };
+    return { success: true, data: currentProviders };
   } catch (error) {
     console.error("Error updating providers:", error);
     return {
       success: false,
+      data: [],
       error: error instanceof Error ? error.message : "Unknown error occurred",
     };
   }

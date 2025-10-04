@@ -2,25 +2,22 @@ import type {Metadata} from "next";
 import {SessionProvider} from "next-auth/react";
 import "@/app/globals.css";
 import {ThemeProvider} from "@/app/theme";
-import { WalletConnectionProvider } from '@/app/context/WalletConnectionProvider'
+import WalletConnectionProvider from "@/app/context/WalletConnection/Provider";
 import {ApplicationSettingsProvider} from "@/app/context/ApplicationSettings";
 import {AppTopBar} from "@igniter/ui/components/AppTopBar/index";
 import CurrentUser from "@/components/CurrentUser";
 import QueryClientProvider from "@/app/context/QueryClientProvider";
-import { auth } from '@/auth'
 
 export const metadata: Metadata = {
   title: "Stake Igniter",
   description: "Light up your earnings with Igniter",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-
   return (
     <QueryClientProvider>
       <SessionProvider>
@@ -31,10 +28,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <ApplicationSettingsProvider>
-            <WalletConnectionProvider
-              protocol={'shannon'}
-              expectedIdentity={session?.user?.identity}
-            >
+            <WalletConnectionProvider>
               <AppTopBar>
                 <CurrentUser/>
               </AppTopBar>

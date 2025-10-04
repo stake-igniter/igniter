@@ -1,4 +1,5 @@
-import { CreateKey, KeyState } from "@/db/schema";
+import type {InsertKey, Key} from "@igniter/db/provider/schema";
+import { KeyState } from "@igniter/db/provider/enums";
 import { Random } from "@cosmjs/crypto";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";
 
@@ -7,10 +8,12 @@ export interface CreateKeysParams {
   willDeliverTo: string;
   numberOfKeys: number;
   ownerAddress: string;
+  delegatorRewardsAddress: string;
+  delegatorRevSharePercentage: number;
 }
 
-export async function createKeys(params: CreateKeysParams): Promise<CreateKey[]> {
-  const newKeys: CreateKey[] = [];
+export async function createKeys(params: CreateKeysParams): Promise<InsertKey[]> {
+  const newKeys: InsertKey[] = [];
 
   for (let i = 0; i < params.numberOfKeys; i++) {
     const privateKey = Random.getBytes(32);
@@ -29,6 +32,8 @@ export async function createKeys(params: CreateKeysParams): Promise<CreateKey[]>
       addressGroupId: params.addressGroupId,
       deliveredTo: params.willDeliverTo,
       deliveredAt: new Date(),
+      delegatorRevSharePercentage: params.delegatorRevSharePercentage ?? 0,
+      delegatorRewardsAddress: params.delegatorRewardsAddress,
       state: KeyState.Delivered
     });
   }

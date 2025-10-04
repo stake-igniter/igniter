@@ -1,7 +1,7 @@
 import {z} from "zod";
 import urlJoin from 'url-join';
 import {GetProviderByIdentity} from "@/actions/Providers";
-import {Provider} from "@/db/schema";
+import {Provider} from "@igniter/db/middleman/schema";
 import {signPayload} from "@/lib/crypto";
 import {getApplicationSettings} from "@/lib/dal/applicationSettings";
 import {REQUEST_IDENTITY_HEADER, REQUEST_SIGNATURE_HEADER} from "@/lib/constants";
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const schema = z.object({
     provider: z.string(),
     path: z.string(),
-    data: z.any()
+    data: z.any(),
   });
 
   let validatedData: z.infer<typeof schema>;

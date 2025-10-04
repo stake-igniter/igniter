@@ -4,8 +4,9 @@ import {list} from "@/lib/dal/addressGroups";
 import {list as listRegions} from '@/lib/dal/regions';
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {StatusRequest, StatusResponse} from "@/lib/models/status";
-import {AddressGroupWithDetails, ProviderFee} from "@/db/schema";
-import {getRevShare} from "@/lib/utils/services";
+import type {AddressGroupWithDetails} from "@igniter/db/provider/schema";
+import {ProviderFee} from "@igniter/db/provider/enums";
+import {getRevShare} from "@igniter/domain/provider/utils";
 
 async function getUniqueRegions(): Promise<string[]> {
   const regions = await listRegions();

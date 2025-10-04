@@ -3,7 +3,7 @@
 import { ColumnDef } from '@igniter/ui/components/table';
 import {CopyIcon} from "@igniter/ui/assets";
 import {FilterGroup, SortOption} from "@igniter/ui/components/DataTable/index";
-import {Provider} from "@/db/schema";
+import {Provider} from "@igniter/db/middleman/schema";
 import {useState} from "react";
 import {UpdateEnabled, UpdateVisibility} from "@/actions/Providers";
 import {Button} from "@igniter/ui/components/button";
@@ -36,18 +36,6 @@ export const columns: ColumnDef<Provider>[] = [
     },
   },
   {
-    accessorKey: "updatedAt",
-    header: "Updated At",
-    cell: ({ row }) => {
-      const updatedAt = new Date(row.getValue("updatedAt"));
-      return (
-        <span className="font-mono text-slightly-muted-foreground flex justify-center gap-2">
-          {updatedAt.toLocaleString()}
-        </span>
-      );
-    },
-  },
-  {
     accessorKey: "visible",
     header: "Visibility",
     cell: () => null
@@ -58,7 +46,22 @@ export const columns: ColumnDef<Provider>[] = [
     cell: () => null
   },
   {
-    header: "enabled",
+    accessorKey: "updatedAt",
+    header: "Updated At",
+    meta: {
+      headerAlign: "center"
+    },
+    cell: ({ row }) => {
+      const updatedAt = new Date(row.getValue("updatedAt"));
+      return (
+        <span className="font-mono text-slightly-muted-foreground flex justify-center gap-2">
+          {updatedAt.toLocaleString()}
+        </span>
+      );
+    },
+  },
+  {
+    id: "actions",
     cell: ({ row }) => {
       const provider = row.original;
       const [isEnabled, setIsEnabled] = useState(provider.enabled);

@@ -1,6 +1,6 @@
 "use server";
 
-import type { RelayMiner, CreateRelayMiner as CreateRelayMinerType } from "@/db/schema";
+import type { RelayMiner, InsertRelayMiner } from "@igniter/db/provider/schema";
 import { list, remove, insert, update } from "@/lib/dal/relayMiners";
 import { getCurrentUserIdentity } from "@/lib/utils/actions";
 
@@ -12,7 +12,7 @@ export async function DeleteRelayMiner(id: number) {
   return remove(id);
 }
 
-export async function CreateRelayMiner(relayMiner: Omit<CreateRelayMinerType, 'createdBy' | 'updatedBy'>) {
+export async function CreateRelayMiner(relayMiner: Omit<InsertRelayMiner, 'createdBy' | 'updatedBy'>) {
   const identity = await getCurrentUserIdentity();
   return insert({
     ...relayMiner,

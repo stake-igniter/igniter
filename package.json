@@ -6,6 +6,11 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "provider:migration:generate": "pnpm exec drizzle-kit generate --config provider.drizzle.config.ts",
+    "provider:migration:migrate": "pnpm exec drizzle-kit migrate --config provider.drizzle.config.ts",
+    "middleman:migration:generate": "pnpm exec drizzle-kit generate --config middleman.drizzle.config.ts",
+    "middleman:migration:migrate": "pnpm exec drizzle-kit migrate --config middleman.drizzle.config.ts",
+    "buf:generate": "buf generate",
     "build:middleman:docker": "./tilt/docker/build.sh middleman",
     "build:middleman-workflows:docker": "./tilt/docker/build.sh middleman-workflows",
     "build:provider-workflows:docker": "./tilt/docker/build.sh provider-workflows",
@@ -16,12 +21,18 @@
     "apps/*",
     "packages/*"
   ],
+  "dependencies": {
+    "drizzle-kit": "0.31.4"
+  },
   "devDependencies": {
+    "@types/json-bigint": "^1.0.4",
+    "@types/node": "^22",
+    "json-bigint": "1.0.0",
     "prettier": "^3.5.3",
     "turbo": "^2.4.4",
     "typescript": "5.7.3"
   },
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.15.0",
   "engines": {
     "node": ">=18"
   }

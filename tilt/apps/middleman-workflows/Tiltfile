@@ -3,11 +3,33 @@ custom_build(
     command='./tilt/docker/build.sh middleman-workflows',
     dir='../../../',
     deps=['../../../apps/middleman-workflows', '../../../packages'],
-    ignore=['node_modules', '**/node_modules', 'packages/**/node_modules', 'apps/**/node_modules'],
+    ignore=[
+      'node_modules',
+      '**/node_modules',
+      'packages/**/node_modules',
+      'apps/**/node_modules',
+      'apps/**/dist',
+      'packages/**/dist'
+    ],
     live_update=[
       sync('../../../apps/middleman-workflows', '/app/apps/middleman-workflows'),
       sync('../../../packages', '/app/packages'),
-      run('pnpm run build', trigger=['../../../apps/middleman-workflows', '../../../packages']),
+      run(
+        'pnpm install',
+        trigger=[
+          '../../../package.json',
+          '../../../apps/**/package.json',
+          '../../../packages/**/package.json'
+        ]
+      ),
+      run(
+        'pnpm exec turbo run build --filter=@igniter/middleman-workflows',
+        trigger=[
+          '../../../apps/middleman-workflows',
+          '../../../packages'
+        ]
+      ),
+      run('echo "last update is: $(date)" > /app/apps/middleman-workflows/trigger.update')
     ]
 )
 

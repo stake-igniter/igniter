@@ -1,39 +1,27 @@
-'use client';
-
+import type { Metadata } from 'next'
 import React from 'react'
-import {Button} from "@igniter/ui/components/button";
-import {AddOrUpdateServiceDialog} from "@/components/AddOrUpdateServiceDialog";
 import ServicesTable from "@/app/admin/(internal)/services/table";
-import {useQueryClient} from "@tanstack/react-query";
+import { GetAppName } from '@/actions/ApplicationSettings'
+import AddNewService from '@/app/admin/(internal)/services/AddNew'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const appName = await GetAppName()
+
+  return {
+    title: `Services - ${appName}`,
+  }
+}
 
 export default function ServicesPages() {
-  const queryClient = useQueryClient();
-  const [isAddingService, setIsAddingService] = React.useState(false);
   return (
     <div className="flex flex-col gap-10">
-      {isAddingService && (
-        <AddOrUpdateServiceDialog
-          onClose={(shouldRefreshServices) => {
-            setIsAddingService(false);
-            if (shouldRefreshServices) {
-              queryClient.invalidateQueries({queryKey: ['services']});
-            }
-          }}
-          />
-      )}
-      <div className="mx-30 py-10">
+
+      <div className="mx-30 pt-10">
         <div className={'flex flex-row items-center gap-4'}>
           <h1>Services</h1>
-          <Button
-            variant={"outline"}
-            onClick={() => setIsAddingService(true) }
-            >
-            Add New
-          </Button>
+          <AddNewService />
         </div>
-        <div className="container mx-auto ">
-          <ServicesTable />
-        </div>
+        <ServicesTable />
       </div>
     </div>
   )

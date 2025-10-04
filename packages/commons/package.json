@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./models/supplier": {
+      "import": "./dist/src/models/supplier.js",
+      "require": "./dist/src/models/supplier.js",
+      "types": "./dist/src/models/supplier.d.ts"
+    },
     "./constants": {
       "import": "./dist/src/constants.js",
       "require": "./dist/src/constants.js",

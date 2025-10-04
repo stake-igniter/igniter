@@ -1,54 +1,58 @@
-import { sql, eq, and } from "drizzle-orm";
-import { db } from "@/db";
-import { regionsTable, type Region, type CreateRegion } from "@/db/schema";
+import { eq } from 'drizzle-orm'
+import { getDb } from '@/db'
+import type {
+  InsertRegion,
+  Region,
+} from '@igniter/db/provider/schema'
+import { regionsTable } from '@igniter/db/provider/schema'
 
 export async function list(): Promise<Region[]> {
-    return db.query.regionsTable.findMany({
-        orderBy: regionsTable.displayName,
-    });
+  return getDb().query.regionsTable.findMany({
+    orderBy: regionsTable.displayName,
+  })
 }
 
 export async function insert(
-    region: CreateRegion
+  region: InsertRegion,
 ): Promise<Region> {
-    const [insertedRegion] = await db
-        .insert(regionsTable)
-        .values(region)
-        .returning();
+  const [insertedRegion] = await getDb()
+    .insert(regionsTable)
+    .values(region)
+    .returning()
 
-    if (!insertedRegion) {
-        throw new Error("Failed to insert region");
-    }
+  if (!insertedRegion) {
+    throw new Error('Failed to insert region')
+  }
 
-    return insertedRegion;
+  return insertedRegion
 }
 
 export async function update(
-    id: number,
-    regionUpdates: Partial<Region>
+  id: number,
+  regionUpdates: Partial<Region>,
 ): Promise<Region> {
-    const [updatedRegion] = await db
-        .update(regionsTable)
-        .set(regionUpdates)
-        .where(eq(regionsTable.id, id))
-        .returning();
+  const [updatedRegion] = await getDb()
+    .update(regionsTable)
+    .set(regionUpdates)
+    .where(eq(regionsTable.id, id))
+    .returning()
 
-    if (!updatedRegion) {
-        throw new Error("Failed to update the region");
-    }
+  if (!updatedRegion) {
+    throw new Error('Failed to update the region')
+  }
 
-    return updatedRegion;
+  return updatedRegion
 }
 
 export async function remove(id: number): Promise<Region> {
-    const [deletedRegion] = await db
-        .delete(regionsTable)
-        .where(eq(regionsTable.id, id))
-        .returning();
+  const [deletedRegion] = await getDb()
+    .delete(regionsTable)
+    .where(eq(regionsTable.id, id))
+    .returning()
 
-    if (!deletedRegion) {
-        throw new Error("Failed to delete the region");
-    }
+  if (!deletedRegion) {
+    throw new Error('Failed to delete the region')
+  }
 
-    return deletedRegion;
+  return deletedRegion
 }

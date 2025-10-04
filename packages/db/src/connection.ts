@@ -12,7 +12,9 @@ type SetupOptions<TSchema> = {
   logger: Logger;
 };
 
-export const setup = async <TSchema extends Record<string, unknown>>(options: SetupOptions<TSchema>): Promise<DBClient> => {
+export type { DBClient }
+
+export const setup = <TSchema extends Record<string, unknown>>(options: SetupOptions<TSchema>): DBClient<TSchema>  => {
   const {
     DATABASE_URL,
     PG_SSL_MODE = 'no-verify', // "disable" | "require" | "no-verify"

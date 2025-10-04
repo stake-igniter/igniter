@@ -16,13 +16,12 @@ import { Input } from "@igniter/ui/components/input";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogTitle,
 } from "@igniter/ui/components/dialog";
 import React, { useCallback, useState } from "react";
 import { LoaderIcon } from "@igniter/ui/assets";
-import { RelayMiner } from "@/db/schema";
+import type { RelayMiner } from "@igniter/db/provider/schema";
 import {CreateRelayMiner, UpdateRelayMiner} from "@/actions/RelayMiners";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@igniter/ui/components/select";
 import { ListRegions } from "@/actions/Regions";

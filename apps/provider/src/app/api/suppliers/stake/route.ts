@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
 import {SupplierMarkStakedRequest} from "@/lib/models/supplier";
 import {APIResponse} from "@/lib/models/response";
-import {stakeDeliveredSuppliers} from "@/lib/services/suppliers";
+import {markDeliveredSupplierAsStaked} from "@/lib/services/suppliers";
 import {REQUEST_IDENTITY_HEADER} from "@/lib/constants";
 
 export async function OPTIONS() {
@@ -50,7 +50,7 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<'
             return NextResponse.json({error: "Invalid request. Empty suppliers list."}, {status: 400});
         }
 
-        await stakeDeliveredSuppliers(data.addresses, delegatorIdentity);
+        await markDeliveredSupplierAsStaked(data.addresses, delegatorIdentity);
         return NextResponse.json({ data: 'OK' }, { status: 200 });
     } catch (e) {
         console.error(e);

@@ -23,6 +23,9 @@ RUN pnpm install --frozen-lockfile
 # Copy the remaining application files
 COPY out/provider/full .
 
+# Copy the provider drizzle file to run the migration.
+COPY provider.drizzle.config.ts .
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm turbo run build --filter=@igniter/provider
@@ -49,7 +52,7 @@ USER nextjs
 COPY --from=base --chown=nextjs:nodejs /app/apps/provider/.next/standalone ./
 COPY --from=base --chown=nextjs:nodejs /app/apps/provider/.next/static ./apps/provider/.next/static
 #COPY --from=base --chown=nextjs:nodejs /app/apps/provider/public ./apps/provider/public
-COPY --from=base --chown=nextjs:nodejs /app/apps/provider/drizzle.config.ts ./apps/provider/drizzle.config.ts
+COPY --from=base --chown=nextjs:nodejs /app/provider.drizzle.config.ts ./
 COPY --from=base --chown=nextjs:nodejs /app/apps/provider/drizzle/ ./apps/provider/drizzle/
 COPY --from=base --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 

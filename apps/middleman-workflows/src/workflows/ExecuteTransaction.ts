@@ -1,8 +1,9 @@
 import {
   proxyActivities,
-} from "@temporalio/workflow";
+  WorkflowError,
+} from '@temporalio/workflow'
 import { delegatorActivities } from "@/activities";
-import {TransactionStatus} from "@/lib/db/schema";
+import {TransactionStatus} from "@igniter/db/middleman/enums";
 import {SendTransactionResult} from "@/lib/blockchain";
 
 
@@ -42,6 +43,10 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     result = await executeTransaction(
       transaction.id,
     );
+
+    if(!result) {
+      throw new WorkflowError("Transaction execution failed");
+    }
 
     if (!result.transactionHash) {
       await updateTransaction(transactionId, {

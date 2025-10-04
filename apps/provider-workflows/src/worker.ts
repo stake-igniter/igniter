@@ -1,11 +1,14 @@
-import { delegatorActivities } from './activities'
+import { providerActivities } from './activities'
 import {
   getLogger,
   Logger,
 } from '@igniter/logger'
 import { getWorker } from '@igniter/temporal'
-import { getDb } from '@igniter/db/provider'
+import { getDb } from '@igniter/db/provider/connection'
+import * as schema from '@igniter/db/provider/schema'
 import bootstrap from '@/bootstrap'
+import { PocketBlockchain } from '@igniter/pocket'
+import DAL from '@/lib/dal/DAL'
 
 const logger = getLogger()
 
@@ -55,13 +58,18 @@ export async function setupTemporalWorker() {
     throw new Error('POKT_RPC_URL environment variable is not defined.')
   }
 
-  const dbClient = await getDb(logger)
+  // This will attempt to connect which will fail if the rpc is not available or the right one.
+  const blockchainProvider = await PocketBlockchain.setup(POCKET_RPC)
+
+  const dbClient = getDb<typeof schema>(logger)
+
+  const dal = new DAL(dbClient, logger)
 
   const shutdownGraceTime = 2500
 
   const { worker, disconnect } = await getWorker(logger, {
     workflowsPath: require.resolve('./workflows'),
-    activities: delegatorActivities(dbClient.db),
+    activities: providerActivities(dal, blockchainProvider),
     shutdownGraceTime,
   })
 
@@ -76,6 +84,7 @@ setupTemporalWorker().then(() => {
   logger.info('Worker stopped')
   process.exit(0)
 }).catch((err) => {
+  console.error(err);
   logger.error('failed setting up the worker', { err })
   process.exit(1)
 })

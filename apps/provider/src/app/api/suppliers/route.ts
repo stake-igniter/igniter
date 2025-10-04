@@ -1,6 +1,7 @@
 import {NextResponse} from "next/server";
 import {ensureApplicationIsBootstrapped, validateRequestSignature} from "@/lib/utils/routes";
-import {Supplier, SupplierStakeRequest} from "@/lib/models/supplier";
+import {SupplierStakeRequest} from "@/lib/models/supplier";
+import {Supplier} from '@igniter/domain/provider/models';
 import {APIResponse} from "@/lib/models/response";
 import {getSupplierStakeConfigurations} from "@/lib/services/suppliers";
 import {REQUEST_IDENTITY_HEADER} from "@/lib/constants";
@@ -21,7 +22,6 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
   try {
     console.log('Received a request for suppliers');
     const isBootstrappedResponse = await ensureApplicationIsBootstrapped();
-    const settings = await getApplicationSettings();
 
     if (isBootstrappedResponse instanceof NextResponse) {
       console.log('Application is not bootstrapped. Exiting.');
@@ -52,8 +52,11 @@ export async function POST(request: Request): Promise<NextResponse<APIResponse<S
       return NextResponse.json({error: "Invalid request. Empty stake distribution."}, {status: 400});
     }
 
+    const queryParams = new URL(request.url).searchParams;
+    const simulate = queryParams.get('simulate');
+
     console.log('Generating addresses...');
-    const response = await getSupplierStakeConfigurations(data, delegatorIdentity);
+    const response = await getSupplierStakeConfigurations(data, delegatorIdentity, simulate === 'true');
 
     if (!response || response.length === 0) {
       console.log('No addresses available');

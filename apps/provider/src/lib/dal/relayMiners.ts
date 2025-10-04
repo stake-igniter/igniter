@@ -1,9 +1,10 @@
-import {RelayMiner, relayMinersTable, CreateRelayMiner, RelayMinerWithDetails} from "@/db/schema";
-import {db} from "@/db";
+import type {RelayMiner, InsertRelayMiner, RelayMinerWithDetails} from "@igniter/db/provider/schema";
+import {relayMinersTable} from "@igniter/db/provider/schema";
+import {getDb} from "@/db";
 import {sql} from "drizzle-orm";
 
 export async function list(): Promise<RelayMinerWithDetails[]> {
-    return db.query.relayMinersTable.findMany({
+    return getDb().query.relayMinersTable.findMany({
         orderBy: relayMinersTable.name,
         with: {
           region: true,
@@ -12,7 +13,7 @@ export async function list(): Promise<RelayMinerWithDetails[]> {
 }
 
 export async function remove(id: number): Promise<RelayMiner> {
-    const [deletedMiner] = await db
+    const [deletedMiner] = await getDb()
         .delete(relayMinersTable)
         .where(sql`${relayMinersTable.id} = ${id}`)
         .returning();
@@ -25,9 +26,9 @@ export async function remove(id: number): Promise<RelayMiner> {
 }
 
 export async function insert(
-    relayMiner: CreateRelayMiner
+    relayMiner: InsertRelayMiner
 ): Promise<RelayMiner> {
-    const [insertedMiner] = await db
+    const [insertedMiner] = await getDb()
         .insert(relayMinersTable)
         .values(relayMiner)
         .returning();
@@ -43,7 +44,7 @@ export async function update(
     id: number,
     relayMinerUpdates: Partial<RelayMiner>
 ): Promise<RelayMiner> {
-    const [updatedMiner] = await db
+    const [updatedMiner] = await getDb()
         .update(relayMinersTable)
         .set(relayMinerUpdates)
         .where(sql`${relayMinersTable.id} = ${id}`)

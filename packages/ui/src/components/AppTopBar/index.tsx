@@ -1,12 +1,14 @@
 import {ComponentType} from "react";
 import {PlaceholderLogo} from "@igniter/ui/assets";
 
+
 export interface AppTopBarProps {
   logoIcon?: ComponentType;
   children?: React.ReactNode;
 }
 
 export async function AppTopBar({ logoIcon: LogoIcon, children } : Readonly<AppTopBarProps>) {
+
   return (
     <header
       className={
