@@ -80,7 +80,7 @@ export async function SupplierRemediation(input: SupplierRemediationInput): Prom
           concurrency: 10,
         }],
         parentClosePolicy: 'ABANDON', // they will keep running if the father timeout
-        workflowId: `SSR-${height}-${minId}-${maxId}`,
+        workflowId: `SRR-${height}-${minId}-${maxId}`,
       })
     }),
   )

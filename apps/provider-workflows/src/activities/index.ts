@@ -125,6 +125,8 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
         }
       }
 
+      log.debug(`isOwnerInitialStakeRemediationNeeded: State: ${update.state} key.delegatorRewardsAddress: ${key.delegatorRewardsAddress} supplier.services.length: ${supplier.services.length} supplier.serviceConfigHistory?.length: ${supplier.serviceConfigHistory?.length}`)
+
       const isOwnerInitialStakeRemediationNeeded =
         update.state === KeyState.Staked &&
         key.delegatorRewardsAddress && // We can only remediate if the key has a delegator rewards address
@@ -293,6 +295,7 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
     };
 
     if (!txResult.success) {
+      log.debug(`remediateSupplier: Stake transaction failed for: ${key.address} ${JSON.stringify(txResult)}`)
       update.state = KeyState.RemediationFailed;
       update.remediationHistory = remediations.reduce((allRemediationItemsOnSupplier, runRemediationItem) => {
         return addOrUpdateRemediationHistory(

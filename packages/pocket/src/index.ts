@@ -33,6 +33,7 @@ import { Supplier } from '@pocket/proto/generated/pocket/shared/supplier'
 import {StakeSupplierParams} from "@pocket/types";
 import {MsgStakeSupplier} from "@pocket/proto/generated/pocket/supplier/tx";
 import {isValidPrivateKey} from "@pocket/utils";
+import {getLogger, Logger} from '@igniter/logger'
 
 export * from './types'
 
@@ -135,6 +136,7 @@ export class PocketBlockchain {
   protected readonly gasPrice?: GasPrice
   protected stargateClient: StargateClient | undefined
   protected cometClient: Comet38Client | undefined
+  protected logger: Logger;
 
   /**
    * @param rpcUrl bech32 Cosmos SDK RPC endpoint, e.g. https://rpc.cosmos.network
@@ -145,6 +147,7 @@ export class PocketBlockchain {
     this.rpcUrl = rpcUrl
     this.denom = denom
     this.gasPrice = GasPrice.fromString(`${gasPrice}${denom}`)
+    this.logger = getLogger().child({ service: 'pocket-blockchain' })
   }
 
   /**
@@ -308,18 +311,27 @@ export class PocketBlockchain {
   async stakeSupplier(params: StakeSupplierParams): Promise<SendTransactionResult> {
     const { signerPrivateKey, signer, ...value } = params
 
+    this.logger.info('stakeSupplier: Execution started', { params: { signer, ...value } })
+
     if (!isValidPrivateKey(signerPrivateKey)) throw new Error('Invalid secp256k1 private key')
     if (!signer) throw new Error('`signer` (bech32) is required')
 
+    this.logger.debug('stakeSupplier: Validated params', { params: { signer, ...value } })
+
     const pkBytes = Uint8Array.from(Buffer.from(signerPrivateKey, 'hex'))
     const wallet = await DirectSecp256k1Wallet.fromKey(pkBytes, 'pokt')
-    const typeUrl = '/pocket.shared.v1.MsgStakeSupplier'
+    const typeUrl = '/pocket.supplier.MsgStakeSupplier'
 
     try {
       const [account] = await wallet.getAccounts()
+
+      this.logger.debug('stakeSupplier: Wallet accounts retrieved');
+
       if (account && account?.address !== signer) {
         throw new Error(`Signer address mismatch. Wallet=${account?.address} provided=${signer}`)
       }
+
+      this.logger.debug('stakeSupplier: Wallet accounts validated');
 
       const registry = new Registry([
         [typeUrl, MsgStakeSupplier as unknown as GeneratedType],
@@ -327,21 +339,28 @@ export class PocketBlockchain {
 
       const signingClient = await this.getSigningClient(wallet, registry)
 
-      const comet = await this.getCometClient()
-      const q = getQueryClient(comet)
-      const spendable = await q.bank.spendableBalanceByDenom(signer, this.denom)
-      const spendableAmt = BigInt(spendable.amount || '0')
+      this.logger.debug('stakeSupplier: Signing client created');
 
       const msg = { typeUrl, value: { signer, ...value } as MsgStakeSupplier }
       const gasUsed = await signingClient.simulate(signer, [msg], '')
+
+      this.logger.debug('stakeSupplier: Simulated transaction', { gasUsed })
+
       const gasLimit = Math.ceil(gasUsed * 1.5)
       const fee = this.gasPrice
         ? calculateFee(gasLimit, this.gasPrice)
         : { amount: [], gas: gasLimit.toString() }
 
+    this.logger.debug('stakeSupplier: Calculated fee', { fee })
+
       // TODO: Create signed memo
       const currentHeight = await this.getHeight();
+
+      this.logger.debug('stakeSupplier: Current height', { currentHeight })
+
       const result = await signingClient.signAndBroadcast(signer, [msg], fee, '', BigInt(currentHeight + 5))
+
+      this.logger.info('stakeSupplier: Execution ended. Transaction sent.', { result })
 
       return {
         transactionHash: result.transactionHash,
@@ -349,7 +368,8 @@ export class PocketBlockchain {
         message: result.rawLog,
         success: true,
       }
-    } catch (e) {
+    } catch (e: any) {
+      this.logger.error(`stakeSupplier: An error occurred while trying to execute the transaction: ${JSON.stringify({ code: e.code, message: e.message, log: e.log })}`)
       if (e instanceof BroadcastTxError) {
         return {
           transactionHash: '',
@@ -367,6 +387,8 @@ export class PocketBlockchain {
           code: 42, // Timeout Transaction error code. See: https://github.com/cosmos/cosmos-sdk/blob/main/types/errors/errors.go
         }
       }
+
+      this.logger.info('stakeSupplier: Execution ended  in errors.', { error: e })
 
       return {
         transactionHash: '',

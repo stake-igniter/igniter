@@ -1,4 +1,4 @@
-import type { InsertKey } from "@igniter/db/provider/schema";
+import type {InsertKey, Key} from "@igniter/db/provider/schema";
 import { KeyState } from "@igniter/db/provider/enums";
 import { Random } from "@cosmjs/crypto";
 import { DirectSecp256k1Wallet } from "@cosmjs/proto-signing";

@@ -6,6 +6,7 @@ import {createKeys} from "@/lib/services/keys";
 import {insertNewKeys, lockAvailableKeys, markAvailable, markKeysDelivered, markStaked} from "@/lib/dal/keys";
 import {getDb} from "@/db";
 import {BuildSupplierServiceConfigHandler} from "@igniter/domain/provider/operations";
+import {InsertKey, Key} from "@igniter/db/provider/schema";
 
 type KeyDistributionItem = { numberOfKeys: number[] };
 
@@ -118,8 +119,12 @@ export async function getSupplierStakeConfigurations(
                         willDeliverTo: requestingDelegator,
                         numberOfKeys: toCreate,
                         ownerAddress: stakeDistribution.ownerAddress,
+                        delegatorRevSharePercentage: stakeDistribution.revSharePercentage ?? 0,
+                        delegatorRewardsAddress: stakeDistribution.delegatorAddress,
                     });
-                    created = simulate ? newRows : await insertNewKeys(tx as any, newRows);
+                    created = simulate
+                      ? newRows
+                      : await insertNewKeys(tx as any, newRows);
                 }
 
                 results.push({
