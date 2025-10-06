@@ -4,7 +4,7 @@ import React from "react";
 import {getCsrfToken, signIn, useSession, signOut} from "next-auth/react";
 import Link from 'next/link';
 import { usePathname } from "next/navigation";
-import {SiwpMessage} from "@poktscan/vault-siwp";
+import type {SiwpMessage} from "@poktscan/vault-siwp";
 import UserMenu from "@igniter/ui/components/UserMenu";
 import {WalletPicker} from "@igniter/ui/components/WalletPicker/index";
 import {useWalletConnection} from "@igniter/ui/context/WalletConnection/index";
