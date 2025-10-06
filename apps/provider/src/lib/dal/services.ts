@@ -18,7 +18,7 @@ export async function insert(
     .returning()
 
   if (!insertedService) {
-    throw new Error('Failed to insert application settings')
+    throw new Error('Failed to insert service')
   }
 
   return insertedService

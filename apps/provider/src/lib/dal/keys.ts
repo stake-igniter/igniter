@@ -155,7 +155,7 @@ export async function lockAvailableKeys(
     .where(
       and(
         eq(keysTable.addressGroupId, addressGroupId),
-        eq(keysTable.state, KeyState.Staked),
+        eq(keysTable.state, KeyState.Available),
       ),
     )
     .limit(count)
