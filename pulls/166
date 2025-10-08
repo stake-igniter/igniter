@@ -1,0 +1,17 @@
+Release 0.2.4
+
+Summary
+
+- Fix: Correct an off-by-one error in the rewards calculation that could produce incorrect reward distributions in some edge cases.
+- Fix: Prevent a crash when processing empty or malformed ledger entries and add defensive checks around ledger parsing.
+- Improvement: Optimize stake indexing and query paths to improve lookup performance and reduce memory usage.
+- Feature: Add a --config-file CLI option to load configuration from a file (in addition to existing env vars) to simplify deployments.
+- Chore: Bump dependencies to address security patches and keep the codebase up to date.
+- Tests: Add unit and integration tests covering reward calculation and ledger parsing to prevent regressions.
+- Docs: Update README and CLI help text with the new configuration option and upgrade notes.
+
+Upgrade notes
+
+This is a minor release containing bug fixes, performance improvements, and a small CLI enhancement. No breaking API changes are expected, but users are advised to run the test suite during upgrade and review the dependency updates.
+
+For full details, see the commits included in this PR and the changelog entries.
