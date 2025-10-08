@@ -14,7 +14,7 @@ import {makeRangesBySize} from "@/lib/utils";
 // @ts-ignore
 import pLimit from 'p-limit'
 import {KeyState} from "@igniter/db/provider/enums";
-import {ApplicationFailure} from "@temporalio/activity";
+import {ApplicationFailure} from "@temporalio/workflow";
 
 /**
  * Represents the total number of shards used by the workflow.
