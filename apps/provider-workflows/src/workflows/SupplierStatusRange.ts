@@ -32,6 +32,7 @@ type SupplierStatusByRange = {
  * @return {Promise<void>} A promise that resolves when all supplier statuses in the specified range are processed.
  */
 export async function SupplierStatusByRange(input: SupplierStatusByRange): Promise<void> {
+  log.info('SupplierStatusByRange: execution started', { minId: input.minId, maxId: input.maxId })
   const { loadKeysInRange, upsertSupplierStatus } =
     proxyActivities<ReturnType<typeof providerActivities>>({
       startToCloseTimeout: '10s',
@@ -44,8 +45,13 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
 
   const rows: LoadKeysInRangeResult = await loadKeysInRange(input);
 
+  log.debug('SupplierStatusByRange: Loaded keys from range', {
+    ...input,
+    keysCount: rows.length,
+  })
+
   if(rows.length === 0) {
-    log.warn('No rows found for range', { minId: input.minId, maxId: input.maxId })
+    log.warn('SupplierStatusByRange: No rows found for range', { minId: input.minId, maxId: input.maxId })
     return
   }
 
@@ -62,4 +68,6 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
   if (allFailed) {
     throw new WorkflowError('All activities failed');
   }
+
+  log.info('SupplierStatusByRange: execution ended', { minId: input.minId, maxId: input.maxId })
 }

@@ -59,4 +59,5 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
   if (allFailed) {
     throw new WorkflowError('All remediateSupplier activities failed.');
   }
+  log.info('SupplierRemediationByRange: execution ended', { minId: input.minId, maxId: input.maxId })
 }

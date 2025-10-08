@@ -67,10 +67,9 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
    * @param params ProcessSupplierParams
    */
   async upsertSupplierStatus(params: ProcessSupplierParams): Promise<boolean> {
-    log.info('Querying supplier status', {params})
-    const [key, services, settings, balance, supplier]: [KeyWithGroup, Service[], ApplicationSettings, number, Supplier] = await Promise.all([
+    log.info('upsertSupplierStatus: Querying for keys, settings, balance and supplier', {params})
+    const [key, settings, balance, supplier]: [KeyWithGroup, ApplicationSettings, number, Supplier] = await Promise.all([
       dal.keys.loadKey(params.address),
-      dal.services.loadServices(),
       dal.settings.loadSettings(),
       pocketRpcClient.getBalance(params.address),
       pocketRpcClient.getSupplier(params.address),
@@ -78,6 +77,10 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
 
     if (!key) {
       throw new ApplicationFailure('key not found', 'not_found', true)
+    }
+
+    const loggerContext = {
+      key: key.address,
     }
 
     const update: Partial<InsertKey> = {
@@ -125,7 +128,13 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
         }
       }
 
-      log.debug(`isOwnerInitialStakeRemediationNeeded: State: ${update.state} key.delegatorRewardsAddress: ${key.delegatorRewardsAddress} supplier.services.length: ${supplier.services.length} supplier.serviceConfigHistory?.length: ${supplier.serviceConfigHistory?.length}`)
+      log.debug('remediateSupplier: Checking if is owner initial stake remediation needed', {
+        ...loggerContext,
+        currentState: update.state,
+        keyDelegatorAddress: key.delegatorRewardsAddress,
+        services: supplier.services.length,
+        servicesHistory: supplier.serviceConfigHistory?.length,
+      })
 
       const isOwnerInitialStakeRemediationNeeded =
         update.state === KeyState.Staked &&
@@ -144,6 +153,13 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
         )
       }
 
+      log.debug('upsertSupplierStatus: Checking if is operational funds remediation needed', {
+        ...loggerContext,
+        currentState: update.state,
+        balance: balance,
+        minimumOperationalFunds: settings?.minimumOperationalFunds,
+      })
+
       if (update.state === KeyState.Staked && balance && settings?.minimumOperationalFunds) {
         if (balance < settings?.minimumOperationalFunds) {
           update.remediationHistory = addOrUpdateRemediationHistory(
@@ -156,6 +172,13 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
           )
         }
       }
+
+      log.debug('upsertSupplierStatus: Checking if is stake remediation needed', {
+        ...loggerContext,
+        currentState: update.state,
+        stakeAmount: supplier.stake.amount,
+        minimumStake: settings?.minimumStake,
+      })
 
       if (update.state === KeyState.Staked && supplier.stake.amount && settings?.minimumStake) {
         const amount = parseInt(supplier.stake.amount, 10)
@@ -171,11 +194,30 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
         }
       }
 
-      // TODO: Check for the case where there is no DelegatorAddress on the key.
+      log.debug('upsertSupplierStatus: Checking if the key has the delegatorRewardAddress configured', {
+        ...loggerContext,
+        delegatorRewardAddress: key.delegatorRewardsAddress,
+      })
+
+      if (update.state === KeyState.Staked && !key.delegatorRewardsAddress) {
+        update.remediationHistory = addOrUpdateRemediationHistory(
+          {
+            message: 'The key does not have a delegator address configured, this will prevent any automatic remediation from happening.',
+            reason: RemediationHistoryEntryReason.DelegatorAddressMissing,
+            timestamp: Date.now(),
+          },
+          key.remediationHistory ?? []
+        )
+      }
 
       // TODO: Check for the case where the configurations on the addressGroup does not match the configurations on the supplier
 
       const remediationReasons = update.remediationHistory?.map((rh) => rh.reason);
+
+      log.debug('upsertSupplierStatus: Checking if is remediation needed', {
+        ...loggerContext,
+        remediationReasons,
+      })
 
       // Only set the state to attention needed if the key is staked and the initial owner stake has been remediated. Otherwise, it will remain staked.
       if (remediationReasons?.length && !remediationReasons.includes(RemediationHistoryEntryReason.OwnerInitialStake)) {
@@ -314,8 +356,9 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
       update.remediationHistory = [];
     }
 
-    log.debug('Updating supplier', {params, update}) //NOTE: adding the update could result in an error due to BIGINT
+    log.debug('remediateSupplier: Updating supplier', {params, update}) //NOTE: adding the update could result in an error due to BIGINT
     await dal.keys.updateKey(params.address, update, params.height)
-    log.info('Update Supplier done!', {params})
+    log.debug('remediateSupplier: Update Supplier done!', {params})
+    log.info('remediateSupplier: Execution finished', {params})
   }
 })
