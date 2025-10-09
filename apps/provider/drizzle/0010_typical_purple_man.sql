@@ -1,0 +1,1 @@
+ALTER TYPE "public"."address_states" ADD VALUE 'missing_stake';

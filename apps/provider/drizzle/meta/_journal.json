@@ -71,6 +71,13 @@
       "when": 1759464492424,
       "tag": "0009_volatile_turbo",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1759980853731,
+      "tag": "0010_typical_purple_man",
+      "breakpoints": true
     }
   ]
 }
