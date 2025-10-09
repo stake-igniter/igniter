@@ -239,13 +239,15 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
   },
 
   /**
-   * Remediates a supplier by performing necessary actions based on the provided parameters. This may include
-   * tasks like staking the supplier, updating the remediation history, or resetting the state.
+   * Remediates the supplier by checking if remediation is required and performing necessary actions,
+   * including staking and updating the supplier's state.
    *
-   * @param {RemediateSupplierParams} params - The parameters required for remediating the supplier, including the supplier's address, remediation reasons, and block height.
-   * @return {Promise<void>} Resolves when the supplier has been successfully remediated or when no remediation actions are needed.
+   * @param {RemediateSupplierParams} params - The parameters required to remediate the supplier, including
+   * the supplier's address, remediation reasons, and relevant height.
+   * @return {Promise<{success: boolean, message: string}>} An object indicating the success or failure of the remediation process
+   * and an accompanying message.
    */
-  async remediateSupplier(params: RemediateSupplierParams): Promise<void> {
+  async remediateSupplier(params: RemediateSupplierParams) {
     log.info('remediateSupplier: Execution started', {params})
     const [key, supportedServices, balance, supplier]: [KeyWithGroup, Service[], number, Supplier] = await Promise.all([
       dal.keys.loadKey(params.address),
@@ -255,20 +257,35 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
     ])
 
     if (!key) {
-      throw new ApplicationFailure('key not found', 'not_found', true)
+      log.warn('remediateSupplier: Key not found', {params})
+      return {
+        success: false,
+        message: 'Key not found'
+      }
     }
 
     if (!key.addressGroup) {
-      throw new ApplicationFailure('key does not have an address group', 'address_group_not_found', true)
+      log.warn('remediateSupplier: Address Group not found', {params})
+      return {
+        success: false,
+        message: 'Key address group not found'
+      }
     }
 
     if (!supplier) {
-      throw new ApplicationFailure('supplier not found', 'not_found', true)
+      log.warn('remediateSupplier: Supplier not found', {params})
+      return {
+        success: false,
+        message: 'Supplier not found'
+      }
     }
 
     if (key.remediationHistory?.length === 0) {
       log.info('remediateSupplier: No remediation history found. Nothing to do here. Bye!', {params})
-      return;
+      return {
+        success: true,
+        message: 'No remediation history found.'
+      }
     }
 
     log.debug('remediateSupplier: Loaded key, supportedServices, balance and supplier', {
@@ -352,6 +369,7 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
             ...runRemediationItem,
             timestamp: Date.now(),
             txResult: txResult.code,
+            txResultDetails: txResult.message,
           },
           allRemediationItemsOnSupplier
         )
@@ -364,8 +382,29 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
     }
 
     log.debug('remediateSupplier: Updating supplier', {params, update}) //NOTE: adding the update could result in an error due to BIGINT
-    await dal.keys.updateKey(params.address, update, params.height)
-    log.debug('remediateSupplier: Update Supplier done!', {params})
+    try {
+      await dal.keys.updateKey(params.address, update, params.height)
+      log.debug('remediateSupplier: Update Supplier done!', {params})
+    } catch (e) {
+      log.warn('remediateSupplier: Update Supplier failed!', {
+        params,
+        error: e,
+      })
+
+      return {
+        success: false,
+        message: 'Failed while updating the supplier status.',
+        keyUpdate: update,
+        stakeTxResult: txResult,
+      }
+    }
+
     log.info('remediateSupplier: Execution finished', {params})
+
+    return {
+      success: true,
+      message: 'Remediation completed successfully.',
+      stakeTxResult: txResult,
+    }
   }
 })

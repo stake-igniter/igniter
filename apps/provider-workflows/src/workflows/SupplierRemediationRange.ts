@@ -45,7 +45,7 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
     return
   }
 
-  log.debug('SupplierRemediationByRange: Loaded keys from range. Scheduling remediation activity for each key.', { minId: input.minId, maxId: input.maxId })
+  log.debug('SupplierRemediationByRange: Loaded keys from range. Scheduling remediation activity for each key.', { minId: input.minId, maxId: input.maxId, totalKeysLoaded: rows.length })
 
   const r = await Promise.allSettled(
     rows.map(r => limit(() =>

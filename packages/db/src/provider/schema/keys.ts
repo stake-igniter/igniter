@@ -182,5 +182,6 @@ export interface RemediationHistoryEntry {
   reason: RemediationHistoryEntryReason;
   details?: string;
   txResult?: TransactionResult;
+  txResultDetails?: string;
   timestamp: number;
 }
