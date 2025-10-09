@@ -356,7 +356,12 @@ export class PocketBlockchain {
       // TODO: Create signed memo
       const currentHeight = await this.getHeight();
 
-      this.logger.debug({ currentHeight },'stakeSupplier: Current height')
+      this.logger.debug({
+        currentHeight,
+        signer,
+        messages: [msg],
+        fee,
+      },'stakeSupplier: Signing and broadcasting transaction')
 
       const result = await signingClient.signAndBroadcast(signer, [msg], fee, '', BigInt(currentHeight + 5))
 
