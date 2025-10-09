@@ -342,6 +342,12 @@ export class PocketBlockchain {
       this.logger.debug('stakeSupplier: Signing client created');
 
       const msg = { typeUrl, value: { signer, ...value } as MsgStakeSupplier }
+
+      this.logger.debug({
+        signer,
+        messages: [msg],
+      }, 'stakeSupplier: Executing transaction simulation');
+
       const gasUsed = await signingClient.simulate(signer, [msg], '')
 
       this.logger.debug({ gasUsed },'stakeSupplier: Simulated transaction')
