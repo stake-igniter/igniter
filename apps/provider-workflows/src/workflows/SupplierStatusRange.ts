@@ -1,4 +1,4 @@
-import {log, proxyActivities, WorkflowError,} from '@temporalio/workflow'
+import {ApplicationFailure, log, proxyActivities, WorkflowError,} from '@temporalio/workflow'
 import {LoadKeysInRangeResult, providerActivities,} from '@/activities'
 
 // we built to commonjs and p-limit for esm support
@@ -55,6 +55,8 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
     return
   }
 
+  log.debug('SupplierStatusByRange: Loaded keys from range. Scheduling remediation activity for each key.', { minId: input.minId, maxId: input.maxId })
+
   const r = await Promise.allSettled(
     rows.map(r => limit(() =>
       upsertSupplierStatus({
@@ -64,10 +66,25 @@ export async function SupplierStatusByRange(input: SupplierStatusByRange): Promi
     ))
   );
 
-  const allFailed = r.every(r => r.status === 'rejected');
+  const allFailed = r.every(r => {
+    if (r.status === 'rejected') {
+      log.warn(`SupplierStatusByRange: Child workflow failed with: ${r.reason}`)
+    }
+    return r.status === 'rejected';
+  })
+
+  const failedReasons = r.filter(r => r.status === 'rejected').map((r) => {
+    return r.reason;
+  });
+
   if (allFailed) {
-    throw new WorkflowError('All activities failed');
+    throw new ApplicationFailure(
+      'SupplierStatusByRange: All child workflows failed. Something is wrong.',
+      'fatal_error',
+      true,
+      [failedReasons],
+    )
   }
 
-  log.info('SupplierStatusByRange: execution ended', { minId: input.minId, maxId: input.maxId })
+  log.info('SupplierStatusByRange: Execution Ended', { height: input.height, minId: input.minId, maxId: input.maxId, failedReasons })
 }

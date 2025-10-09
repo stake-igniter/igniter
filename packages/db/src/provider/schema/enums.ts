@@ -86,6 +86,10 @@ export enum KeyState {
   StakeFailed = 'stake_failed',
   Unstaking = 'unstaking',
   Unstaked = 'unstaked',
+  /**
+   *
+   */
+  MissingStake = 'missing_stake',
 }
 
 /**

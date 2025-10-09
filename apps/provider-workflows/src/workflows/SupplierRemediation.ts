@@ -72,6 +72,7 @@ export async function SupplierRemediation(input: SupplierRemediationInput): Prom
     KeyState.Unstaked,
     KeyState.RemediationFailed,
     KeyState.AttentionNeeded,
+    KeyState.MissingStake,
   ]
 
   const ranges = makeRangesBySize(minId, maxId, shardCount, notInStates)

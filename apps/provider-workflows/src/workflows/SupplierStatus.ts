@@ -76,6 +76,7 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
     KeyState.Unstaked,
     KeyState.RemediationFailed,
     KeyState.AttentionNeeded,
+    KeyState.MissingStake,
   ]
   const ranges = makeRangesBySize(minId, maxId, shardCount, notInStates)
 

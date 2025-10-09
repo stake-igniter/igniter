@@ -102,6 +102,13 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
         case KeyState.Unstaking:
           update.state = KeyState.Unstaked
           break
+        case KeyState.Delivered:
+          // If the key was delivered more than 24 hours ago mark it as missing stake
+          update.state = key.deliveredAt &&
+            key.deliveredAt.getTime() < Date.now() - 24 * 60 * 60 * 1000 // 24 h
+            ? KeyState.MissingStake
+            : key.state;
+          break;
         default:
           update.state = key.state
       }
@@ -247,27 +254,6 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
       pocketRpcClient.getSupplier(params.address),
     ])
 
-    log.debug('remediateSupplier: Loaded key, supportedServices, balance and supplier', {
-      key: {
-        address: key.address,
-        ownerAddress: key.ownerAddress,
-        state: key.state,
-        balance: Number(balance),
-      },
-      supportedServices: supportedServices.map((s) => ({
-        id: s.serviceId,
-        name: s.name,
-      })),
-      supportedServicesCount: supportedServices.length,
-      supplier: {
-        ownerAddress: supplier.ownerAddress,
-        operatorAddress: supplier.operatorAddress,
-        stake: supplier.stake,
-        services: supplier.services.length,
-        unstakeSessionEndHeight: supplier.unstakeSessionEndHeight,
-      }
-    })
-
     if (!key) {
       throw new ApplicationFailure('key not found', 'not_found', true)
     }
@@ -284,6 +270,27 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
       log.info('remediateSupplier: No remediation history found. Nothing to do here. Bye!', {params})
       return;
     }
+
+    log.debug('remediateSupplier: Loaded key, supportedServices, balance and supplier', {
+      key: {
+        address: key.address,
+        ownerAddress: key?.ownerAddress,
+        state: key.state,
+        balance: Number(balance),
+      },
+      supportedServices: supportedServices.map((s) => ({
+        id: s.serviceId,
+        name: s.name,
+      })),
+      supportedServicesCount: supportedServices.length,
+      supplier: {
+        ownerAddress: supplier?.ownerAddress,
+        operatorAddress: supplier?.operatorAddress,
+        stake: supplier?.stake,
+        services: supplier?.services.length,
+        unstakeSessionEndHeight: supplier?.unstakeSessionEndHeight,
+      }
+    })
 
     const stakeParams: StakeSupplierParams = {
       signerPrivateKey: key.privateKey,

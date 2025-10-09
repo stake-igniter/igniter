@@ -93,6 +93,30 @@ export class ProviderService {
     }
   }
 
+  async releaseSuppliers(addresses: string[], provider: Provider) {
+    const { identity, signature } = await this.signPayload(JSON.stringify({ addresses }))
+
+    try {
+      const STAKE_URL = `${provider.url}/api/suppliers/release`
+      const operationResponse = await fetch(STAKE_URL, {
+        method: 'POST',
+        body: JSON.stringify({ addresses }),
+        headers: {
+          'Content-Type': 'application/json',
+          [REQUEST_IDENTITY_HEADER]: identity,
+          [REQUEST_SIGNATURE_HEADER]: signature,
+        },
+      })
+
+      if (!operationResponse.ok) {
+        throw new Error(operationResponse.statusText)
+      }
+    } catch (error) {
+      this.logger.error('An error occurred while marking the suppliers as staked.', { error })
+      throw error
+    }
+  }
+
   /**
    * Signs a given payload and returns an object containing the app's identity and the payload signature.
    *
