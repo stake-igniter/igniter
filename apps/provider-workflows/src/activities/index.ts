@@ -1,6 +1,6 @@
 import type {PocketBlockchain, StakeSupplierParams, Supplier} from '@igniter/pocket'
 import type {ApplicationSettings, InsertKey, RemediationHistoryEntry, Service} from '@igniter/db/provider/schema'
-import {ApplicationFailure, log,} from '@temporalio/activity'
+import {ApplicationFailure, log} from '@temporalio/activity'
 import DAL from '@/lib/dal/DAL'
 import {KeysMinMax, KeyWithGroup} from '@/lib/dal/keys'
 import {KeyState, RemediationHistoryEntryReason} from '@igniter/db/provider/enums'
@@ -402,8 +402,8 @@ export const providerActivities = (dal: DAL, pocketRpcClient: PocketBlockchain) 
     log.info('remediateSupplier: Execution finished', {params})
 
     return {
-      success: true,
-      message: 'Remediation completed successfully.',
+      success: txResult.success,
+      message: txResult.success ? 'Remediation completed successfully.' : 'Remediation transaction failed.',
       stakeTxResult: txResult,
     }
   }
