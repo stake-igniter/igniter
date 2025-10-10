@@ -1,6 +1,5 @@
 import {
   BroadcastTxError,
-  calculateFee,
   GasPrice,
   ProtobufRpcClient,
   QueryClient,
@@ -343,22 +342,6 @@ export class PocketBlockchain {
 
       const msg = { typeUrl, value: { signer, ...value } as MsgStakeSupplier }
 
-      this.logger.debug({
-        signer,
-        messages: [msg],
-      }, 'stakeSupplier: Executing transaction simulation');
-
-      const gasUsed = await signingClient.simulate(signer, [msg], '')
-
-      this.logger.debug({ gasUsed },'stakeSupplier: Simulated transaction')
-
-      const gasLimit = Math.ceil(gasUsed * 1.5)
-      const fee = this.gasPrice
-        ? calculateFee(gasLimit, this.gasPrice)
-        : { amount: [], gas: gasLimit.toString() }
-
-    this.logger.debug( { fee },'stakeSupplier: Calculated fee')
-
       // TODO: Create signed memo
       const currentHeight = await this.getHeight();
 
@@ -366,10 +349,10 @@ export class PocketBlockchain {
         currentHeight,
         signer,
         messages: [msg],
-        fee,
+        fee: 'auto',
       },'stakeSupplier: Signing and broadcasting transaction')
 
-      const result = await signingClient.signAndBroadcast(signer, [msg], fee, '', BigInt(currentHeight + 5))
+      const result = await signingClient.signAndBroadcast(signer, [msg], 'auto', '', BigInt(currentHeight + 5))
 
       this.logger.info({ result },'stakeSupplier: Execution ended. Transaction sent.')
 

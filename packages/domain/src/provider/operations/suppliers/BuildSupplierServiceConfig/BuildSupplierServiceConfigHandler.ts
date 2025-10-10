@@ -2,6 +2,7 @@ import {BuildSupplierServiceConfigInput} from '@igniter/domain/provider/operatio
 import {getRevShare, getEndpointInterpolatedUrl} from "@igniter/domain/provider/utils";
 import {SupplierServiceConfig} from "@igniter/pocket/proto/pocket/shared/service";
 import {RevenueShareOverflowError} from "@igniter/domain/provider/errors";
+import {RPCTypeMap} from '@igniter/pocket';
 
 export class BuildSupplierServiceConfigHandler {
     execute(input: BuildSupplierServiceConfigInput) : SupplierServiceConfig[] {
@@ -43,7 +44,7 @@ export class BuildSupplierServiceConfigHandler {
                         region: addressGroup.relayMiner.region.urlValue,
                         domain: addressGroup.relayMiner.domain,
                     }),
-                    rpcType: ep.rpcType,
+                    rpcType: RPCTypeMap[ep.rpcType] ?? -1,
                     configs: [],
                 })),
             };
