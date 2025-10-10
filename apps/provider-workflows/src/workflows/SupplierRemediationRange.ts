@@ -30,7 +30,7 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
   log.info('SupplierRemediationByRange: execution started', { minId: input.minId, maxId: input.maxId })
   const { loadKeysInRange, remediateSupplier } =
     proxyActivities<ReturnType<typeof providerActivities>>({
-      startToCloseTimeout: '10s',
+      startToCloseTimeout: '120s',
       retry: {
         maximumAttempts: 10,
       },
