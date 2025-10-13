@@ -60,7 +60,12 @@ export interface MintAllocationPercentages {
 export interface MintEqualsBurnClaimDistribution {
   /** dao - % of claimable tokens sent to the DAO reward address. */
   dao: number;
-  /** proposer - % of claimable tokens sent to the block proposer (i.e. validator0) account address. */
+  /**
+   * TODO_TECHDEBT: Rename "proposer" to "validators" to reflect the work done in #1753.
+   * This will span all references to the term "proposer" across documentation, functions, protobufs, variables, tooling, etc..
+   *
+   * proposer - % of claimable tokens sent to the block proposer (i.e. validator0) account address.
+   */
   proposer: number;
   /** supplier - % of claimable tokens sent to the block supplier account address. */
   supplier: number;

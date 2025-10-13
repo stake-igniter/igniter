@@ -1,8 +1,9 @@
 import * as wf from '@temporalio/workflow'
 import {
+  ChildWorkflowHandle,
   log,
   proxyActivities,
-  WorkflowError,
+  ApplicationFailure,
 } from '@temporalio/workflow'
 import {
   providerActivities,
@@ -47,51 +48,122 @@ export async function SupplierRemediation(input: SupplierRemediationInput): Prom
       },
     })
 
-  log.debug('Starting SupplierRemediation')
+  log.info('SupplierRemediation:  Execution Started')
+
   const [height, { minId, maxId }] = await Promise.all([
     getLatestBlock(),
     getKeysMinAndMax(),
   ])
 
-  log.debug('Preparing to trigger child workflows', { height, minId, maxId })
+  const loggerContext = {
+    height,
+    minId,
+    maxId,
+  }
+
+  log.debug('SupplierRemediation:  Block and key ranges retrieved', {
+    ...loggerContext,
+  })
+
+  log.debug('SupplierRemediation: Preparing to trigger child workflows', { ...loggerContext })
+
   const notInStates = [
     KeyState.Available,
     KeyState.Unstaked,
     KeyState.RemediationFailed,
     KeyState.AttentionNeeded,
+    KeyState.MissingStake,
   ]
+
   const ranges = makeRangesBySize(minId, maxId, shardCount, notInStates)
+
+  log.debug('SupplierRemediation: Range shards prepared', { ...loggerContext, rangesCount: ranges.length, notInStates })
 
   const limitChildren = pLimit(10)
 
-  // Schedule ALL children, but only `maxChildConcurrency` run at once.
-  const childPromises = ranges.map(({ minId, maxId, states }) =>
-    limitChildren(async () => {
-      log.debug('Triggering Child Workflow: SupplierRemediationByRange', { minId, maxId })
-      // Await this child's completion to enforce the concurrency cap
-      await wf.startChild<typeof SupplierRemediationByRange>('SupplierRemediationByRange', {
-        args: [{
-          states,
-          height,
-          minId,
-          maxId,
-          reasons: input.reasons,
-          pageSize: 200,
-          concurrency: 10,
-        }],
-        parentClosePolicy: 'ABANDON', // they will keep running if the father timeout
-        workflowId: `SRR-${height}-${minId}-${maxId}`,
-      })
-    }),
-  )
+  log.debug('SupplierRemediation: created limited execution factory (10 concurrent)');
 
-  // Drain all children with bounded concurrency
-  const r = await Promise.allSettled(childPromises)
-  const allFailed = r.every(r => r.status === 'rejected')
-  if (allFailed) {
-    throw new WorkflowError('All activities failed')
+  // Schedule ALL children, but only `maxChildConcurrency` run at once.
+  const childPromises = ranges.map(({ minId, maxId, states }) => {
+    log.debug('SupplierRemediation: Executing child workflow for rage', { minId, maxId })
+    return limitChildren(async () => {
+      const childLoggerContext = {
+        workflowName: 'SupplierRemediationByRange',
+        height,
+        minId,
+        maxId,
+        reasons: input.reasons,
+        pageSize: 200,
+        concurrency: 10,
+      };
+      log.debug('SupplierRemediation: Triggering child SupplierRemediationByRange workflow', { ...childLoggerContext })
+      // Await this child's completion to enforce the concurrency cap
+      let handle: ChildWorkflowHandle<typeof SupplierRemediationByRange> | undefined;
+      try {
+        handle = await wf.startChild<typeof SupplierRemediationByRange>('SupplierRemediationByRange', {
+          args: [{
+            states,
+            height,
+            minId,
+            maxId,
+            reasons: input.reasons,
+            pageSize: 200,
+            concurrency: 10,
+          }],
+          parentClosePolicy: 'ABANDON', // they will keep running if the father timeout
+          workflowId: `SRR-${height}-${minId}-${maxId}`,
+        })
+      } catch (error: any) {
+        log.error('An error occurred while starting child workflow', {
+          ...childLoggerContext,
+          error: error.message,
+          stack: error.stack,
+        })
+        throw error;
+      }
+
+      try {
+        await handle.result();
+      } catch (error: any) {
+        log.error('An error occurred while executing child workflow', {
+          ...childLoggerContext,
+          error: error.message,
+          stack: error.stack,
+        })
+      }
+    })
+  })
+
+  if (childPromises.length === 0) {
+    log.info('SupplierRemediation: Execution Ended', { height, minId, maxId })
+    return { height, minId, maxId };
   }
 
-  log.debug('Completed SupplierRemediation', { height, minId, maxId })
+  log.debug('SupplierRemediation: Child workflows scheduled. Waiting for promises to settle.', { ...loggerContext, childPromisesCount: childPromises.length })
+
+  const r = await Promise.allSettled(childPromises)
+
+  const allFailed = r.every(r => {
+    if (r.status === 'rejected') {
+      log.warn(`SupplierRemediation: Child workflow failed with: ${r.reason}`)
+    }
+    return r.status === 'rejected';
+  })
+
+  const failedReasons = r.filter(r => r.status === 'rejected').map((r) => {
+    return r.reason;
+  });
+
+  if (allFailed) {
+    throw new ApplicationFailure(
+      'SupplierRemediation: All child workflows failed. Something is wrong.',
+      'fatal_error',
+      true,
+      [failedReasons],
+    )
+  }
+
+  log.info('SupplierRemediation: Execution Ended', { height, minId, maxId, failedReasons })
+
   return { height, minId, maxId }
 }

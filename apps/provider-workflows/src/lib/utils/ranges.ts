@@ -7,6 +7,7 @@ import {KeyState} from "@igniter/db/provider/enums";
  * @param {number} minId - The starting ID of the range.
  * @param {number} maxId - The ending ID of the range.
  * @param {number} shardSize - The size of each range or shard.
+ * @param states
  * @return {Array<LoadKeysInRangeParams>} An array of objects, each representing a range with `startId` and `endId`.
  */
 export function makeRangesBySize(minId: number, maxId: number, shardSize: number, states: KeyState[]): Array<LoadKeysInRangeParams> {

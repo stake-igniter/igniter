@@ -1,6 +1,5 @@
 import {
   BroadcastTxError,
-  calculateFee,
   GasPrice,
   ProtobufRpcClient,
   QueryClient,
@@ -311,12 +310,12 @@ export class PocketBlockchain {
   async stakeSupplier(params: StakeSupplierParams): Promise<SendTransactionResult> {
     const { signerPrivateKey, signer, ...value } = params
 
-    this.logger.info('stakeSupplier: Execution started', { params: { signer, ...value } })
+    this.logger.info({ params: { signer, ...value } },'stakeSupplier: Execution started')
 
     if (!isValidPrivateKey(signerPrivateKey)) throw new Error('Invalid secp256k1 private key')
     if (!signer) throw new Error('`signer` (bech32) is required')
 
-    this.logger.debug('stakeSupplier: Validated params', { params: { signer, ...value } })
+    this.logger.debug({ params: { signer, ...value } },'stakeSupplier: Validated params')
 
     const pkBytes = Uint8Array.from(Buffer.from(signerPrivateKey, 'hex'))
     const wallet = await DirectSecp256k1Wallet.fromKey(pkBytes, 'pokt')
@@ -342,25 +341,20 @@ export class PocketBlockchain {
       this.logger.debug('stakeSupplier: Signing client created');
 
       const msg = { typeUrl, value: { signer, ...value } as MsgStakeSupplier }
-      const gasUsed = await signingClient.simulate(signer, [msg], '')
-
-      this.logger.debug('stakeSupplier: Simulated transaction', { gasUsed })
-
-      const gasLimit = Math.ceil(gasUsed * 1.5)
-      const fee = this.gasPrice
-        ? calculateFee(gasLimit, this.gasPrice)
-        : { amount: [], gas: gasLimit.toString() }
-
-    this.logger.debug('stakeSupplier: Calculated fee', { fee })
 
       // TODO: Create signed memo
       const currentHeight = await this.getHeight();
 
-      this.logger.debug('stakeSupplier: Current height', { currentHeight })
+      this.logger.debug({
+        currentHeight,
+        signer,
+        messages: [msg],
+        fee: 'auto',
+      },'stakeSupplier: Signing and broadcasting transaction')
 
-      const result = await signingClient.signAndBroadcast(signer, [msg], fee, '', BigInt(currentHeight + 5))
+      const result = await signingClient.signAndBroadcast(signer, [msg], 'auto', '', BigInt(currentHeight + 5))
 
-      this.logger.info('stakeSupplier: Execution ended. Transaction sent.', { result })
+      this.logger.info({ result },'stakeSupplier: Execution ended. Transaction sent.')
 
       return {
         transactionHash: result.transactionHash,
@@ -369,13 +363,14 @@ export class PocketBlockchain {
         success: true,
       }
     } catch (e: any) {
-      this.logger.error(`stakeSupplier: An error occurred while trying to execute the transaction: ${JSON.stringify({ code: e.code, message: e.message, log: e.log })}`)
+      const errorMessage = e.log && e.message ? `${e.log} - ${e.message}` : e.message ?? 'Unknown error'
+      this.logger.error({ code: e.code, message: e.message, log: e.log },'stakeSupplier: An error occurred while trying to execute the transaction.')
       if (e instanceof BroadcastTxError) {
         return {
           transactionHash: '',
           success: false,
           code: e.code,
-          message: e.log,
+          message: errorMessage,
         }
       }
 
@@ -383,17 +378,17 @@ export class PocketBlockchain {
         return {
           transactionHash: e.txId,
           success: false,
-          message: 'Transaction timed out. This does not indicate a failure.',
+          message: `Transaction timed out. This does not indicate a failure. Details: ${errorMessage}`,
           code: 42, // Timeout Transaction error code. See: https://github.com/cosmos/cosmos-sdk/blob/main/types/errors/errors.go
         }
       }
 
-      this.logger.info('stakeSupplier: Execution ended  in errors.', { error: e })
+      this.logger.info({ error: e },'stakeSupplier: Execution ended  in errors.')
 
       return {
         transactionHash: '',
         success: false,
-        message: 'An unknown error occurred. The system will not try again automatically.',
+        message: `An unknown error occurred: ${errorMessage}`,
       }
     }
   }

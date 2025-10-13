@@ -22,6 +22,7 @@ export async function ExecuteTransaction(args: TransactionArgs) {
     verifyTransaction,
     createNewNodesFromTransaction,
     notifyProviderOfStakedAddresses,
+    notifyProviderOfFailedStakes,
   } = proxyActivities<ReturnType<typeof delegatorActivities>>({
     startToCloseTimeout: "30s",
     retry: {
@@ -107,6 +108,8 @@ export async function ExecuteTransaction(args: TransactionArgs) {
       code,
     };
   }
+
+  await notifyProviderOfFailedStakes(transaction.id);
 
   return {
     ...transaction,

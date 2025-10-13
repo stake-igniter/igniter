@@ -48,10 +48,10 @@ export interface StakeOperation {
   }
 }
 
-export function extractStakedNodes(tx: Transaction) {
+export function extractTransactionStakingSuppliers(tx: Transaction) {
   try {
     const {body} = JSON.parse(tx.unsignedPayload);
-    const nodes: Record<string, NewStake> = body.messages.reduce((nodes: Record<string, NewStake>, message: StakeOperation | SendOperation) => {
+    const nodes: Record<string, NewStake> = body.messages.reduce((nodes: Record<string, NewStake>, message: StakeOperation) => {
       if (message.typeUrl === STAKE_TYPE_URL) {
         const {stake, operatorAddress, ownerAddress} = message.value;
         nodes[operatorAddress] = {
@@ -59,16 +59,6 @@ export function extractStakedNodes(tx: Transaction) {
           ownerAddress,
           stakeAmount: stake.amount.toString(),
           balance: nodes[operatorAddress]?.balance || 0,
-        };
-      }
-
-      if (message.typeUrl === SEND_TYPE_URL) {
-        const {toAddress, amount: [balance]} = message.value;
-        nodes[toAddress] = {
-          address: nodes[toAddress]?.address || '',
-          ownerAddress: nodes[toAddress]?.ownerAddress || '',
-          stakeAmount: nodes[toAddress]?.stakeAmount || '0',
-          balance: Number(balance!.amount),
         };
       }
 

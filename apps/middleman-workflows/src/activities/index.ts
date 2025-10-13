@@ -14,7 +14,7 @@ import {
   NodeStatus,
   TransactionStatus,
 } from '@igniter/db/middleman/enums'
-import { extractStakedNodes } from '@/workflows/utils'
+import { extractTransactionStakingSuppliers } from '@/workflows/utils'
 import { ProviderService } from '@/lib/provider'
 import DAL from '@/lib/dal/DAL'
 import type { PocketBlockchain } from '@igniter/pocket'
@@ -290,7 +290,7 @@ export const delegatorActivities = (dal: DAL, pocketRpcClient: PocketBlockchain,
         throw new Error('Transaction not found')
       }
 
-      const newlyStakedNodes = extractStakedNodes(transaction)
+      const newlyStakedNodes = extractTransactionStakingSuppliers(transaction)
 
       const newNodes: InsertNode[] = newlyStakedNodes.map(({ address, stakeAmount, balance, ownerAddress }) => ({
         status: NodeStatus.Staked,
@@ -315,7 +315,7 @@ export const delegatorActivities = (dal: DAL, pocketRpcClient: PocketBlockchain,
    * and marks those addresses as staked for the provider.
    *
    * @param {number} transactionId - The unique identifier of the transaction used to determine the associated provider and addresses.
-   * @return {Promise<Object>} A promise that resolves to an object containing the success status, an informative message, and the associated staked addresses (if applicable).
+   * @return A promise that resolves to an object containing the success status, an informative message, and the associated staked addresses (if applicable).
    */
   async notifyProviderOfStakedAddresses(transactionId: number) {
     try {
@@ -337,7 +337,7 @@ export const delegatorActivities = (dal: DAL, pocketRpcClient: PocketBlockchain,
         }
       }
 
-      const newlyStakedNodes = extractStakedNodes(transaction)
+      const newlyStakedNodes = extractTransactionStakingSuppliers(transaction)
 
       const addresses = newlyStakedNodes.map(({ address }) => address)
 
@@ -354,6 +354,64 @@ export const delegatorActivities = (dal: DAL, pocketRpcClient: PocketBlockchain,
       return {
         success: false,
         message: message || 'An unknown error occurred while notifying the provider of the staked addresses.',
+      }
+    }
+  },
+
+  /**
+   * Notifies a provider of failed stakes associated with a transaction.
+   *
+   * @param {number} transactionId - The unique identifier of the transaction.
+   * @return A promise that resolves to an object containing the result of the operation.
+   * The object includes:
+   *   - `success` (boolean): Indicates the success or failure of the operation.
+   *   - `message` (string): A message describing the result of the operation.
+   *   - `addresses` (Array<string>): (Optional) A list of released supplier addresses if the operation is successful.
+   */
+  async notifyProviderOfFailedStakes(transactionId: number) {
+    try {
+      const transaction = await dal.transaction.getTransaction(transactionId)
+
+      if (!transaction || !transaction.providerId) {
+        return {
+          success: false,
+          message: 'Transaction not found or transaction is not associated to a provider.',
+        }
+      }
+
+      const provider = await dal.provider.getProvider(transaction.providerId)
+
+      if (!provider) {
+        return {
+          success: false,
+          message: 'Provider not found.',
+        }
+      }
+
+      const suppliers = extractTransactionStakingSuppliers(transaction)
+
+      const addresses = suppliers.map(({ address }) => address)
+
+      if (addresses.length === 0) {
+        return {
+          success: true,
+          message: 'No addresses to release.',
+        }
+      }
+
+      await providerService.releaseSuppliers(addresses, provider)
+
+      return {
+        success: true,
+        message: 'Successfully released the addresses.',
+        addresses,
+      }
+    } catch (error) {
+      const { message } = error as Error
+      log.error('An error occurred while trying to inform provider of released addresses', { error })
+      return {
+        success: false,
+        message: message || 'An unknown error occurred while notifying the provider of the addresses release',
       }
     }
   },

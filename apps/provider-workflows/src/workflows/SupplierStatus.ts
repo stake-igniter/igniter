@@ -14,6 +14,7 @@ import {makeRangesBySize} from "@/lib/utils";
 // @ts-ignore
 import pLimit from 'p-limit'
 import {KeyState} from "@igniter/db/provider/enums";
+import {ApplicationFailure} from "@temporalio/workflow";
 
 /**
  * Represents the total number of shards used by the workflow.
@@ -51,27 +52,52 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
       },
     })
 
-  log.debug('Starting SupplierStatus')
+  log.debug('SupplierStatus: Execution started')
+
   const [height, { minId, maxId }] = await Promise.all([
     getLatestBlock(),
     getKeysMinAndMax(),
   ])
 
-  log.debug('Preparing to trigger child workflows', { height, minId, maxId })
+  const loggerContext = {
+    height,
+    minId,
+    maxId,
+  }
+
+  log.debug('SupplierStatus:  Block and key ranges retrieved', {
+    ...loggerContext,
+  })
+
+  log.debug('SupplierStatus: Preparing to trigger child workflows', { ...loggerContext })
+
   const notInStates = [
     KeyState.Available,
     KeyState.Unstaked,
     KeyState.RemediationFailed,
     KeyState.AttentionNeeded,
+    KeyState.MissingStake,
   ]
   const ranges = makeRangesBySize(minId, maxId, shardCount, notInStates)
 
+  log.debug('SupplierStatus: Range shards prepared', { ...loggerContext, rangesCount: ranges.length, notInStates })
+
   const limitChildren = pLimit(10)
 
+  log.debug('SupplierStatus: created limited execution factory (10 concurrent)');
+
   // Schedule ALL children, but only `maxChildConcurrency` run at once.
-  const childPromises = ranges.map(({ minId, maxId, states }) =>
-    limitChildren(async () => {
-      log.debug('Triggering Child Workflow: SupplierStatusByRange', { minId, maxId })
+  const childPromises = ranges.map(({ minId, maxId, states }) => {
+    log.debug('SupplierStatus: Executing child workflow for rage', { minId, maxId })
+    return limitChildren(async () => {
+      const childLoggerContext = {
+        height,
+        minId,
+        maxId,
+        pageSize: 200,
+        concurrency: 10,
+      };
+      log.debug('SupplierStatus: Triggering child SupplierStatusByRange workflow', { ...childLoggerContext })
       // Await this child's completion to enforce the concurrency cap
       await wf.startChild<typeof SupplierStatusByRange>('SupplierStatusByRange', {
         args: [{
@@ -85,16 +111,39 @@ export async function SupplierStatus(): Promise<{ height: number, minId: number,
         parentClosePolicy: 'ABANDON', // they will keep running if the father timeout
         workflowId: `SSR-${height}-${minId}-${maxId}`,
       })
-    }),
-  )
+    })
+  })
+
+  if (childPromises.length === 0) {
+    log.info('SupplierStatus: Execution Ended', { height, minId, maxId })
+    return { height, minId, maxId };
+  }
+
+  log.debug('SupplierStatus: Child workflows scheduled. Waiting for promises to settle.', { ...loggerContext, childPromisesCount: childPromises.length })
 
   // Drain all children with bounded concurrency
   const r = await Promise.allSettled(childPromises)
-  const allFailed = r.every(r => r.status === 'rejected')
+
+  const allFailed = r.every(r => {
+    if (r.status === 'rejected') {
+      log.warn(`SupplierStatus: Child workflow failed with: ${r.reason}`)
+    }
+    return r.status === 'rejected';
+  })
+
+  const failedReasons = r.filter(r => r.status === 'rejected').map((r) => {
+    return r.reason;
+  });
+
   if (allFailed) {
-    throw new WorkflowError('All activities failed')
+    throw new ApplicationFailure(
+      'SupplierStatus: All child workflows failed. Something is wrong.',
+      'fatal_error',
+      true,
+      [failedReasons],
+    )
   }
 
-  log.debug('Completed SupplierStatus', { height, minId, maxId })
+  log.info('SupplierStatus: Execution Ended', { height, minId, maxId, failedReasons })
   return { height, minId, maxId }
 }

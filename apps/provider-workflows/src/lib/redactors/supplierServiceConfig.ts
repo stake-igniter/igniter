@@ -1,4 +1,4 @@
-import {SupplierServiceConfig} from '@igniter/pocket';
+import {SupplierServiceConfig} from '@igniter/pocket/proto/pocket/shared/service';
 
 export function redactSupplierServiceConfig(config: SupplierServiceConfig) {
   return {
@@ -6,6 +6,9 @@ export function redactSupplierServiceConfig(config: SupplierServiceConfig) {
     endpoints: [
       ...config.endpoints,
     ],
+    revShare: [
+      ...config.revShare,
+    ]
   }
 }
 

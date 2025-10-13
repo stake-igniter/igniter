@@ -1,4 +1,4 @@
-import {log, proxyActivities, WorkflowError,} from '@temporalio/workflow'
+import {ApplicationFailure, log, proxyActivities} from '@temporalio/workflow'
 import {LoadKeysInRangeResult, providerActivities,} from '@/activities'
 
 // we built to commonjs and p-limit for esm support
@@ -30,7 +30,7 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
   log.info('SupplierRemediationByRange: execution started', { minId: input.minId, maxId: input.maxId })
   const { loadKeysInRange, remediateSupplier } =
     proxyActivities<ReturnType<typeof providerActivities>>({
-      startToCloseTimeout: '10s',
+      startToCloseTimeout: '120s',
       retry: {
         maximumAttempts: 10,
       },
@@ -45,6 +45,8 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
     return
   }
 
+  log.debug('SupplierRemediationByRange: Loaded keys from range. Scheduling remediation activity for each key.', { minId: input.minId, maxId: input.maxId, totalKeysLoaded: rows.length })
+
   const r = await Promise.allSettled(
     rows.map(r => limit(() =>
       remediateSupplier({
@@ -55,8 +57,25 @@ export async function SupplierRemediationByRange(input: SupplierRemediationByRan
     ))
   );
 
-  const allFailed = r.every(r => r.status === 'rejected');
+  const allFailed = r.every(r => {
+    if (r.status === 'rejected') {
+      log.warn(`SupplierRemediationByRange: Child workflow failed with: ${r.reason}`)
+    }
+    return r.status === 'rejected';
+  })
+
+  const failedReasons = r.filter(r => r.status === 'rejected').map((r) => {
+    return r.reason;
+  });
+
   if (allFailed) {
-    throw new WorkflowError('All remediateSupplier activities failed.');
+    throw new ApplicationFailure(
+      'SupplierRemediationByRange: All child workflows failed. Something is wrong.',
+      'fatal_error',
+      true,
+      [failedReasons],
+    )
   }
+
+  log.info('SupplierRemediationByRange: Execution Ended', { height: input.height, minId: input.minId, maxId: input.maxId, failedReasons })
 }
