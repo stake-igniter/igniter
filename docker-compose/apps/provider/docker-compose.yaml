@@ -3,7 +3,7 @@ services:
     image: "ghcr.io/stake-igniter/provider:0.2.4-rc.0"
     container_name: provider-migration
     restart: on-failure
-    command: [ "pnpm", "--filter=@igniter/provider", "exec", "drizzle-kit", "migrate" ]
+    command: [ "pnpm", "provider:migration:migrate" ]
     networks:
       - igniter
     env_file:
