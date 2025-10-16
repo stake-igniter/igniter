@@ -3,7 +3,7 @@ services:
     image: "ghcr.io/stake-igniter/middleman:0.2.4-rc.0"
     container_name: middleman-migration
     restart: on-failure
-    command: [ "pnpm", "--filter=@igniter/middleman", "exec", "drizzle-kit", "migrate" ]
+    command: [ "pnpm", "middleman:migration:migrate" ]
     networks:
       - igniter
     env_file:
