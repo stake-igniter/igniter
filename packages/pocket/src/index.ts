@@ -35,6 +35,7 @@ import {isValidPrivateKey} from "@pocket/utils";
 import {getLogger, Logger} from '@igniter/logger'
 
 export * from './types'
+export * from './constants';
 
 /**
  * Creates a Protobuf-based RPC client for querying a blockchain using a QueryClient.
