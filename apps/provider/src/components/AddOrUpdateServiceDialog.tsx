@@ -41,7 +41,7 @@ interface ServiceOnChain {
   computeUnits: number;
 }
 
-const PROTOCOL_DEFAULT_TYPE = PROTOCOL_DEFAULT_RPC_TYPE.toString()
+const PROTOCOL_DEFAULT_TYPE = PROTOCOL_DEFAULT_RPC_TYPE.toString();
 
 const DEFAULT_ENDPOINTS = [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]
 
