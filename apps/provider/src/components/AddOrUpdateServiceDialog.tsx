@@ -70,7 +70,7 @@ const preprocessEndpoints = (v: unknown) => {
   return v.map((endpoint) => ({
     ...endpoint,
     rpcType: preprocessRpcType(endpoint.rpcType),
-  }))
+  }));
 }
 
 const endpointSchema = z.object({
