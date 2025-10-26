@@ -4,7 +4,12 @@ export function readFile(file: File): Promise<string> {
       const fr = new FileReader();
 
       fr.onload = (event) => {
-        resolve(event.target!.result!.toString());
+        const target = event.target;
+        if (target && target.result != null) {
+          resolve(target.result.toString());
+        } else {
+          reject(new Error("FileReader failed: target or result is null"));
+        }
       };
 
       fr.readAsText(file);
