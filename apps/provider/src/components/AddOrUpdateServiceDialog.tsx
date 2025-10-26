@@ -31,6 +31,8 @@ import type {ApplicationSettings, Service} from "@igniter/db/provider/schema";
 import {GetApplicationSettings} from "@/actions/ApplicationSettings";
 import {Region} from "@/lib/models/commons";
 import { labelByRpcType, validRpcTypes as validRpcTypesEnums } from '@/lib/constants'
+import {RPCTypeMap} from '@igniter/pocket/constants';
+import type {ValidRPCTypes} from '@igniter/pocket';
 
 interface ServiceOnChain {
   serviceId: string;
@@ -41,6 +43,8 @@ interface ServiceOnChain {
 
 const PROTOCOL_DEFAULT_TYPE = PROTOCOL_DEFAULT_RPC_TYPE.toString();
 
+const DEFAULT_ENDPOINTS = [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]
+
 const validRpcTypes = [
   validRpcTypesEnums[0].toString(),
   validRpcTypesEnums[1].toString(),
@@ -48,9 +52,30 @@ const validRpcTypes = [
   validRpcTypesEnums[3].toString(),
 ] as const;
 
+const RPCTypeSchema = z.enum(validRpcTypes).default(PROTOCOL_DEFAULT_TYPE).transform(v => Number(v));
+
+const preprocessRpcType = (v: unknown) => {
+  if (!v || !RPCTypeMap[v as ValidRPCTypes]) {
+    return PROTOCOL_DEFAULT_TYPE;
+  }
+
+  return  RPCTypeMap[v as ValidRPCTypes]?.toString() ?? PROTOCOL_DEFAULT_TYPE;
+}
+
+const preprocessEndpoints = (v: unknown) => {
+  if (!v || !Array.isArray(v)) {
+    return DEFAULT_ENDPOINTS
+  }
+
+  return v.map((endpoint) => ({
+    ...endpoint,
+    rpcType: preprocessRpcType(endpoint.rpcType),
+  }));
+}
+
 const endpointSchema = z.object({
   url: z.string(),
-  rpcType: z.enum(validRpcTypes).default(PROTOCOL_DEFAULT_TYPE).transform(v => Number(v)),
+  rpcType: z.preprocess(preprocessRpcType, RPCTypeSchema),
 }).transform((data) => ({
   ...data,
   url: data.url || getDefaultUrlWithSchemeByRpcType(data.rpcType)
@@ -81,9 +106,7 @@ export function AddOrUpdateServiceDialog({
                                              onClose,
                                              service,
                                            }: Readonly<AddServiceDialogProps>) {
-  const [endpoints, setEndpoints] = useState<{ url: string; rpcType: number }[]>(
-    service?.endpoints ?? [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }]
-  );
+  const [endpoints, setEndpoints] = useState<{ url: string; rpcType: number }[]>(preprocessEndpoints(service?.endpoints));
 
   const [serviceOnChain, setServiceOnChain] = useState<ServiceOnChain>();
   const [isLoadingService, setIsLoadingService] = useState(false);
@@ -168,7 +191,7 @@ export function AddOrUpdateServiceDialog({
     defaultValues: {
       serviceId: service?.serviceId || "",
       revSharePercentage: service?.revSharePercentage || null,
-      endpoints: service?.endpoints ?? [{ url: "", rpcType: PROTOCOL_DEFAULT_TYPE }],
+      endpoints: preprocessEndpoints(service?.endpoints),
     },
   });
 
