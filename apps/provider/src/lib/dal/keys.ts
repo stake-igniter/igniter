@@ -246,3 +246,12 @@ export async function updateKeysState(ids: number[], state: KeyState) {
     })
     .where(inArray(keysTable.id, ids))
 }
+
+export async function updateKeysStateWhereCurrentStateIn(currentStates: KeyState[], newState: KeyState) {
+  const dbClient = getDbClient()
+  await dbClient.db.update(keysTable)
+    .set({
+      state: newState,
+    })
+    .where(inArray(keysTable.state, currentStates))
+}

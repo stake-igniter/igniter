@@ -11,6 +11,7 @@ import {
   listKeysWithPk,
   listPrivateKeysByAddressGroup, updateKeysState,
   updateRewardsSettings,
+  updateKeysStateWhereCurrentStateIn,
 } from '@/lib/dal/keys'
 import { GetApplicationSettings } from '@/actions/ApplicationSettings'
 
@@ -99,4 +100,12 @@ export async function validateUserSignedInIsTheOwner() {
   if (identity !== appSettings.ownerIdentity) {
     throw new Error('Unauthorized')
   }
+}
+
+export async function MarkKeysForRemediation() {
+  await validateUserSignedInIsTheOwner()
+  await updateKeysStateWhereCurrentStateIn([
+    KeyState.AttentionNeeded,
+    KeyState.RemediationFailed,
+  ], KeyState.Staked)
 }
