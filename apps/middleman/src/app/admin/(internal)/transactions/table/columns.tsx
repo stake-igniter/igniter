@@ -2,13 +2,14 @@
 
 import type { CsvColumnDef } from '@igniter/ui/lib/csv'
 import { ProviderFee, TransactionStatus, TransactionType } from '@igniter/db/middleman/enums'
-import {ActivitySuccessIcon, ActivityWarningIcon, CopyIcon, RightArrowIcon, WarningIcon} from '@igniter/ui/assets'
+import {ActivitySuccessIcon, ActivityWarningIcon, RightArrowIcon, WarningIcon} from '@igniter/ui/assets'
 import { Button } from '@igniter/ui/components/button'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
 import { amountToPokt } from '@igniter/ui/lib/utils'
 import { ColumnDef } from '@tanstack/react-table'
-import { Operation, useAddItemToDetail } from '@/app/detail/Detail'
+import { useAddItemToDetail } from '@igniter/ui/components/QuickDetails/Provider'
 import Amount from '@igniter/ui/components/Amount'
+import {Operation} from "@/app/detail/TransactionDetail";
 
 export type Transaction = {
   id: number;

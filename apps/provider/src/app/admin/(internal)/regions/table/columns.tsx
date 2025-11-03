@@ -3,8 +3,9 @@
 import type { Region } from '@igniter/db/provider/schema'
 import React from 'react'
 import { ColumnDef } from '@igniter/ui/components/table'
+import {CsvColumnDef} from "@igniter/ui/lib/csv";
 
-export const columns: ColumnDef<Region>[] = [
+export const columns: Array<ColumnDef<Region> & CsvColumnDef<Region>> = [
   {
     accessorKey: 'displayName',
     header: 'Display Name',

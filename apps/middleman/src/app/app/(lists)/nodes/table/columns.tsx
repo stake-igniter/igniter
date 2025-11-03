@@ -20,7 +20,7 @@ import {
 import {CellContext, ColumnDef} from "@tanstack/react-table";
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { useAddItemToDetail } from '@/app/detail/Detail'
+import { useAddItemToDetail } from '@igniter/ui/components/QuickDetails/Provider';
 
 export type NodeDetails = NodeWithDetails & {
   height: number;

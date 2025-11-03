@@ -4,7 +4,7 @@ import DataTable from '@igniter/ui/components/DataTable/index'
 import { columns, filters, NodeDetails, sorts } from './columns'
 import { GetUserNodes } from '@/actions/Nodes'
 import { useQuery } from '@tanstack/react-query'
-import { DetailItem, useDetailContext } from '@/app/detail/Detail'
+import {ItemBase, useDetailContext} from '@igniter/ui/components/QuickDetails/Provider'
 import { useEffect } from 'react'
 
 const getHeight = (transactions: NodeDetails['transactions']) => {
@@ -32,7 +32,7 @@ export default function NodesTable() {
   const {items, updateItem} = useDetailContext()
 
   useEffect(() => {
-    const updateDetailItem = (item: DetailItem, index: number) => {
+    const updateDetailItem = (item: ItemBase, index: number) => {
       if (item.type === 'node') {
         const node = data?.find((n) => n.id === item.body.id)
 

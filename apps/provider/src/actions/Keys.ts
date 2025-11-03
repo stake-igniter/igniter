@@ -9,7 +9,8 @@ import {
   countPrivateKeysByAddressGroup,
   insertMany,
   listKeysWithPk,
-  listPrivateKeysByAddressGroup,
+  listPrivateKeysByAddressGroup, updateKeysState,
+  updateRewardsSettings,
 } from '@/lib/dal/keys'
 import { GetApplicationSettings } from '@/actions/ApplicationSettings'
 
@@ -56,6 +57,37 @@ export async function GetKeysByAddressGroupAndState(addressGroupId: number, keyS
 export async function CountKeysByAddressGroupAndState(addressGroupId: number, keyState?: KeyState) {
   await validateUserSignedInIsTheOwner()
   return countPrivateKeysByAddressGroup(addressGroupId, keyState)
+}
+
+const poktAddressRegex = /^pokt[a-zA-Z0-9]{39,42}$/
+
+export async function UpdateKeyRewardsSettings(
+  id: number,
+  values: { delegatorRewardsAddress: string; delegatorRevSharePercentage: number },
+) {
+  await validateUserSignedInIsTheOwner()
+
+  const schema = z.object({
+    delegatorRewardsAddress: z.string().min(1).regex(poktAddressRegex, "Must be a valid Cosmos address with 'pokt' prefix"),
+    delegatorRevSharePercentage: z.coerce.number().min(0).max(100),
+  })
+
+  const parsed = schema.parse(values)
+
+  await updateRewardsSettings(id, parsed)
+}
+
+export async function UpdateKeysState(ids: number[], state: KeyState) {
+  await validateUserSignedInIsTheOwner()
+
+  const schema = z.object({
+    ids: z.array(z.number()),
+    state: z.nativeEnum(KeyState),
+  })
+
+  const parsed = schema.parse({ ids, state })
+
+  await updateKeysState(parsed.ids, parsed.state)
 }
 
 export async function validateUserSignedInIsTheOwner() {

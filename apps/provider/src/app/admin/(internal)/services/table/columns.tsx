@@ -3,8 +3,9 @@
 import { ColumnDef } from '@igniter/ui/components/table';
 import type { Service } from "@igniter/db/provider/schema";
 import { labelByRpcType } from '@/lib/constants'
+import {CsvColumnDef} from "@igniter/ui/lib/csv";
 
-export const columns: ColumnDef<Service>[] = [
+export const columns: Array<ColumnDef<Service> & CsvColumnDef<Service>> = [
   {
     accessorKey: "name",
     header: "Name",
