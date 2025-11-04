@@ -202,7 +202,7 @@ function RemediationHistoryList({ entries, keyId, keyState }: { entries: Remedia
           </div>
         )}
         <div className="py-3 text-[14px] text-[var(--color-white-3)]">
-          This will set the key state back to <span className="font-semibold">Staked</span>. Prompting the system to re-evaluating it.
+          This will set the key state back to <span className="font-semibold">Staked</span>. Prompting the system to re-evaluate it.
         </div>
       </ConfirmationDialog>
 
