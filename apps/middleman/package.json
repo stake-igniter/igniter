@@ -1,6 +1,6 @@
 {
   "name": "@igniter/middleman",
-  "version": "0.3.1",
+  "version": "0.3.5",
   "type": "module",
   "private": true,
   "scripts": {
