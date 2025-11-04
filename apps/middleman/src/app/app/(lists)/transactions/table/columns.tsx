@@ -7,8 +7,9 @@ import {ActivitySuccessIcon, ActivityWarningIcon, RightArrowIcon, WarningIcon} f
 import { Button } from '@igniter/ui/components/button'
 import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
 import { amountToPokt } from '@igniter/ui/lib/utils'
-import { Operation, useAddItemToDetail } from '@/app/detail/Detail'
+import { useAddItemToDetail } from '@igniter/ui/components/QuickDetails/Provider'
 import Amount from '@igniter/ui/components/Amount'
+import {Operation} from "@/app/detail/TransactionDetail";
 
 export type Transaction = {
     id: number;

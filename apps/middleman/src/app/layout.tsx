@@ -11,10 +11,10 @@ import CurrentUser from "@/app/components/CurrentUser";
 import { CurrencyContextProvider } from "@igniter/ui/context/currency";
 import Sidebar from "@/app/components/Sidebar";
 import { Toaster } from "@igniter/ui/components/sonner";
-import QuickDetailProvider from '@/app/detail/Detail'
-import QueryClientProvider from '@/app/context/QueryClientProvider'
-import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
-import NotificationsProvider from '@igniter/ui/context/Notifications/index'
+import QueryClientProvider from '@/app/context/QueryClientProvider';
+import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins';
+import NotificationsProvider from '@igniter/ui/context/Notifications/index';
+import QuickDetailProvider from "@/app/detail/QuickDetailProviderBridge";
 
 const jost = Jost({
   variable: "--font-jost",

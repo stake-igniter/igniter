@@ -22,7 +22,7 @@ helm_resource(
   chart='bitnami/postgresql',
   release_name='postgresql',
   flags=[
-    '--version=16.6.2',
+    '--version=16.7.27',
     '--values=./values.yaml'
   ],
   port_forwards=['5432:5432'],

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react'
-import { QuickInfoPopOverIcon } from '@igniter/ui/components/QuickInfoPopOverIcon'
+import { QuickInfoPopOverIcon } from './QuickInfoPopOverIcon'
 
 export interface SummaryRow {
   label: React.ReactNode;

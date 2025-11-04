@@ -1,17 +1,39 @@
+'use client';
+
 import { NodeStatus } from '@igniter/db/middleman/enums'
 import Amount from '@igniter/ui/components/Amount'
 import React, { useState } from 'react'
 import { clsx } from 'clsx'
 import { DrawerDescription, DrawerHeader, DrawerTitle } from '@igniter/ui/components/drawer'
 import { Button, ButtonProps } from '@igniter/ui/components/button'
-import Summary, { SummaryRow } from '@/app/components/Summary'
+import Summary, { SummaryRow } from '@igniter/ui/components/Summary'
 import { amountToPokt, getShortAddress } from '@igniter/ui/lib/utils'
 import Address from '@igniter/ui/components/Address'
 import { CaretSmallIcon } from '@igniter/ui/assets'
-import { NodeDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
+import {useAddItemToDetail} from '@igniter/ui/components/QuickDetails/Provider'
 import TransactionHash from '@igniter/ui/components/TransactionHash'
 import { QuickInfoPopOverIcon } from '@igniter/ui/components/QuickInfoPopOverIcon'
 import AvatarByString from '@igniter/ui/components/AvatarByString'
+import { Provider } from '@igniter/db/middleman/schema'
+import {TransactionDetailBody} from "@/app/detail/TransactionDetail";
+
+export interface NodeDetailBody {
+  [key: string]: unknown;
+  id: number
+  address: string;
+  ownerAddress: string;
+  status: NodeStatus;
+  provider: Provider | null;
+  stakeAmount: number;
+  operationalFundsAmount: number;
+  transactions: Array<TransactionDetailBody>;
+}
+
+export interface NodeDetail {
+  type: 'node'
+  body: NodeDetailBody
+}
+
 
 function ActionButton({children, ...props}: React.PropsWithChildren & Omit<ButtonProps, 'children'>) {
   return (

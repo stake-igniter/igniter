@@ -4,6 +4,11 @@ import { FilterGroup, SortOption } from '@igniter/ui/components/DataTable/index'
 import Address from '@igniter/ui/components/Address'
 import { ListBasicAddressGroups } from '@/actions/AddressGroups'
 import {KeyStateLabels} from "@/app/admin/(internal)/keys/constants";
+import {useAddItemToDetail} from "@igniter/ui/components/QuickDetails/Provider";
+import {Button} from "@igniter/ui/components/button";
+import {RightArrowIcon} from "@igniter/ui/assets";
+import {KeyWithRelations} from "@igniter/db/provider/schema";
+import {CsvColumnDef} from "@igniter/ui/lib/csv";
 
 export interface Key {
   id: number
@@ -20,7 +25,7 @@ export interface Key {
   createdAt: Date
 }
 
-export const columns: Array<ColumnDef<Key>> = [
+export const columns: Array<ColumnDef<KeyWithRelations> & CsvColumnDef<KeyWithRelations>> = [
   {
     accessorKey: "address",
     header: "Address",
@@ -111,9 +116,34 @@ export const columns: Array<ColumnDef<Key>> = [
       );
     },
   },
+  {
+    id: "actions",
+    cell: ({row}) => {
+      const addItem = useAddItemToDetail()
+      return (
+        <div className="flex items-center justify-end">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="border-0"
+            onClick={() => {
+              addItem({
+                type: 'key',
+                body: {
+                  ...row.original
+                }
+              })
+            }}
+          >
+            <RightArrowIcon style={{width: "18px", height: "18px"}}/>
+          </Button>
+        </div>
+      );
+    },
+  },
 ]
 
-export function getFilters(addressesGroup: Awaited<ReturnType<typeof ListBasicAddressGroups>>): Array<FilterGroup<Key>> {
+export function getFilters(addressesGroup: Awaited<ReturnType<typeof ListBasicAddressGroups>>): Array<FilterGroup<KeyWithRelations>> {
  return [
    {
      group: "state",
@@ -141,7 +171,7 @@ export function getFilters(addressesGroup: Awaited<ReturnType<typeof ListBasicAd
  ]
 }
 
-export const sorts: Array<Array<SortOption<Key>>> = [
+export const sorts: Array<Array<SortOption<KeyWithRelations>>> = [
   [
     {
       label: "Most Recent",

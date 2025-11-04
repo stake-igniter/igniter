@@ -16,8 +16,8 @@ import {
   RemediationHistoryEntryReason,
   TransactionResult,
 } from './enums'
-import { addressGroupTable } from './addressGroup'
-import { delegatorsTable } from './delegator'
+import {AddressGroup, addressGroupTable} from './addressGroup'
+import {Delegator, delegatorsTable} from './delegator'
 
 const algorithm = 'aes-256-cbc'
 
@@ -168,6 +168,11 @@ export type Key = typeof keysTable.$inferSelect;
  * property to ensure consistency with the table's schema.
  */
 export type InsertKey = typeof keysTable.$inferInsert;
+
+export type KeyWithRelations = Omit<Key, 'privateKey'> & {
+  addressGroup: AddressGroup | null;
+  delegator: Delegator | null;
+};
 
 
 /**

@@ -1,4 +1,4 @@
-import { Jost, Overpass_Mono } from "next/font/google";
+import { Jost, Overpass_Mono } from "next/font/google"
 
 const jost = Jost({
   variable: "--font-jost",

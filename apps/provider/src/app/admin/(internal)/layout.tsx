@@ -12,6 +12,7 @@ import Sidebar from "@/components/Sidebar";
 import QueryClientProvider from '@/app/context/QueryClientProvider'
 import NotificationsProvider from '@igniter/ui/context/Notifications/index'
 import RegisterPlugins from '@igniter/ui/components/RegisterChartjsPlugins'
+import QuickDetailProvider from "@/app/admin/details/QuickDetailProviderBridge"
 
 export default function RootLayout({
   children,
@@ -31,23 +32,25 @@ export default function RootLayout({
             <WalletConnectionProvider>
               <CurrencyContextProvider>
                 <SidebarProvider className="flex flex-col">
-                  <AppTopBar>
-                    <PriceWidget />
-                    <CurrentUser />
-                  </AppTopBar>
-                  <div className="flex flex-1">
-                    <Sidebar />
-                    <SidebarInset>
-                      <div className={"w-full h-full flex overflow-x-hidden"}>
-                        <div className="flex flex-col gap-6 w-[calc(100dvw)] md:w-[calc(100dvw-255px)]">
-                          <RegisterPlugins />
-                          <NotificationsProvider>
-                            {children}
-                          </NotificationsProvider>
+                  <QuickDetailProvider>
+                    <AppTopBar>
+                      <PriceWidget />
+                      <CurrentUser />
+                    </AppTopBar>
+                    <div className="flex flex-1">
+                      <Sidebar />
+                      <SidebarInset>
+                        <div className={"w-full h-full flex overflow-x-hidden"}>
+                          <div className="flex flex-col gap-6 w-[calc(100dvw)] md:w-[calc(100dvw-255px)]">
+                            <RegisterPlugins />
+                            <NotificationsProvider>
+                              {children}
+                            </NotificationsProvider>
+                          </div>
                         </div>
-                      </div>
-                    </SidebarInset>
-                  </div>
+                      </SidebarInset>
+                    </div>
+                  </QuickDetailProvider>
                 </SidebarProvider>
               </CurrencyContextProvider>
             </WalletConnectionProvider>

@@ -1,11 +1,13 @@
 'use client'
 import DataTable from '@igniter/ui/components/DataTable/index'
 import { columns, filters, sorts } from './columns'
-import { DetailItem, Operation, useDetailContext } from '@/app/detail/Detail'
+import { useDetailContext } from '@igniter/ui/components/QuickDetails/Provider'
 import { MessageType } from '@/lib/constants'
 import { useQuery } from '@tanstack/react-query'
 import {GetUserTransactions} from '@/actions/Transactions'
 import { useEffect } from 'react'
+import {ItemBase} from "@igniter/ui/components/QuickDetails/types";
+import {Operation} from "@/app/detail/TransactionDetail";
 
 export default function TransactionsTable() {
     const { data, isLoading, isError, refetch } = useQuery({
@@ -16,7 +18,7 @@ export default function TransactionsTable() {
     const {items, updateItem} = useDetailContext()
 
     useEffect(() => {
-        const updateTxDetail = (item: DetailItem, index: number) => {
+        const updateTxDetail = (item: ItemBase, index: number) => {
             if (item.type === 'transaction') {
                 const newTx = data?.find((tx) => tx.id === item.body.id)
 
