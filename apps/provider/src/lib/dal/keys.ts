@@ -171,6 +171,8 @@ export async function markKeysDelivered(
   keyIds: number[],
   deliveredTo: string,
   ownerAddress: string,
+  delegatorRevSharePercentage: number,
+  delegatorRewardsAddress: string
 ): Promise<Key[]> {
   if (!keyIds.length) return []
   return tx
@@ -180,6 +182,8 @@ export async function markKeysDelivered(
       deliveredTo,
       deliveredAt: new Date(),
       ownerAddress,
+      delegatorRevSharePercentage,
+      delegatorRewardsAddress,
     })
     .where(inArray(keysTable.id, keyIds))
     .returning()

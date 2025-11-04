@@ -109,10 +109,12 @@ export async function getSupplierStakeConfigurations(
                     avail.map(k => k.id),
                     requestingDelegator,
                     stakeDistribution.ownerAddress,
+                    stakeDistribution.revSharePercentage ?? 0,
+                    stakeDistribution.delegatorAddress
                 );
 
                 const toCreate = needed - reused.length;
-                let created: typeof reused = [];
+                let created: InsertKey[] = [];
                 if (toCreate > 0) {
                     const newRows = await createKeys({
                         addressGroupId: addressGroup.id,

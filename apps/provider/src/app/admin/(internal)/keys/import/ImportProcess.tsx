@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { z } from 'zod'
-import { isValidPrivateKey, readFile } from '@/app/admin/(internal)/keys/import/utils'
+import { readFile } from '@/app/admin/(internal)/keys/import/utils'
 import { ImportKeys } from '@/actions/Keys'
 import {
   Dialog,
@@ -16,6 +16,7 @@ import { Button } from '@igniter/ui/components/button'
 import { CheckSuccess, LoaderIcon, XIcon } from '@igniter/ui/assets'
 import { FileWarning } from 'lucide-react'
 import {useNotifications} from "@igniter/ui/context/Notifications/index";
+import {isValidPrivateKey} from '@igniter/pocket/utils';
 type StageStatus = 'pending' | 'success' | 'error' | 'invalid';
 
 export interface ImportProcessStatus {
