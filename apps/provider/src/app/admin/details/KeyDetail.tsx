@@ -309,7 +309,7 @@ export default function KeyDetail(key: KeyWithRelations) {
           {delegatorRewardsAddress ? <Address address={delegatorRewardsAddress ?? ''} /> : 'N/A'}
           <QuickInfoPopOverIcon
             title={'Delegator Rewards Address'}
-            description={'This is th address the stake intermediary expects to receive their rewards share. This information is gathered automatically. But keys crated before igniter 0.3 might need to b manually updated.'}
+            description={'This is the address the stake intermediary expects to receive their rewards share. This information is gathered automatically. But keys created before igniter 0.3 might need to be manually updated.'}
           />
         </div>
       ),
