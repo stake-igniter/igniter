@@ -1,6 +1,6 @@
 {
   "name": "@igniter/provider-workflows",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "license": "UNLICENSED",
   "private": true,
   "main": "./dist/src/worker.js",

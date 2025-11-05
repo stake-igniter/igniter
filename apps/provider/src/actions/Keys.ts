@@ -1,6 +1,6 @@
 'use server'
 import { z } from 'zod'
-import { isValidPrivateKey } from '@/app/admin/(internal)/keys/import/utils'
+import { isValidPrivateKey } from '@igniter/pocket/utils'
 import { getCurrentUserIdentity } from '@/lib/utils/actions'
 import type { InsertKey } from '@igniter/db/provider/schema'
 import { KeyState } from '@igniter/db/provider/enums'
