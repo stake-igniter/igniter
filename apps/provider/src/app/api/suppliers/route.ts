@@ -5,7 +5,6 @@ import {Supplier} from '@igniter/domain/provider/models';
 import {APIResponse} from "@/lib/models/response";
 import {getSupplierStakeConfigurations} from "@/lib/services/suppliers";
 import {REQUEST_IDENTITY_HEADER} from "@/lib/constants";
-import {getApplicationSettings} from "@/lib/dal/applicationSettings";
 
 export async function OPTIONS() {
   return NextResponse.json({}, {

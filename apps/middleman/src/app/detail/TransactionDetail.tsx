@@ -1,9 +1,11 @@
+'use client';
+
 import { ProviderFee, TransactionStatus, TransactionType } from '@igniter/db/middleman/enums'
 import { clsx } from 'clsx'
 import { DrawerDescription, DrawerHeader, DrawerTitle } from '@igniter/ui/components/drawer'
 import { amountToPokt, toCompactFormat, toDateFormat } from '@igniter/ui/lib/utils'
 import { Button } from '@igniter/ui/components/button'
-import Summary, { SummaryRow } from '@/app/components/Summary'
+import Summary, { SummaryRow } from '@igniter/ui/components/Summary'
 import { useApplicationSettings } from '@/app/context/ApplicationSettings'
 import Amount from '@igniter/ui/components/Amount'
 import { CaretSmallIcon, CornerIcon, WarningIcon } from '@igniter/ui/assets'
@@ -11,12 +13,82 @@ import React, { useState } from 'react'
 import TransactionHash from '@igniter/ui/components/TransactionHash'
 import { BaseQuickInfoTooltip } from '@igniter/ui/components/BaseQuickInfoTooltip'
 import Address from '@igniter/ui/components/Address'
-import { Operation, SendOperation, TransactionDetailBody, useAddItemToDetail } from '@/app/detail/Detail'
+import { useAddItemToDetail } from '@igniter/ui/components/QuickDetails/Provider'
 import { MessageType } from '@/lib/constants'
 import { GetNode } from '@/actions/Nodes'
 import {
   TransactionsToNodesWithDetails,
 } from '@igniter/db/middleman/schema'
+
+export interface SendOperation {
+  typeUrl: MessageType.Send
+  value: {
+    fromAddress: string
+    toAddress: string
+    amount: Array<{
+      denom: string
+      amount: number
+    }>
+  }
+}
+
+export interface StakeOperation {
+  typeUrl: MessageType.Stake
+  value: {
+    signer: string
+    ownerAddress: string
+    operatorAddress: string
+    stake: {
+      denom: string
+      amount: number
+    }
+    services: Array<{
+      serviceId: string
+      endpoints: Array<{
+        url: string
+        rpcType: string
+        configs: Array<{
+          key: string
+          value: string
+        }>
+      }>
+      revShare: Array<{
+        address: string
+        revSharePercentage: string
+      }>
+    }>
+  }
+}
+
+export interface UnstakeOperation {
+  typeUrl: MessageType.Unstake
+  value: {
+    signer: string
+    operatorAddress: string
+  }
+}
+
+export type Operation = StakeOperation | UnstakeOperation | SendOperation
+
+export interface TransactionDetailBody {
+  [key: string]: unknown;
+  id: number
+  type: TransactionType
+  hash: string
+  status: TransactionStatus
+  createdAt: Date | string | number;
+  operations: Array<Operation>
+  estimatedFee: number
+  consumedFee?: number | null
+  provider: string
+  providerFee?: number | null
+  typeProviderFee?: ProviderFee | null
+}
+
+export interface TransactionDetail {
+  type: 'transaction'
+  body: TransactionDetailBody
+}
 
 function ActionButton({children}: React.PropsWithChildren) {
   return (

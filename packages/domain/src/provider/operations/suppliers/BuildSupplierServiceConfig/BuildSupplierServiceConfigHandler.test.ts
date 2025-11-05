@@ -49,6 +49,7 @@ describe('BuildSupplierServiceConfigHandler', () => {
                 serviceId: 'svc-1',
                 endpoints: [
                     { url: 'https://dummy', rpcType: 'REST' },
+                    { url: 'https://dummy-grpc', rpcType: 1 },
                 ],
             },
         ] as any,
@@ -80,12 +81,18 @@ describe('BuildSupplierServiceConfigHandler', () => {
         const cfg: SupplierServiceConfig = result[0];
 
         expect(cfg.serviceId).toBe('svc-1');
-        expect(cfg.endpoints).toHaveLength(1);
+        expect(cfg.endpoints).toHaveLength(2);
         expect(cfg.endpoints[0]).toMatchObject({
             url: 'https://interpolated',
-            rpcType: 'REST',
+            rpcType: 4,
             configs: [],
         });
+
+      expect(cfg.endpoints[1]).toMatchObject({
+        url: 'https://interpolated',
+        rpcType: 1,
+        configs: [],
+      });
 
         expect(cfg.revShare).toEqual(
             expect.arrayContaining([

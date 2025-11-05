@@ -10,8 +10,9 @@ import {
   FilterGroup,
   SortOption,
 } from '@igniter/ui/components/DataTable/index'
+import {CsvColumnDef} from "@igniter/ui/lib/csv";
 
-export const columns: ColumnDef<Delegator>[] = [
+export const columns: Array<ColumnDef<Delegator> & CsvColumnDef<Delegator>> = [
   {
     accessorKey: 'name',
     header: 'Name',

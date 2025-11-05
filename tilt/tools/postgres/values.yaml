@@ -2,6 +2,11 @@ global:
   postgresql:
     auth:
       postgresPassword: "postgres"
+
+image:
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+
 primary:
   persistentVolumeClaimRetentionPolicy:
     enabled: true

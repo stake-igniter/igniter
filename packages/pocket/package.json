@@ -11,6 +11,18 @@
       "default": "./dist/cjs/src/index.js",
       "import": "./dist/cjs/src/index.js"
     },
+    "./constants": {
+      "types": "./dist/types/src/constants.d.ts",
+      "require": "./dist/cjs/src/constants.js",
+      "default": "./dist/cjs/src/constants.js",
+      "import": "./dist/cjs/src/constants.js"
+    },
+    "./utils": {
+      "types": "./dist/types/src/utils.d.ts",
+      "require": "./dist/cjs/src/utils.js",
+      "default": "./dist/cjs/src/utils.js",
+      "import": "./dist/cjs/src/utils.js"
+    },
     "./proto/*": {
       "types": "./dist/types/src/proto/generated/*.d.ts",
       "require": "./dist/cjs/src/proto/generated/*.js",

@@ -90,6 +90,25 @@ export enum KeyState {
 }
 
 /**
+ * Mapping of KeyState enum values to their human-readable names.
+ * This constant provides friendly display names for each key state
+ * that can be used in the UI or documentation.
+ */
+export const KeyStateNameMap: Record<KeyState, string> = Object.freeze({
+  [KeyState.Imported]: 'Imported',
+  [KeyState.Available]: 'Available',
+  [KeyState.Delivered]: 'Delivered',
+  [KeyState.Staking]: 'Staking',
+  [KeyState.RemediationFailed]: 'Remediation Failed',
+  [KeyState.AttentionNeeded]: 'Attention Needed',
+  [KeyState.Staked]: 'Staked',
+  [KeyState.StakeFailed]: 'Stake Failed',
+  [KeyState.Unstaking]: 'Unstaking',
+  [KeyState.Unstaked]: 'Unstaked',
+  [KeyState.MissingStake]: 'Missing Stake',
+});
+
+/**
  * Enum representing the possible states of an address in a database.
  *
  * The `addressStateEnum` variable is derived from the PostgreSQL enum type `address_states`

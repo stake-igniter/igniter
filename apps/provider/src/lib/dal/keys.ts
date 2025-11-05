@@ -1,6 +1,6 @@
 import type {
   InsertKey,
-  Key,
+  Key, KeyWithRelations,
 } from '@igniter/db/provider/schema'
 import * as schema from '@igniter/db/provider/schema'
 import { getDbClient } from '@/db'
@@ -74,7 +74,7 @@ export async function markAvailable(addresses: string[], delegatorIdentity: stri
     .returning({ address: keysTable.address })
 }
 
-export async function listKeysWithPk() {
+export async function listKeysWithPk() : Promise<KeyWithRelations[]> {
   const dbClient = getDbClient()
   return dbClient.db.query.keysTable.findMany({
     columns: {
@@ -171,6 +171,8 @@ export async function markKeysDelivered(
   keyIds: number[],
   deliveredTo: string,
   ownerAddress: string,
+  delegatorRevSharePercentage: number,
+  delegatorRewardsAddress: string
 ): Promise<Key[]> {
   if (!keyIds.length) return []
   return tx
@@ -180,6 +182,8 @@ export async function markKeysDelivered(
       deliveredTo,
       deliveredAt: new Date(),
       ownerAddress,
+      delegatorRevSharePercentage,
+      delegatorRewardsAddress,
     })
     .where(inArray(keysTable.id, keyIds))
     .returning()
@@ -217,4 +221,41 @@ export async function insertNewKeys(
     throw new Error('Failed to insert all new keys')
   }
   return inserted
+}
+
+/**
+ * Updates the rewards settings for a specified Key in the database.
+ *
+ * @param {Key['id']} id - The unique identifier for the key to update.
+ * @param {Object} delegatorRewards - An object containing the fields to update.
+ * @param {string} delegatorRewards.delegatorRewardsAddress - The delegator's rewards address to update.
+ * @param {number} delegatorRewards.delegatorRevSharePercentage - The delegator's revenue share percentage to update.
+ */
+export async function updateRewardsSettings(
+  id: Key['id'],
+  delegatorRewards: Pick<Key, 'delegatorRewardsAddress' | 'delegatorRevSharePercentage'>
+) {
+  const dbClient = getDbClient()
+  await dbClient.db.update(keysTable)
+    .set(delegatorRewards)
+    .where(eq(keysTable.id, id))
+    .returning()
+}
+
+export async function updateKeysState(ids: number[], state: KeyState) {
+  const dbClient = getDbClient()
+  await dbClient.db.update(keysTable)
+    .set({
+      state,
+    })
+    .where(inArray(keysTable.id, ids))
+}
+
+export async function updateKeysStateWhereCurrentStateIn(currentStates: KeyState[], newState: KeyState) {
+  const dbClient = getDbClient()
+  await dbClient.db.update(keysTable)
+    .set({
+      state: newState,
+    })
+    .where(inArray(keysTable.state, currentStates))
 }

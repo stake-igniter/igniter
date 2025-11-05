@@ -7,8 +7,9 @@ import type {
 } from '@igniter/db/provider/schema'
 import { FilterGroup } from '@igniter/ui/components/DataTable/index'
 import { ListRelayMiners } from '@/actions/RelayMiners'
+import {CsvColumnDef} from "@igniter/ui/lib/csv";
 
-export const columns: ColumnDef<RelayMinerWithDetails>[] = [
+export const columns: Array<ColumnDef<RelayMinerWithDetails> & CsvColumnDef<RelayMinerWithDetails>> = [
   {
     accessorKey: 'name',
     header: 'Name',
