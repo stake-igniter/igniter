@@ -118,7 +118,7 @@ export default function StakePage() {
     return (
         <>
           <OverrideSidebar>
-            <div className="flex flex-row justify-center w-full">
+            <div className="flex flex-row justify-center overflow-auto pb-16">
                 {step === StakeActivitySteps.OwnerAddress && (
                   <OwnerAddressStep
                     onClose={() => setAbortDialogOpen(true)}

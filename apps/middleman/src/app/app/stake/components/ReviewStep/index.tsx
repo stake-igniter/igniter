@@ -199,7 +199,7 @@ export function ReviewStep({onStakeCompleted, amount, selectedOffer, ownerAddres
                 subtitle="Please review the details of your stake operation."
             />
 
-            <div className="relative flex h-[64px] gradient-border-slate">
+            <div className="relative flex h-[64px] min-h-[64px] gradient-border-slate">
                 <div className={`absolute inset-0 flex flex-row items-center m-[0.5px] bg-[var(--background)] rounded-[8px] p-[18px_25px] justify-between`}>
                     <span className="text-[20px] text-[var(--color-white-3)]">
                         Stake
