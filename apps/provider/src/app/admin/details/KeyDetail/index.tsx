@@ -137,7 +137,7 @@ export default function KeyDetail(key: KeyWithRelations) {
         >
           <div className={`absolute inset-0 flex flex-row items-center bg-[var(--background)] rounded-[8px] p-[18px_25px] justify-between`}>
             <span className="text-[20px] text-[var(--color-white-3)]">
-              {KeyStateNameMap[state]}
+              {KeyStateNameMap[KeyState.Staked]}
             </span>
             <div className="flex flex-row items-center gap-2">
               <p className="font-mono !text-[20px]">
@@ -160,6 +160,14 @@ export default function KeyDetail(key: KeyWithRelations) {
         <div className="flex flex-col bg-[var(--color-slate-2)] p-0 rounded-[8px]">
           <span className="text-[14px] text-[var(--color-white-3)] p-[11px_16px]">
              This key has recently been <strong>imported</strong>. The system will eventually evaluate it in the network and set it to its corresponding state, either <strong>available</strong>, <strong>staked</strong> or <strong>unstaked</strong>.
+          </span>
+        </div>
+      )}
+
+      {!isStakedKey && (state === KeyState.MissingStake) && (
+        <div className="flex flex-col bg-[var(--color-slate-2)] p-0 rounded-[8px]">
+          <span className="text-[14px] text-[var(--color-white-3)] p-[11px_16px]">
+             This key was delivered for staking over 24h ago, but we could not find a corresponding stake in the network.
           </span>
         </div>
       )}
