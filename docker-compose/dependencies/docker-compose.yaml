@@ -69,6 +69,7 @@ services:
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+      - TEMPORAL_UI_PORT=8080
     networks:
       - igniter
     ports:
@@ -77,7 +78,7 @@ services:
   wf-setup:
     image: temporalio/admin-tools:${TEMPORAL_TOOLS_VERSION}
     container_name: wf-setup
-    restart: on-failure
+    restart: "no"
     entrypoint: [ "/home/temporal/initialize.sh" ]
     networks:
       - igniter
