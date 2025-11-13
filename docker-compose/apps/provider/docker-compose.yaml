@@ -1,8 +1,8 @@
 services:
   provider-migration:
-    image: "ghcr.io/stake-igniter/provider:0.2.4-rc.0"
+    image: "ghcr.io/stake-igniter/provider:latest"
     container_name: provider-migration
-    restart: on-failure
+    restart: "no"
     command: [ "pnpm", "provider:migration:migrate" ]
     networks:
       - igniter
@@ -10,7 +10,7 @@ services:
       - .env
 
   provider-web:
-    image: "ghcr.io/stake-igniter/provider:0.2.4-rc.0"
+    image: "ghcr.io/stake-igniter/provider:latest"
     container_name: provider-web
     networks:
       - igniter
@@ -23,7 +23,7 @@ services:
       - "127.0.0.1:3001:3001"
 
   provider-workflows:
-    image: "ghcr.io/stake-igniter/provider-workflows:0.2.4-rc.0"
+    image: "ghcr.io/stake-igniter/provider-workflows:latest"
     container_name: provider-workflows
     networks:
       - igniter
